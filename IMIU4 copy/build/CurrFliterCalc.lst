@@ -1,0 +1,407 @@
+ARM GAS  /tmp/ccOAHRFj.s 			page 1
+
+
+   1              		.cpu cortex-m0plus
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 4
+   9              		.eabi_attribute 34, 0
+  10              		.eabi_attribute 18, 4
+  11              		.file	"CurrFliterCalc.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.global	__aeabi_fcmplt
+  16              		.global	__aeabi_fcmpgt
+  17              		.global	__aeabi_fadd
+  18              		.global	__aeabi_fsub
+  19              		.global	__aeabi_fdiv
+  20              		.section	.text.GetFilterValue,"ax",%progbits
+  21              		.align	1
+  22              		.global	GetFilterValue
+  23              		.syntax unified
+  24              		.code	16
+  25              		.thumb_func
+  26              		.fpu softvfp
+  28              	GetFilterValue:
+  29              	.LFB0:
+  30              		.file 1 "./Application/Funtion/Measure/CurrFliterCalc.c"
+   1:./Application/Funtion/Measure/CurrFliterCalc.c **** /*==========================================Copyright(c)=======================================
+   2:./Application/Funtion/Measure/CurrFliterCalc.c **** **                                  Shenzhen Infypower Co., Ltd.
+   3:./Application/Funtion/Measure/CurrFliterCalc.c **** **                                  Power conversion Department
+   4:./Application/Funtion/Measure/CurrFliterCalc.c **** **                                       BMS Product Line
+   5:./Application/Funtion/Measure/CurrFliterCalc.c **** **
+   6:./Application/Funtion/Measure/CurrFliterCalc.c **** **---------------------------------------File Information--------------------------------------
+   7:./Application/Funtion/Measure/CurrFliterCalc.c **** ** @File Name    : CurrFliterCalc.c
+   8:./Application/Funtion/Measure/CurrFliterCalc.c **** ** @Founder      : 
+   9:./Application/Funtion/Measure/CurrFliterCalc.c **** ** @Date         : 
+  10:./Application/Funtion/Measure/CurrFliterCalc.c **** ** @Function     : 
+  11:./Application/Funtion/Measure/CurrFliterCalc.c **** ** @Instructions :
+  12:./Application/Funtion/Measure/CurrFliterCalc.c **** **===========================================================================================*/
+  13:./Application/Funtion/Measure/CurrFliterCalc.c **** /*=============================================================================================
+  14:./Application/Funtion/Measure/CurrFliterCalc.c **** ** @Header file definition
+  15:./Application/Funtion/Measure/CurrFliterCalc.c **** **===========================================================================================*/
+  16:./Application/Funtion/Measure/CurrFliterCalc.c **** #include "CurrFliterCalc.h"
+  17:./Application/Funtion/Measure/CurrFliterCalc.c **** #include "BSPADC.h"
+  18:./Application/Funtion/Measure/CurrFliterCalc.c **** #include "BSPDIDO.h"
+  19:./Application/Funtion/Measure/CurrFliterCalc.c **** #include "SystemData.h"
+  20:./Application/Funtion/Measure/CurrFliterCalc.c **** #include "BSPKA84917_async.h"
+  21:./Application/Funtion/Measure/CurrFliterCalc.c **** #include "drv_rn8209_interface.h"
+  22:./Application/Funtion/Measure/CurrFliterCalc.c **** #include "SystemPara.h"
+  23:./Application/Funtion/Measure/CurrFliterCalc.c **** #include "SystemInfo.h"
+  24:./Application/Funtion/Measure/CurrFliterCalc.c **** #include "SystemDebug.h"
+  25:./Application/Funtion/Measure/CurrFliterCalc.c **** #include "FreeRTOS.h"
+  26:./Application/Funtion/Measure/CurrFliterCalc.c **** #include "task.h"
+  27:./Application/Funtion/Measure/CurrFliterCalc.c **** #include "cmsis_os.h"
+  28:./Application/Funtion/Measure/CurrFliterCalc.c **** #include "SystemDiag.h"
+ARM GAS  /tmp/ccOAHRFj.s 			page 2
+
+
+  29:./Application/Funtion/Measure/CurrFliterCalc.c **** #include "BSPTypeDef.h"
+  30:./Application/Funtion/Measure/CurrFliterCalc.c **** #include "SEGGER_RTT.h"
+  31:./Application/Funtion/Measure/CurrFliterCalc.c **** /*=============================================================================================
+  32:./Application/Funtion/Measure/CurrFliterCalc.c **** ** @Macro definition
+  33:./Application/Funtion/Measure/CurrFliterCalc.c **** **===========================================================================================*/
+  34:./Application/Funtion/Measure/CurrFliterCalc.c **** 
+  35:./Application/Funtion/Measure/CurrFliterCalc.c **** /*=============================================================================================
+  36:./Application/Funtion/Measure/CurrFliterCalc.c **** ** @Global variable definition
+  37:./Application/Funtion/Measure/CurrFliterCalc.c **** **===========================================================================================*/
+  38:./Application/Funtion/Measure/CurrFliterCalc.c **** 
+  39:./Application/Funtion/Measure/CurrFliterCalc.c **** // static St_FilterType stBatVoltFilter = { 0 };
+  40:./Application/Funtion/Measure/CurrFliterCalc.c **** // static St_FilterType stLinkVoltFilter = { 0 };
+  41:./Application/Funtion/Measure/CurrFliterCalc.c **** // static St_FilterType stShuntCurrentFilter = { 0 };
+  42:./Application/Funtion/Measure/CurrFliterCalc.c **** /*=============================================================================================
+  43:./Application/Funtion/Measure/CurrFliterCalc.c **** ** @Static function declaration
+  44:./Application/Funtion/Measure/CurrFliterCalc.c **** **===========================================================================================*/
+  45:./Application/Funtion/Measure/CurrFliterCalc.c **** 
+  46:./Application/Funtion/Measure/CurrFliterCalc.c **** /*=============================================================================================
+  47:./Application/Funtion/Measure/CurrFliterCalc.c **** ** @Interface function definition
+  48:./Application/Funtion/Measure/CurrFliterCalc.c **** **===========================================================================================*/
+  49:./Application/Funtion/Measure/CurrFliterCalc.c **** 
+  50:./Application/Funtion/Measure/CurrFliterCalc.c **** 
+  51:./Application/Funtion/Measure/CurrFliterCalc.c **** 
+  52:./Application/Funtion/Measure/CurrFliterCalc.c **** 
+  53:./Application/Funtion/Measure/CurrFliterCalc.c **** /*=============================================================================================
+  54:./Application/Funtion/Measure/CurrFliterCalc.c **** ** @Name      : bool GetFilterValue(float32 f32Input, float32 *pf32Output, St_FilterType *pstFilter
+  55:./Application/Funtion/Measure/CurrFliterCalc.c **** ** @Input     : 
+  56:./Application/Funtion/Measure/CurrFliterCalc.c **** ** @Output    : 引用返回pf32Output
+  57:./Application/Funtion/Measure/CurrFliterCalc.c **** ** @Function  : 去极值平均滤波(去掉最大值和最小值后取平均)
+  58:./Application/Funtion/Measure/CurrFliterCalc.c **** ** @The notes : 
+  59:./Application/Funtion/Measure/CurrFliterCalc.c **** **===========================================================================================*/   
+  60:./Application/Funtion/Measure/CurrFliterCalc.c **** bool GetFilterValue(float32 f32Input, float32 *pf32Output, St_FilterType *pstFilter)
+  61:./Application/Funtion/Measure/CurrFliterCalc.c **** {
+  31              		.loc 1 61 0
+  32              		.cfi_startproc
+  33              		@ args = 0, pretend = 0, frame = 8
+  34              		@ frame_needed = 0, uses_anonymous_args = 0
+  35              	.LVL0:
+  36 0000 F7B5     		push	{r0, r1, r2, r4, r5, r6, r7, lr}
+  37              	.LCFI0:
+  38              		.cfi_def_cfa_offset 32
+  39              		.cfi_offset 0, -32
+  40              		.cfi_offset 1, -28
+  41              		.cfi_offset 2, -24
+  42              		.cfi_offset 4, -20
+  43              		.cfi_offset 5, -16
+  44              		.cfi_offset 6, -12
+  45              		.cfi_offset 7, -8
+  46              		.cfi_offset 14, -4
+  62:./Application/Funtion/Measure/CurrFliterCalc.c ****     uint8 i;
+  63:./Application/Funtion/Measure/CurrFliterCalc.c ****     float32 f32Sum = 0;
+  64:./Application/Funtion/Measure/CurrFliterCalc.c ****     if (pstFilter->u8InputCount == 0) {
+  47              		.loc 1 64 0
+  48 0002 1700     		movs	r7, r2
+  61:./Application/Funtion/Measure/CurrFliterCalc.c ****     uint8 i;
+  49              		.loc 1 61 0
+  50 0004 0191     		str	r1, [sp, #4]
+ARM GAS  /tmp/ccOAHRFj.s 			page 3
+
+
+  51              		.loc 1 64 0
+  52 0006 3037     		adds	r7, r7, #48
+  53 0008 3D78     		ldrb	r5, [r7]
+  61:./Application/Funtion/Measure/CurrFliterCalc.c ****     uint8 i;
+  54              		.loc 1 61 0
+  55 000a 061C     		adds	r6, r0, #0
+  56 000c 1400     		movs	r4, r2
+  57              		.loc 1 64 0
+  58 000e 002D     		cmp	r5, #0
+  59 0010 03D1     		bne	.L2
+  65:./Application/Funtion/Measure/CurrFliterCalc.c ****         pstFilter->f32MaxVal = -10000.0f;
+  60              		.loc 1 65 0
+  61 0012 1D4B     		ldr	r3, .L11
+  62 0014 5360     		str	r3, [r2, #4]
+  66:./Application/Funtion/Measure/CurrFliterCalc.c ****         pstFilter->f32MinVal = 10000.0f;
+  63              		.loc 1 66 0
+  64 0016 1D4B     		ldr	r3, .L11+4
+  65 0018 1360     		str	r3, [r2]
+  66              	.L2:
+  67:./Application/Funtion/Measure/CurrFliterCalc.c ****     }
+  68:./Application/Funtion/Measure/CurrFliterCalc.c ****     if (f32Input > pstFilter->f32MaxVal) {
+  67              		.loc 1 68 0
+  68 001a 311C     		adds	r1, r6, #0
+  69              	.LVL1:
+  70 001c 6068     		ldr	r0, [r4, #4]
+  71              	.LVL2:
+  72 001e FFF7FEFF 		bl	__aeabi_fcmplt
+  73              	.LVL3:
+  74 0022 0028     		cmp	r0, #0
+  75 0024 00D0     		beq	.L3
+  69:./Application/Funtion/Measure/CurrFliterCalc.c ****         pstFilter->f32MaxVal = f32Input;
+  76              		.loc 1 69 0
+  77 0026 6660     		str	r6, [r4, #4]
+  78              	.L3:
+  70:./Application/Funtion/Measure/CurrFliterCalc.c ****     }
+  71:./Application/Funtion/Measure/CurrFliterCalc.c ****     if (f32Input < pstFilter->f32MinVal) {
+  79              		.loc 1 71 0
+  80 0028 311C     		adds	r1, r6, #0
+  81 002a 2068     		ldr	r0, [r4]
+  82 002c FFF7FEFF 		bl	__aeabi_fcmpgt
+  83              	.LVL4:
+  84 0030 0028     		cmp	r0, #0
+  85 0032 00D0     		beq	.L5
+  72:./Application/Funtion/Measure/CurrFliterCalc.c ****         pstFilter->f32MinVal = f32Input;
+  86              		.loc 1 72 0
+  87 0034 2660     		str	r6, [r4]
+  88              	.L5:
+  73:./Application/Funtion/Measure/CurrFliterCalc.c ****     }
+  74:./Application/Funtion/Measure/CurrFliterCalc.c ****     pstFilter->f32InputVal[pstFilter->u8InputCount] = f32Input;
+  89              		.loc 1 74 0
+  90 0036 AB1C     		adds	r3, r5, #2
+  75:./Application/Funtion/Measure/CurrFliterCalc.c ****     pstFilter->u8InputCount++;
+  91              		.loc 1 75 0
+  92 0038 0135     		adds	r5, r5, #1
+  74:./Application/Funtion/Measure/CurrFliterCalc.c ****     pstFilter->u8InputCount++;
+  93              		.loc 1 74 0
+  94 003a 9B00     		lsls	r3, r3, #2
+ARM GAS  /tmp/ccOAHRFj.s 			page 4
+
+
+  95              		.loc 1 75 0
+  96 003c EDB2     		uxtb	r5, r5
+  74:./Application/Funtion/Measure/CurrFliterCalc.c ****     pstFilter->u8InputCount++;
+  97              		.loc 1 74 0
+  98 003e 1E51     		str	r6, [r3, r4]
+  99              		.loc 1 75 0
+ 100 0040 3D70     		strb	r5, [r7]
+  76:./Application/Funtion/Measure/CurrFliterCalc.c ****     if (pstFilter->u8InputCount == 5U) {
+  77:./Application/Funtion/Measure/CurrFliterCalc.c ****         for (i = 0; i < 5U; i++) {
+  78:./Application/Funtion/Measure/CurrFliterCalc.c ****             f32Sum += pstFilter->f32InputVal[i];
+  79:./Application/Funtion/Measure/CurrFliterCalc.c ****         }
+  80:./Application/Funtion/Measure/CurrFliterCalc.c ****         f32Sum -= pstFilter->f32MaxVal;
+  81:./Application/Funtion/Measure/CurrFliterCalc.c ****         f32Sum -= pstFilter->f32MinVal;
+  82:./Application/Funtion/Measure/CurrFliterCalc.c ****         *pf32Output = f32Sum / 3U;
+  83:./Application/Funtion/Measure/CurrFliterCalc.c ****         pstFilter->u8InputCount = 0;
+  84:./Application/Funtion/Measure/CurrFliterCalc.c ****         return TRUE;
+  85:./Application/Funtion/Measure/CurrFliterCalc.c ****     } else {
+  86:./Application/Funtion/Measure/CurrFliterCalc.c ****         return FALSE;
+ 101              		.loc 1 86 0
+ 102 0042 0026     		movs	r6, #0
+ 103              	.LVL5:
+  76:./Application/Funtion/Measure/CurrFliterCalc.c ****     if (pstFilter->u8InputCount == 5U) {
+ 104              		.loc 1 76 0
+ 105 0044 052D     		cmp	r5, #5
+ 106 0046 1CD1     		bne	.L7
+ 107              	.LVL6:
+  78:./Application/Funtion/Measure/CurrFliterCalc.c ****         }
+ 108              		.loc 1 78 0
+ 109 0048 A068     		ldr	r0, [r4, #8]
+ 110 004a 0021     		movs	r1, #0
+ 111 004c FFF7FEFF 		bl	__aeabi_fadd
+ 112              	.LVL7:
+ 113 0050 E168     		ldr	r1, [r4, #12]
+ 114 0052 FFF7FEFF 		bl	__aeabi_fadd
+ 115              	.LVL8:
+ 116 0056 2169     		ldr	r1, [r4, #16]
+ 117 0058 FFF7FEFF 		bl	__aeabi_fadd
+ 118              	.LVL9:
+ 119 005c 6169     		ldr	r1, [r4, #20]
+ 120 005e FFF7FEFF 		bl	__aeabi_fadd
+ 121              	.LVL10:
+ 122 0062 A169     		ldr	r1, [r4, #24]
+ 123 0064 FFF7FEFF 		bl	__aeabi_fadd
+ 124              	.LVL11:
+  80:./Application/Funtion/Measure/CurrFliterCalc.c ****         f32Sum -= pstFilter->f32MinVal;
+ 125              		.loc 1 80 0
+ 126 0068 6168     		ldr	r1, [r4, #4]
+ 127 006a FFF7FEFF 		bl	__aeabi_fsub
+ 128              	.LVL12:
+  81:./Application/Funtion/Measure/CurrFliterCalc.c ****         *pf32Output = f32Sum / 3U;
+ 129              		.loc 1 81 0
+ 130 006e 2168     		ldr	r1, [r4]
+ 131 0070 FFF7FEFF 		bl	__aeabi_fsub
+ 132              	.LVL13:
+  82:./Application/Funtion/Measure/CurrFliterCalc.c ****         pstFilter->u8InputCount = 0;
+ 133              		.loc 1 82 0
+ 134 0074 0649     		ldr	r1, .L11+8
+ARM GAS  /tmp/ccOAHRFj.s 			page 5
+
+
+ 135 0076 FFF7FEFF 		bl	__aeabi_fdiv
+ 136              	.LVL14:
+ 137 007a 019B     		ldr	r3, [sp, #4]
+ 138 007c 1860     		str	r0, [r3]
+  83:./Application/Funtion/Measure/CurrFliterCalc.c ****         return TRUE;
+ 139              		.loc 1 83 0
+ 140 007e 3E70     		strb	r6, [r7]
+  84:./Application/Funtion/Measure/CurrFliterCalc.c ****     } else {
+ 141              		.loc 1 84 0
+ 142 0080 0136     		adds	r6, r6, #1
+ 143              	.LVL15:
+ 144              	.L7:
+  87:./Application/Funtion/Measure/CurrFliterCalc.c ****     }
+  88:./Application/Funtion/Measure/CurrFliterCalc.c **** }
+ 145              		.loc 1 88 0
+ 146 0082 3000     		movs	r0, r6
+ 147              		@ sp needed
+ 148              	.LVL16:
+ 149              	.LVL17:
+ 150 0084 FEBD     		pop	{r1, r2, r3, r4, r5, r6, r7, pc}
+ 151              	.L12:
+ 152 0086 C046     		.align	2
+ 153              	.L11:
+ 154 0088 00401CC6 		.word	-971227136
+ 155 008c 00401C46 		.word	1176256512
+ 156 0090 00004040 		.word	1077936128
+ 157              		.cfi_endproc
+ 158              	.LFE0:
+ 160              		.section	.text.IsCoefValid,"ax",%progbits
+ 161              		.align	1
+ 162              		.global	IsCoefValid
+ 163              		.syntax unified
+ 164              		.code	16
+ 165              		.thumb_func
+ 166              		.fpu softvfp
+ 168              	IsCoefValid:
+ 169              	.LFB1:
+  89:./Application/Funtion/Measure/CurrFliterCalc.c **** 
+  90:./Application/Funtion/Measure/CurrFliterCalc.c **** 
+  91:./Application/Funtion/Measure/CurrFliterCalc.c **** /*=============================================================================================
+  92:./Application/Funtion/Measure/CurrFliterCalc.c **** ** @Name      : bool IsCoefValid(float32 f32K, float32 f32B)
+  93:./Application/Funtion/Measure/CurrFliterCalc.c **** ** @Input     : K B 校准系数
+  94:./Application/Funtion/Measure/CurrFliterCalc.c **** ** @Output    : 
+  95:./Application/Funtion/Measure/CurrFliterCalc.c **** ** @Function  : 校准系数范围判断
+  96:./Application/Funtion/Measure/CurrFliterCalc.c **** ** @The notes : 
+  97:./Application/Funtion/Measure/CurrFliterCalc.c **** **===========================================================================================*/  
+  98:./Application/Funtion/Measure/CurrFliterCalc.c **** bool IsCoefValid(float32 f32K, float32 f32B)
+  99:./Application/Funtion/Measure/CurrFliterCalc.c **** {
+ 170              		.loc 1 99 0
+ 171              		.cfi_startproc
+ 172              		@ args = 0, pretend = 0, frame = 0
+ 173              		@ frame_needed = 0, uses_anonymous_args = 0
+ 174              	.LVL18:
+ 175 0000 70B5     		push	{r4, r5, r6, lr}
+ 176              	.LCFI1:
+ 177              		.cfi_def_cfa_offset 16
+ 178              		.cfi_offset 4, -16
+ARM GAS  /tmp/ccOAHRFj.s 			page 6
+
+
+ 179              		.cfi_offset 5, -12
+ 180              		.cfi_offset 6, -8
+ 181              		.cfi_offset 14, -4
+ 182              		.loc 1 99 0
+ 183 0002 0D1C     		adds	r5, r1, #0
+ 100:./Application/Funtion/Measure/CurrFliterCalc.c ****     if ((f32K > 0.8f) && (f32K < 1.3f) && (f32B > -50.0f) && (f32B < 50.0f)) {//此次b值偏移有
+ 184              		.loc 1 100 0
+ 185 0004 0D49     		ldr	r1, .L28
+ 186              	.LVL19:
+  99:./Application/Funtion/Measure/CurrFliterCalc.c ****     if ((f32K > 0.8f) && (f32K < 1.3f) && (f32B > -50.0f) && (f32B < 50.0f)) {//此次b值偏移有
+ 187              		.loc 1 99 0
+ 188 0006 041C     		adds	r4, r0, #0
+ 189              		.loc 1 100 0
+ 190 0008 FFF7FEFF 		bl	__aeabi_fcmpgt
+ 191              	.LVL20:
+ 192 000c 0028     		cmp	r0, #0
+ 193 000e 14D0     		beq	.L14
+ 194              		.loc 1 100 0 is_stmt 0 discriminator 1
+ 195 0010 0B49     		ldr	r1, .L28+4
+ 196 0012 201C     		adds	r0, r4, #0
+ 197 0014 FFF7FEFF 		bl	__aeabi_fcmplt
+ 198              	.LVL21:
+ 199 0018 0028     		cmp	r0, #0
+ 200 001a 0ED0     		beq	.L14
+ 201              		.loc 1 100 0 discriminator 2
+ 202 001c 0949     		ldr	r1, .L28+8
+ 203 001e 281C     		adds	r0, r5, #0
+ 204 0020 FFF7FEFF 		bl	__aeabi_fcmpgt
+ 205              	.LVL22:
+ 206 0024 0028     		cmp	r0, #0
+ 207 0026 08D0     		beq	.L14
+ 208              		.loc 1 100 0 discriminator 3
+ 209 0028 0749     		ldr	r1, .L28+12
+ 210 002a 281C     		adds	r0, r5, #0
+ 211 002c 0124     		movs	r4, #1
+ 212              	.LVL23:
+ 213 002e FFF7FEFF 		bl	__aeabi_fcmplt
+ 214              	.LVL24:
+ 215 0032 0028     		cmp	r0, #0
+ 216 0034 00D1     		bne	.L18
+ 217 0036 041C     		adds	r4, r0, #0
+ 218              	.L18:
+ 219 0038 E0B2     		uxtb	r0, r4
+ 220              	.L14:
+ 101:./Application/Funtion/Measure/CurrFliterCalc.c ****         return TRUE;
+ 102:./Application/Funtion/Measure/CurrFliterCalc.c ****     } else {
+ 103:./Application/Funtion/Measure/CurrFliterCalc.c ****         return FALSE;
+ 104:./Application/Funtion/Measure/CurrFliterCalc.c ****     }
+ 105:./Application/Funtion/Measure/CurrFliterCalc.c **** }...
+ 221              		.loc 1 105 0 is_stmt 1
+ 222              		@ sp needed
+ 223              	.LVL25:
+ 224 003a 70BD     		pop	{r4, r5, r6, pc}
+ 225              	.L29:
+ 226              		.align	2
+ 227              	.L28:
+ 228 003c CDCC4C3F 		.word	1061997773
+ARM GAS  /tmp/ccOAHRFj.s 			page 7
+
+
+ 229 0040 6666A63F 		.word	1067869798
+ 230 0044 000048C2 		.word	-1035468800
+ 231 0048 00004842 		.word	1112014848
+ 232              		.cfi_endproc
+ 233              	.LFE1:
+ 235              		.text
+ 236              	.Letext0:
+ 237              		.file 2 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/machine/_default_types.h"
+ 238              		.file 3 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/lock.h"
+ 239              		.file 4 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_types.h"
+ 240              		.file 5 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/lib/gcc/arm-none-eabi/7.3.1/include/stddef.h"
+ 241              		.file 6 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/reent.h"
+ 242              		.file 7 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/stdlib.h"
+ 243              		.file 8 "Application/BSPSys/Util/BSPTypeDef.h"
+ 244              		.file 9 "./Application/Funtion/Measure/CurrFliterCalc.h"
+ 245              		.file 10 "Application/BSPSys/BSPDriver/BSPADC.h"
+ 246              		.file 11 "Application/Funtion/SystemInfo/SystemInfo.h"
+ 247              		.file 12 "Application/Funtion/SystemData/SystemData.h"
+ 248              		.file 13 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_stdint.h"
+ 249              		.file 14 "Core/Inc/FreeRTOSConfig.h"
+ 250              		.file 15 "Application/BSPSys/BSPDevice/KA84917/BSPKA84917_async.h"
+ 251              		.file 16 "Application/BSPSys/BSPDevice/rn8209/drv_rn8209_interface.h"
+ 252              		.file 17 "Application/Funtion/SystemPara/SystemPara.h"
+ 253              		.file 18 "Application/Funtion/SystemDebug/SystemDebug.h"
+ 254              		.file 19 "Application/Funtion/SystemDiag/SystemDiag.h"
+ 255              		.file 20 "Application/Addition/RTT/SEGGER_RTT.h"
+ARM GAS  /tmp/ccOAHRFj.s 			page 8
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 CurrFliterCalc.c
+     /tmp/ccOAHRFj.s:21     .text.GetFilterValue:0000000000000000 $t
+     /tmp/ccOAHRFj.s:28     .text.GetFilterValue:0000000000000000 GetFilterValue
+     /tmp/ccOAHRFj.s:154    .text.GetFilterValue:0000000000000088 $d
+     /tmp/ccOAHRFj.s:161    .text.IsCoefValid:0000000000000000 $t
+     /tmp/ccOAHRFj.s:168    .text.IsCoefValid:0000000000000000 IsCoefValid
+     /tmp/ccOAHRFj.s:228    .text.IsCoefValid:000000000000003c $d
+
+UNDEFINED SYMBOLS
+__aeabi_fcmplt
+__aeabi_fcmpgt
+__aeabi_fadd
+__aeabi_fsub
+__aeabi_fdiv

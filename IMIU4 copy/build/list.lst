@@ -1,0 +1,520 @@
+ARM GAS  /tmp/ccPEz0RB.s 			page 1
+
+
+   1              		.cpu cortex-m0plus
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 4
+   9              		.eabi_attribute 34, 0
+  10              		.eabi_attribute 18, 4
+  11              		.file	"list.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.vListInitialise,"ax",%progbits
+  16              		.align	1
+  17              		.global	vListInitialise
+  18              		.syntax unified
+  19              		.code	16
+  20              		.thumb_func
+  21              		.fpu softvfp
+  23              	vListInitialise:
+  24              	.LFB0:
+  25              		.file 1 "Middlewares/Third_Party/FreeRTOS/Source/list.c"
+   1:Middlewares/Third_Party/FreeRTOS/Source/list.c **** /*
+   2:Middlewares/Third_Party/FreeRTOS/Source/list.c ****  * FreeRTOS Kernel V10.3.1
+   3:Middlewares/Third_Party/FreeRTOS/Source/list.c ****  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+   4:Middlewares/Third_Party/FreeRTOS/Source/list.c ****  *
+   5:Middlewares/Third_Party/FreeRTOS/Source/list.c ****  * Permission is hereby granted, free of charge, to any person obtaining a copy of
+   6:Middlewares/Third_Party/FreeRTOS/Source/list.c ****  * this software and associated documentation files (the "Software"), to deal in
+   7:Middlewares/Third_Party/FreeRTOS/Source/list.c ****  * the Software without restriction, including without limitation the rights to
+   8:Middlewares/Third_Party/FreeRTOS/Source/list.c ****  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+   9:Middlewares/Third_Party/FreeRTOS/Source/list.c ****  * the Software, and to permit persons to whom the Software is furnished to do so,
+  10:Middlewares/Third_Party/FreeRTOS/Source/list.c ****  * subject to the following conditions:
+  11:Middlewares/Third_Party/FreeRTOS/Source/list.c ****  *
+  12:Middlewares/Third_Party/FreeRTOS/Source/list.c ****  * The above copyright notice and this permission notice shall be included in all
+  13:Middlewares/Third_Party/FreeRTOS/Source/list.c ****  * copies or substantial portions of the Software.
+  14:Middlewares/Third_Party/FreeRTOS/Source/list.c ****  *
+  15:Middlewares/Third_Party/FreeRTOS/Source/list.c ****  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  16:Middlewares/Third_Party/FreeRTOS/Source/list.c ****  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+  17:Middlewares/Third_Party/FreeRTOS/Source/list.c ****  * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+  18:Middlewares/Third_Party/FreeRTOS/Source/list.c ****  * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+  19:Middlewares/Third_Party/FreeRTOS/Source/list.c ****  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+  20:Middlewares/Third_Party/FreeRTOS/Source/list.c ****  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+  21:Middlewares/Third_Party/FreeRTOS/Source/list.c ****  *
+  22:Middlewares/Third_Party/FreeRTOS/Source/list.c ****  * http://www.FreeRTOS.org
+  23:Middlewares/Third_Party/FreeRTOS/Source/list.c ****  * http://aws.amazon.com/freertos
+  24:Middlewares/Third_Party/FreeRTOS/Source/list.c ****  *
+  25:Middlewares/Third_Party/FreeRTOS/Source/list.c ****  * 1 tab == 4 spaces!
+  26:Middlewares/Third_Party/FreeRTOS/Source/list.c ****  */
+  27:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 
+  28:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 
+  29:Middlewares/Third_Party/FreeRTOS/Source/list.c **** #include <stdlib.h>
+  30:Middlewares/Third_Party/FreeRTOS/Source/list.c **** #include "FreeRTOS.h"
+  31:Middlewares/Third_Party/FreeRTOS/Source/list.c **** #include "list.h"
+  32:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 
+  33:Middlewares/Third_Party/FreeRTOS/Source/list.c **** /*-----------------------------------------------------------
+ARM GAS  /tmp/ccPEz0RB.s 			page 2
+
+
+  34:Middlewares/Third_Party/FreeRTOS/Source/list.c ****  * PUBLIC LIST API documented in list.h
+  35:Middlewares/Third_Party/FreeRTOS/Source/list.c ****  *----------------------------------------------------------*/
+  36:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 
+  37:Middlewares/Third_Party/FreeRTOS/Source/list.c **** void vListInitialise( List_t * const pxList )
+  38:Middlewares/Third_Party/FreeRTOS/Source/list.c **** {
+  26              		.loc 1 38 0
+  27              		.cfi_startproc
+  28              		@ args = 0, pretend = 0, frame = 0
+  29              		@ frame_needed = 0, uses_anonymous_args = 0
+  30              		@ link register save eliminated.
+  31              	.LVL0:
+  39:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	/* The list structure contains a list item which is used to mark the
+  40:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	end of the list.  To initialise the list the list end is inserted
+  41:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	as the only list entry. */
+  42:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	pxList->pxIndex = ( ListItem_t * ) &( pxList->xListEnd );			/*lint !e826 !e740 !e9087 The mini lis
+  32              		.loc 1 42 0
+  33 0000 0300     		movs	r3, r0
+  43:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 
+  44:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	/* The list end value is the highest possible value in the list to
+  45:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	ensure it remains at the end of the list. */
+  46:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	pxList->xListEnd.xItemValue = portMAX_DELAY;
+  34              		.loc 1 46 0
+  35 0002 0122     		movs	r2, #1
+  42:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 
+  36              		.loc 1 42 0
+  37 0004 0833     		adds	r3, r3, #8
+  38 0006 4360     		str	r3, [r0, #4]
+  47:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 
+  48:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	/* The list end next and previous pointers point to itself so we know
+  49:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	when the list is empty. */
+  50:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	pxList->xListEnd.pxNext = ( ListItem_t * ) &( pxList->xListEnd );	/*lint !e826 !e740 !e9087 The mi
+  39              		.loc 1 50 0
+  40 0008 C360     		str	r3, [r0, #12]
+  51:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	pxList->xListEnd.pxPrevious = ( ListItem_t * ) &( pxList->xListEnd );/*lint !e826 !e740 !e9087 The
+  41              		.loc 1 51 0
+  42 000a 0361     		str	r3, [r0, #16]
+  52:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 
+  53:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	pxList->uxNumberOfItems = ( UBaseType_t ) 0U;
+  43              		.loc 1 53 0
+  44 000c 0023     		movs	r3, #0
+  46:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 
+  45              		.loc 1 46 0
+  46 000e 5242     		rsbs	r2, r2, #0
+  47 0010 8260     		str	r2, [r0, #8]
+  48              		.loc 1 53 0
+  49 0012 0360     		str	r3, [r0]
+  54:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 
+  55:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	/* Write known values into the list if
+  56:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	configUSE_LIST_DATA_INTEGRITY_CHECK_BYTES is set to 1. */
+  57:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	listSET_LIST_INTEGRITY_CHECK_1_VALUE( pxList );
+  58:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	listSET_LIST_INTEGRITY_CHECK_2_VALUE( pxList );
+  59:Middlewares/Third_Party/FreeRTOS/Source/list.c **** }
+  50              		.loc 1 59 0
+  51              		@ sp needed
+  52 0014 7047     		bx	lr
+  53              		.cfi_endproc
+  54              	.LFE0:
+ARM GAS  /tmp/ccPEz0RB.s 			page 3
+
+
+  56              		.section	.text.vListInitialiseItem,"ax",%progbits
+  57              		.align	1
+  58              		.global	vListInitialiseItem
+  59              		.syntax unified
+  60              		.code	16
+  61              		.thumb_func
+  62              		.fpu softvfp
+  64              	vListInitialiseItem:
+  65              	.LFB1:
+  60:Middlewares/Third_Party/FreeRTOS/Source/list.c **** /*-----------------------------------------------------------*/
+  61:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 
+  62:Middlewares/Third_Party/FreeRTOS/Source/list.c **** void vListInitialiseItem( ListItem_t * const pxItem )
+  63:Middlewares/Third_Party/FreeRTOS/Source/list.c **** {
+  66              		.loc 1 63 0
+  67              		.cfi_startproc
+  68              		@ args = 0, pretend = 0, frame = 0
+  69              		@ frame_needed = 0, uses_anonymous_args = 0
+  70              		@ link register save eliminated.
+  71              	.LVL1:
+  64:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	/* Make sure the list item is not recorded as being on a list. */
+  65:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	pxItem->pxContainer = NULL;
+  72              		.loc 1 65 0
+  73 0000 0023     		movs	r3, #0
+  66:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 
+  67:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	/* Write known values into the list item if
+  68:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	configUSE_LIST_DATA_INTEGRITY_CHECK_BYTES is set to 1. */
+  69:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	listSET_FIRST_LIST_ITEM_INTEGRITY_CHECK_VALUE( pxItem );
+  70:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	listSET_SECOND_LIST_ITEM_INTEGRITY_CHECK_VALUE( pxItem );
+  71:Middlewares/Third_Party/FreeRTOS/Source/list.c **** }
+  74              		.loc 1 71 0
+  75              		@ sp needed
+  65:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 
+  76              		.loc 1 65 0
+  77 0002 0361     		str	r3, [r0, #16]
+  78              		.loc 1 71 0
+  79 0004 7047     		bx	lr
+  80              		.cfi_endproc
+  81              	.LFE1:
+  83              		.section	.text.vListInsertEnd,"ax",%progbits
+  84              		.align	1
+  85              		.global	vListInsertEnd
+  86              		.syntax unified
+  87              		.code	16
+  88              		.thumb_func
+  89              		.fpu softvfp
+  91              	vListInsertEnd:
+  92              	.LFB2:
+  72:Middlewares/Third_Party/FreeRTOS/Source/list.c **** /*-----------------------------------------------------------*/
+  73:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 
+  74:Middlewares/Third_Party/FreeRTOS/Source/list.c **** void vListInsertEnd( List_t * const pxList, ListItem_t * const pxNewListItem )
+  75:Middlewares/Third_Party/FreeRTOS/Source/list.c **** {
+  93              		.loc 1 75 0
+  94              		.cfi_startproc
+  95              		@ args = 0, pretend = 0, frame = 0
+  96              		@ frame_needed = 0, uses_anonymous_args = 0
+  97              		@ link register save eliminated.
+  98              	.LVL2:
+ARM GAS  /tmp/ccPEz0RB.s 			page 4
+
+
+  76:Middlewares/Third_Party/FreeRTOS/Source/list.c **** ListItem_t * const pxIndex = pxList->pxIndex;
+  99              		.loc 1 76 0
+ 100 0000 4368     		ldr	r3, [r0, #4]
+ 101              	.LVL3:
+  77:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 
+  78:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	/* Only effective when configASSERT() is also defined, these tests may catch
+  79:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	the list data structures being overwritten in memory.  They will not catch
+  80:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	data errors caused by incorrect configuration or use of FreeRTOS. */
+  81:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	listTEST_LIST_INTEGRITY( pxList );
+  82:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	listTEST_LIST_ITEM_INTEGRITY( pxNewListItem );
+  83:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 
+  84:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	/* Insert a new list item into pxList, but rather than sort the list,
+  85:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	makes the new list item the last item to be removed by a call to
+  86:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	listGET_OWNER_OF_NEXT_ENTRY(). */
+  87:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	pxNewListItem->pxNext = pxIndex;
+  88:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	pxNewListItem->pxPrevious = pxIndex->pxPrevious;
+  89:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 
+  90:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	/* Only used during decision coverage testing. */
+  91:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	mtCOVERAGE_TEST_DELAY();
+  92:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 
+  93:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	pxIndex->pxPrevious->pxNext = pxNewListItem;
+  94:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	pxIndex->pxPrevious = pxNewListItem;
+  95:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 
+  96:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	/* Remember which list the item is in. */
+  97:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	pxNewListItem->pxContainer = pxList;
+  98:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 
+  99:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	( pxList->uxNumberOfItems )++;
+ 100:Middlewares/Third_Party/FreeRTOS/Source/list.c **** }
+ 102              		.loc 1 100 0
+ 103              		@ sp needed
+  88:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 
+ 104              		.loc 1 88 0
+ 105 0002 9A68     		ldr	r2, [r3, #8]
+  87:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	pxNewListItem->pxPrevious = pxIndex->pxPrevious;
+ 106              		.loc 1 87 0
+ 107 0004 4B60     		str	r3, [r1, #4]
+  88:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 
+ 108              		.loc 1 88 0
+ 109 0006 8A60     		str	r2, [r1, #8]
+  93:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	pxIndex->pxPrevious = pxNewListItem;
+ 110              		.loc 1 93 0
+ 111 0008 9A68     		ldr	r2, [r3, #8]
+ 112 000a 5160     		str	r1, [r2, #4]
+  94:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 
+ 113              		.loc 1 94 0
+ 114 000c 9960     		str	r1, [r3, #8]
+  99:Middlewares/Third_Party/FreeRTOS/Source/list.c **** }
+ 115              		.loc 1 99 0
+ 116 000e 0368     		ldr	r3, [r0]
+ 117              	.LVL4:
+  97:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 
+ 118              		.loc 1 97 0
+ 119 0010 0861     		str	r0, [r1, #16]
+  99:Middlewares/Third_Party/FreeRTOS/Source/list.c **** }
+ 120              		.loc 1 99 0
+ 121 0012 0133     		adds	r3, r3, #1
+ 122 0014 0360     		str	r3, [r0]
+ARM GAS  /tmp/ccPEz0RB.s 			page 5
+
+
+ 123              		.loc 1 100 0
+ 124 0016 7047     		bx	lr
+ 125              		.cfi_endproc
+ 126              	.LFE2:
+ 128              		.section	.text.vListInsert,"ax",%progbits
+ 129              		.align	1
+ 130              		.global	vListInsert
+ 131              		.syntax unified
+ 132              		.code	16
+ 133              		.thumb_func
+ 134              		.fpu softvfp
+ 136              	vListInsert:
+ 137              	.LFB3:
+ 101:Middlewares/Third_Party/FreeRTOS/Source/list.c **** /*-----------------------------------------------------------*/
+ 102:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 
+ 103:Middlewares/Third_Party/FreeRTOS/Source/list.c **** void vListInsert( List_t * const pxList, ListItem_t * const pxNewListItem )
+ 104:Middlewares/Third_Party/FreeRTOS/Source/list.c **** {
+ 138              		.loc 1 104 0
+ 139              		.cfi_startproc
+ 140              		@ args = 0, pretend = 0, frame = 0
+ 141              		@ frame_needed = 0, uses_anonymous_args = 0
+ 142              	.LVL5:
+ 105:Middlewares/Third_Party/FreeRTOS/Source/list.c **** ListItem_t *pxIterator;
+ 106:Middlewares/Third_Party/FreeRTOS/Source/list.c **** const TickType_t xValueOfInsertion = pxNewListItem->xItemValue;
+ 107:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 
+ 108:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	/* Only effective when configASSERT() is also defined, these tests may catch
+ 109:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	the list data structures being overwritten in memory.  They will not catch
+ 110:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	data errors caused by incorrect configuration or use of FreeRTOS. */
+ 111:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	listTEST_LIST_INTEGRITY( pxList );
+ 112:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	listTEST_LIST_ITEM_INTEGRITY( pxNewListItem );
+ 113:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 
+ 114:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	/* Insert the new list item into the list, sorted in xItemValue order.
+ 115:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 
+ 116:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	If the list already contains a list item with the same item value then the
+ 117:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	new list item should be placed after it.  This ensures that TCBs which are
+ 118:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	stored in ready lists (all of which have the same xItemValue value) get a
+ 119:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	share of the CPU.  However, if the xItemValue is the same as the back marker
+ 120:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	the iteration loop below will not end.  Therefore the value is checked
+ 121:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	first, and the algorithm slightly modified if necessary. */
+ 122:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	if( xValueOfInsertion == portMAX_DELAY )
+ 123:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	{
+ 124:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 		pxIterator = pxList->xListEnd.pxPrevious;
+ 125:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	}
+ 126:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	else
+ 127:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	{
+ 128:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 		/* *** NOTE ***********************************************************
+ 129:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 		If you find your application is crashing here then likely causes are
+ 130:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 		listed below.  In addition see https://www.freertos.org/FAQHelp.html for
+ 131:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 		more tips, and ensure configASSERT() is defined!
+ 132:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 		https://www.freertos.org/a00110.html#configASSERT
+ 133:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 
+ 134:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 			1) Stack overflow -
+ 135:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 			   see https://www.freertos.org/Stacks-and-stack-overflow-checking.html
+ 136:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 			2) Incorrect interrupt priority assignment, especially on Cortex-M
+ 137:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 			   parts where numerically high priority values denote low actual
+ 138:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 			   interrupt priorities, which can seem counter intuitive.  See
+ 139:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 			   https://www.freertos.org/RTOS-Cortex-M3-M4.html and the definition
+ARM GAS  /tmp/ccPEz0RB.s 			page 6
+
+
+ 140:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 			   of configMAX_SYSCALL_INTERRUPT_PRIORITY on
+ 141:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 			   https://www.freertos.org/a00110.html
+ 142:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 			3) Calling an API function from within a critical section or when
+ 143:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 			   the scheduler is suspended, or calling an API function that does
+ 144:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 			   not end in "FromISR" from an interrupt.
+ 145:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 			4) Using a queue or semaphore before it has been initialised or
+ 146:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 			   before the scheduler has been started (are interrupts firing
+ 147:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 			   before vTaskStartScheduler() has been called?).
+ 148:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 		**********************************************************************/
+ 149:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 
+ 150:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 		for( pxIterator = ( ListItem_t * ) &( pxList->xListEnd ); pxIterator->pxNext->xItemValue <= xValu
+ 143              		.loc 1 150 0
+ 144 0000 0300     		movs	r3, r0
+ 106:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 
+ 145              		.loc 1 106 0
+ 146 0002 0A68     		ldr	r2, [r1]
+ 147              	.LVL6:
+ 104:Middlewares/Third_Party/FreeRTOS/Source/list.c **** ListItem_t *pxIterator;
+ 148              		.loc 1 104 0
+ 149 0004 30B5     		push	{r4, r5, lr}
+ 150              	.LCFI0:
+ 151              		.cfi_def_cfa_offset 12
+ 152              		.cfi_offset 4, -12
+ 153              		.cfi_offset 5, -8
+ 154              		.cfi_offset 14, -4
+ 155              		.loc 1 150 0
+ 156 0006 0833     		adds	r3, r3, #8
+ 122:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	{
+ 157              		.loc 1 122 0
+ 158 0008 541C     		adds	r4, r2, #1
+ 159 000a 0BD1     		bne	.L7
+ 124:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	}
+ 160              		.loc 1 124 0
+ 161 000c 0369     		ldr	r3, [r0, #16]
+ 162              	.LVL7:
+ 163              	.L6:
+ 151:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 		{
+ 152:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 			/* There is nothing to do here, just iterating to the wanted
+ 153:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 			insertion position. */
+ 154:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 		}
+ 155:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	}
+ 156:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 
+ 157:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	pxNewListItem->pxNext = pxIterator->pxNext;
+ 164              		.loc 1 157 0
+ 165 000e 5A68     		ldr	r2, [r3, #4]
+ 166              	.LVL8:
+ 158:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	pxNewListItem->pxNext->pxPrevious = pxNewListItem;
+ 159:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	pxNewListItem->pxPrevious = pxIterator;
+ 160:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	pxIterator->pxNext = pxNewListItem;
+ 161:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 
+ 162:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	/* Remember which list the item is in.  This allows fast removal of the
+ 163:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	item later. */
+ 164:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	pxNewListItem->pxContainer = pxList;
+ 165:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 
+ 166:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	( pxList->uxNumberOfItems )++;
+ 167:Middlewares/Third_Party/FreeRTOS/Source/list.c **** }
+ 167              		.loc 1 167 0
+ARM GAS  /tmp/ccPEz0RB.s 			page 7
+
+
+ 168              		@ sp needed
+ 157:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	pxNewListItem->pxNext->pxPrevious = pxNewListItem;
+ 169              		.loc 1 157 0
+ 170 0010 4A60     		str	r2, [r1, #4]
+ 158:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	pxNewListItem->pxNext->pxPrevious = pxNewListItem;
+ 171              		.loc 1 158 0
+ 172 0012 9160     		str	r1, [r2, #8]
+ 159:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	pxIterator->pxNext = pxNewListItem;
+ 173              		.loc 1 159 0
+ 174 0014 8B60     		str	r3, [r1, #8]
+ 160:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 
+ 175              		.loc 1 160 0
+ 176 0016 5960     		str	r1, [r3, #4]
+ 166:Middlewares/Third_Party/FreeRTOS/Source/list.c **** }
+ 177              		.loc 1 166 0
+ 178 0018 0368     		ldr	r3, [r0]
+ 179              	.LVL9:
+ 164:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 
+ 180              		.loc 1 164 0
+ 181 001a 0861     		str	r0, [r1, #16]
+ 166:Middlewares/Third_Party/FreeRTOS/Source/list.c **** }
+ 182              		.loc 1 166 0
+ 183 001c 0133     		adds	r3, r3, #1
+ 184 001e 0360     		str	r3, [r0]
+ 185              		.loc 1 167 0
+ 186 0020 30BD     		pop	{r4, r5, pc}
+ 187              	.LVL10:
+ 188              	.L8:
+ 189 0022 2300     		movs	r3, r4
+ 190              	.LVL11:
+ 191              	.L7:
+ 150:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 		{
+ 192              		.loc 1 150 0 discriminator 1
+ 193 0024 5C68     		ldr	r4, [r3, #4]
+ 194 0026 2568     		ldr	r5, [r4]
+ 195 0028 9542     		cmp	r5, r2
+ 196 002a FAD9     		bls	.L8
+ 197 002c EFE7     		b	.L6
+ 198              		.cfi_endproc
+ 199              	.LFE3:
+ 201              		.section	.text.uxListRemove,"ax",%progbits
+ 202              		.align	1
+ 203              		.global	uxListRemove
+ 204              		.syntax unified
+ 205              		.code	16
+ 206              		.thumb_func
+ 207              		.fpu softvfp
+ 209              	uxListRemove:
+ 210              	.LFB4:
+ 168:Middlewares/Third_Party/FreeRTOS/Source/list.c **** /*-----------------------------------------------------------*/
+ 169:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 
+ 170:Middlewares/Third_Party/FreeRTOS/Source/list.c **** UBaseType_t uxListRemove( ListItem_t * const pxItemToRemove )
+ 171:Middlewares/Third_Party/FreeRTOS/Source/list.c **** {
+ 211              		.loc 1 171 0
+ 212              		.cfi_startproc
+ 213              		@ args = 0, pretend = 0, frame = 0
+ 214              		@ frame_needed = 0, uses_anonymous_args = 0
+ARM GAS  /tmp/ccPEz0RB.s 			page 8
+
+
+ 215              		@ link register save eliminated.
+ 216              	.LVL12:
+ 172:Middlewares/Third_Party/FreeRTOS/Source/list.c **** /* The list item knows which list it is in.  Obtain the list from the list
+ 173:Middlewares/Third_Party/FreeRTOS/Source/list.c **** item. */
+ 174:Middlewares/Third_Party/FreeRTOS/Source/list.c **** List_t * const pxList = pxItemToRemove->pxContainer;
+ 175:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 
+ 176:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	pxItemToRemove->pxNext->pxPrevious = pxItemToRemove->pxPrevious;
+ 217              		.loc 1 176 0
+ 218 0000 4168     		ldr	r1, [r0, #4]
+ 219 0002 8268     		ldr	r2, [r0, #8]
+ 174:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 
+ 220              		.loc 1 174 0
+ 221 0004 0369     		ldr	r3, [r0, #16]
+ 222              	.LVL13:
+ 223              		.loc 1 176 0
+ 224 0006 8A60     		str	r2, [r1, #8]
+ 177:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	pxItemToRemove->pxPrevious->pxNext = pxItemToRemove->pxNext;
+ 225              		.loc 1 177 0
+ 226 0008 8268     		ldr	r2, [r0, #8]
+ 227 000a 5160     		str	r1, [r2, #4]
+ 178:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 
+ 179:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	/* Only used during decision coverage testing. */
+ 180:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	mtCOVERAGE_TEST_DELAY();
+ 181:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 
+ 182:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	/* Make sure the index is left pointing to a valid item. */
+ 183:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	if( pxList->pxIndex == pxItemToRemove )
+ 228              		.loc 1 183 0
+ 229 000c 5968     		ldr	r1, [r3, #4]
+ 230 000e 8142     		cmp	r1, r0
+ 231 0010 00D1     		bne	.L11
+ 184:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	{
+ 185:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 		pxList->pxIndex = pxItemToRemove->pxPrevious;
+ 232              		.loc 1 185 0
+ 233 0012 5A60     		str	r2, [r3, #4]
+ 234              	.L11:
+ 186:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	}
+ 187:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	else
+ 188:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	{
+ 189:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 		mtCOVERAGE_TEST_MARKER();
+ 190:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	}
+ 191:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 
+ 192:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	pxItemToRemove->pxContainer = NULL;
+ 235              		.loc 1 192 0
+ 236 0014 0022     		movs	r2, #0
+ 237 0016 0261     		str	r2, [r0, #16]
+ 193:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	( pxList->uxNumberOfItems )--;
+ 238              		.loc 1 193 0
+ 239 0018 1A68     		ldr	r2, [r3]
+ 194:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 
+ 195:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	return pxList->uxNumberOfItems;
+ 196:Middlewares/Third_Party/FreeRTOS/Source/list.c **** }
+ 240              		.loc 1 196 0
+ 241              		@ sp needed
+ 193:Middlewares/Third_Party/FreeRTOS/Source/list.c **** 	( pxList->uxNumberOfItems )--;
+ 242              		.loc 1 193 0
+ 243 001a 013A     		subs	r2, r2, #1
+ 244 001c 1A60     		str	r2, [r3]
+ARM GAS  /tmp/ccPEz0RB.s 			page 9
+
+
+ 195:Middlewares/Third_Party/FreeRTOS/Source/list.c **** }
+ 245              		.loc 1 195 0
+ 246 001e 1868     		ldr	r0, [r3]
+ 247              	.LVL14:
+ 248              		.loc 1 196 0
+ 249 0020 7047     		bx	lr
+ 250              		.cfi_endproc
+ 251              	.LFE4:
+ 253              		.text
+ 254              	.Letext0:
+ 255              		.file 2 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/machine/_default_types.h"
+ 256              		.file 3 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/lock.h"
+ 257              		.file 4 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_types.h"
+ 258              		.file 5 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/lib/gcc/arm-none-eabi/7.3.1/include/stddef.h"
+ 259              		.file 6 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/reent.h"
+ 260              		.file 7 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/stdlib.h"
+ 261              		.file 8 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_stdint.h"
+ 262              		.file 9 "Core/Inc/FreeRTOSConfig.h"
+ 263              		.file 10 "Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM0/portmacro.h"
+ 264              		.file 11 "Middlewares/Third_Party/FreeRTOS/Source/include/list.h"
+ARM GAS  /tmp/ccPEz0RB.s 			page 10
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 list.c
+     /tmp/ccPEz0RB.s:16     .text.vListInitialise:0000000000000000 $t
+     /tmp/ccPEz0RB.s:23     .text.vListInitialise:0000000000000000 vListInitialise
+     /tmp/ccPEz0RB.s:57     .text.vListInitialiseItem:0000000000000000 $t
+     /tmp/ccPEz0RB.s:64     .text.vListInitialiseItem:0000000000000000 vListInitialiseItem
+     /tmp/ccPEz0RB.s:84     .text.vListInsertEnd:0000000000000000 $t
+     /tmp/ccPEz0RB.s:91     .text.vListInsertEnd:0000000000000000 vListInsertEnd
+     /tmp/ccPEz0RB.s:129    .text.vListInsert:0000000000000000 $t
+     /tmp/ccPEz0RB.s:136    .text.vListInsert:0000000000000000 vListInsert
+     /tmp/ccPEz0RB.s:202    .text.uxListRemove:0000000000000000 $t
+     /tmp/ccPEz0RB.s:209    .text.uxListRemove:0000000000000000 uxListRemove
+
+NO UNDEFINED SYMBOLS

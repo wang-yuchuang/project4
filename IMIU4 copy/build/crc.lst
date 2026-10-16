@@ -1,0 +1,847 @@
+ARM GAS  /tmp/ccD0A5J6.s 			page 1
+
+
+   1              		.cpu cortex-m0plus
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 4
+   9              		.eabi_attribute 34, 0
+  10              		.eabi_attribute 18, 4
+  11              		.file	"crc.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.ucCRC_Calc8BIT,"ax",%progbits
+  16              		.align	1
+  17              		.global	ucCRC_Calc8BIT
+  18              		.syntax unified
+  19              		.code	16
+  20              		.thumb_func
+  21              		.fpu softvfp
+  23              	ucCRC_Calc8BIT:
+  24              	.LFB0:
+  25              		.file 1 "./Application/Addition/Crc/crc.c"
+   1:./Application/Addition/Crc/crc.c **** /****************************************************************************
+   2:./Application/Addition/Crc/crc.c **** #ifdef DOC
+   3:./Application/Addition/Crc/crc.c **** 
+   4:./Application/Addition/Crc/crc.c **** File Name		:crc.c
+   5:./Application/Addition/Crc/crc.c **** 
+   6:./Application/Addition/Crc/crc.c **** Description		:CRC calculation module
+   7:./Application/Addition/Crc/crc.c **** 
+   8:./Application/Addition/Crc/crc.c **** Remark			:uCon :KM1M7AF52N Series
+   9:./Application/Addition/Crc/crc.c **** 
+  10:./Application/Addition/Crc/crc.c **** Date			:2019/01/10
+  11:./Application/Addition/Crc/crc.c **** 
+  12:./Application/Addition/Crc/crc.c **** Copyright		:Nuvoton Technology Corporation Japan
+  13:./Application/Addition/Crc/crc.c **** 
+  14:./Application/Addition/Crc/crc.c **** 				:
+  15:./Application/Addition/Crc/crc.c **** #endif
+  16:./Application/Addition/Crc/crc.c **** *****************************************************************************/
+  17:./Application/Addition/Crc/crc.c **** 
+  18:./Application/Addition/Crc/crc.c **** /****************************************************************************
+  19:./Application/Addition/Crc/crc.c ****  include files
+  20:./Application/Addition/Crc/crc.c **** *****************************************************************************/
+  21:./Application/Addition/Crc/crc.c **** #include "BSPTypeDef.h"
+  22:./Application/Addition/Crc/crc.c **** #include "crc.h"
+  23:./Application/Addition/Crc/crc.c **** 
+  24:./Application/Addition/Crc/crc.c **** /****************************************************************************
+  25:./Application/Addition/Crc/crc.c ****  define declaration
+  26:./Application/Addition/Crc/crc.c **** *****************************************************************************/
+  27:./Application/Addition/Crc/crc.c **** 
+  28:./Application/Addition/Crc/crc.c **** /****************************************************************************
+  29:./Application/Addition/Crc/crc.c ****  define type (STRUCTURE, UNION)
+  30:./Application/Addition/Crc/crc.c **** *****************************************************************************/
+  31:./Application/Addition/Crc/crc.c **** 
+  32:./Application/Addition/Crc/crc.c **** /****************************************************************************
+  33:./Application/Addition/Crc/crc.c ****  define type (Enumerated type ENUM)
+ARM GAS  /tmp/ccD0A5J6.s 			page 2
+
+
+  34:./Application/Addition/Crc/crc.c **** *****************************************************************************/
+  35:./Application/Addition/Crc/crc.c **** 
+  36:./Application/Addition/Crc/crc.c **** /****************************************************************************
+  37:./Application/Addition/Crc/crc.c ****  Variable declaration
+  38:./Application/Addition/Crc/crc.c **** *****************************************************************************/
+  39:./Application/Addition/Crc/crc.c **** 
+  40:./Application/Addition/Crc/crc.c **** /****************************************************************************
+  41:./Application/Addition/Crc/crc.c ****  Prototype declaration
+  42:./Application/Addition/Crc/crc.c **** *****************************************************************************/
+  43:./Application/Addition/Crc/crc.c **** 
+  44:./Application/Addition/Crc/crc.c **** /****************************************************************************
+  45:./Application/Addition/Crc/crc.c **** #ifdef DOC
+  46:./Application/Addition/Crc/crc.c **** FUNCTION		: ucCRC_Calc8BIT
+  47:./Application/Addition/Crc/crc.c **** DESCRIPTION		: CRC calculation process 8bit(Table method)
+  48:./Application/Addition/Crc/crc.c **** INPUT			: UCHAR : CRC calculation size
+  49:./Application/Addition/Crc/crc.c **** 			  UCHAR*: CRC calculation data
+  50:./Application/Addition/Crc/crc.c **** OUTPUT			: UCHAR : CRC calculation result
+  51:./Application/Addition/Crc/crc.c **** UPDATE			:
+  52:./Application/Addition/Crc/crc.c **** DATE			: 15/12/02
+  53:./Application/Addition/Crc/crc.c **** #endif
+  54:./Application/Addition/Crc/crc.c **** *****************************************************************************/
+  55:./Application/Addition/Crc/crc.c **** UCHAR ucCRC_Calc8BIT( UCHAR ucsize, const UCHAR ucdt[] )
+  56:./Application/Addition/Crc/crc.c **** {
+  26              		.loc 1 56 0
+  27              		.cfi_startproc
+  28              		@ args = 0, pretend = 0, frame = 0
+  29              		@ frame_needed = 0, uses_anonymous_args = 0
+  30              	.LVL0:
+  31 0000 4318     		adds	r3, r0, r1
+  57:./Application/Addition/Crc/crc.c **** 	static const UCHAR ucCRC8_tCalc[] = {
+  58:./Application/Addition/Crc/crc.c **** 		0x00u,0xd5u,0x7fu,0xaau,0xfeu,0x2bu,0x81u,0x54u,0x29u,0xfcu,0x56u,0x83u,0xd7u,0x02u,0xa8u,0x7du,
+  59:./Application/Addition/Crc/crc.c **** 		0x52u,0x87u,0x2du,0xf8u,0xacu,0x79u,0xd3u,0x06u,0x7bu,0xaeu,0x04u,0xd1u,0x85u,0x50u,0xfau,0x2fu,
+  60:./Application/Addition/Crc/crc.c **** 		0xa4u,0x71u,0xdbu,0x0eu,0x5au,0x8fu,0x25u,0xf0u,0x8du,0x58u,0xf2u,0x27u,0x73u,0xa6u,0x0cu,0xd9u,
+  61:./Application/Addition/Crc/crc.c **** 		0xf6u,0x23u,0x89u,0x5cu,0x08u,0xddu,0x77u,0xa2u,0xdfu,0x0au,0xa0u,0x75u,0x21u,0xf4u,0x5eu,0x8bu,
+  62:./Application/Addition/Crc/crc.c **** 		0x9du,0x48u,0xe2u,0x37u,0x63u,0xb6u,0x1cu,0xc9u,0xb4u,0x61u,0xcbu,0x1eu,0x4au,0x9fu,0x35u,0xe0u,
+  63:./Application/Addition/Crc/crc.c **** 		0xcfu,0x1au,0xb0u,0x65u,0x31u,0xe4u,0x4eu,0x9bu,0xe6u,0x33u,0x99u,0x4cu,0x18u,0xcdu,0x67u,0xb2u,
+  64:./Application/Addition/Crc/crc.c **** 		0x39u,0xecu,0x46u,0x93u,0xc7u,0x12u,0xb8u,0x6du,0x10u,0xc5u,0x6fu,0xbau,0xeeu,0x3bu,0x91u,0x44u,
+  65:./Application/Addition/Crc/crc.c **** 		0x6bu,0xbeu,0x14u,0xc1u,0x95u,0x40u,0xeau,0x3fu,0x42u,0x97u,0x3du,0xe8u,0xbcu,0x69u,0xc3u,0x16u,
+  66:./Application/Addition/Crc/crc.c **** 		0xefu,0x3au,0x90u,0x45u,0x11u,0xc4u,0x6eu,0xbbu,0xc6u,0x13u,0xb9u,0x6cu,0x38u,0xedu,0x47u,0x92u,
+  67:./Application/Addition/Crc/crc.c **** 		0xbdu,0x68u,0xc2u,0x17u,0x43u,0x96u,0x3cu,0xe9u,0x94u,0x41u,0xebu,0x3eu,0x6au,0xbfu,0x15u,0xc0u,
+  68:./Application/Addition/Crc/crc.c **** 		0x4bu,0x9eu,0x34u,0xe1u,0xb5u,0x60u,0xcau,0x1fu,0x62u,0xb7u,0x1du,0xc8u,0x9cu,0x49u,0xe3u,0x36u,
+  69:./Application/Addition/Crc/crc.c **** 		0x19u,0xccu,0x66u,0xb3u,0xe7u,0x32u,0x98u,0x4du,0x30u,0xe5u,0x4fu,0x9au,0xceu,0x1bu,0xb1u,0x64u,
+  70:./Application/Addition/Crc/crc.c **** 		0x72u,0xa7u,0x0du,0xd8u,0x8cu,0x59u,0xf3u,0x26u,0x5bu,0x8eu,0x24u,0xf1u,0xa5u,0x70u,0xdau,0x0fu,
+  71:./Application/Addition/Crc/crc.c **** 		0x20u,0xf5u,0x5fu,0x8au,0xdeu,0x0bu,0xa1u,0x74u,0x09u,0xdcu,0x76u,0xa3u,0xf7u,0x22u,0x88u,0x5du,
+  72:./Application/Addition/Crc/crc.c **** 		0xd6u,0x03u,0xa9u,0x7cu,0x28u,0xfdu,0x57u,0x82u,0xffu,0x2au,0x80u,0x55u,0x01u,0xd4u,0x7eu,0xabu,
+  73:./Application/Addition/Crc/crc.c **** 		0x84u,0x51u,0xfbu,0x2eu,0x7au,0xafu,0x05u,0xd0u,0xadu,0x78u,0xd2u,0x07u,0x53u,0x86u,0x2cu,0xf9u
+  74:./Application/Addition/Crc/crc.c **** 	};
+  75:./Application/Addition/Crc/crc.c **** 
+  76:./Application/Addition/Crc/crc.c **** 	UCHAR	uccrc,uci;
+  77:./Application/Addition/Crc/crc.c **** 
+  78:./Application/Addition/Crc/crc.c **** 	uccrc = ucCRC8_tCalc[0x01u];
+  32              		.loc 1 78 0
+  33 0002 D520     		movs	r0, #213
+  34              	.LVL1:
+  56:./Application/Addition/Crc/crc.c **** 	static const UCHAR ucCRC8_tCalc[] = {
+  35              		.loc 1 56 0
+  36 0004 10B5     		push	{r4, lr}
+ARM GAS  /tmp/ccD0A5J6.s 			page 3
+
+
+  37              	.LCFI0:
+  38              		.cfi_def_cfa_offset 8
+  39              		.cfi_offset 4, -8
+  40              		.cfi_offset 14, -4
+  79:./Application/Addition/Crc/crc.c **** 
+  80:./Application/Addition/Crc/crc.c **** 	for( uci = 0u; uci < ucsize; uci++) {
+  81:./Application/Addition/Crc/crc.c **** 		uccrc = ucCRC8_tCalc[uccrc ^ ucdt[uci]];
+  41              		.loc 1 81 0
+  42 0006 044A     		ldr	r2, .L4
+  43              	.LVL2:
+  44              	.L2:
+  80:./Application/Addition/Crc/crc.c **** 		uccrc = ucCRC8_tCalc[uccrc ^ ucdt[uci]];
+  45              		.loc 1 80 0 discriminator 1
+  46 0008 9942     		cmp	r1, r3
+  47 000a 00D1     		bne	.L3
+  82:./Application/Addition/Crc/crc.c **** 	}
+  83:./Application/Addition/Crc/crc.c **** 
+  84:./Application/Addition/Crc/crc.c **** 	return uccrc;
+  85:./Application/Addition/Crc/crc.c **** }
+  48              		.loc 1 85 0
+  49              		@ sp needed
+  50 000c 10BD     		pop	{r4, pc}
+  51              	.L3:
+  81:./Application/Addition/Crc/crc.c **** 	}
+  52              		.loc 1 81 0 discriminator 3
+  53 000e 0C78     		ldrb	r4, [r1]
+  54 0010 0131     		adds	r1, r1, #1
+  55              	.LVL3:
+  56 0012 6040     		eors	r0, r4
+  57              	.LVL4:
+  58 0014 105C     		ldrb	r0, [r2, r0]
+  59              	.LVL5:
+  60 0016 F7E7     		b	.L2
+  61              	.L5:
+  62              		.align	2
+  63              	.L4:
+  64 0018 00000000 		.word	ucCRC8_tCalc.5019
+  65              		.cfi_endproc
+  66              	.LFE0:
+  68              		.section	.text.usCRC_Calc16BIT,"ax",%progbits
+  69              		.align	1
+  70              		.global	usCRC_Calc16BIT
+  71              		.syntax unified
+  72              		.code	16
+  73              		.thumb_func
+  74              		.fpu softvfp
+  76              	usCRC_Calc16BIT:
+  77              	.LFB1:
+  86:./Application/Addition/Crc/crc.c **** 
+  87:./Application/Addition/Crc/crc.c **** /****************************************************************************
+  88:./Application/Addition/Crc/crc.c **** #ifdef DOC
+  89:./Application/Addition/Crc/crc.c **** FUNCTION		: usCRC_Calc16BIT
+  90:./Application/Addition/Crc/crc.c **** DESCRIPTION		: CRC calculation process 16bit(Table method)
+  91:./Application/Addition/Crc/crc.c **** INPUT			: UCHAR : CRC calculation size
+  92:./Application/Addition/Crc/crc.c **** 			  UCHAR*: CRC calculation data
+  93:./Application/Addition/Crc/crc.c **** OUTPUT			: USHORT : CRC calculation result
+  94:./Application/Addition/Crc/crc.c **** UPDATE			:
+ARM GAS  /tmp/ccD0A5J6.s 			page 4
+
+
+  95:./Application/Addition/Crc/crc.c **** DATE			: 15/12/02
+  96:./Application/Addition/Crc/crc.c **** #endif
+  97:./Application/Addition/Crc/crc.c **** *****************************************************************************/
+  98:./Application/Addition/Crc/crc.c **** USHORT usCRC_Calc16BIT( UCHAR ucsize, const UCHAR ucdt[] )
+  99:./Application/Addition/Crc/crc.c **** {
+  78              		.loc 1 99 0
+  79              		.cfi_startproc
+  80              		@ args = 0, pretend = 0, frame = 0
+  81              		@ frame_needed = 0, uses_anonymous_args = 0
+  82              	.LVL6:
+  83 0000 30B5     		push	{r4, r5, lr}
+  84              	.LCFI1:
+  85              		.cfi_def_cfa_offset 12
+  86              		.cfi_offset 4, -12
+  87              		.cfi_offset 5, -8
+  88              		.cfi_offset 14, -4
+  89 0002 4218     		adds	r2, r0, r1
+ 100:./Application/Addition/Crc/crc.c **** 	static const USHORT usCRC16_tCalc[] = {
+ 101:./Application/Addition/Crc/crc.c **** 		0x0000u,0x8005u,0x800fu,0x000au,0x801bu,0x001eu,0x0014u,0x8011u,0x8033u,0x0036u,0x003cu,0x8039u,0
+ 102:./Application/Addition/Crc/crc.c **** 		0x8063u,0x0066u,0x006cu,0x8069u,0x0078u,0x807du,0x8077u,0x0072u,0x0050u,0x8055u,0x805fu,0x005au,0
+ 103:./Application/Addition/Crc/crc.c **** 		0x80c3u,0x00c6u,0x00ccu,0x80c9u,0x00d8u,0x80ddu,0x80d7u,0x00d2u,0x00f0u,0x80f5u,0x80ffu,0x00fau,0
+ 104:./Application/Addition/Crc/crc.c **** 		0x00a0u,0x80a5u,0x80afu,0x00aau,0x80bbu,0x00beu,0x00b4u,0x80b1u,0x8093u,0x0096u,0x009cu,0x8099u,0
+ 105:./Application/Addition/Crc/crc.c **** 		0x8183u,0x0186u,0x018cu,0x8189u,0x0198u,0x819du,0x8197u,0x0192u,0x01b0u,0x81b5u,0x81bfu,0x01bau,0
+ 106:./Application/Addition/Crc/crc.c **** 		0x01e0u,0x81e5u,0x81efu,0x01eau,0x81fbu,0x01feu,0x01f4u,0x81f1u,0x81d3u,0x01d6u,0x01dcu,0x81d9u,0
+ 107:./Application/Addition/Crc/crc.c **** 		0x0140u,0x8145u,0x814fu,0x014au,0x815bu,0x015eu,0x0154u,0x8151u,0x8173u,0x0176u,0x017cu,0x8179u,0
+ 108:./Application/Addition/Crc/crc.c **** 		0x8123u,0x0126u,0x012cu,0x8129u,0x0138u,0x813du,0x8137u,0x0132u,0x0110u,0x8115u,0x811fu,0x011au,0
+ 109:./Application/Addition/Crc/crc.c **** 		0x8303u,0x0306u,0x030cu,0x8309u,0x0318u,0x831du,0x8317u,0x0312u,0x0330u,0x8335u,0x833fu,0x033au,0
+ 110:./Application/Addition/Crc/crc.c **** 		0x0360u,0x8365u,0x836fu,0x036au,0x837bu,0x037eu,0x0374u,0x8371u,0x8353u,0x0356u,0x035cu,0x8359u,0
+ 111:./Application/Addition/Crc/crc.c **** 		0x03c0u,0x83c5u,0x83cfu,0x03cau,0x83dbu,0x03deu,0x03d4u,0x83d1u,0x83f3u,0x03f6u,0x03fcu,0x83f9u,0
+ 112:./Application/Addition/Crc/crc.c **** 		0x83a3u,0x03a6u,0x03acu,0x83a9u,0x03b8u,0x83bdu,0x83b7u,0x03b2u,0x0390u,0x8395u,0x839fu,0x039au,0
+ 113:./Application/Addition/Crc/crc.c **** 		0x0280u,0x8285u,0x828fu,0x028au,0x829bu,0x029eu,0x0294u,0x8291u,0x82b3u,0x02b6u,0x02bcu,0x82b9u,0
+ 114:./Application/Addition/Crc/crc.c **** 		0x82e3u,0x02e6u,0x02ecu,0x82e9u,0x02f8u,0x82fdu,0x82f7u,0x02f2u,0x02d0u,0x82d5u,0x82dfu,0x02dau,0
+ 115:./Application/Addition/Crc/crc.c **** 		0x8243u,0x0246u,0x024cu,0x8249u,0x0258u,0x825du,0x8257u,0x0252u,0x0270u,0x8275u,0x827fu,0x027au,0
+ 116:./Application/Addition/Crc/crc.c **** 		0x0220u,0x8225u,0x822fu,0x022au,0x823bu,0x023eu,0x0234u,0x8231u,0x8213u,0x0216u,0x021cu,0x8219u,0
+ 117:./Application/Addition/Crc/crc.c **** 	};
+ 118:./Application/Addition/Crc/crc.c **** 
+ 119:./Application/Addition/Crc/crc.c **** 	UCHAR	uci;
+ 120:./Application/Addition/Crc/crc.c **** 	USHORT	uscrc;
+ 121:./Application/Addition/Crc/crc.c **** 	USHORT	uscrc_tmp;
+ 122:./Application/Addition/Crc/crc.c **** 
+ 123:./Application/Addition/Crc/crc.c **** 	uscrc = usCRC16_tCalc[0x01u];
+ 124:./Application/Addition/Crc/crc.c **** 
+ 125:./Application/Addition/Crc/crc.c **** 	for( uci = 0u; uci < ucsize; uci++) {
+ 126:./Application/Addition/Crc/crc.c **** 		uscrc_tmp = (USHORT)(((ULONG)uscrc << 8u) & 0xFFFFu);
+ 127:./Application/Addition/Crc/crc.c **** 		uscrc = uscrc_tmp ^ usCRC16_tCalc[(UCHAR)(uscrc >> 8u) ^ ucdt[uci]];
+  90              		.loc 1 127 0
+  91 0004 074D     		ldr	r5, .L9
+ 123:./Application/Addition/Crc/crc.c **** 
+  92              		.loc 1 123 0
+  93 0006 0848     		ldr	r0, .L9+4
+  94              	.LVL7:
+  95              	.L7:
+ 125:./Application/Addition/Crc/crc.c **** 		uscrc_tmp = (USHORT)(((ULONG)uscrc << 8u) & 0xFFFFu);
+  96              		.loc 1 125 0 discriminator 1
+  97 0008 9142     		cmp	r1, r2
+  98 000a 00D1     		bne	.L8
+ 128:./Application/Addition/Crc/crc.c **** 	}
+ARM GAS  /tmp/ccD0A5J6.s 			page 5
+
+
+ 129:./Application/Addition/Crc/crc.c **** 
+ 130:./Application/Addition/Crc/crc.c **** 	return uscrc;
+ 131:./Application/Addition/Crc/crc.c **** }
+  99              		.loc 1 131 0
+ 100              		@ sp needed
+ 101 000c 30BD     		pop	{r4, r5, pc}
+ 102              	.L8:
+ 126:./Application/Addition/Crc/crc.c **** 		uscrc = uscrc_tmp ^ usCRC16_tCalc[(UCHAR)(uscrc >> 8u) ^ ucdt[uci]];
+ 103              		.loc 1 126 0 discriminator 3
+ 104 000e 0402     		lsls	r4, r0, #8
+ 127:./Application/Addition/Crc/crc.c **** 	}
+ 105              		.loc 1 127 0 discriminator 3
+ 106 0010 030A     		lsrs	r3, r0, #8
+ 107 0012 0878     		ldrb	r0, [r1]
+ 108              	.LVL8:
+ 126:./Application/Addition/Crc/crc.c **** 		uscrc = uscrc_tmp ^ usCRC16_tCalc[(UCHAR)(uscrc >> 8u) ^ ucdt[uci]];
+ 109              		.loc 1 126 0 discriminator 3
+ 110 0014 A4B2     		uxth	r4, r4
+ 111              	.LVL9:
+ 127:./Application/Addition/Crc/crc.c **** 	}
+ 112              		.loc 1 127 0 discriminator 3
+ 113 0016 4340     		eors	r3, r0
+ 114 0018 5B00     		lsls	r3, r3, #1
+ 115 001a 585B     		ldrh	r0, [r3, r5]
+ 116 001c 0131     		adds	r1, r1, #1
+ 117              	.LVL10:
+ 118 001e 6040     		eors	r0, r4
+ 119              	.LVL11:
+ 120 0020 F2E7     		b	.L7
+ 121              	.L10:
+ 122 0022 C046     		.align	2
+ 123              	.L9:
+ 124 0024 00000000 		.word	usCRC16_tCalc.5029
+ 125 0028 05800000 		.word	32773
+ 126              		.cfi_endproc
+ 127              	.LFE1:
+ 129              		.section	.rodata.ucCRC8_tCalc.5019,"a",%progbits
+ 132              	ucCRC8_tCalc.5019:
+ 133 0000 00       		.byte	0
+ 134 0001 D5       		.byte	-43
+ 135 0002 7F       		.byte	127
+ 136 0003 AA       		.byte	-86
+ 137 0004 FE       		.byte	-2
+ 138 0005 2B       		.byte	43
+ 139 0006 81       		.byte	-127
+ 140 0007 54       		.byte	84
+ 141 0008 29       		.byte	41
+ 142 0009 FC       		.byte	-4
+ 143 000a 56       		.byte	86
+ 144 000b 83       		.byte	-125
+ 145 000c D7       		.byte	-41
+ 146 000d 02       		.byte	2
+ 147 000e A8       		.byte	-88
+ 148 000f 7D       		.byte	125
+ 149 0010 52       		.byte	82
+ 150 0011 87       		.byte	-121
+ 151 0012 2D       		.byte	45
+ARM GAS  /tmp/ccD0A5J6.s 			page 6
+
+
+ 152 0013 F8       		.byte	-8
+ 153 0014 AC       		.byte	-84
+ 154 0015 79       		.byte	121
+ 155 0016 D3       		.byte	-45
+ 156 0017 06       		.byte	6
+ 157 0018 7B       		.byte	123
+ 158 0019 AE       		.byte	-82
+ 159 001a 04       		.byte	4
+ 160 001b D1       		.byte	-47
+ 161 001c 85       		.byte	-123
+ 162 001d 50       		.byte	80
+ 163 001e FA       		.byte	-6
+ 164 001f 2F       		.byte	47
+ 165 0020 A4       		.byte	-92
+ 166 0021 71       		.byte	113
+ 167 0022 DB       		.byte	-37
+ 168 0023 0E       		.byte	14
+ 169 0024 5A       		.byte	90
+ 170 0025 8F       		.byte	-113
+ 171 0026 25       		.byte	37
+ 172 0027 F0       		.byte	-16
+ 173 0028 8D       		.byte	-115
+ 174 0029 58       		.byte	88
+ 175 002a F2       		.byte	-14
+ 176 002b 27       		.byte	39
+ 177 002c 73       		.byte	115
+ 178 002d A6       		.byte	-90
+ 179 002e 0C       		.byte	12
+ 180 002f D9       		.byte	-39
+ 181 0030 F6       		.byte	-10
+ 182 0031 23       		.byte	35
+ 183 0032 89       		.byte	-119
+ 184 0033 5C       		.byte	92
+ 185 0034 08       		.byte	8
+ 186 0035 DD       		.byte	-35
+ 187 0036 77       		.byte	119
+ 188 0037 A2       		.byte	-94
+ 189 0038 DF       		.byte	-33
+ 190 0039 0A       		.byte	10
+ 191 003a A0       		.byte	-96
+ 192 003b 75       		.byte	117
+ 193 003c 21       		.byte	33
+ 194 003d F4       		.byte	-12
+ 195 003e 5E       		.byte	94
+ 196 003f 8B       		.byte	-117
+ 197 0040 9D       		.byte	-99
+ 198 0041 48       		.byte	72
+ 199 0042 E2       		.byte	-30
+ 200 0043 37       		.byte	55
+ 201 0044 63       		.byte	99
+ 202 0045 B6       		.byte	-74
+ 203 0046 1C       		.byte	28
+ 204 0047 C9       		.byte	-55
+ 205 0048 B4       		.byte	-76
+ 206 0049 61       		.byte	97
+ 207 004a CB       		.byte	-53
+ 208 004b 1E       		.byte	30
+ARM GAS  /tmp/ccD0A5J6.s 			page 7
+
+
+ 209 004c 4A       		.byte	74
+ 210 004d 9F       		.byte	-97
+ 211 004e 35       		.byte	53
+ 212 004f E0       		.byte	-32
+ 213 0050 CF       		.byte	-49
+ 214 0051 1A       		.byte	26
+ 215 0052 B0       		.byte	-80
+ 216 0053 65       		.byte	101
+ 217 0054 31       		.byte	49
+ 218 0055 E4       		.byte	-28
+ 219 0056 4E       		.byte	78
+ 220 0057 9B       		.byte	-101
+ 221 0058 E6       		.byte	-26
+ 222 0059 33       		.byte	51
+ 223 005a 99       		.byte	-103
+ 224 005b 4C       		.byte	76
+ 225 005c 18       		.byte	24
+ 226 005d CD       		.byte	-51
+ 227 005e 67       		.byte	103
+ 228 005f B2       		.byte	-78
+ 229 0060 39       		.byte	57
+ 230 0061 EC       		.byte	-20
+ 231 0062 46       		.byte	70
+ 232 0063 93       		.byte	-109
+ 233 0064 C7       		.byte	-57
+ 234 0065 12       		.byte	18
+ 235 0066 B8       		.byte	-72
+ 236 0067 6D       		.byte	109
+ 237 0068 10       		.byte	16
+ 238 0069 C5       		.byte	-59
+ 239 006a 6F       		.byte	111
+ 240 006b BA       		.byte	-70
+ 241 006c EE       		.byte	-18
+ 242 006d 3B       		.byte	59
+ 243 006e 91       		.byte	-111
+ 244 006f 44       		.byte	68
+ 245 0070 6B       		.byte	107
+ 246 0071 BE       		.byte	-66
+ 247 0072 14       		.byte	20
+ 248 0073 C1       		.byte	-63
+ 249 0074 95       		.byte	-107
+ 250 0075 40       		.byte	64
+ 251 0076 EA       		.byte	-22
+ 252 0077 3F       		.byte	63
+ 253 0078 42       		.byte	66
+ 254 0079 97       		.byte	-105
+ 255 007a 3D       		.byte	61
+ 256 007b E8       		.byte	-24
+ 257 007c BC       		.byte	-68
+ 258 007d 69       		.byte	105
+ 259 007e C3       		.byte	-61
+ 260 007f 16       		.byte	22
+ 261 0080 EF       		.byte	-17
+ 262 0081 3A       		.byte	58
+ 263 0082 90       		.byte	-112
+ 264 0083 45       		.byte	69
+ 265 0084 11       		.byte	17
+ARM GAS  /tmp/ccD0A5J6.s 			page 8
+
+
+ 266 0085 C4       		.byte	-60
+ 267 0086 6E       		.byte	110
+ 268 0087 BB       		.byte	-69
+ 269 0088 C6       		.byte	-58
+ 270 0089 13       		.byte	19
+ 271 008a B9       		.byte	-71
+ 272 008b 6C       		.byte	108
+ 273 008c 38       		.byte	56
+ 274 008d ED       		.byte	-19
+ 275 008e 47       		.byte	71
+ 276 008f 92       		.byte	-110
+ 277 0090 BD       		.byte	-67
+ 278 0091 68       		.byte	104
+ 279 0092 C2       		.byte	-62
+ 280 0093 17       		.byte	23
+ 281 0094 43       		.byte	67
+ 282 0095 96       		.byte	-106
+ 283 0096 3C       		.byte	60
+ 284 0097 E9       		.byte	-23
+ 285 0098 94       		.byte	-108
+ 286 0099 41       		.byte	65
+ 287 009a EB       		.byte	-21
+ 288 009b 3E       		.byte	62
+ 289 009c 6A       		.byte	106
+ 290 009d BF       		.byte	-65
+ 291 009e 15       		.byte	21
+ 292 009f C0       		.byte	-64
+ 293 00a0 4B       		.byte	75
+ 294 00a1 9E       		.byte	-98
+ 295 00a2 34       		.byte	52
+ 296 00a3 E1       		.byte	-31
+ 297 00a4 B5       		.byte	-75
+ 298 00a5 60       		.byte	96
+ 299 00a6 CA       		.byte	-54
+ 300 00a7 1F       		.byte	31
+ 301 00a8 62       		.byte	98
+ 302 00a9 B7       		.byte	-73
+ 303 00aa 1D       		.byte	29
+ 304 00ab C8       		.byte	-56
+ 305 00ac 9C       		.byte	-100
+ 306 00ad 49       		.byte	73
+ 307 00ae E3       		.byte	-29
+ 308 00af 36       		.byte	54
+ 309 00b0 19       		.byte	25
+ 310 00b1 CC       		.byte	-52
+ 311 00b2 66       		.byte	102
+ 312 00b3 B3       		.byte	-77
+ 313 00b4 E7       		.byte	-25
+ 314 00b5 32       		.byte	50
+ 315 00b6 98       		.byte	-104
+ 316 00b7 4D       		.byte	77
+ 317 00b8 30       		.byte	48
+ 318 00b9 E5       		.byte	-27
+ 319 00ba 4F       		.byte	79
+ 320 00bb 9A       		.byte	-102
+ 321 00bc CE       		.byte	-50
+ 322 00bd 1B       		.byte	27
+ARM GAS  /tmp/ccD0A5J6.s 			page 9
+
+
+ 323 00be B1       		.byte	-79
+ 324 00bf 64       		.byte	100
+ 325 00c0 72       		.byte	114
+ 326 00c1 A7       		.byte	-89
+ 327 00c2 0D       		.byte	13
+ 328 00c3 D8       		.byte	-40
+ 329 00c4 8C       		.byte	-116
+ 330 00c5 59       		.byte	89
+ 331 00c6 F3       		.byte	-13
+ 332 00c7 26       		.byte	38
+ 333 00c8 5B       		.byte	91
+ 334 00c9 8E       		.byte	-114
+ 335 00ca 24       		.byte	36
+ 336 00cb F1       		.byte	-15
+ 337 00cc A5       		.byte	-91
+ 338 00cd 70       		.byte	112
+ 339 00ce DA       		.byte	-38
+ 340 00cf 0F       		.byte	15
+ 341 00d0 20       		.byte	32
+ 342 00d1 F5       		.byte	-11
+ 343 00d2 5F       		.byte	95
+ 344 00d3 8A       		.byte	-118
+ 345 00d4 DE       		.byte	-34
+ 346 00d5 0B       		.byte	11
+ 347 00d6 A1       		.byte	-95
+ 348 00d7 74       		.byte	116
+ 349 00d8 09       		.byte	9
+ 350 00d9 DC       		.byte	-36
+ 351 00da 76       		.byte	118
+ 352 00db A3       		.byte	-93
+ 353 00dc F7       		.byte	-9
+ 354 00dd 22       		.byte	34
+ 355 00de 88       		.byte	-120
+ 356 00df 5D       		.byte	93
+ 357 00e0 D6       		.byte	-42
+ 358 00e1 03       		.byte	3
+ 359 00e2 A9       		.byte	-87
+ 360 00e3 7C       		.byte	124
+ 361 00e4 28       		.byte	40
+ 362 00e5 FD       		.byte	-3
+ 363 00e6 57       		.byte	87
+ 364 00e7 82       		.byte	-126
+ 365 00e8 FF       		.byte	-1
+ 366 00e9 2A       		.byte	42
+ 367 00ea 80       		.byte	-128
+ 368 00eb 55       		.byte	85
+ 369 00ec 01       		.byte	1
+ 370 00ed D4       		.byte	-44
+ 371 00ee 7E       		.byte	126
+ 372 00ef AB       		.byte	-85
+ 373 00f0 84       		.byte	-124
+ 374 00f1 51       		.byte	81
+ 375 00f2 FB       		.byte	-5
+ 376 00f3 2E       		.byte	46
+ 377 00f4 7A       		.byte	122
+ 378 00f5 AF       		.byte	-81
+ 379 00f6 05       		.byte	5
+ARM GAS  /tmp/ccD0A5J6.s 			page 10
+
+
+ 380 00f7 D0       		.byte	-48
+ 381 00f8 AD       		.byte	-83
+ 382 00f9 78       		.byte	120
+ 383 00fa D2       		.byte	-46
+ 384 00fb 07       		.byte	7
+ 385 00fc 53       		.byte	83
+ 386 00fd 86       		.byte	-122
+ 387 00fe 2C       		.byte	44
+ 388 00ff F9       		.byte	-7
+ 389              		.section	.rodata.usCRC16_tCalc.5029,"a",%progbits
+ 390              		.align	1
+ 393              	usCRC16_tCalc.5029:
+ 394 0000 0000     		.short	0
+ 395 0002 0580     		.short	-32763
+ 396 0004 0F80     		.short	-32753
+ 397 0006 0A00     		.short	10
+ 398 0008 1B80     		.short	-32741
+ 399 000a 1E00     		.short	30
+ 400 000c 1400     		.short	20
+ 401 000e 1180     		.short	-32751
+ 402 0010 3380     		.short	-32717
+ 403 0012 3600     		.short	54
+ 404 0014 3C00     		.short	60
+ 405 0016 3980     		.short	-32711
+ 406 0018 2800     		.short	40
+ 407 001a 2D80     		.short	-32723
+ 408 001c 2780     		.short	-32729
+ 409 001e 2200     		.short	34
+ 410 0020 6380     		.short	-32669
+ 411 0022 6600     		.short	102
+ 412 0024 6C00     		.short	108
+ 413 0026 6980     		.short	-32663
+ 414 0028 7800     		.short	120
+ 415 002a 7D80     		.short	-32643
+ 416 002c 7780     		.short	-32649
+ 417 002e 7200     		.short	114
+ 418 0030 5000     		.short	80
+ 419 0032 5580     		.short	-32683
+ 420 0034 5F80     		.short	-32673
+ 421 0036 5A00     		.short	90
+ 422 0038 4B80     		.short	-32693
+ 423 003a 4E00     		.short	78
+ 424 003c 4400     		.short	68
+ 425 003e 4180     		.short	-32703
+ 426 0040 C380     		.short	-32573
+ 427 0042 C600     		.short	198
+ 428 0044 CC00     		.short	204
+ 429 0046 C980     		.short	-32567
+ 430 0048 D800     		.short	216
+ 431 004a DD80     		.short	-32547
+ 432 004c D780     		.short	-32553
+ 433 004e D200     		.short	210
+ 434 0050 F000     		.short	240
+ 435 0052 F580     		.short	-32523
+ 436 0054 FF80     		.short	-32513
+ 437 0056 FA00     		.short	250
+ 438 0058 EB80     		.short	-32533
+ARM GAS  /tmp/ccD0A5J6.s 			page 11
+
+
+ 439 005a EE00     		.short	238
+ 440 005c E400     		.short	228
+ 441 005e E180     		.short	-32543
+ 442 0060 A000     		.short	160
+ 443 0062 A580     		.short	-32603
+ 444 0064 AF80     		.short	-32593
+ 445 0066 AA00     		.short	170
+ 446 0068 BB80     		.short	-32581
+ 447 006a BE00     		.short	190
+ 448 006c B400     		.short	180
+ 449 006e B180     		.short	-32591
+ 450 0070 9380     		.short	-32621
+ 451 0072 9600     		.short	150
+ 452 0074 9C00     		.short	156
+ 453 0076 9980     		.short	-32615
+ 454 0078 8800     		.short	136
+ 455 007a 8D80     		.short	-32627
+ 456 007c 8780     		.short	-32633
+ 457 007e 8200     		.short	130
+ 458 0080 8381     		.short	-32381
+ 459 0082 8601     		.short	390
+ 460 0084 8C01     		.short	396
+ 461 0086 8981     		.short	-32375
+ 462 0088 9801     		.short	408
+ 463 008a 9D81     		.short	-32355
+ 464 008c 9781     		.short	-32361
+ 465 008e 9201     		.short	402
+ 466 0090 B001     		.short	432
+ 467 0092 B581     		.short	-32331
+ 468 0094 BF81     		.short	-32321
+ 469 0096 BA01     		.short	442
+ 470 0098 AB81     		.short	-32341
+ 471 009a AE01     		.short	430
+ 472 009c A401     		.short	420
+ 473 009e A181     		.short	-32351
+ 474 00a0 E001     		.short	480
+ 475 00a2 E581     		.short	-32283
+ 476 00a4 EF81     		.short	-32273
+ 477 00a6 EA01     		.short	490
+ 478 00a8 FB81     		.short	-32261
+ 479 00aa FE01     		.short	510
+ 480 00ac F401     		.short	500
+ 481 00ae F181     		.short	-32271
+ 482 00b0 D381     		.short	-32301
+ 483 00b2 D601     		.short	470
+ 484 00b4 DC01     		.short	476
+ 485 00b6 D981     		.short	-32295
+ 486 00b8 C801     		.short	456
+ 487 00ba CD81     		.short	-32307
+ 488 00bc C781     		.short	-32313
+ 489 00be C201     		.short	450
+ 490 00c0 4001     		.short	320
+ 491 00c2 4581     		.short	-32443
+ 492 00c4 4F81     		.short	-32433
+ 493 00c6 4A01     		.short	330
+ 494 00c8 5B81     		.short	-32421
+ 495 00ca 5E01     		.short	350
+ARM GAS  /tmp/ccD0A5J6.s 			page 12
+
+
+ 496 00cc 5401     		.short	340
+ 497 00ce 5181     		.short	-32431
+ 498 00d0 7381     		.short	-32397
+ 499 00d2 7601     		.short	374
+ 500 00d4 7C01     		.short	380
+ 501 00d6 7981     		.short	-32391
+ 502 00d8 6801     		.short	360
+ 503 00da 6D81     		.short	-32403
+ 504 00dc 6781     		.short	-32409
+ 505 00de 6201     		.short	354
+ 506 00e0 2381     		.short	-32477
+ 507 00e2 2601     		.short	294
+ 508 00e4 2C01     		.short	300
+ 509 00e6 2981     		.short	-32471
+ 510 00e8 3801     		.short	312
+ 511 00ea 3D81     		.short	-32451
+ 512 00ec 3781     		.short	-32457
+ 513 00ee 3201     		.short	306
+ 514 00f0 1001     		.short	272
+ 515 00f2 1581     		.short	-32491
+ 516 00f4 1F81     		.short	-32481
+ 517 00f6 1A01     		.short	282
+ 518 00f8 0B81     		.short	-32501
+ 519 00fa 0E01     		.short	270
+ 520 00fc 0401     		.short	260
+ 521 00fe 0181     		.short	-32511
+ 522 0100 0383     		.short	-31997
+ 523 0102 0603     		.short	774
+ 524 0104 0C03     		.short	780
+ 525 0106 0983     		.short	-31991
+ 526 0108 1803     		.short	792
+ 527 010a 1D83     		.short	-31971
+ 528 010c 1783     		.short	-31977
+ 529 010e 1203     		.short	786
+ 530 0110 3003     		.short	816
+ 531 0112 3583     		.short	-31947
+ 532 0114 3F83     		.short	-31937
+ 533 0116 3A03     		.short	826
+ 534 0118 2B83     		.short	-31957
+ 535 011a 2E03     		.short	814
+ 536 011c 2403     		.short	804
+ 537 011e 2183     		.short	-31967
+ 538 0120 6003     		.short	864
+ 539 0122 6583     		.short	-31899
+ 540 0124 6F83     		.short	-31889
+ 541 0126 6A03     		.short	874
+ 542 0128 7B83     		.short	-31877
+ 543 012a 7E03     		.short	894
+ 544 012c 7403     		.short	884
+ 545 012e 7183     		.short	-31887
+ 546 0130 5383     		.short	-31917
+ 547 0132 5603     		.short	854
+ 548 0134 5C03     		.short	860
+ 549 0136 5983     		.short	-31911
+ 550 0138 4803     		.short	840
+ 551 013a 4D83     		.short	-31923
+ 552 013c 4783     		.short	-31929
+ARM GAS  /tmp/ccD0A5J6.s 			page 13
+
+
+ 553 013e 4203     		.short	834
+ 554 0140 C003     		.short	960
+ 555 0142 C583     		.short	-31803
+ 556 0144 CF83     		.short	-31793
+ 557 0146 CA03     		.short	970
+ 558 0148 DB83     		.short	-31781
+ 559 014a DE03     		.short	990
+ 560 014c D403     		.short	980
+ 561 014e D183     		.short	-31791
+ 562 0150 F383     		.short	-31757
+ 563 0152 F603     		.short	1014
+ 564 0154 FC03     		.short	1020
+ 565 0156 F983     		.short	-31751
+ 566 0158 E803     		.short	1000
+ 567 015a ED83     		.short	-31763
+ 568 015c E783     		.short	-31769
+ 569 015e E203     		.short	994
+ 570 0160 A383     		.short	-31837
+ 571 0162 A603     		.short	934
+ 572 0164 AC03     		.short	940
+ 573 0166 A983     		.short	-31831
+ 574 0168 B803     		.short	952
+ 575 016a BD83     		.short	-31811
+ 576 016c B783     		.short	-31817
+ 577 016e B203     		.short	946
+ 578 0170 9003     		.short	912
+ 579 0172 9583     		.short	-31851
+ 580 0174 9F83     		.short	-31841
+ 581 0176 9A03     		.short	922
+ 582 0178 8B83     		.short	-31861
+ 583 017a 8E03     		.short	910
+ 584 017c 8403     		.short	900
+ 585 017e 8183     		.short	-31871
+ 586 0180 8002     		.short	640
+ 587 0182 8582     		.short	-32123
+ 588 0184 8F82     		.short	-32113
+ 589 0186 8A02     		.short	650
+ 590 0188 9B82     		.short	-32101
+ 591 018a 9E02     		.short	670
+ 592 018c 9402     		.short	660
+ 593 018e 9182     		.short	-32111
+ 594 0190 B382     		.short	-32077
+ 595 0192 B602     		.short	694
+ 596 0194 BC02     		.short	700
+ 597 0196 B982     		.short	-32071
+ 598 0198 A802     		.short	680
+ 599 019a AD82     		.short	-32083
+ 600 019c A782     		.short	-32089
+ 601 019e A202     		.short	674
+ 602 01a0 E382     		.short	-32029
+ 603 01a2 E602     		.short	742
+ 604 01a4 EC02     		.short	748
+ 605 01a6 E982     		.short	-32023
+ 606 01a8 F802     		.short	760
+ 607 01aa FD82     		.short	-32003
+ 608 01ac F782     		.short	-32009
+ 609 01ae F202     		.short	754
+ARM GAS  /tmp/ccD0A5J6.s 			page 14
+
+
+ 610 01b0 D002     		.short	720
+ 611 01b2 D582     		.short	-32043
+ 612 01b4 DF82     		.short	-32033
+ 613 01b6 DA02     		.short	730
+ 614 01b8 CB82     		.short	-32053
+ 615 01ba CE02     		.short	718
+ 616 01bc C402     		.short	708
+ 617 01be C182     		.short	-32063
+ 618 01c0 4382     		.short	-32189
+ 619 01c2 4602     		.short	582
+ 620 01c4 4C02     		.short	588
+ 621 01c6 4982     		.short	-32183
+ 622 01c8 5802     		.short	600
+ 623 01ca 5D82     		.short	-32163
+ 624 01cc 5782     		.short	-32169
+ 625 01ce 5202     		.short	594
+ 626 01d0 7002     		.short	624
+ 627 01d2 7582     		.short	-32139
+ 628 01d4 7F82     		.short	-32129
+ 629 01d6 7A02     		.short	634
+ 630 01d8 6B82     		.short	-32149
+ 631 01da 6E02     		.short	622
+ 632 01dc 6402     		.short	612
+ 633 01de 6182     		.short	-32159
+ 634 01e0 2002     		.short	544
+ 635 01e2 2582     		.short	-32219
+ 636 01e4 2F82     		.short	-32209
+ 637 01e6 2A02     		.short	554
+ 638 01e8 3B82     		.short	-32197
+ 639 01ea 3E02     		.short	574
+ 640 01ec 3402     		.short	564
+ 641 01ee 3182     		.short	-32207
+ 642 01f0 1382     		.short	-32237
+ 643 01f2 1602     		.short	534
+ 644 01f4 1C02     		.short	540
+ 645 01f6 1982     		.short	-32231
+ 646 01f8 0802     		.short	520
+ 647 01fa 0D82     		.short	-32243
+ 648 01fc 0782     		.short	-32249
+ 649 01fe 0202     		.short	514
+ 650              		.text
+ 651              	.Letext0:
+ 652              		.file 2 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/lock.h"
+ 653              		.file 3 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_types.h"
+ 654              		.file 4 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/lib/gcc/arm-none-eabi/7.3.1/include/stddef.h"
+ 655              		.file 5 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/reent.h"
+ 656              		.file 6 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/stdlib.h"
+ 657              		.file 7 "Application/BSPSys/Util/BSPTypeDef.h"
+ARM GAS  /tmp/ccD0A5J6.s 			page 15
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 crc.c
+     /tmp/ccD0A5J6.s:16     .text.ucCRC_Calc8BIT:0000000000000000 $t
+     /tmp/ccD0A5J6.s:23     .text.ucCRC_Calc8BIT:0000000000000000 ucCRC_Calc8BIT
+     /tmp/ccD0A5J6.s:64     .text.ucCRC_Calc8BIT:0000000000000018 $d
+     /tmp/ccD0A5J6.s:132    .rodata.ucCRC8_tCalc.5019:0000000000000000 ucCRC8_tCalc.5019
+     /tmp/ccD0A5J6.s:69     .text.usCRC_Calc16BIT:0000000000000000 $t
+     /tmp/ccD0A5J6.s:76     .text.usCRC_Calc16BIT:0000000000000000 usCRC_Calc16BIT
+     /tmp/ccD0A5J6.s:124    .text.usCRC_Calc16BIT:0000000000000024 $d
+     /tmp/ccD0A5J6.s:393    .rodata.usCRC16_tCalc.5029:0000000000000000 usCRC16_tCalc.5029
+     /tmp/ccD0A5J6.s:390    .rodata.usCRC16_tCalc.5029:0000000000000000 $d
+
+NO UNDEFINED SYMBOLS

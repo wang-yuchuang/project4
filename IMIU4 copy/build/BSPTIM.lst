@@ -1,0 +1,252 @@
+ARM GAS  /tmp/cc41CWPt.s 			page 1
+
+
+   1              		.cpu cortex-m0plus
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 4
+   9              		.eabi_attribute 34, 0
+  10              		.eabi_attribute 18, 4
+  11              		.file	"BSPTIM.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.BSPTIMInit,"ax",%progbits
+  16              		.align	1
+  17              		.global	BSPTIMInit
+  18              		.syntax unified
+  19              		.code	16
+  20              		.thumb_func
+  21              		.fpu softvfp
+  23              	BSPTIMInit:
+  24              	.LFB493:
+  25              		.file 1 "./Application/BSPSys/BSPDriver/BSPTIM.c"
+   1:./Application/BSPSys/BSPDriver/BSPTIM.c **** 
+   2:./Application/BSPSys/BSPDriver/BSPTIM.c **** /*==========================================Copyright(c)=======================================
+   3:./Application/BSPSys/BSPDriver/BSPTIM.c **** **                                  Shenzhen Infypower Co., Ltd.
+   4:./Application/BSPSys/BSPDriver/BSPTIM.c **** **                                  Power conversion Department
+   5:./Application/BSPSys/BSPDriver/BSPTIM.c **** **                                       BMS Product Line
+   6:./Application/BSPSys/BSPDriver/BSPTIM.c **** **
+   7:./Application/BSPSys/BSPDriver/BSPTIM.c **** **---------------------------------------File Information--------------------------------------
+   8:./Application/BSPSys/BSPDriver/BSPTIM.c **** ** @File Name    : BSPTIM.c
+   9:./Application/BSPSys/BSPDriver/BSPTIM.c **** ** @Founder      : WYC834
+  10:./Application/BSPSys/BSPDriver/BSPTIM.c **** ** @Date         : 2025.10.11
+  11:./Application/BSPSys/BSPDriver/BSPTIM.c **** ** @Function     : Timer定时器驱动函数模块
+  12:./Application/BSPSys/BSPDriver/BSPTIM.c **** ** @Instructions : 需要用到us级延时，rtos只提供ms级，故这里用定时器阻塞实现
+  13:./Application/BSPSys/BSPDriver/BSPTIM.c **** **===========================================================================================*/
+  14:./Application/BSPSys/BSPDriver/BSPTIM.c **** 
+  15:./Application/BSPSys/BSPDriver/BSPTIM.c **** /*=============================================================================================
+  16:./Application/BSPSys/BSPDriver/BSPTIM.c **** ** @Header file definition
+  17:./Application/BSPSys/BSPDriver/BSPTIM.c **** **===========================================================================================*/
+  18:./Application/BSPSys/BSPDriver/BSPTIM.c **** #include "BSPConfig.h"
+  19:./Application/BSPSys/BSPDriver/BSPTIM.c **** #include "BSPTypeDef.h"
+  20:./Application/BSPSys/BSPDriver/BSPTIM.c **** #include "BSPTIM.h"
+  21:./Application/BSPSys/BSPDriver/BSPTIM.c **** #include "tim.h"
+  22:./Application/BSPSys/BSPDriver/BSPTIM.c **** #include "BSPIRQ.h"
+  23:./Application/BSPSys/BSPDriver/BSPTIM.c **** // #include "main.h"
+  24:./Application/BSPSys/BSPDriver/BSPTIM.c **** 
+  25:./Application/BSPSys/BSPDriver/BSPTIM.c **** /*=============================================================================================
+  26:./Application/BSPSys/BSPDriver/BSPTIM.c **** ** @Global variable definition
+  27:./Application/BSPSys/BSPDriver/BSPTIM.c **** **===========================================================================================*/
+  28:./Application/BSPSys/BSPDriver/BSPTIM.c **** extern TIM_HandleTypeDef htim6;
+  29:./Application/BSPSys/BSPDriver/BSPTIM.c **** extern volatile u_BSPFunCfg gBSPFunCfg;
+  30:./Application/BSPSys/BSPDriver/BSPTIM.c **** extern unsigned long int RunTimers; 
+  31:./Application/BSPSys/BSPDriver/BSPTIM.c **** /*=============================================================================================
+  32:./Application/BSPSys/BSPDriver/BSPTIM.c **** ** @Static function declaration
+  33:./Application/BSPSys/BSPDriver/BSPTIM.c **** **===========================================================================================*/
+ARM GAS  /tmp/cc41CWPt.s 			page 2
+
+
+  34:./Application/BSPSys/BSPDriver/BSPTIM.c **** 
+  35:./Application/BSPSys/BSPDriver/BSPTIM.c **** /*=============================================================================================
+  36:./Application/BSPSys/BSPDriver/BSPTIM.c **** ** @Name      : u8 BSPTIMInit(e_TIMNum chanel)
+  37:./Application/BSPSys/BSPDriver/BSPTIM.c **** ** @Input     : chanel:TIMx定时器号 
+  38:./Application/BSPSys/BSPDriver/BSPTIM.c **** ** @Output    : 初始化结果 TRUE:成功 FALSE:失败
+  39:./Application/BSPSys/BSPDriver/BSPTIM.c **** ** @Function  : tim驱动模块初始化
+  40:./Application/BSPSys/BSPDriver/BSPTIM.c **** ** @The notes : BSP调用
+  41:./Application/BSPSys/BSPDriver/BSPTIM.c **** **===========================================================================================*/
+  42:./Application/BSPSys/BSPDriver/BSPTIM.c **** u8 BSPTIMInit(e_TIMNum chanel)
+  43:./Application/BSPSys/BSPDriver/BSPTIM.c **** {
+  26              		.loc 1 43 0
+  27              		.cfi_startproc
+  28              		@ args = 0, pretend = 0, frame = 0
+  29              		@ frame_needed = 0, uses_anonymous_args = 0
+  30              	.LVL0:
+  31 0000 10B5     		push	{r4, lr}
+  32              	.LCFI0:
+  33              		.cfi_def_cfa_offset 8
+  34              		.cfi_offset 4, -8
+  35              		.cfi_offset 14, -4
+  44:./Application/BSPSys/BSPDriver/BSPTIM.c ****     switch(chanel)
+  36              		.loc 1 44 0
+  37 0002 0128     		cmp	r0, #1
+  38 0004 08D1     		bne	.L2
+  45:./Application/BSPSys/BSPDriver/BSPTIM.c ****     {
+  46:./Application/BSPSys/BSPDriver/BSPTIM.c ****         /*tim6初始化，实现us级计数, 移到KA84917_maintask*/
+  47:./Application/BSPSys/BSPDriver/BSPTIM.c ****         case eTIM6:
+  48:./Application/BSPSys/BSPDriver/BSPTIM.c ****             break;	
+  49:./Application/BSPSys/BSPDriver/BSPTIM.c ****         /*tim7初始化，实现秒级级计数*/
+  50:./Application/BSPSys/BSPDriver/BSPTIM.c ****         case eTIM7:
+  51:./Application/BSPSys/BSPDriver/BSPTIM.c ****             MX_TIM7_Init();
+  39              		.loc 1 51 0
+  40 0006 FFF7FEFF 		bl	MX_TIM7_Init
+  41              	.LVL1:
+  52:./Application/BSPSys/BSPDriver/BSPTIM.c ****             HAL_TIM_Base_Start_IT(&htim7);
+  42              		.loc 1 52 0
+  43 000a 044C     		ldr	r4, .L4
+  44 000c 2000     		movs	r0, r4
+  45 000e FFF7FEFF 		bl	HAL_TIM_Base_Start_IT
+  46              	.LVL2:
+  53:./Application/BSPSys/BSPDriver/BSPTIM.c ****             HAL_TIM_Base_Start(&htim7);
+  47              		.loc 1 53 0
+  48 0012 2000     		movs	r0, r4
+  49 0014 FFF7FEFF 		bl	HAL_TIM_Base_Start
+  50              	.LVL3:
+  51              	.L2:
+  54:./Application/BSPSys/BSPDriver/BSPTIM.c ****             break;	
+  55:./Application/BSPSys/BSPDriver/BSPTIM.c ****         default:
+  56:./Application/BSPSys/BSPDriver/BSPTIM.c ****             break;
+  57:./Application/BSPSys/BSPDriver/BSPTIM.c ****     }
+  58:./Application/BSPSys/BSPDriver/BSPTIM.c ****     return(TRUE);
+  59:./Application/BSPSys/BSPDriver/BSPTIM.c **** }
+  52              		.loc 1 59 0
+  53 0018 0120     		movs	r0, #1
+  54              		@ sp needed
+  55 001a 10BD     		pop	{r4, pc}
+  56              	.L5:
+ARM GAS  /tmp/cc41CWPt.s 			page 3
+
+
+  57              		.align	2
+  58              	.L4:
+  59 001c 00000000 		.word	htim7
+  60              		.cfi_endproc
+  61              	.LFE493:
+  63              		.section	.text.GetRunTimers,"ax",%progbits
+  64              		.align	1
+  65              		.global	GetRunTimers
+  66              		.syntax unified
+  67              		.code	16
+  68              		.thumb_func
+  69              		.fpu softvfp
+  71              	GetRunTimers:
+  72              	.LFB494:
+  60:./Application/BSPSys/BSPDriver/BSPTIM.c **** 
+  61:./Application/BSPSys/BSPDriver/BSPTIM.c **** 
+  62:./Application/BSPSys/BSPDriver/BSPTIM.c **** // void delay_us_tim(u32 nus)
+  63:./Application/BSPSys/BSPDriver/BSPTIM.c **** // {
+  64:./Application/BSPSys/BSPDriver/BSPTIM.c **** //     u32 ticks = nus - 1;
+  65:./Application/BSPSys/BSPDriver/BSPTIM.c **** //     u32 told,tnow,tcnt = 0;	    	
+  66:./Application/BSPSys/BSPDriver/BSPTIM.c **** //     told = htim6.Instance->CNT;                 //刚进入时的计数器值
+  67:./Application/BSPSys/BSPDriver/BSPTIM.c **** //     while(1)
+  68:./Application/BSPSys/BSPDriver/BSPTIM.c **** //     {
+  69:./Application/BSPSys/BSPDriver/BSPTIM.c **** //         tnow = htim6.Instance->CNT;
+  70:./Application/BSPSys/BSPDriver/BSPTIM.c **** //         if(tnow != told)
+  71:./Application/BSPSys/BSPDriver/BSPTIM.c **** //         {
+  72:./Application/BSPSys/BSPDriver/BSPTIM.c **** //             if(tnow > told) 
+  73:./Application/BSPSys/BSPDriver/BSPTIM.c **** //                 tcnt += tnow - told;            //递增计数器
+  74:./Application/BSPSys/BSPDriver/BSPTIM.c **** //             else
+  75:./Application/BSPSys/BSPDriver/BSPTIM.c **** //                 tcnt += 0xFFFF - told + tnow;	    
+  76:./Application/BSPSys/BSPDriver/BSPTIM.c **** //             told = tnow;
+  77:./Application/BSPSys/BSPDriver/BSPTIM.c **** //             if(tcnt >= ticks)
+  78:./Application/BSPSys/BSPDriver/BSPTIM.c **** //                 break;                          //时间超过/等于要延迟的时间,则退�
+  79:./Application/BSPSys/BSPDriver/BSPTIM.c **** //         }  
+  80:./Application/BSPSys/BSPDriver/BSPTIM.c **** //     }
+  81:./Application/BSPSys/BSPDriver/BSPTIM.c ****   
+  82:./Application/BSPSys/BSPDriver/BSPTIM.c **** // }
+  83:./Application/BSPSys/BSPDriver/BSPTIM.c **** 
+  84:./Application/BSPSys/BSPDriver/BSPTIM.c **** 
+  85:./Application/BSPSys/BSPDriver/BSPTIM.c **** 
+  86:./Application/BSPSys/BSPDriver/BSPTIM.c **** u32 GetRunTimers(void)
+  87:./Application/BSPSys/BSPDriver/BSPTIM.c **** {
+  73              		.loc 1 87 0
+  74              		.cfi_startproc
+  75              		@ args = 0, pretend = 0, frame = 0
+  76              		@ frame_needed = 0, uses_anonymous_args = 0
+  77 0000 10B5     		push	{r4, lr}
+  78              	.LCFI1:
+  79              		.cfi_def_cfa_offset 8
+  80              		.cfi_offset 4, -8
+  81              		.cfi_offset 14, -4
+  88:./Application/BSPSys/BSPDriver/BSPTIM.c ****    u32 val;
+  89:./Application/BSPSys/BSPDriver/BSPTIM.c ****    BSP_DISABLE_IRQ();
+  82              		.loc 1 89 0
+  83 0002 FFF7FEFF 		bl	BSP_DISABLE_IRQ
+  84              	.LVL4:
+  90:./Application/BSPSys/BSPDriver/BSPTIM.c ****    val = RunTimers;
+ARM GAS  /tmp/cc41CWPt.s 			page 4
+
+
+  85              		.loc 1 90 0
+  86 0006 034B     		ldr	r3, .L7
+  91:./Application/BSPSys/BSPDriver/BSPTIM.c ****    BSP_ENABLE_IRQ();
+  92:./Application/BSPSys/BSPDriver/BSPTIM.c ****    return val;
+  93:./Application/BSPSys/BSPDriver/BSPTIM.c **** }
+  87              		.loc 1 93 0
+  88              		@ sp needed
+  90:./Application/BSPSys/BSPDriver/BSPTIM.c ****    val = RunTimers;
+  89              		.loc 1 90 0
+  90 0008 1C68     		ldr	r4, [r3]
+  91              	.LVL5:
+  91:./Application/BSPSys/BSPDriver/BSPTIM.c ****    BSP_ENABLE_IRQ();
+  92              		.loc 1 91 0
+  93 000a FFF7FEFF 		bl	BSP_ENABLE_IRQ
+  94              	.LVL6:
+  95              		.loc 1 93 0
+  96 000e 2000     		movs	r0, r4
+  97              	.LVL7:
+  98 0010 10BD     		pop	{r4, pc}
+  99              	.L8:
+ 100 0012 C046     		.align	2
+ 101              	.L7:
+ 102 0014 00000000 		.word	RunTimers
+ 103              		.cfi_endproc
+ 104              	.LFE494:
+ 106              		.text
+ 107              	.Letext0:
+ 108              		.file 2 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/machine/_default_types.h"
+ 109              		.file 3 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/lock.h"
+ 110              		.file 4 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_types.h"
+ 111              		.file 5 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/lib/gcc/arm-none-eabi/7.3.1/include/stddef.h"
+ 112              		.file 6 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/reent.h"
+ 113              		.file 7 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/stdlib.h"
+ 114              		.file 8 "Application/BSPSys/Util/BSPTypeDef.h"
+ 115              		.file 9 "Application/BSPSys/BSPCfg/BSPConfig.h"
+ 116              		.file 10 "./Application/BSPSys/BSPDriver/BSPTIM.h"
+ 117              		.file 11 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_stdint.h"
+ 118              		.file 12 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/system_stm32g0xx.h"
+ 119              		.file 13 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/stm32g0b1xx.h"
+ 120              		.file 14 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_def.h"
+ 121              		.file 15 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_dma.h"
+ 122              		.file 16 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_flash.h"
+ 123              		.file 17 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_tim.h"
+ 124              		.file 18 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_uart.h"
+ 125              		.file 19 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal.h"
+ 126              		.file 20 "Core/Inc/main.h"
+ 127              		.file 21 "Core/Inc/tim.h"
+ 128              		.file 22 "./Application/BSPSys/BSPDriver/BSPIRQ.h"
+ 129              		.file 23 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_ll_dma.h"
+ARM GAS  /tmp/cc41CWPt.s 			page 5
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 BSPTIM.c
+     /tmp/cc41CWPt.s:16     .text.BSPTIMInit:0000000000000000 $t
+     /tmp/cc41CWPt.s:23     .text.BSPTIMInit:0000000000000000 BSPTIMInit
+     /tmp/cc41CWPt.s:59     .text.BSPTIMInit:000000000000001c $d
+     /tmp/cc41CWPt.s:64     .text.GetRunTimers:0000000000000000 $t
+     /tmp/cc41CWPt.s:71     .text.GetRunTimers:0000000000000000 GetRunTimers
+     /tmp/cc41CWPt.s:102    .text.GetRunTimers:0000000000000014 $d
+
+UNDEFINED SYMBOLS
+MX_TIM7_Init
+HAL_TIM_Base_Start_IT
+HAL_TIM_Base_Start
+htim7
+BSP_DISABLE_IRQ
+BSP_ENABLE_IRQ
+RunTimers

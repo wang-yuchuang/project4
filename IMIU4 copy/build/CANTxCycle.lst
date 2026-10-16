@@ -1,0 +1,1925 @@
+ARM GAS  /tmp/ccG422Kx.s 			page 1
+
+
+   1              		.cpu cortex-m0plus
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 4
+   9              		.eabi_attribute 34, 0
+  10              		.eabi_attribute 18, 4
+  11              		.file	"CANTxCycle.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.CANTxCycleTabInit,"ax",%progbits
+  16              		.align	1
+  17              		.global	CANTxCycleTabInit
+  18              		.syntax unified
+  19              		.code	16
+  20              		.thumb_func
+  21              		.fpu softvfp
+  23              	CANTxCycleTabInit:
+  24              	.LFB493:
+  25              		.file 1 "./Application/Funtion/CanLib/CANTxCycle.c"
+   1:./Application/Funtion/CanLib/CANTxCycle.c **** /*==========================================Copyright(c)===========================================
+   2:./Application/Funtion/CanLib/CANTxCycle.c **** **                                  Shenzhen Infypower Co., Ltd.
+   3:./Application/Funtion/CanLib/CANTxCycle.c **** **                                  Power conversion Department
+   4:./Application/Funtion/CanLib/CANTxCycle.c **** **                                       BMS Product Line
+   5:./Application/Funtion/CanLib/CANTxCycle.c **** **
+   6:./Application/Funtion/CanLib/CANTxCycle.c **** **---------------------------------------File Information------------------------------------------
+   7:./Application/Funtion/CanLib/CANTxCycle.c **** ** @File Name    : CANTxCycle.c
+   8:./Application/Funtion/CanLib/CANTxCycle.c **** ** @Founder      : SBK326
+   9:./Application/Funtion/CanLib/CANTxCycle.c **** ** @Date         : 2019.11.1
+  10:./Application/Funtion/CanLib/CANTxCycle.c **** ** @Function     : CAN通信包报文周期上传操作处理接口
+  11:./Application/Funtion/CanLib/CANTxCycle.c **** ** @Instructions :
+  12:./Application/Funtion/CanLib/CANTxCycle.c **** **===============================================================================================*/
+  13:./Application/Funtion/CanLib/CANTxCycle.c **** 
+  14:./Application/Funtion/CanLib/CANTxCycle.c **** /*=================================================================================================
+  15:./Application/Funtion/CanLib/CANTxCycle.c **** ** @Header file definition
+  16:./Application/Funtion/CanLib/CANTxCycle.c **** **===============================================================================================*/
+  17:./Application/Funtion/CanLib/CANTxCycle.c **** #include "BSPTypeDef.h"
+  18:./Application/Funtion/CanLib/CANTxCycle.c **** #include "CANHandle.h"
+  19:./Application/Funtion/CanLib/CANTxCycle.c **** #include "CANTabOper.h"
+  20:./Application/Funtion/CanLib/CANTxCycle.c **** #include "CANInterface.h"
+  21:./Application/Funtion/CanLib/CANTxCycle.c **** #include "CANUser.h"
+  22:./Application/Funtion/CanLib/CANTxCycle.c **** #include "CANTxCycle.h"
+  23:./Application/Funtion/CanLib/CANTxCycle.c **** #include "SystemInfo.h"
+  24:./Application/Funtion/CanLib/CANTxCycle.c **** /*=================================================================================================
+  25:./Application/Funtion/CanLib/CANTxCycle.c **** ** @Global variable definition
+  26:./Application/Funtion/CanLib/CANTxCycle.c **** **===============================================================================================*/
+  27:./Application/Funtion/CanLib/CANTxCycle.c **** extern u32 gCANCountTime;                                           //CAN通信包总计时(1ms)
+  28:./Application/Funtion/CanLib/CANTxCycle.c **** 
+  29:./Application/Funtion/CanLib/CANTxCycle.c **** extern t_CANTxCycTab gCanTxCycTable[];                              //CAN通信周期发送处理�
+  30:./Application/Funtion/CanLib/CANTxCycle.c **** 
+  31:./Application/Funtion/CanLib/CANTxCycle.c **** 
+  32:./Application/Funtion/CanLib/CANTxCycle.c **** extern u8 gCANBaseDef_3[];                                          //通信包基本配置信息
+  33:./Application/Funtion/CanLib/CANTxCycle.c **** extern u8 gCANTxVerDef_10[];                                        //通信包校时帧发送配�
+ARM GAS  /tmp/ccG422Kx.s 			page 2
+
+
+  34:./Application/Funtion/CanLib/CANTxCycle.c **** extern u8 gCANTxBreDef_11[];                                        //通信包心跳帧发送配�
+  35:./Application/Funtion/CanLib/CANTxCycle.c **** extern u8 gCANTxMulDef_12[];                                        //通信包长帧帧发送配�
+  36:./Application/Funtion/CanLib/CANTxCycle.c **** extern u8 gCANTxSinDef_13[];                                        //通信包单帧帧发送配�
+  37:./Application/Funtion/CanLib/CANTxCycle.c **** extern u8 gCANTxCelDef_14[];                                        //通信包单体帧发送配�
+  38:./Application/Funtion/CanLib/CANTxCycle.c **** extern u8 gCANTxParDef_15[];                                        //通信包参数帧发送配�
+  39:./Application/Funtion/CanLib/CANTxCycle.c **** extern u8 gCANParCfgStat_20[];                                      //通信包参数批量配置�
+  40:./Application/Funtion/CanLib/CANTxCycle.c **** extern u16 gCANRcdNum_30[];                                         //通信包事件记录数目�
+  41:./Application/Funtion/CanLib/CANTxCycle.c **** 
+  42:./Application/Funtion/CanLib/CANTxCycle.c **** /*=================================================================================================
+  43:./Application/Funtion/CanLib/CANTxCycle.c **** ** @Static function declaration
+  44:./Application/Funtion/CanLib/CANTxCycle.c **** **===============================================================================================*/
+  45:./Application/Funtion/CanLib/CANTxCycle.c **** 
+  46:./Application/Funtion/CanLib/CANTxCycle.c **** /*=================================================================================================
+  47:./Application/Funtion/CanLib/CANTxCycle.c **** ** @Interface function definition
+  48:./Application/Funtion/CanLib/CANTxCycle.c **** **===============================================================================================*/
+  49:./Application/Funtion/CanLib/CANTxCycle.c **** /*=================================================================================================
+  50:./Application/Funtion/CanLib/CANTxCycle.c **** ** @Name      : void CANTxCycleTabInit(void)
+  51:./Application/Funtion/CanLib/CANTxCycle.c **** ** @Input     : void
+  52:./Application/Funtion/CanLib/CANTxCycle.c **** ** @Output    : void
+  53:./Application/Funtion/CanLib/CANTxCycle.c **** ** @Function  : CAN通信包周期发送表初始化
+  54:./Application/Funtion/CanLib/CANTxCycle.c **** ** @The notes : 通信包初始化调用
+  55:./Application/Funtion/CanLib/CANTxCycle.c **** **===============================================================================================*/
+  56:./Application/Funtion/CanLib/CANTxCycle.c **** void CANTxCycleTabInit(void)
+  57:./Application/Funtion/CanLib/CANTxCycle.c **** {
+  26              		.loc 1 57 0
+  27              		.cfi_startproc
+  28              		@ args = 0, pretend = 0, frame = 32
+  29              		@ frame_needed = 0, uses_anonymous_args = 0
+  30              	.LVL0:
+  31 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+  32              	.LCFI0:
+  33              		.cfi_def_cfa_offset 20
+  34              		.cfi_offset 4, -20
+  35              		.cfi_offset 5, -16
+  36              		.cfi_offset 6, -12
+  37              		.cfi_offset 7, -8
+  38              		.cfi_offset 14, -4
+  58:./Application/Funtion/CanLib/CANTxCycle.c **** 	u8 i = 0;
+  59:./Application/Funtion/CanLib/CANTxCycle.c **** 	u8 id = 0;
+  60:./Application/Funtion/CanLib/CANTxCycle.c **** 	u8 tabLen = 0;
+  61:./Application/Funtion/CanLib/CANTxCycle.c **** 	u8 mIndex = 0;
+  62:./Application/Funtion/CanLib/CANTxCycle.c **** 	u8 sIndex = 0;
+  63:./Application/Funtion/CanLib/CANTxCycle.c **** 	u8 sIndexNum = 0;
+  64:./Application/Funtion/CanLib/CANTxCycle.c **** 	u16 txTime = 0;
+  65:./Application/Funtion/CanLib/CANTxCycle.c **** 	u8 errcode = 0;
+  39              		.loc 1 65 0
+  40 0002 0024     		movs	r4, #0
+  41 0004 0F23     		movs	r3, #15
+  66:./Application/Funtion/CanLib/CANTxCycle.c ****     const t_CANIndexTab *pIndexTable;
+  67:./Application/Funtion/CanLib/CANTxCycle.c **** 
+  68:./Application/Funtion/CanLib/CANTxCycle.c ****     /*未定义发送表*/
+  69:./Application/Funtion/CanLib/CANTxCycle.c ****     if(gCanTxCycTable == NULL)
+  70:./Application/Funtion/CanLib/CANTxCycle.c ****     {
+  71:./Application/Funtion/CanLib/CANTxCycle.c ****         return;
+  72:./Application/Funtion/CanLib/CANTxCycle.c ****     }
+  73:./Application/Funtion/CanLib/CANTxCycle.c **** 
+  74:./Application/Funtion/CanLib/CANTxCycle.c ****     /*通信包长度(发送长帧/单帧/单体/参数帧报文)*/
+ARM GAS  /tmp/ccG422Kx.s 			page 3
+
+
+  75:./Application/Funtion/CanLib/CANTxCycle.c ****     tabLen = gCANBaseDef_3[eCANRBas3_TxMulNum] + gCANBaseDef_3[eCANRBas3_TxSinNum] + gCANBaseDef_3[
+  76:./Application/Funtion/CanLib/CANTxCycle.c **** 
+  77:./Application/Funtion/CanLib/CANTxCycle.c ****     /*周期发送单帧信息配置信息*/
+  78:./Application/Funtion/CanLib/CANTxCycle.c ****     for(i = 0; i < gCANBaseDef_3[eCANRBas3_TxSinNum]; i++)
+  42              		.loc 1 78 0
+  43 0006 2500     		movs	r5, r4
+  57:./Application/Funtion/CanLib/CANTxCycle.c **** 	u8 i = 0;
+  44              		.loc 1 57 0
+  45 0008 8BB0     		sub	sp, sp, #44
+  46              	.LCFI1:
+  47              		.cfi_def_cfa_offset 64
+  65:./Application/Funtion/CanLib/CANTxCycle.c ****     const t_CANIndexTab *pIndexTable;
+  48              		.loc 1 65 0
+  49 000a 06AA     		add	r2, sp, #24
+  50 000c 9B18     		adds	r3, r3, r2
+  75:./Application/Funtion/CanLib/CANTxCycle.c **** 
+  51              		.loc 1 75 0
+  52 000e 894A     		ldr	r2, .L52
+  65:./Application/Funtion/CanLib/CANTxCycle.c ****     const t_CANIndexTab *pIndexTable;
+  53              		.loc 1 65 0
+  54 0010 1C70     		strb	r4, [r3]
+  75:./Application/Funtion/CanLib/CANTxCycle.c **** 
+  55              		.loc 1 75 0
+  56 0012 9179     		ldrb	r1, [r2, #6]
+  57 0014 5379     		ldrb	r3, [r2, #5]
+  58 0016 5B18     		adds	r3, r3, r1
+  59 0018 D179     		ldrb	r1, [r2, #7]
+  60 001a 127A     		ldrb	r2, [r2, #8]
+  61 001c 5B18     		adds	r3, r3, r1
+  62 001e 9B18     		adds	r3, r3, r2
+  63 0020 DBB2     		uxtb	r3, r3
+  64 0022 0793     		str	r3, [sp, #28]
+  65              	.LVL1:
+  59:./Application/Funtion/CanLib/CANTxCycle.c **** 	u8 tabLen = 0;
+  66              		.loc 1 59 0
+  67 0024 0494     		str	r4, [sp, #16]
+  68              	.LVL2:
+  69              	.L2:
+  70              		.loc 1 78 0 discriminator 1
+  71 0026 834B     		ldr	r3, .L52
+  72 0028 9B79     		ldrb	r3, [r3, #6]
+  73 002a AB42     		cmp	r3, r5
+  74 002c 1CD8     		bhi	.L4
+  79:./Application/Funtion/CanLib/CANTxCycle.c ****     {
+  80:./Application/Funtion/CanLib/CANTxCycle.c **** 
+  81:./Application/Funtion/CanLib/CANTxCycle.c ****         /*获得用户配置的发送配置信息*/
+  82:./Application/Funtion/CanLib/CANTxCycle.c ****     	mIndex = gCANTxSinDef_13[1 + (7 * i)];  /*主动发送单帧主索引号*/
+  83:./Application/Funtion/CanLib/CANTxCycle.c ****     	sIndex = gCANTxSinDef_13[2 + (7 * i)];/*主动发送单帧起始子索引号*/
+  84:./Application/Funtion/CanLib/CANTxCycle.c ****     	sIndexNum = gCANTxSinDef_13[3 + (7 * i)]; /*主动发送单帧子索引长度*/
+  85:./Application/Funtion/CanLib/CANTxCycle.c ****     	txTime = ((u16)gCANTxSinDef_13[5 + (7 * i)] << 8) | gCANTxSinDef_13[4 + (7 * i)]; /*主动发�
+  86:./Application/Funtion/CanLib/CANTxCycle.c **** 
+  87:./Application/Funtion/CanLib/CANTxCycle.c ****         /*查找主索引表,获得该主索引的数据地址*/
+  88:./Application/Funtion/CanLib/CANTxCycle.c ****     	pIndexTable = CanScanIndexTabInfo(SystemInfo_1[DeviceAddr], mIndex, sIndex, sIndexNum, &errcod
+  89:./Application/Funtion/CanLib/CANTxCycle.c **** 
+  90:./Application/Funtion/CanLib/CANTxCycle.c ****     	/*索引信息、数据类型和周期必须配置*/
+  91:./Application/Funtion/CanLib/CANTxCycle.c ****         if((pIndexTable != NULL) && (pIndexTable->pObject != NULL) && (pIndexTable->dataType > 0) &
+  92:./Application/Funtion/CanLib/CANTxCycle.c ****         {
+ARM GAS  /tmp/ccG422Kx.s 			page 4
+
+
+  93:./Application/Funtion/CanLib/CANTxCycle.c ****         	/*获得该主索引的数据地址*/
+  94:./Application/Funtion/CanLib/CANTxCycle.c ****             gCanTxCycTable[id].pdata = pIndexTable->pObject;
+  95:./Application/Funtion/CanLib/CANTxCycle.c **** 
+  96:./Application/Funtion/CanLib/CANTxCycle.c ****             /*配置主动发送信息和启动时间*/
+  97:./Application/Funtion/CanLib/CANTxCycle.c ****             gCanTxCycTable[id].dataType = pIndexTable->dataType;
+  98:./Application/Funtion/CanLib/CANTxCycle.c ****             gCanTxCycTable[id].funcode = eCANFUN_UPS;
+  99:./Application/Funtion/CanLib/CANTxCycle.c ****             gCanTxCycTable[id].index = 1 + (7 * i);
+ 100:./Application/Funtion/CanLib/CANTxCycle.c ****             gCanTxCycTable[id].nextTime = 1 + CAN_TX_UPS_SPA_T * i;
+ 101:./Application/Funtion/CanLib/CANTxCycle.c ****             id++;
+ 102:./Application/Funtion/CanLib/CANTxCycle.c ****         }
+ 103:./Application/Funtion/CanLib/CANTxCycle.c ****     }
+ 104:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 105:./Application/Funtion/CanLib/CANTxCycle.c ****     /*周期发送单体帧信息配置信息*/
+ 106:./Application/Funtion/CanLib/CANTxCycle.c ****     for(i = 0; i < gCANBaseDef_3[eCANRBas3_TxCelNum]; i++)
+  75              		.loc 1 106 0
+  76 002e 0025     		movs	r5, #0
+  77              	.LVL3:
+  78              	.L5:
+  79              		.loc 1 106 0 is_stmt 0 discriminator 1
+  80 0030 804B     		ldr	r3, .L52
+  81 0032 DB79     		ldrb	r3, [r3, #7]
+  82 0034 AB42     		cmp	r3, r5
+  83 0036 4DD8     		bhi	.L7
+ 107:./Application/Funtion/CanLib/CANTxCycle.c ****     {
+ 108:./Application/Funtion/CanLib/CANTxCycle.c ****         /*获得用户配置的发送配置信息*/
+ 109:./Application/Funtion/CanLib/CANTxCycle.c ****     	mIndex = gCANTxCelDef_14[1 + (8 * i)];
+ 110:./Application/Funtion/CanLib/CANTxCycle.c ****     	sIndex = gCANTxCelDef_14[2 + (8 * i)];
+ 111:./Application/Funtion/CanLib/CANTxCycle.c ****     	sIndexNum = gCANTxCelDef_14[3 + (8 * i)];
+ 112:./Application/Funtion/CanLib/CANTxCycle.c ****     	txTime = ((u16)gCANTxCelDef_14[6 + (8 * i)] << 8) | gCANTxCelDef_14[5 + (8 * i)];
+ 113:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 114:./Application/Funtion/CanLib/CANTxCycle.c ****         /*查找主索引表,获得该主索引的数据地址*/
+ 115:./Application/Funtion/CanLib/CANTxCycle.c ****     	pIndexTable = CanScanIndexTabInfo(SystemInfo_1[DeviceAddr], mIndex, sIndex, sIndexNum, &errcod
+ 116:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 117:./Application/Funtion/CanLib/CANTxCycle.c ****     	/*索引信息、数据类型和周期必须配置*/
+ 118:./Application/Funtion/CanLib/CANTxCycle.c ****         if((pIndexTable != NULL) && (pIndexTable->pObject != NULL) && (pIndexTable->dataType > 0) &
+ 119:./Application/Funtion/CanLib/CANTxCycle.c ****         {
+ 120:./Application/Funtion/CanLib/CANTxCycle.c ****         	/*获得该主索引的数据地址*/
+ 121:./Application/Funtion/CanLib/CANTxCycle.c ****             gCanTxCycTable[id].pdata = pIndexTable->pObject;
+ 122:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 123:./Application/Funtion/CanLib/CANTxCycle.c ****             /*配置主动发送信息和启动时间*/
+ 124:./Application/Funtion/CanLib/CANTxCycle.c ****             gCanTxCycTable[id].dataType = pIndexTable->dataType;
+ 125:./Application/Funtion/CanLib/CANTxCycle.c ****             gCanTxCycTable[id].funcode = eCANFUN_UPC;
+ 126:./Application/Funtion/CanLib/CANTxCycle.c ****             gCanTxCycTable[id].index = 1 + (8 * i);
+ 127:./Application/Funtion/CanLib/CANTxCycle.c ****             gCanTxCycTable[id].nextTime = 3 + CAN_TX_UPC_SPA_T * i;
+ 128:./Application/Funtion/CanLib/CANTxCycle.c ****             id++;
+ 129:./Application/Funtion/CanLib/CANTxCycle.c ****         }
+ 130:./Application/Funtion/CanLib/CANTxCycle.c ****     }
+ 131:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 132:./Application/Funtion/CanLib/CANTxCycle.c ****     /*周期发送长帧信息配置信息*/
+ 133:./Application/Funtion/CanLib/CANTxCycle.c ****     for(i = 0; i < gCANBaseDef_3[eCANRBas3_TxMulNum]; i++)
+  84              		.loc 1 133 0 is_stmt 1
+  85 0038 0025     		movs	r5, #0
+  86              	.LVL4:
+  87              	.L8:
+  88              		.loc 1 133 0 is_stmt 0 discriminator 1
+  89 003a 7E4B     		ldr	r3, .L52
+  90 003c 5B79     		ldrb	r3, [r3, #5]
+ARM GAS  /tmp/ccG422Kx.s 			page 5
+
+
+  91 003e AB42     		cmp	r3, r5
+  92 0040 00D9     		bls	.LCB84
+  93 0042 7DE0     		b	.L10	@long jump
+  94              	.LCB84:
+ 134:./Application/Funtion/CanLib/CANTxCycle.c ****     {
+ 135:./Application/Funtion/CanLib/CANTxCycle.c ****         /*获得用户配置的发送配置信息*/
+ 136:./Application/Funtion/CanLib/CANTxCycle.c ****     	mIndex = gCANTxMulDef_12[1 + (7 * i)];
+ 137:./Application/Funtion/CanLib/CANTxCycle.c ****     	sIndex = gCANTxMulDef_12[2 + (7 * i)];
+ 138:./Application/Funtion/CanLib/CANTxCycle.c ****     	sIndexNum = gCANTxMulDef_12[3 + (7 * i)];
+ 139:./Application/Funtion/CanLib/CANTxCycle.c ****     	txTime = ((u16)gCANTxMulDef_12[5 + (7 * i)] << 8) | gCANTxMulDef_12[4 + (7 * i)];
+ 140:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 141:./Application/Funtion/CanLib/CANTxCycle.c ****         /*查找主索引表,获得该主索引的数据地址*/
+ 142:./Application/Funtion/CanLib/CANTxCycle.c ****     	pIndexTable = CanScanIndexTabInfo(SystemInfo_1[DeviceAddr], mIndex, sIndex, sIndexNum, &errcod
+ 143:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 144:./Application/Funtion/CanLib/CANTxCycle.c ****     	/*索引信息、数据类型和周期必须配置*/
+ 145:./Application/Funtion/CanLib/CANTxCycle.c ****         if((pIndexTable != NULL) && (pIndexTable->pObject != NULL) && (pIndexTable->dataType > 0) &
+ 146:./Application/Funtion/CanLib/CANTxCycle.c ****         {
+ 147:./Application/Funtion/CanLib/CANTxCycle.c ****         	/*获得该主索引的数据地址*/
+ 148:./Application/Funtion/CanLib/CANTxCycle.c ****             gCanTxCycTable[id].pdata = pIndexTable->pObject;
+ 149:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 150:./Application/Funtion/CanLib/CANTxCycle.c ****             /*配置主动发送信息和启动时间*/
+ 151:./Application/Funtion/CanLib/CANTxCycle.c ****             gCanTxCycTable[id].dataType = pIndexTable->dataType;
+ 152:./Application/Funtion/CanLib/CANTxCycle.c ****             gCanTxCycTable[id].funcode = eCANFUN_UPM;
+ 153:./Application/Funtion/CanLib/CANTxCycle.c ****             gCanTxCycTable[id].index = 1 + (7 * i);
+ 154:./Application/Funtion/CanLib/CANTxCycle.c ****             gCanTxCycTable[id].nextTime = 5 + CAN_TX_UPM_SPA_T * i;
+ 155:./Application/Funtion/CanLib/CANTxCycle.c ****             id++;
+ 156:./Application/Funtion/CanLib/CANTxCycle.c ****         }
+ 157:./Application/Funtion/CanLib/CANTxCycle.c ****     }
+ 158:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 159:./Application/Funtion/CanLib/CANTxCycle.c ****     /*周期发送参数帧信息配置信息*/
+ 160:./Application/Funtion/CanLib/CANTxCycle.c ****     for(i = 0; i < gCANBaseDef_3[eCANRBas3_TxParNum]; i++)
+  95              		.loc 1 160 0 is_stmt 1
+  96 0044 0025     		movs	r5, #0
+  97              	.LVL5:
+ 161:./Application/Funtion/CanLib/CANTxCycle.c ****     {
+ 162:./Application/Funtion/CanLib/CANTxCycle.c ****         /*获得用户配置的发送配置信息*/
+ 163:./Application/Funtion/CanLib/CANTxCycle.c ****     	mIndex = gCANTxParDef_15[1 + (8 * i)];
+ 164:./Application/Funtion/CanLib/CANTxCycle.c ****     	sIndex = gCANTxParDef_15[2 + (8 * i)];
+ 165:./Application/Funtion/CanLib/CANTxCycle.c ****     	sIndexNum = gCANTxParDef_15[3 + (8 * i)];
+ 166:./Application/Funtion/CanLib/CANTxCycle.c ****     	txTime = ((u16)gCANTxParDef_15[6 + (8 * i)] << 8) | gCANTxParDef_15[5 + (8 * i)];
+ 167:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 168:./Application/Funtion/CanLib/CANTxCycle.c ****         /*查找主索引表,获得该主索引的数据地址*/
+ 169:./Application/Funtion/CanLib/CANTxCycle.c ****     	pIndexTable = CanScanIndexTabInfo(SystemInfo_1[DeviceAddr], mIndex, sIndex, sIndexNum, &errcod
+ 170:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 171:./Application/Funtion/CanLib/CANTxCycle.c ****     	/*索引信息、数据类型和周期必须配置*/
+ 172:./Application/Funtion/CanLib/CANTxCycle.c ****         if((pIndexTable != NULL) && (pIndexTable->pObject != NULL) && (pIndexTable->dataType > 0) &
+ 173:./Application/Funtion/CanLib/CANTxCycle.c ****         {
+ 174:./Application/Funtion/CanLib/CANTxCycle.c ****         	/*获得该主索引的数据地址*/
+ 175:./Application/Funtion/CanLib/CANTxCycle.c ****             gCanTxCycTable[id].pdata = pIndexTable->pObject;
+  98              		.loc 1 175 0
+  99 0046 0C27     		movs	r7, #12
+ 100              	.L11:
+ 101              	.LVL6:
+ 160:./Application/Funtion/CanLib/CANTxCycle.c ****     {
+ 102              		.loc 1 160 0 discriminator 1
+ 103 0048 7A4B     		ldr	r3, .L52
+ 104 004a 1B7A     		ldrb	r3, [r3, #8]
+ARM GAS  /tmp/ccG422Kx.s 			page 6
+
+
+ 105 004c AB42     		cmp	r3, r5
+ 106 004e 00D9     		bls	.LCB98
+ 107 0050 ADE0     		b	.L13	@long jump
+ 108              	.LCB98:
+ 109 0052 0C23     		movs	r3, #12
+ 110 0054 049C     		ldr	r4, [sp, #16]
+ 111 0056 784A     		ldr	r2, .L52+4
+ 112 0058 6343     		muls	r3, r4
+ 113 005a 9B18     		adds	r3, r3, r2
+ 114              	.LVL7:
+ 115              	.L14:
+ 176:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 177:./Application/Funtion/CanLib/CANTxCycle.c ****             /*配置主动发送信息和启动时间*/
+ 178:./Application/Funtion/CanLib/CANTxCycle.c ****             gCanTxCycTable[id].dataType = pIndexTable->dataType;
+ 179:./Application/Funtion/CanLib/CANTxCycle.c ****             gCanTxCycTable[id].funcode = eCANFUN_UPP;
+ 180:./Application/Funtion/CanLib/CANTxCycle.c ****             gCanTxCycTable[id].index = 1 + (8 * i);
+ 181:./Application/Funtion/CanLib/CANTxCycle.c ****             gCanTxCycTable[id].nextTime = 7 + CAN_TX_UPP_SPA_T * i;
+ 182:./Application/Funtion/CanLib/CANTxCycle.c ****             id++;
+ 183:./Application/Funtion/CanLib/CANTxCycle.c ****         }
+ 184:./Application/Funtion/CanLib/CANTxCycle.c ****     }
+ 185:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 186:./Application/Funtion/CanLib/CANTxCycle.c ****     /*剩余发送表清零*/
+ 187:./Application/Funtion/CanLib/CANTxCycle.c ****     for(i = id; i < tabLen; i++)
+ 116              		.loc 1 187 0 discriminator 1
+ 117 005c 079A     		ldr	r2, [sp, #28]
+ 118 005e 9442     		cmp	r4, r2
+ 119 0060 00D2     		bcs	.LCB110
+ 120 0062 DEE0     		b	.L15	@long jump
+ 121              	.LCB110:
+ 188:./Application/Funtion/CanLib/CANTxCycle.c ****     {
+ 189:./Application/Funtion/CanLib/CANTxCycle.c ****         /*发送表清零*/
+ 190:./Application/Funtion/CanLib/CANTxCycle.c ****         gCanTxCycTable[id].pdata = NULL;
+ 191:./Application/Funtion/CanLib/CANTxCycle.c ****         gCanTxCycTable[id].dataType = 0;
+ 192:./Application/Funtion/CanLib/CANTxCycle.c ****         gCanTxCycTable[id].funcode = eCANFUN_VFT;
+ 193:./Application/Funtion/CanLib/CANTxCycle.c ****         gCanTxCycTable[id].index = 0;
+ 194:./Application/Funtion/CanLib/CANTxCycle.c ****         gCanTxCycTable[id].nextTime = 0;
+ 195:./Application/Funtion/CanLib/CANTxCycle.c ****     }
+ 196:./Application/Funtion/CanLib/CANTxCycle.c **** }
+ 122              		.loc 1 196 0
+ 123 0064 0BB0     		add	sp, sp, #44
+ 124              		@ sp needed
+ 125              	.LVL8:
+ 126 0066 F0BD     		pop	{r4, r5, r6, r7, pc}
+ 127              	.LVL9:
+ 128              	.L4:
+  82:./Application/Funtion/CanLib/CANTxCycle.c ****     	sIndex = gCANTxSinDef_13[2 + (7 * i)];/*主动发送单帧起始子索引号*/
+ 129              		.loc 1 82 0
+ 130 0068 0727     		movs	r7, #7
+  88:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 131              		.loc 1 88 0
+ 132 006a 0F24     		movs	r4, #15
+  82:./Application/Funtion/CanLib/CANTxCycle.c ****     	sIndex = gCANTxSinDef_13[2 + (7 * i)];/*主动发送单帧起始子索引号*/
+ 133              		.loc 1 82 0
+ 134 006c 6F43     		muls	r7, r5
+ 135              	.LVL10:
+  85:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 136              		.loc 1 85 0
+ARM GAS  /tmp/ccG422Kx.s 			page 7
+
+
+ 137 006e 7349     		ldr	r1, .L52+8
+  88:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 138              		.loc 1 88 0
+ 139 0070 7348     		ldr	r0, .L52+12
+  85:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 140              		.loc 1 85 0
+ 141 0072 C919     		adds	r1, r1, r7
+ 142 0074 0B79     		ldrb	r3, [r1, #4]
+ 143 0076 4E79     		ldrb	r6, [r1, #5]
+ 144 0078 0593     		str	r3, [sp, #20]
+ 145              	.LVL11:
+  88:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 146              		.loc 1 88 0
+ 147 007a CB78     		ldrb	r3, [r1, #3]
+ 148 007c 8A78     		ldrb	r2, [r1, #2]
+ 149 007e 0393     		str	r3, [sp, #12]
+ 150 0080 06AB     		add	r3, sp, #24
+ 151 0082 E418     		adds	r4, r4, r3
+ 152 0084 4978     		ldrb	r1, [r1, #1]
+ 153 0086 8078     		ldrb	r0, [r0, #2]
+ 154 0088 039B     		ldr	r3, [sp, #12]
+ 155 008a 0094     		str	r4, [sp]
+ 156 008c FFF7FEFF 		bl	CanScanIndexTabInfo
+ 157              	.LVL12:
+  91:./Application/Funtion/CanLib/CANTxCycle.c ****         {
+ 158              		.loc 1 91 0
+ 159 0090 0028     		cmp	r0, #0
+ 160 0092 1CD0     		beq	.L3
+  91:./Application/Funtion/CanLib/CANTxCycle.c ****         {
+ 161              		.loc 1 91 0 is_stmt 0 discriminator 1
+ 162 0094 4168     		ldr	r1, [r0, #4]
+ 163 0096 0029     		cmp	r1, #0
+ 164 0098 19D0     		beq	.L3
+  91:./Application/Funtion/CanLib/CANTxCycle.c ****         {
+ 165              		.loc 1 91 0 discriminator 2
+ 166 009a 027A     		ldrb	r2, [r0, #8]
+ 167 009c 002A     		cmp	r2, #0
+ 168 009e 16D0     		beq	.L3
+  91:./Application/Funtion/CanLib/CANTxCycle.c ****         {
+ 169              		.loc 1 91 0 discriminator 3
+ 170 00a0 059B     		ldr	r3, [sp, #20]
+  85:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 171              		.loc 1 85 0 is_stmt 1 discriminator 3
+ 172 00a2 3602     		lsls	r6, r6, #8
+ 173              	.LVL13:
+  91:./Application/Funtion/CanLib/CANTxCycle.c ****         {
+ 174              		.loc 1 91 0 discriminator 3
+ 175 00a4 1E43     		orrs	r6, r3
+ 176 00a6 092E     		cmp	r6, #9
+ 177 00a8 11D9     		bls	.L3
+  94:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 178              		.loc 1 94 0
+ 179 00aa 0C23     		movs	r3, #12
+ 180 00ac 049C     		ldr	r4, [sp, #16]
+ 181 00ae 6248     		ldr	r0, .L52+4
+ 182              	.LVL14:
+ 183 00b0 6343     		muls	r3, r4
+ARM GAS  /tmp/ccG422Kx.s 			page 8
+
+
+ 184 00b2 1950     		str	r1, [r3, r0]
+  97:./Application/Funtion/CanLib/CANTxCycle.c ****             gCanTxCycTable[id].funcode = eCANFUN_UPS;
+ 185              		.loc 1 97 0
+ 186 00b4 C318     		adds	r3, r0, r3
+ 187 00b6 1A71     		strb	r2, [r3, #4]
+  98:./Application/Funtion/CanLib/CANTxCycle.c ****             gCanTxCycTable[id].index = 1 + (7 * i);
+ 188              		.loc 1 98 0
+ 189 00b8 0A22     		movs	r2, #10
+  99:./Application/Funtion/CanLib/CANTxCycle.c ****             gCanTxCycTable[id].nextTime = 1 + CAN_TX_UPS_SPA_T * i;
+ 190              		.loc 1 99 0
+ 191 00ba 0137     		adds	r7, r7, #1
+  98:./Application/Funtion/CanLib/CANTxCycle.c ****             gCanTxCycTable[id].index = 1 + (7 * i);
+ 192              		.loc 1 98 0
+ 193 00bc 5A71     		strb	r2, [r3, #5]
+ 100:./Application/Funtion/CanLib/CANTxCycle.c ****             id++;
+ 194              		.loc 1 100 0
+ 195 00be 6A43     		muls	r2, r5
+  99:./Application/Funtion/CanLib/CANTxCycle.c ****             gCanTxCycTable[id].nextTime = 1 + CAN_TX_UPS_SPA_T * i;
+ 196              		.loc 1 99 0
+ 197 00c0 9F71     		strb	r7, [r3, #6]
+ 101:./Application/Funtion/CanLib/CANTxCycle.c ****         }
+ 198              		.loc 1 101 0
+ 199 00c2 049C     		ldr	r4, [sp, #16]
+ 100:./Application/Funtion/CanLib/CANTxCycle.c ****             id++;
+ 200              		.loc 1 100 0
+ 201 00c4 0132     		adds	r2, r2, #1
+ 101:./Application/Funtion/CanLib/CANTxCycle.c ****         }
+ 202              		.loc 1 101 0
+ 203 00c6 0134     		adds	r4, r4, #1
+ 100:./Application/Funtion/CanLib/CANTxCycle.c ****             id++;
+ 204              		.loc 1 100 0
+ 205 00c8 9A60     		str	r2, [r3, #8]
+ 101:./Application/Funtion/CanLib/CANTxCycle.c ****         }
+ 206              		.loc 1 101 0
+ 207 00ca E3B2     		uxtb	r3, r4
+ 208 00cc 0493     		str	r3, [sp, #16]
+ 209              	.LVL15:
+ 210              	.L3:
+  78:./Application/Funtion/CanLib/CANTxCycle.c ****     {
+ 211              		.loc 1 78 0 discriminator 2
+ 212 00ce 0135     		adds	r5, r5, #1
+ 213              	.LVL16:
+ 214 00d0 EDB2     		uxtb	r5, r5
+ 215              	.LVL17:
+ 216 00d2 A8E7     		b	.L2
+ 217              	.L7:
+ 115:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 218              		.loc 1 115 0
+ 219 00d4 0F24     		movs	r4, #15
+ 112:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 220              		.loc 1 112 0
+ 221 00d6 5B49     		ldr	r1, .L52+16
+ 109:./Application/Funtion/CanLib/CANTxCycle.c ****     	sIndex = gCANTxCelDef_14[2 + (8 * i)];
+ 222              		.loc 1 109 0
+ 223 00d8 EF00     		lsls	r7, r5, #3
+ 224              	.LVL18:
+ 112:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ARM GAS  /tmp/ccG422Kx.s 			page 9
+
+
+ 225              		.loc 1 112 0
+ 226 00da C919     		adds	r1, r1, r7
+ 227 00dc 4B79     		ldrb	r3, [r1, #5]
+ 115:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 228              		.loc 1 115 0
+ 229 00de 5848     		ldr	r0, .L52+12
+ 112:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 230              		.loc 1 112 0
+ 231 00e0 0593     		str	r3, [sp, #20]
+ 115:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 232              		.loc 1 115 0
+ 233 00e2 CB78     		ldrb	r3, [r1, #3]
+ 112:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 234              		.loc 1 112 0
+ 235 00e4 8E79     		ldrb	r6, [r1, #6]
+ 236              	.LVL19:
+ 115:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 237              		.loc 1 115 0
+ 238 00e6 0393     		str	r3, [sp, #12]
+ 239 00e8 06AB     		add	r3, sp, #24
+ 240 00ea E418     		adds	r4, r4, r3
+ 241 00ec 8A78     		ldrb	r2, [r1, #2]
+ 242 00ee 8078     		ldrb	r0, [r0, #2]
+ 243 00f0 4978     		ldrb	r1, [r1, #1]
+ 244 00f2 039B     		ldr	r3, [sp, #12]
+ 245 00f4 0094     		str	r4, [sp]
+ 246 00f6 FFF7FEFF 		bl	CanScanIndexTabInfo
+ 247              	.LVL20:
+ 118:./Application/Funtion/CanLib/CANTxCycle.c ****         {
+ 248              		.loc 1 118 0
+ 249 00fa 0028     		cmp	r0, #0
+ 250 00fc 1DD0     		beq	.L6
+ 118:./Application/Funtion/CanLib/CANTxCycle.c ****         {
+ 251              		.loc 1 118 0 is_stmt 0 discriminator 1
+ 252 00fe 4168     		ldr	r1, [r0, #4]
+ 253 0100 0029     		cmp	r1, #0
+ 254 0102 1AD0     		beq	.L6
+ 118:./Application/Funtion/CanLib/CANTxCycle.c ****         {
+ 255              		.loc 1 118 0 discriminator 2
+ 256 0104 027A     		ldrb	r2, [r0, #8]
+ 257 0106 002A     		cmp	r2, #0
+ 258 0108 17D0     		beq	.L6
+ 118:./Application/Funtion/CanLib/CANTxCycle.c ****         {
+ 259              		.loc 1 118 0 discriminator 3
+ 260 010a 059B     		ldr	r3, [sp, #20]
+ 112:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 261              		.loc 1 112 0 is_stmt 1 discriminator 3
+ 262 010c 3602     		lsls	r6, r6, #8
+ 263              	.LVL21:
+ 118:./Application/Funtion/CanLib/CANTxCycle.c ****         {
+ 264              		.loc 1 118 0 discriminator 3
+ 265 010e 1E43     		orrs	r6, r3
+ 266 0110 312E     		cmp	r6, #49
+ 267 0112 12D9     		bls	.L6
+ 121:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 268              		.loc 1 121 0
+ 269 0114 0C23     		movs	r3, #12
+ARM GAS  /tmp/ccG422Kx.s 			page 10
+
+
+ 270 0116 049C     		ldr	r4, [sp, #16]
+ 271 0118 4748     		ldr	r0, .L52+4
+ 272              	.LVL22:
+ 273 011a 6343     		muls	r3, r4
+ 274 011c 1950     		str	r1, [r3, r0]
+ 124:./Application/Funtion/CanLib/CANTxCycle.c ****             gCanTxCycTable[id].funcode = eCANFUN_UPC;
+ 275              		.loc 1 124 0
+ 276 011e C318     		adds	r3, r0, r3
+ 277 0120 1A71     		strb	r2, [r3, #4]
+ 125:./Application/Funtion/CanLib/CANTxCycle.c ****             gCanTxCycTable[id].index = 1 + (8 * i);
+ 278              		.loc 1 125 0
+ 279 0122 0B22     		movs	r2, #11
+ 280 0124 5A71     		strb	r2, [r3, #5]
+ 127:./Application/Funtion/CanLib/CANTxCycle.c ****             id++;
+ 281              		.loc 1 127 0
+ 282 0126 3222     		movs	r2, #50
+ 126:./Application/Funtion/CanLib/CANTxCycle.c ****             gCanTxCycTable[id].nextTime = 3 + CAN_TX_UPC_SPA_T * i;
+ 283              		.loc 1 126 0
+ 284 0128 0137     		adds	r7, r7, #1
+ 127:./Application/Funtion/CanLib/CANTxCycle.c ****             id++;
+ 285              		.loc 1 127 0
+ 286 012a 6A43     		muls	r2, r5
+ 126:./Application/Funtion/CanLib/CANTxCycle.c ****             gCanTxCycTable[id].nextTime = 3 + CAN_TX_UPC_SPA_T * i;
+ 287              		.loc 1 126 0
+ 288 012c 9F71     		strb	r7, [r3, #6]
+ 128:./Application/Funtion/CanLib/CANTxCycle.c ****         }
+ 289              		.loc 1 128 0
+ 290 012e 049C     		ldr	r4, [sp, #16]
+ 127:./Application/Funtion/CanLib/CANTxCycle.c ****             id++;
+ 291              		.loc 1 127 0
+ 292 0130 0332     		adds	r2, r2, #3
+ 128:./Application/Funtion/CanLib/CANTxCycle.c ****         }
+ 293              		.loc 1 128 0
+ 294 0132 0134     		adds	r4, r4, #1
+ 127:./Application/Funtion/CanLib/CANTxCycle.c ****             id++;
+ 295              		.loc 1 127 0
+ 296 0134 9A60     		str	r2, [r3, #8]
+ 128:./Application/Funtion/CanLib/CANTxCycle.c ****         }
+ 297              		.loc 1 128 0
+ 298 0136 E3B2     		uxtb	r3, r4
+ 299 0138 0493     		str	r3, [sp, #16]
+ 300              	.LVL23:
+ 301              	.L6:
+ 106:./Application/Funtion/CanLib/CANTxCycle.c ****     {
+ 302              		.loc 1 106 0 discriminator 2
+ 303 013a 0135     		adds	r5, r5, #1
+ 304              	.LVL24:
+ 305 013c EDB2     		uxtb	r5, r5
+ 306              	.LVL25:
+ 307 013e 77E7     		b	.L5
+ 308              	.L10:
+ 136:./Application/Funtion/CanLib/CANTxCycle.c ****     	sIndex = gCANTxMulDef_12[2 + (7 * i)];
+ 309              		.loc 1 136 0
+ 310 0140 0727     		movs	r7, #7
+ 142:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 311              		.loc 1 142 0
+ 312 0142 0F24     		movs	r4, #15
+ARM GAS  /tmp/ccG422Kx.s 			page 11
+
+
+ 136:./Application/Funtion/CanLib/CANTxCycle.c ****     	sIndex = gCANTxMulDef_12[2 + (7 * i)];
+ 313              		.loc 1 136 0
+ 314 0144 6F43     		muls	r7, r5
+ 315              	.LVL26:
+ 139:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 316              		.loc 1 139 0
+ 317 0146 4049     		ldr	r1, .L52+20
+ 142:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 318              		.loc 1 142 0
+ 319 0148 3D48     		ldr	r0, .L52+12
+ 139:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 320              		.loc 1 139 0
+ 321 014a C919     		adds	r1, r1, r7
+ 322 014c 0B79     		ldrb	r3, [r1, #4]
+ 323 014e 4E79     		ldrb	r6, [r1, #5]
+ 324 0150 0593     		str	r3, [sp, #20]
+ 325              	.LVL27:
+ 142:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 326              		.loc 1 142 0
+ 327 0152 CB78     		ldrb	r3, [r1, #3]
+ 328 0154 8A78     		ldrb	r2, [r1, #2]
+ 329 0156 0393     		str	r3, [sp, #12]
+ 330 0158 06AB     		add	r3, sp, #24
+ 331 015a E418     		adds	r4, r4, r3
+ 332 015c 4978     		ldrb	r1, [r1, #1]
+ 333 015e 8078     		ldrb	r0, [r0, #2]
+ 334 0160 039B     		ldr	r3, [sp, #12]
+ 335 0162 0094     		str	r4, [sp]
+ 336 0164 FFF7FEFF 		bl	CanScanIndexTabInfo
+ 337              	.LVL28:
+ 145:./Application/Funtion/CanLib/CANTxCycle.c ****         {
+ 338              		.loc 1 145 0
+ 339 0168 0028     		cmp	r0, #0
+ 340 016a 1DD0     		beq	.L9
+ 145:./Application/Funtion/CanLib/CANTxCycle.c ****         {
+ 341              		.loc 1 145 0 is_stmt 0 discriminator 1
+ 342 016c 4168     		ldr	r1, [r0, #4]
+ 343 016e 0029     		cmp	r1, #0
+ 344 0170 1AD0     		beq	.L9
+ 145:./Application/Funtion/CanLib/CANTxCycle.c ****         {
+ 345              		.loc 1 145 0 discriminator 2
+ 346 0172 027A     		ldrb	r2, [r0, #8]
+ 347 0174 002A     		cmp	r2, #0
+ 348 0176 17D0     		beq	.L9
+ 145:./Application/Funtion/CanLib/CANTxCycle.c ****         {
+ 349              		.loc 1 145 0 discriminator 3
+ 350 0178 059B     		ldr	r3, [sp, #20]
+ 139:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 351              		.loc 1 139 0 is_stmt 1 discriminator 3
+ 352 017a 3602     		lsls	r6, r6, #8
+ 353              	.LVL29:
+ 145:./Application/Funtion/CanLib/CANTxCycle.c ****         {
+ 354              		.loc 1 145 0 discriminator 3
+ 355 017c 1E43     		orrs	r6, r3
+ 356 017e 632E     		cmp	r6, #99
+ 357 0180 12D9     		bls	.L9
+ 148:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ARM GAS  /tmp/ccG422Kx.s 			page 12
+
+
+ 358              		.loc 1 148 0
+ 359 0182 0C23     		movs	r3, #12
+ 360 0184 049C     		ldr	r4, [sp, #16]
+ 361 0186 2C48     		ldr	r0, .L52+4
+ 362              	.LVL30:
+ 363 0188 6343     		muls	r3, r4
+ 364 018a 1950     		str	r1, [r3, r0]
+ 151:./Application/Funtion/CanLib/CANTxCycle.c ****             gCanTxCycTable[id].funcode = eCANFUN_UPM;
+ 365              		.loc 1 151 0
+ 366 018c C318     		adds	r3, r0, r3
+ 367 018e 1A71     		strb	r2, [r3, #4]
+ 152:./Application/Funtion/CanLib/CANTxCycle.c ****             gCanTxCycTable[id].index = 1 + (7 * i);
+ 368              		.loc 1 152 0
+ 369 0190 0822     		movs	r2, #8
+ 370 0192 5A71     		strb	r2, [r3, #5]
+ 154:./Application/Funtion/CanLib/CANTxCycle.c ****             id++;
+ 371              		.loc 1 154 0
+ 372 0194 5C32     		adds	r2, r2, #92
+ 153:./Application/Funtion/CanLib/CANTxCycle.c ****             gCanTxCycTable[id].nextTime = 5 + CAN_TX_UPM_SPA_T * i;
+ 373              		.loc 1 153 0
+ 374 0196 0137     		adds	r7, r7, #1
+ 154:./Application/Funtion/CanLib/CANTxCycle.c ****             id++;
+ 375              		.loc 1 154 0
+ 376 0198 6A43     		muls	r2, r5
+ 153:./Application/Funtion/CanLib/CANTxCycle.c ****             gCanTxCycTable[id].nextTime = 5 + CAN_TX_UPM_SPA_T * i;
+ 377              		.loc 1 153 0
+ 378 019a 9F71     		strb	r7, [r3, #6]
+ 155:./Application/Funtion/CanLib/CANTxCycle.c ****         }
+ 379              		.loc 1 155 0
+ 380 019c 049C     		ldr	r4, [sp, #16]
+ 154:./Application/Funtion/CanLib/CANTxCycle.c ****             id++;
+ 381              		.loc 1 154 0
+ 382 019e 0532     		adds	r2, r2, #5
+ 155:./Application/Funtion/CanLib/CANTxCycle.c ****         }
+ 383              		.loc 1 155 0
+ 384 01a0 0134     		adds	r4, r4, #1
+ 154:./Application/Funtion/CanLib/CANTxCycle.c ****             id++;
+ 385              		.loc 1 154 0
+ 386 01a2 9A60     		str	r2, [r3, #8]
+ 155:./Application/Funtion/CanLib/CANTxCycle.c ****         }
+ 387              		.loc 1 155 0
+ 388 01a4 E3B2     		uxtb	r3, r4
+ 389 01a6 0493     		str	r3, [sp, #16]
+ 390              	.LVL31:
+ 391              	.L9:
+ 133:./Application/Funtion/CanLib/CANTxCycle.c ****     {
+ 392              		.loc 1 133 0 discriminator 2
+ 393 01a8 0135     		adds	r5, r5, #1
+ 394              	.LVL32:
+ 395 01aa EDB2     		uxtb	r5, r5
+ 396              	.LVL33:
+ 397 01ac 45E7     		b	.L8
+ 398              	.L13:
+ 169:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 399              		.loc 1 169 0
+ 400 01ae 0F24     		movs	r4, #15
+ 166:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ARM GAS  /tmp/ccG422Kx.s 			page 13
+
+
+ 401              		.loc 1 166 0
+ 402 01b0 2649     		ldr	r1, .L52+24
+ 163:./Application/Funtion/CanLib/CANTxCycle.c ****     	sIndex = gCANTxParDef_15[2 + (8 * i)];
+ 403              		.loc 1 163 0
+ 404 01b2 EE00     		lsls	r6, r5, #3
+ 405              	.LVL34:
+ 166:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 406              		.loc 1 166 0
+ 407 01b4 8919     		adds	r1, r1, r6
+ 408 01b6 8B79     		ldrb	r3, [r1, #6]
+ 169:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 409              		.loc 1 169 0
+ 410 01b8 2148     		ldr	r0, .L52+12
+ 166:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 411              		.loc 1 166 0
+ 412 01ba 0593     		str	r3, [sp, #20]
+ 413 01bc 4B79     		ldrb	r3, [r1, #5]
+ 169:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 414              		.loc 1 169 0
+ 415 01be 8A78     		ldrb	r2, [r1, #2]
+ 166:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 416              		.loc 1 166 0
+ 417 01c0 0693     		str	r3, [sp, #24]
+ 418              	.LVL35:
+ 169:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 419              		.loc 1 169 0
+ 420 01c2 CB78     		ldrb	r3, [r1, #3]
+ 421 01c4 4978     		ldrb	r1, [r1, #1]
+ 422 01c6 0393     		str	r3, [sp, #12]
+ 423 01c8 06AB     		add	r3, sp, #24
+ 424              	.LVL36:
+ 425 01ca E418     		adds	r4, r4, r3
+ 426 01cc 8078     		ldrb	r0, [r0, #2]
+ 427 01ce 039B     		ldr	r3, [sp, #12]
+ 428              	.LVL37:
+ 429 01d0 0094     		str	r4, [sp]
+ 430 01d2 FFF7FEFF 		bl	CanScanIndexTabInfo
+ 431              	.LVL38:
+ 172:./Application/Funtion/CanLib/CANTxCycle.c ****         {
+ 432              		.loc 1 172 0
+ 433 01d6 0028     		cmp	r0, #0
+ 434 01d8 20D0     		beq	.L12
+ 172:./Application/Funtion/CanLib/CANTxCycle.c ****         {
+ 435              		.loc 1 172 0 is_stmt 0 discriminator 1
+ 436 01da 4168     		ldr	r1, [r0, #4]
+ 437 01dc 0029     		cmp	r1, #0
+ 438 01de 1DD0     		beq	.L12
+ 172:./Application/Funtion/CanLib/CANTxCycle.c ****         {
+ 439              		.loc 1 172 0 discriminator 2
+ 440 01e0 027A     		ldrb	r2, [r0, #8]
+ 441 01e2 002A     		cmp	r2, #0
+ 442 01e4 1AD0     		beq	.L12
+ 172:./Application/Funtion/CanLib/CANTxCycle.c ****         {
+ 443              		.loc 1 172 0 discriminator 3
+ 444 01e6 2C20     		movs	r0, #44
+ 445              	.LVL39:
+ 166:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ARM GAS  /tmp/ccG422Kx.s 			page 14
+
+
+ 446              		.loc 1 166 0 is_stmt 1 discriminator 3
+ 447 01e8 059B     		ldr	r3, [sp, #20]
+ 172:./Application/Funtion/CanLib/CANTxCycle.c ****         {
+ 448              		.loc 1 172 0 discriminator 3
+ 449 01ea 069C     		ldr	r4, [sp, #24]
+ 166:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 450              		.loc 1 166 0 discriminator 3
+ 451 01ec 1B02     		lsls	r3, r3, #8
+ 172:./Application/Funtion/CanLib/CANTxCycle.c ****         {
+ 452              		.loc 1 172 0 discriminator 3
+ 453 01ee FF30     		adds	r0, r0, #255
+ 454 01f0 2343     		orrs	r3, r4
+ 455 01f2 8342     		cmp	r3, r0
+ 456 01f4 12D9     		bls	.L12
+ 175:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 457              		.loc 1 175 0
+ 458 01f6 3800     		movs	r0, r7
+ 459 01f8 049C     		ldr	r4, [sp, #16]
+ 460 01fa 0F4B     		ldr	r3, .L52+4
+ 461 01fc 6043     		muls	r0, r4
+ 462 01fe C150     		str	r1, [r0, r3]
+ 178:./Application/Funtion/CanLib/CANTxCycle.c ****             gCanTxCycTable[id].funcode = eCANFUN_UPP;
+ 463              		.loc 1 178 0
+ 464 0200 1B18     		adds	r3, r3, r0
+ 465 0202 1A71     		strb	r2, [r3, #4]
+ 181:./Application/Funtion/CanLib/CANTxCycle.c ****             id++;
+ 466              		.loc 1 181 0
+ 467 0204 9622     		movs	r2, #150
+ 468 0206 5200     		lsls	r2, r2, #1
+ 180:./Application/Funtion/CanLib/CANTxCycle.c ****             gCanTxCycTable[id].nextTime = 7 + CAN_TX_UPP_SPA_T * i;
+ 469              		.loc 1 180 0
+ 470 0208 0136     		adds	r6, r6, #1
+ 181:./Application/Funtion/CanLib/CANTxCycle.c ****             id++;
+ 471              		.loc 1 181 0
+ 472 020a 6A43     		muls	r2, r5
+ 179:./Application/Funtion/CanLib/CANTxCycle.c ****             gCanTxCycTable[id].index = 1 + (8 * i);
+ 473              		.loc 1 179 0
+ 474 020c 5F71     		strb	r7, [r3, #5]
+ 180:./Application/Funtion/CanLib/CANTxCycle.c ****             gCanTxCycTable[id].nextTime = 7 + CAN_TX_UPP_SPA_T * i;
+ 475              		.loc 1 180 0
+ 476 020e 9E71     		strb	r6, [r3, #6]
+ 182:./Application/Funtion/CanLib/CANTxCycle.c ****         }
+ 477              		.loc 1 182 0
+ 478 0210 049C     		ldr	r4, [sp, #16]
+ 181:./Application/Funtion/CanLib/CANTxCycle.c ****             id++;
+ 479              		.loc 1 181 0
+ 480 0212 0732     		adds	r2, r2, #7
+ 182:./Application/Funtion/CanLib/CANTxCycle.c ****         }
+ 481              		.loc 1 182 0
+ 482 0214 0134     		adds	r4, r4, #1
+ 181:./Application/Funtion/CanLib/CANTxCycle.c ****             id++;
+ 483              		.loc 1 181 0
+ 484 0216 9A60     		str	r2, [r3, #8]
+ 182:./Application/Funtion/CanLib/CANTxCycle.c ****         }
+ 485              		.loc 1 182 0
+ 486 0218 E3B2     		uxtb	r3, r4
+ 487 021a 0493     		str	r3, [sp, #16]
+ARM GAS  /tmp/ccG422Kx.s 			page 15
+
+
+ 488              	.LVL40:
+ 489              	.L12:
+ 160:./Application/Funtion/CanLib/CANTxCycle.c ****     {
+ 490              		.loc 1 160 0 discriminator 2
+ 491 021c 0135     		adds	r5, r5, #1
+ 492              	.LVL41:
+ 493 021e EDB2     		uxtb	r5, r5
+ 494              	.LVL42:
+ 495 0220 12E7     		b	.L11
+ 496              	.LVL43:
+ 497              	.L15:
+ 190:./Application/Funtion/CanLib/CANTxCycle.c ****         gCanTxCycTable[id].dataType = 0;
+ 498              		.loc 1 190 0 discriminator 3
+ 499 0222 0022     		movs	r2, #0
+ 187:./Application/Funtion/CanLib/CANTxCycle.c ****     {
+ 500              		.loc 1 187 0 discriminator 3
+ 501 0224 0134     		adds	r4, r4, #1
+ 502              	.LVL44:
+ 190:./Application/Funtion/CanLib/CANTxCycle.c ****         gCanTxCycTable[id].dataType = 0;
+ 503              		.loc 1 190 0 discriminator 3
+ 504 0226 1A60     		str	r2, [r3]
+ 505 0228 9A80     		strh	r2, [r3, #4]
+ 192:./Application/Funtion/CanLib/CANTxCycle.c ****         gCanTxCycTable[id].index = 0;
+ 506              		.loc 1 192 0 discriminator 3
+ 507 022a 9A71     		strb	r2, [r3, #6]
+ 194:./Application/Funtion/CanLib/CANTxCycle.c ****     }
+ 508              		.loc 1 194 0 discriminator 3
+ 509 022c 9A60     		str	r2, [r3, #8]
+ 187:./Application/Funtion/CanLib/CANTxCycle.c ****     {
+ 510              		.loc 1 187 0 discriminator 3
+ 511 022e E4B2     		uxtb	r4, r4
+ 512              	.LVL45:
+ 513 0230 14E7     		b	.L14
+ 514              	.L53:
+ 515 0232 C046     		.align	2
+ 516              	.L52:
+ 517 0234 00000000 		.word	gCANBaseDef_3
+ 518 0238 00000000 		.word	gCanTxCycTable
+ 519 023c 00000000 		.word	gCANTxSinDef_13
+ 520 0240 00000000 		.word	SystemInfo_1
+ 521 0244 00000000 		.word	gCANTxCelDef_14
+ 522 0248 00000000 		.word	gCANTxMulDef_12
+ 523 024c 00000000 		.word	gCANTxParDef_15
+ 524              		.cfi_endproc
+ 525              	.LFE493:
+ 527              		.section	.text.CANTxCycleTabHandle,"ax",%progbits
+ 528              		.align	1
+ 529              		.global	CANTxCycleTabHandle
+ 530              		.syntax unified
+ 531              		.code	16
+ 532              		.thumb_func
+ 533              		.fpu softvfp
+ 535              	CANTxCycleTabHandle:
+ 536              	.LFB494:
+ 197:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 198:./Application/Funtion/CanLib/CANTxCycle.c **** /*=================================================================================================
+ 199:./Application/Funtion/CanLib/CANTxCycle.c **** ** @Name      : void CANTxCycleTabHandle(void)
+ARM GAS  /tmp/ccG422Kx.s 			page 16
+
+
+ 200:./Application/Funtion/CanLib/CANTxCycle.c **** ** @Input     : void
+ 201:./Application/Funtion/CanLib/CANTxCycle.c **** ** @Output    : void
+ 202:./Application/Funtion/CanLib/CANTxCycle.c **** ** @Function  : CAN通信包周期发送表处理任务
+ 203:./Application/Funtion/CanLib/CANTxCycle.c **** ** @The notes : 通信包总任务10ms调用
+ 204:./Application/Funtion/CanLib/CANTxCycle.c **** **===============================================================================================*/
+ 205:./Application/Funtion/CanLib/CANTxCycle.c **** void CANTxCycleTabHandle(void)
+ 206:./Application/Funtion/CanLib/CANTxCycle.c **** {
+ 537              		.loc 1 206 0
+ 538              		.cfi_startproc
+ 539              		@ args = 0, pretend = 0, frame = 24
+ 540              		@ frame_needed = 0, uses_anonymous_args = 0
+ 541              	.LVL46:
+ 542 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+ 543              	.LCFI2:
+ 544              		.cfi_def_cfa_offset 20
+ 545              		.cfi_offset 4, -20
+ 546              		.cfi_offset 5, -16
+ 547              		.cfi_offset 6, -12
+ 548              		.cfi_offset 7, -8
+ 549              		.cfi_offset 14, -4
+ 207:./Application/Funtion/CanLib/CANTxCycle.c ****     u8 i = 0;
+ 208:./Application/Funtion/CanLib/CANTxCycle.c **** 	u8 mIndex = 0;
+ 209:./Application/Funtion/CanLib/CANTxCycle.c **** 	u8 sIndex = 0;
+ 210:./Application/Funtion/CanLib/CANTxCycle.c **** 	u8 sIndexNum = 0;
+ 211:./Application/Funtion/CanLib/CANTxCycle.c **** 	u16 txTime = 0;
+ 212:./Application/Funtion/CanLib/CANTxCycle.c **** 	u8 canNum = 0;
+ 213:./Application/Funtion/CanLib/CANTxCycle.c **** 	u8 destAddr = 0;
+ 214:./Application/Funtion/CanLib/CANTxCycle.c **** 	u8 mapIndex = 0;
+ 215:./Application/Funtion/CanLib/CANTxCycle.c **** 	u8 tabLen = 0;
+ 216:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 217:./Application/Funtion/CanLib/CANTxCycle.c ****     /*未定义发送表*/
+ 218:./Application/Funtion/CanLib/CANTxCycle.c ****     if(gCanTxCycTable == NULL)
+ 219:./Application/Funtion/CanLib/CANTxCycle.c ****     {
+ 220:./Application/Funtion/CanLib/CANTxCycle.c ****         return;
+ 221:./Application/Funtion/CanLib/CANTxCycle.c ****     }
+ 222:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 223:./Application/Funtion/CanLib/CANTxCycle.c ****     /*通信包长度(发送长帧/单帧/单体/参数帧报文)*/
+ 224:./Application/Funtion/CanLib/CANTxCycle.c ****     tabLen = gCANBaseDef_3[eCANRBas3_TxMulNum] + gCANBaseDef_3[eCANRBas3_TxSinNum] + gCANBaseDef_3[
+ 550              		.loc 1 224 0
+ 551 0002 5F4A     		ldr	r2, .L70
+ 552 0004 5F4C     		ldr	r4, .L70+4
+ 553 0006 9179     		ldrb	r1, [r2, #6]
+ 554 0008 5379     		ldrb	r3, [r2, #5]
+ 206:./Application/Funtion/CanLib/CANTxCycle.c ****     u8 i = 0;
+ 555              		.loc 1 206 0
+ 556 000a 8DB0     		sub	sp, sp, #52
+ 557              	.LCFI3:
+ 558              		.cfi_def_cfa_offset 72
+ 559              		.loc 1 224 0
+ 560 000c 5B18     		adds	r3, r3, r1
+ 561 000e D179     		ldrb	r1, [r2, #7]
+ 562 0010 127A     		ldrb	r2, [r2, #8]
+ 563 0012 5B18     		adds	r3, r3, r1
+ 564 0014 9B18     		adds	r3, r3, r2
+ 565 0016 0C22     		movs	r2, #12
+ 566 0018 DBB2     		uxtb	r3, r3
+ 567 001a 5343     		muls	r3, r2
+ARM GAS  /tmp/ccG422Kx.s 			page 17
+
+
+ 568 001c 1B19     		adds	r3, r3, r4
+ 569 001e 0B93     		str	r3, [sp, #44]
+ 211:./Application/Funtion/CanLib/CANTxCycle.c **** 	u8 canNum = 0;
+ 570              		.loc 1 211 0
+ 571 0020 0023     		movs	r3, #0
+ 572 0022 0693     		str	r3, [sp, #24]
+ 573              	.LVL47:
+ 574              	.L55:
+ 225:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 226:./Application/Funtion/CanLib/CANTxCycle.c ****     /*逐个检测每个通信包*/
+ 227:./Application/Funtion/CanLib/CANTxCycle.c ****     for(i = 0; i < tabLen; i++)
+ 575              		.loc 1 227 0 discriminator 1
+ 576 0024 0B9B     		ldr	r3, [sp, #44]
+ 577 0026 A342     		cmp	r3, r4
+ 578 0028 01D1     		bne	.L63
+ 228:./Application/Funtion/CanLib/CANTxCycle.c ****     {
+ 229:./Application/Funtion/CanLib/CANTxCycle.c ****     	/*到达发送周期*/
+ 230:./Application/Funtion/CanLib/CANTxCycle.c ****         if((gCANCountTime >= gCanTxCycTable[i].nextTime) || (gCANCountTime + 100000 < gCanTxCycTabl
+ 231:./Application/Funtion/CanLib/CANTxCycle.c ****         {
+ 232:./Application/Funtion/CanLib/CANTxCycle.c ****         	/*通信发送信息有效*/
+ 233:./Application/Funtion/CanLib/CANTxCycle.c ****             if(gCanTxCycTable[i].pdata != NULL)
+ 234:./Application/Funtion/CanLib/CANTxCycle.c ****             {
+ 235:./Application/Funtion/CanLib/CANTxCycle.c ****                 /*发送单帧*/
+ 236:./Application/Funtion/CanLib/CANTxCycle.c ****                 if(eCANFUN_UPS == gCanTxCycTable[i].funcode)
+ 237:./Application/Funtion/CanLib/CANTxCycle.c ****                 {
+ 238:./Application/Funtion/CanLib/CANTxCycle.c ****                     /*使能发送单帧*/
+ 239:./Application/Funtion/CanLib/CANTxCycle.c ****                     if(1 == gCANTxSinDef_13[0])
+ 240:./Application/Funtion/CanLib/CANTxCycle.c ****                     {
+ 241:./Application/Funtion/CanLib/CANTxCycle.c ****                         /*每组7个信息*/
+ 242:./Application/Funtion/CanLib/CANTxCycle.c ****                         mIndex = gCANTxSinDef_13[gCanTxCycTable[i].index];
+ 243:./Application/Funtion/CanLib/CANTxCycle.c ****                         sIndex = gCANTxSinDef_13[gCanTxCycTable[i].index + 1];
+ 244:./Application/Funtion/CanLib/CANTxCycle.c ****                         sIndexNum = gCANTxSinDef_13[gCanTxCycTable[i].index + 2];
+ 245:./Application/Funtion/CanLib/CANTxCycle.c ****                         txTime = ((u16)gCANTxSinDef_13[gCanTxCycTable[i].index + 4] << 8) | gCANTxS
+ 246:./Application/Funtion/CanLib/CANTxCycle.c ****                         canNum = gCANTxSinDef_13[gCanTxCycTable[i].index + 5];
+ 247:./Application/Funtion/CanLib/CANTxCycle.c ****                         destAddr = gCANTxSinDef_13[gCanTxCycTable[i].index + 6];
+ 248:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 249:./Application/Funtion/CanLib/CANTxCycle.c ****                         /*生成主动发送信息*/
+ 250:./Application/Funtion/CanLib/CANTxCycle.c ****             	        (void)CANReqIdleTxRcvTab(eCANFUN_UPS, 0, gCanTxCycTable[i].pdata, gCanTxCycTab
+ 251:./Application/Funtion/CanLib/CANTxCycle.c ****                     }
+ 252:./Application/Funtion/CanLib/CANTxCycle.c ****                 }
+ 253:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 254:./Application/Funtion/CanLib/CANTxCycle.c ****             	/*发送长帧*/
+ 255:./Application/Funtion/CanLib/CANTxCycle.c ****             	else if(eCANFUN_UPM == gCanTxCycTable[i].funcode)
+ 256:./Application/Funtion/CanLib/CANTxCycle.c ****             	{
+ 257:./Application/Funtion/CanLib/CANTxCycle.c ****             		/*使能发送多帧*/
+ 258:./Application/Funtion/CanLib/CANTxCycle.c ****                     if(1 == gCANTxMulDef_12[0])
+ 259:./Application/Funtion/CanLib/CANTxCycle.c ****                     {
+ 260:./Application/Funtion/CanLib/CANTxCycle.c ****                 	    /*每组7个信息*/
+ 261:./Application/Funtion/CanLib/CANTxCycle.c ****                         mIndex = gCANTxMulDef_12[gCanTxCycTable[i].index];
+ 262:./Application/Funtion/CanLib/CANTxCycle.c ****                         sIndex = gCANTxMulDef_12[gCanTxCycTable[i].index + 1];
+ 263:./Application/Funtion/CanLib/CANTxCycle.c ****                         sIndexNum = gCANTxMulDef_12[gCanTxCycTable[i].index + 2];
+ 264:./Application/Funtion/CanLib/CANTxCycle.c ****                         txTime = ((u16)gCANTxMulDef_12[gCanTxCycTable[i].index + 4] << 8) | gCANTxM
+ 265:./Application/Funtion/CanLib/CANTxCycle.c ****                         canNum = gCANTxMulDef_12[gCanTxCycTable[i].index + 5];
+ 266:./Application/Funtion/CanLib/CANTxCycle.c ****                         destAddr = gCANTxMulDef_12[gCanTxCycTable[i].index + 6];
+ 267:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 268:./Application/Funtion/CanLib/CANTxCycle.c ****                         /*用户允许发送*/
+ 269:./Application/Funtion/CanLib/CANTxCycle.c ****                         if(TRUE == CANTxCycUpUserEnState_Hook(eCANFUN_UPM, mIndex, canNum))
+ARM GAS  /tmp/ccG422Kx.s 			page 18
+
+
+ 270:./Application/Funtion/CanLib/CANTxCycle.c ****                         {
+ 271:./Application/Funtion/CanLib/CANTxCycle.c ****                             /*生成主动发送信息*/
+ 272:./Application/Funtion/CanLib/CANTxCycle.c ****             	            (void)CANReqIdleTxRcvTab(eCANFUN_UPM, 0, gCanTxCycTable[i].pdata, gCanTxCy
+ 273:./Application/Funtion/CanLib/CANTxCycle.c ****                         }
+ 274:./Application/Funtion/CanLib/CANTxCycle.c ****                    }
+ 275:./Application/Funtion/CanLib/CANTxCycle.c ****                 }
+ 276:./Application/Funtion/CanLib/CANTxCycle.c ****                 
+ 277:./Application/Funtion/CanLib/CANTxCycle.c ****                 /*发送单体帧*/
+ 278:./Application/Funtion/CanLib/CANTxCycle.c ****                 else if(eCANFUN_UPC == gCanTxCycTable[i].funcode)
+ 279:./Application/Funtion/CanLib/CANTxCycle.c ****                 {
+ 280:./Application/Funtion/CanLib/CANTxCycle.c ****                     /*使能发送单体帧*/
+ 281:./Application/Funtion/CanLib/CANTxCycle.c ****                     if(1 == gCANTxCelDef_14[0])
+ 282:./Application/Funtion/CanLib/CANTxCycle.c ****                     {
+ 283:./Application/Funtion/CanLib/CANTxCycle.c ****                         /*每组8个信息*/
+ 284:./Application/Funtion/CanLib/CANTxCycle.c ****                         mIndex = gCANTxCelDef_14[gCanTxCycTable[i].index];
+ 285:./Application/Funtion/CanLib/CANTxCycle.c ****                         sIndex = gCANTxCelDef_14[gCanTxCycTable[i].index + 1];
+ 286:./Application/Funtion/CanLib/CANTxCycle.c ****                         sIndexNum = gCANTxCelDef_14[gCanTxCycTable[i].index + 2];
+ 287:./Application/Funtion/CanLib/CANTxCycle.c ****                         mapIndex = gCANTxCelDef_14[gCanTxCycTable[i].index + 3];
+ 288:./Application/Funtion/CanLib/CANTxCycle.c ****                         txTime = ((u16)gCANTxCelDef_14[gCanTxCycTable[i].index + 5] << 8) | gCANTxC
+ 289:./Application/Funtion/CanLib/CANTxCycle.c ****                         canNum = gCANTxCelDef_14[gCanTxCycTable[i].index + 6];
+ 290:./Application/Funtion/CanLib/CANTxCycle.c ****                         destAddr = gCANTxCelDef_14[gCanTxCycTable[i].index + 7];
+ 291:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 292:./Application/Funtion/CanLib/CANTxCycle.c ****                         /*用户允许发送*/
+ 293:./Application/Funtion/CanLib/CANTxCycle.c **** 						if(TRUE == CANTxCycUpUserEnState_Hook(eCANFUN_UPC, mIndex, canNum))
+ 294:./Application/Funtion/CanLib/CANTxCycle.c **** 						{
+ 295:./Application/Funtion/CanLib/CANTxCycle.c **** 							/*生成主动发送信息*/
+ 296:./Application/Funtion/CanLib/CANTxCycle.c ****             	            (void)CANReqIdleTxRcvTab(eCANFUN_UPC, 0, gCanTxCycTable[i].pdata, gCanTxCy
+ 297:./Application/Funtion/CanLib/CANTxCycle.c **** 						}
+ 298:./Application/Funtion/CanLib/CANTxCycle.c ****                     }
+ 299:./Application/Funtion/CanLib/CANTxCycle.c ****                 }
+ 300:./Application/Funtion/CanLib/CANTxCycle.c ****                 
+ 301:./Application/Funtion/CanLib/CANTxCycle.c ****                 /*发送参数帧*/
+ 302:./Application/Funtion/CanLib/CANTxCycle.c ****                 else if(eCANFUN_UPP == gCanTxCycTable[i].funcode)
+ 303:./Application/Funtion/CanLib/CANTxCycle.c ****                 {
+ 304:./Application/Funtion/CanLib/CANTxCycle.c ****             		/*使能发送参数帧*/
+ 305:./Application/Funtion/CanLib/CANTxCycle.c ****                     if(1 == gCANTxParDef_15[0])
+ 306:./Application/Funtion/CanLib/CANTxCycle.c ****                     {
+ 307:./Application/Funtion/CanLib/CANTxCycle.c ****                         /*每组8个信息*/
+ 308:./Application/Funtion/CanLib/CANTxCycle.c ****                         mIndex = gCANTxParDef_15[gCanTxCycTable[i].index];
+ 309:./Application/Funtion/CanLib/CANTxCycle.c ****                         sIndex = gCANTxParDef_15[gCanTxCycTable[i].index + 1];
+ 310:./Application/Funtion/CanLib/CANTxCycle.c ****                         sIndexNum = gCANTxParDef_15[gCanTxCycTable[i].index + 2];
+ 311:./Application/Funtion/CanLib/CANTxCycle.c ****                         mapIndex = gCANTxParDef_15[gCanTxCycTable[i].index + 3];
+ 312:./Application/Funtion/CanLib/CANTxCycle.c ****                         txTime = ((u16)gCANTxParDef_15[gCanTxCycTable[i].index + 5] << 8) | gCANTxP
+ 313:./Application/Funtion/CanLib/CANTxCycle.c ****                         canNum = gCANTxParDef_15[gCanTxCycTable[i].index + 6];
+ 314:./Application/Funtion/CanLib/CANTxCycle.c ****                         destAddr = gCANTxParDef_15[gCanTxCycTable[i].index + 7];
+ 315:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 316:./Application/Funtion/CanLib/CANTxCycle.c ****                         /*生成主动发送信息*/
+ 317:./Application/Funtion/CanLib/CANTxCycle.c ****             	        (void)CANReqIdleTxRcvTab(eCANFUN_UPP, 0, gCanTxCycTable[i].pdata, gCanTxCycTab
+ 318:./Application/Funtion/CanLib/CANTxCycle.c ****                     }
+ 319:./Application/Funtion/CanLib/CANTxCycle.c ****             	}
+ 320:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 321:./Application/Funtion/CanLib/CANTxCycle.c ****                 /*更新下一次发送信息的时间*/
+ 322:./Application/Funtion/CanLib/CANTxCycle.c ****                 gCanTxCycTable[i].nextTime =  gCANCountTime + txTime;
+ 323:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 324:./Application/Funtion/CanLib/CANTxCycle.c ****                 /*超过最大时间时间*/
+ 325:./Application/Funtion/CanLib/CANTxCycle.c ****                 if(gCanTxCycTable[i].nextTime >= CAN_MAX_COUNT_TIME)
+ 326:./Application/Funtion/CanLib/CANTxCycle.c ****                 {
+ARM GAS  /tmp/ccG422Kx.s 			page 19
+
+
+ 327:./Application/Funtion/CanLib/CANTxCycle.c ****                     /*回头计时*/
+ 328:./Application/Funtion/CanLib/CANTxCycle.c ****                     gCanTxCycTable[i].nextTime = gCanTxCycTable[i].nextTime - CAN_MAX_COUNT_TIME;
+ 329:./Application/Funtion/CanLib/CANTxCycle.c ****                 }
+ 330:./Application/Funtion/CanLib/CANTxCycle.c ****             }
+ 331:./Application/Funtion/CanLib/CANTxCycle.c ****         }
+ 332:./Application/Funtion/CanLib/CANTxCycle.c ****     }
+ 333:./Application/Funtion/CanLib/CANTxCycle.c **** }
+ 579              		.loc 1 333 0
+ 580 002a 0DB0     		add	sp, sp, #52
+ 581              		@ sp needed
+ 582 002c F0BD     		pop	{r4, r5, r6, r7, pc}
+ 583              	.L63:
+ 230:./Application/Funtion/CanLib/CANTxCycle.c ****         {
+ 584              		.loc 1 230 0
+ 585 002e 564B     		ldr	r3, .L70+8
+ 586 0030 A268     		ldr	r2, [r4, #8]
+ 587 0032 1B68     		ldr	r3, [r3]
+ 588 0034 9A42     		cmp	r2, r3
+ 589 0036 03D9     		bls	.L56
+ 230:./Application/Funtion/CanLib/CANTxCycle.c ****         {
+ 590              		.loc 1 230 0 is_stmt 0 discriminator 1
+ 591 0038 5449     		ldr	r1, .L70+12
+ 592 003a 5B18     		adds	r3, r3, r1
+ 593 003c 9A42     		cmp	r2, r3
+ 594 003e 2AD9     		bls	.L57
+ 595              	.L56:
+ 233:./Application/Funtion/CanLib/CANTxCycle.c ****             {
+ 596              		.loc 1 233 0 is_stmt 1
+ 597 0040 2268     		ldr	r2, [r4]
+ 598 0042 002A     		cmp	r2, #0
+ 599 0044 27D0     		beq	.L57
+ 236:./Application/Funtion/CanLib/CANTxCycle.c ****                 {
+ 600              		.loc 1 236 0
+ 601 0046 6579     		ldrb	r5, [r4, #5]
+ 602 0048 0A2D     		cmp	r5, #10
+ 603 004a 26D1     		bne	.L58
+ 239:./Application/Funtion/CanLib/CANTxCycle.c ****                     {
+ 604              		.loc 1 239 0
+ 605 004c 504E     		ldr	r6, .L70+16
+ 606 004e 3378     		ldrb	r3, [r6]
+ 607 0050 012B     		cmp	r3, #1
+ 608 0052 18D1     		bne	.L59
+ 242:./Application/Funtion/CanLib/CANTxCycle.c ****                         sIndex = gCANTxSinDef_13[gCanTxCycTable[i].index + 1];
+ 609              		.loc 1 242 0
+ 610 0054 A779     		ldrb	r7, [r4, #6]
+ 611              	.LVL48:
+ 245:./Application/Funtion/CanLib/CANTxCycle.c ****                         canNum = gCANTxSinDef_13[gCanTxCycTable[i].index + 5];
+ 612              		.loc 1 245 0
+ 613 0056 F019     		adds	r0, r6, r7
+ 614              	.LVL49:
+ 615 0058 0379     		ldrb	r3, [r0, #4]
+ 616 005a C178     		ldrb	r1, [r0, #3]
+ 617 005c 1B02     		lsls	r3, r3, #8
+ 618 005e 1943     		orrs	r1, r3
+ 619 0060 0691     		str	r1, [sp, #24]
+ 620              	.LVL50:
+ 250:./Application/Funtion/CanLib/CANTxCycle.c ****                     }
+ARM GAS  /tmp/ccG422Kx.s 			page 20
+
+
+ 621              		.loc 1 250 0
+ 622 0062 4179     		ldrb	r1, [r0, #5]
+ 623 0064 2379     		ldrb	r3, [r4, #4]
+ 624 0066 0591     		str	r1, [sp, #20]
+ 625 0068 8179     		ldrb	r1, [r0, #6]
+ 626 006a 0793     		str	r3, [sp, #28]
+ 627 006c 0491     		str	r1, [sp, #16]
+ 628 006e 0021     		movs	r1, #0
+ 629 0070 0391     		str	r1, [sp, #12]
+ 630 0072 8378     		ldrb	r3, [r0, #2]
+ 631 0074 0293     		str	r3, [sp, #8]
+ 632 0076 4078     		ldrb	r0, [r0, #1]
+ 633              	.LVL51:
+ 634 0078 079B     		ldr	r3, [sp, #28]
+ 635 007a 0190     		str	r0, [sp, #4]
+ 636 007c F05D     		ldrb	r0, [r6, r7]
+ 637 007e 0090     		str	r0, [sp]
+ 638              	.LVL52:
+ 639              	.L67:
+ 317:./Application/Funtion/CanLib/CANTxCycle.c ****                     }
+ 640              		.loc 1 317 0
+ 641 0080 2800     		movs	r0, r5
+ 642 0082 FFF7FEFF 		bl	CANReqIdleTxRcvTab
+ 643              	.LVL53:
+ 644              	.L59:
+ 322:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 645              		.loc 1 322 0
+ 646 0086 404B     		ldr	r3, .L70+8
+ 647 0088 069A     		ldr	r2, [sp, #24]
+ 648 008a 1B68     		ldr	r3, [r3]
+ 649 008c D318     		adds	r3, r2, r3
+ 325:./Application/Funtion/CanLib/CANTxCycle.c ****                 {
+ 650              		.loc 1 325 0
+ 651 008e 414A     		ldr	r2, .L70+20
+ 652 0090 9342     		cmp	r3, r2
+ 653 0092 72D8     		bhi	.L62
+ 654              	.L69:
+ 328:./Application/Funtion/CanLib/CANTxCycle.c ****                 }
+ 655              		.loc 1 328 0
+ 656 0094 A360     		str	r3, [r4, #8]
+ 657              	.L57:
+ 658 0096 0C34     		adds	r4, r4, #12
+ 659 0098 C4E7     		b	.L55
+ 660              	.L58:
+ 255:./Application/Funtion/CanLib/CANTxCycle.c ****             	{
+ 661              		.loc 1 255 0
+ 662 009a 082D     		cmp	r5, #8
+ 663 009c 26D1     		bne	.L60
+ 258:./Application/Funtion/CanLib/CANTxCycle.c ****                     {
+ 664              		.loc 1 258 0
+ 665 009e 3E4B     		ldr	r3, .L70+24
+ 666 00a0 1A78     		ldrb	r2, [r3]
+ 667 00a2 012A     		cmp	r2, #1
+ 668 00a4 EFD1     		bne	.L59
+ 261:./Application/Funtion/CanLib/CANTxCycle.c ****                         sIndex = gCANTxMulDef_12[gCanTxCycTable[i].index + 1];
+ 669              		.loc 1 261 0
+ 670 00a6 A279     		ldrb	r2, [r4, #6]
+ARM GAS  /tmp/ccG422Kx.s 			page 21
+
+
+ 269:./Application/Funtion/CanLib/CANTxCycle.c ****                         {
+ 671              		.loc 1 269 0
+ 672 00a8 2800     		movs	r0, r5
+ 261:./Application/Funtion/CanLib/CANTxCycle.c ****                         sIndex = gCANTxMulDef_12[gCanTxCycTable[i].index + 1];
+ 673              		.loc 1 261 0
+ 674 00aa 9E5C     		ldrb	r6, [r3, r2]
+ 675              	.LVL54:
+ 262:./Application/Funtion/CanLib/CANTxCycle.c ****                         sIndexNum = gCANTxMulDef_12[gCanTxCycTable[i].index + 2];
+ 676              		.loc 1 262 0
+ 677 00ac 9B18     		adds	r3, r3, r2
+ 678 00ae 5A78     		ldrb	r2, [r3, #1]
+ 264:./Application/Funtion/CanLib/CANTxCycle.c ****                         canNum = gCANTxMulDef_12[gCanTxCycTable[i].index + 5];
+ 679              		.loc 1 264 0
+ 680 00b0 D978     		ldrb	r1, [r3, #3]
+ 262:./Application/Funtion/CanLib/CANTxCycle.c ****                         sIndexNum = gCANTxMulDef_12[gCanTxCycTable[i].index + 2];
+ 681              		.loc 1 262 0
+ 682 00b2 0792     		str	r2, [sp, #28]
+ 683              	.LVL55:
+ 263:./Application/Funtion/CanLib/CANTxCycle.c ****                         txTime = ((u16)gCANTxMulDef_12[gCanTxCycTable[i].index + 4] << 8) | gCANTxM
+ 684              		.loc 1 263 0
+ 685 00b4 9A78     		ldrb	r2, [r3, #2]
+ 265:./Application/Funtion/CanLib/CANTxCycle.c ****                         destAddr = gCANTxMulDef_12[gCanTxCycTable[i].index + 6];
+ 686              		.loc 1 265 0
+ 687 00b6 5F79     		ldrb	r7, [r3, #5]
+ 263:./Application/Funtion/CanLib/CANTxCycle.c ****                         txTime = ((u16)gCANTxMulDef_12[gCanTxCycTable[i].index + 4] << 8) | gCANTxM
+ 688              		.loc 1 263 0
+ 689 00b8 0892     		str	r2, [sp, #32]
+ 690              	.LVL56:
+ 264:./Application/Funtion/CanLib/CANTxCycle.c ****                         canNum = gCANTxMulDef_12[gCanTxCycTable[i].index + 5];
+ 691              		.loc 1 264 0
+ 692 00ba 1A79     		ldrb	r2, [r3, #4]
+ 266:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 693              		.loc 1 266 0
+ 694 00bc 9B79     		ldrb	r3, [r3, #6]
+ 264:./Application/Funtion/CanLib/CANTxCycle.c ****                         canNum = gCANTxMulDef_12[gCanTxCycTable[i].index + 5];
+ 695              		.loc 1 264 0
+ 696 00be 1202     		lsls	r2, r2, #8
+ 697 00c0 1143     		orrs	r1, r2
+ 698 00c2 0691     		str	r1, [sp, #24]
+ 699              	.LVL57:
+ 269:./Application/Funtion/CanLib/CANTxCycle.c ****                         {
+ 700              		.loc 1 269 0
+ 701 00c4 3A00     		movs	r2, r7
+ 702 00c6 3100     		movs	r1, r6
+ 266:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 703              		.loc 1 266 0
+ 704 00c8 0993     		str	r3, [sp, #36]
+ 705              	.LVL58:
+ 269:./Application/Funtion/CanLib/CANTxCycle.c ****                         {
+ 706              		.loc 1 269 0
+ 707 00ca FFF7FEFF 		bl	CANTxCycUpUserEnState_Hook
+ 708              	.LVL59:
+ 709 00ce 0128     		cmp	r0, #1
+ 710 00d0 D9D1     		bne	.L59
+ 272:./Application/Funtion/CanLib/CANTxCycle.c ****                         }
+ 711              		.loc 1 272 0
+ 712 00d2 0021     		movs	r1, #0
+ARM GAS  /tmp/ccG422Kx.s 			page 22
+
+
+ 713 00d4 099A     		ldr	r2, [sp, #36]
+ 714 00d6 2379     		ldrb	r3, [r4, #4]
+ 715 00d8 0492     		str	r2, [sp, #16]
+ 716 00da 089A     		ldr	r2, [sp, #32]
+ 717 00dc 0597     		str	r7, [sp, #20]
+ 718 00de 0292     		str	r2, [sp, #8]
+ 719 00e0 079A     		ldr	r2, [sp, #28]
+ 720 00e2 0391     		str	r1, [sp, #12]
+ 721 00e4 0192     		str	r2, [sp, #4]
+ 722 00e6 0096     		str	r6, [sp]
+ 723 00e8 2268     		ldr	r2, [r4]
+ 724 00ea C9E7     		b	.L67
+ 725              	.LVL60:
+ 726              	.L60:
+ 278:./Application/Funtion/CanLib/CANTxCycle.c ****                 {
+ 727              		.loc 1 278 0
+ 728 00ec 0B2D     		cmp	r5, #11
+ 729 00ee 29D1     		bne	.L61
+ 281:./Application/Funtion/CanLib/CANTxCycle.c ****                     {
+ 730              		.loc 1 281 0
+ 731 00f0 2A4B     		ldr	r3, .L70+28
+ 732 00f2 1A78     		ldrb	r2, [r3]
+ 733 00f4 012A     		cmp	r2, #1
+ 734 00f6 C6D1     		bne	.L59
+ 284:./Application/Funtion/CanLib/CANTxCycle.c ****                         sIndex = gCANTxCelDef_14[gCanTxCycTable[i].index + 1];
+ 735              		.loc 1 284 0
+ 736 00f8 A279     		ldrb	r2, [r4, #6]
+ 293:./Application/Funtion/CanLib/CANTxCycle.c **** 						{
+ 737              		.loc 1 293 0
+ 738 00fa 2800     		movs	r0, r5
+ 284:./Application/Funtion/CanLib/CANTxCycle.c ****                         sIndex = gCANTxCelDef_14[gCanTxCycTable[i].index + 1];
+ 739              		.loc 1 284 0
+ 740 00fc 9F5C     		ldrb	r7, [r3, r2]
+ 741              	.LVL61:
+ 285:./Application/Funtion/CanLib/CANTxCycle.c ****                         sIndexNum = gCANTxCelDef_14[gCanTxCycTable[i].index + 2];
+ 742              		.loc 1 285 0
+ 743 00fe 9B18     		adds	r3, r3, r2
+ 744 0100 5A78     		ldrb	r2, [r3, #1]
+ 288:./Application/Funtion/CanLib/CANTxCycle.c ****                         canNum = gCANTxCelDef_14[gCanTxCycTable[i].index + 6];
+ 745              		.loc 1 288 0
+ 746 0102 1979     		ldrb	r1, [r3, #4]
+ 285:./Application/Funtion/CanLib/CANTxCycle.c ****                         sIndexNum = gCANTxCelDef_14[gCanTxCycTable[i].index + 2];
+ 747              		.loc 1 285 0
+ 748 0104 0792     		str	r2, [sp, #28]
+ 749              	.LVL62:
+ 286:./Application/Funtion/CanLib/CANTxCycle.c ****                         mapIndex = gCANTxCelDef_14[gCanTxCycTable[i].index + 3];
+ 750              		.loc 1 286 0
+ 751 0106 9A78     		ldrb	r2, [r3, #2]
+ 289:./Application/Funtion/CanLib/CANTxCycle.c ****                         destAddr = gCANTxCelDef_14[gCanTxCycTable[i].index + 7];
+ 752              		.loc 1 289 0
+ 753 0108 9E79     		ldrb	r6, [r3, #6]
+ 286:./Application/Funtion/CanLib/CANTxCycle.c ****                         mapIndex = gCANTxCelDef_14[gCanTxCycTable[i].index + 3];
+ 754              		.loc 1 286 0
+ 755 010a 0892     		str	r2, [sp, #32]
+ 756              	.LVL63:
+ 287:./Application/Funtion/CanLib/CANTxCycle.c ****                         txTime = ((u16)gCANTxCelDef_14[gCanTxCycTable[i].index + 5] << 8) | gCANTxC
+ 757              		.loc 1 287 0
+ARM GAS  /tmp/ccG422Kx.s 			page 23
+
+
+ 758 010c DA78     		ldrb	r2, [r3, #3]
+ 759 010e 0992     		str	r2, [sp, #36]
+ 760              	.LVL64:
+ 288:./Application/Funtion/CanLib/CANTxCycle.c ****                         canNum = gCANTxCelDef_14[gCanTxCycTable[i].index + 6];
+ 761              		.loc 1 288 0
+ 762 0110 5A79     		ldrb	r2, [r3, #5]
+ 290:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 763              		.loc 1 290 0
+ 764 0112 DB79     		ldrb	r3, [r3, #7]
+ 288:./Application/Funtion/CanLib/CANTxCycle.c ****                         canNum = gCANTxCelDef_14[gCanTxCycTable[i].index + 6];
+ 765              		.loc 1 288 0
+ 766 0114 1202     		lsls	r2, r2, #8
+ 767 0116 1143     		orrs	r1, r2
+ 768 0118 0691     		str	r1, [sp, #24]
+ 769              	.LVL65:
+ 293:./Application/Funtion/CanLib/CANTxCycle.c **** 						{
+ 770              		.loc 1 293 0
+ 771 011a 3200     		movs	r2, r6
+ 772 011c 3900     		movs	r1, r7
+ 290:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 773              		.loc 1 290 0
+ 774 011e 0A93     		str	r3, [sp, #40]
+ 775              	.LVL66:
+ 293:./Application/Funtion/CanLib/CANTxCycle.c **** 						{
+ 776              		.loc 1 293 0
+ 777 0120 FFF7FEFF 		bl	CANTxCycUpUserEnState_Hook
+ 778              	.LVL67:
+ 779 0124 0128     		cmp	r0, #1
+ 780 0126 AED1     		bne	.L59
+ 296:./Application/Funtion/CanLib/CANTxCycle.c **** 						}
+ 781              		.loc 1 296 0
+ 782 0128 0A9A     		ldr	r2, [sp, #40]
+ 783 012a 2379     		ldrb	r3, [r4, #4]
+ 784 012c 0492     		str	r2, [sp, #16]
+ 785 012e 099A     		ldr	r2, [sp, #36]
+ 786 0130 0596     		str	r6, [sp, #20]
+ 787 0132 0392     		str	r2, [sp, #12]
+ 788 0134 089A     		ldr	r2, [sp, #32]
+ 789 0136 0097     		str	r7, [sp]
+ 790 0138 0292     		str	r2, [sp, #8]
+ 791 013a 079A     		ldr	r2, [sp, #28]
+ 792 013c 0192     		str	r2, [sp, #4]
+ 793 013e 2268     		ldr	r2, [r4]
+ 794              	.LVL68:
+ 795              	.L68:
+ 317:./Application/Funtion/CanLib/CANTxCycle.c ****                     }
+ 796              		.loc 1 317 0
+ 797 0140 0021     		movs	r1, #0
+ 798 0142 9DE7     		b	.L67
+ 799              	.L61:
+ 302:./Application/Funtion/CanLib/CANTxCycle.c ****                 {
+ 800              		.loc 1 302 0
+ 801 0144 0C2D     		cmp	r5, #12
+ 802 0146 9ED1     		bne	.L59
+ 305:./Application/Funtion/CanLib/CANTxCycle.c ****                     {
+ 803              		.loc 1 305 0
+ 804 0148 1548     		ldr	r0, .L70+32
+ARM GAS  /tmp/ccG422Kx.s 			page 24
+
+
+ 805 014a 0378     		ldrb	r3, [r0]
+ 806 014c 012B     		cmp	r3, #1
+ 807 014e 9AD1     		bne	.L59
+ 308:./Application/Funtion/CanLib/CANTxCycle.c ****                         sIndex = gCANTxParDef_15[gCanTxCycTable[i].index + 1];
+ 808              		.loc 1 308 0
+ 809 0150 A679     		ldrb	r6, [r4, #6]
+ 810              	.LVL69:
+ 312:./Application/Funtion/CanLib/CANTxCycle.c ****                         canNum = gCANTxParDef_15[gCanTxCycTable[i].index + 6];
+ 811              		.loc 1 312 0
+ 812 0152 8119     		adds	r1, r0, r6
+ 813              	.LVL70:
+ 814 0154 4B79     		ldrb	r3, [r1, #5]
+ 815 0156 0F79     		ldrb	r7, [r1, #4]
+ 816 0158 1B02     		lsls	r3, r3, #8
+ 817 015a 1F43     		orrs	r7, r3
+ 818 015c 0697     		str	r7, [sp, #24]
+ 819              	.LVL71:
+ 317:./Application/Funtion/CanLib/CANTxCycle.c ****                     }
+ 820              		.loc 1 317 0
+ 821 015e 8F79     		ldrb	r7, [r1, #6]
+ 822 0160 2379     		ldrb	r3, [r4, #4]
+ 823 0162 0597     		str	r7, [sp, #20]
+ 824 0164 CF79     		ldrb	r7, [r1, #7]
+ 825 0166 0497     		str	r7, [sp, #16]
+ 826 0168 CF78     		ldrb	r7, [r1, #3]
+ 827 016a 0397     		str	r7, [sp, #12]
+ 828 016c 8F78     		ldrb	r7, [r1, #2]
+ 829 016e 0297     		str	r7, [sp, #8]
+ 830 0170 4978     		ldrb	r1, [r1, #1]
+ 831              	.LVL72:
+ 832 0172 0191     		str	r1, [sp, #4]
+ 833 0174 815D     		ldrb	r1, [r0, r6]
+ 834 0176 0091     		str	r1, [sp]
+ 835 0178 E2E7     		b	.L68
+ 836              	.LVL73:
+ 837              	.L62:
+ 328:./Application/Funtion/CanLib/CANTxCycle.c ****                 }
+ 838              		.loc 1 328 0
+ 839 017a 0A4A     		ldr	r2, .L70+36
+ 840 017c 9B18     		adds	r3, r3, r2
+ 841 017e 89E7     		b	.L69
+ 842              	.L71:
+ 843              		.align	2
+ 844              	.L70:
+ 845 0180 00000000 		.word	gCANBaseDef_3
+ 846 0184 00000000 		.word	gCanTxCycTable
+ 847 0188 00000000 		.word	gCANCountTime
+ 848 018c A0860100 		.word	100000
+ 849 0190 00000000 		.word	gCANTxSinDef_13
+ 850 0194 FEFFFFEF 		.word	-268435458
+ 851 0198 00000000 		.word	gCANTxMulDef_12
+ 852 019c 00000000 		.word	gCANTxCelDef_14
+ 853 01a0 00000000 		.word	gCANTxParDef_15
+ 854 01a4 01000010 		.word	268435457
+ 855              		.cfi_endproc
+ 856              	.LFE494:
+ 858              		.section	.text.CANLibCycInfoTxHandle,"ax",%progbits
+ARM GAS  /tmp/ccG422Kx.s 			page 25
+
+
+ 859              		.align	1
+ 860              		.global	CANLibCycInfoTxHandle
+ 861              		.syntax unified
+ 862              		.code	16
+ 863              		.thumb_func
+ 864              		.fpu softvfp
+ 866              	CANLibCycInfoTxHandle:
+ 867              	.LFB495:
+ 334:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 335:./Application/Funtion/CanLib/CANTxCycle.c **** /*=================================================================================================
+ 336:./Application/Funtion/CanLib/CANTxCycle.c **** ** @Name      : void CANLibCycInfoTxHandle(void)
+ 337:./Application/Funtion/CanLib/CANTxCycle.c **** ** @Input     : void
+ 338:./Application/Funtion/CanLib/CANTxCycle.c **** ** @Output    : void
+ 339:./Application/Funtion/CanLib/CANTxCycle.c **** ** @Function  : CAN通信包内部周期信息发送处理任务
+ 340:./Application/Funtion/CanLib/CANTxCycle.c **** ** @The notes : 通信包总任务10ms调用
+ 341:./Application/Funtion/CanLib/CANTxCycle.c **** **===============================================================================================*/
+ 342:./Application/Funtion/CanLib/CANTxCycle.c **** void CANLibCycInfoTxHandle(void)
+ 343:./Application/Funtion/CanLib/CANTxCycle.c **** {
+ 868              		.loc 1 343 0
+ 869              		.cfi_startproc
+ 870              		@ args = 0, pretend = 0, frame = 8
+ 871              		@ frame_needed = 0, uses_anonymous_args = 0
+ 872              	.LVL74:
+ 873 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+ 874              	.LCFI4:
+ 875              		.cfi_def_cfa_offset 20
+ 876              		.cfi_offset 4, -20
+ 877              		.cfi_offset 5, -16
+ 878              		.cfi_offset 6, -12
+ 879              		.cfi_offset 7, -8
+ 880              		.cfi_offset 14, -4
+ 344:./Application/Funtion/CanLib/CANTxCycle.c ****     u8 i = 0;
+ 345:./Application/Funtion/CanLib/CANTxCycle.c **** 	u8 canNum = 0;
+ 346:./Application/Funtion/CanLib/CANTxCycle.c **** 	u16 txTime = 0;
+ 347:./Application/Funtion/CanLib/CANTxCycle.c **** 	static u32 sCfgTime = 0;
+ 348:./Application/Funtion/CanLib/CANTxCycle.c **** 	//static u32 sSoeTime = 0;
+ 349:./Application/Funtion/CanLib/CANTxCycle.c **** 	static u32 sVerTime[CAN_MAX_CAN_NUM] = {0};
+ 350:./Application/Funtion/CanLib/CANTxCycle.c **** 	static u32 sBreTime[CAN_MAX_CAN_NUM] = {0};
+ 351:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 352:./Application/Funtion/CanLib/CANTxCycle.c ****     /*心跳帧发送*/
+ 353:./Application/Funtion/CanLib/CANTxCycle.c ****     if(1 == gCANTxBreDef_11[0])
+ 881              		.loc 1 353 0
+ 882 0002 3B4B     		ldr	r3, .L95
+ 343:./Application/Funtion/CanLib/CANTxCycle.c ****     u8 i = 0;
+ 883              		.loc 1 343 0
+ 884 0004 85B0     		sub	sp, sp, #20
+ 885              	.LCFI5:
+ 886              		.cfi_def_cfa_offset 40
+ 887              		.loc 1 353 0
+ 888 0006 1B78     		ldrb	r3, [r3]
+ 889 0008 012B     		cmp	r3, #1
+ 890 000a 29D0     		beq	.L91
+ 891              	.LVL75:
+ 892              	.L81:
+ 354:./Application/Funtion/CanLib/CANTxCycle.c ****     {
+ 355:./Application/Funtion/CanLib/CANTxCycle.c ****     	/*逐个检测要发送的每组CAN通道*/
+ 356:./Application/Funtion/CanLib/CANTxCycle.c ****     	for(i = 0; i < gCANBaseDef_3[eCANRBas3_TxBreNum]; i++)
+ARM GAS  /tmp/ccG422Kx.s 			page 26
+
+
+ 357:./Application/Funtion/CanLib/CANTxCycle.c ****     	{
+ 358:./Application/Funtion/CanLib/CANTxCycle.c ****             /*达到发送周期*/
+ 359:./Application/Funtion/CanLib/CANTxCycle.c ****             if(gCANCountTime >= sBreTime[i])
+ 360:./Application/Funtion/CanLib/CANTxCycle.c ****             {
+ 361:./Application/Funtion/CanLib/CANTxCycle.c ****         	    /*每组3个信息*/
+ 362:./Application/Funtion/CanLib/CANTxCycle.c ****                 canNum = gCANTxBreDef_11[1 + i * 3];
+ 363:./Application/Funtion/CanLib/CANTxCycle.c ****                 txTime = ((u16)gCANTxBreDef_11[3 + i * 3] << 8) | gCANTxBreDef_11[2 + i * 3];
+ 364:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 365:./Application/Funtion/CanLib/CANTxCycle.c ****             	/*发送心跳报文*/
+ 366:./Application/Funtion/CanLib/CANTxCycle.c ****             	(void)CANBuildSendBreMsg_API(canNum);
+ 367:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 368:./Application/Funtion/CanLib/CANTxCycle.c ****             	/*更新下一次发送信息的时间*/
+ 369:./Application/Funtion/CanLib/CANTxCycle.c ****             	sBreTime[i] = gCANCountTime + txTime;
+ 370:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 371:./Application/Funtion/CanLib/CANTxCycle.c ****                 /*超过最大时间时间*/
+ 372:./Application/Funtion/CanLib/CANTxCycle.c ****                 if(sBreTime[i] >= CAN_MAX_COUNT_TIME)
+ 373:./Application/Funtion/CanLib/CANTxCycle.c ****                 {
+ 374:./Application/Funtion/CanLib/CANTxCycle.c ****                     /*回头计时*/
+ 375:./Application/Funtion/CanLib/CANTxCycle.c ****                 	sBreTime[i] = sBreTime[i] - CAN_MAX_COUNT_TIME;
+ 376:./Application/Funtion/CanLib/CANTxCycle.c ****                 }
+ 377:./Application/Funtion/CanLib/CANTxCycle.c ****             }
+ 378:./Application/Funtion/CanLib/CANTxCycle.c ****     	}
+ 379:./Application/Funtion/CanLib/CANTxCycle.c ****     }
+ 380:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 381:./Application/Funtion/CanLib/CANTxCycle.c ****     /*校时帧发送*/
+ 382:./Application/Funtion/CanLib/CANTxCycle.c ****     if(2 == gCANTxVerDef_10[0])
+ 893              		.loc 1 382 0
+ 894 000c 394B     		ldr	r3, .L95+4
+ 895 000e 1B78     		ldrb	r3, [r3]
+ 896 0010 022B     		cmp	r3, #2
+ 897 0012 47D1     		bne	.L75
+ 383:./Application/Funtion/CanLib/CANTxCycle.c ****     {
+ 384:./Application/Funtion/CanLib/CANTxCycle.c ****     	/*逐个检测要发送的每组CAN通道*/
+ 385:./Application/Funtion/CanLib/CANTxCycle.c ****     	for(i = 0; i < gCANBaseDef_3[eCANRBas3_TxVerNum]; i++)
+ 898              		.loc 1 385 0
+ 899 0014 0024     		movs	r4, #0
+ 900 0016 41E0     		b	.L74
+ 901              	.LVL76:
+ 902              	.L80:
+ 359:./Application/Funtion/CanLib/CANTxCycle.c ****             {
+ 903              		.loc 1 359 0
+ 904 0018 374D     		ldr	r5, .L95+8
+ 905 001a 384F     		ldr	r7, .L95+12
+ 906 001c A600     		lsls	r6, r4, #2
+ 907 001e 7359     		ldr	r3, [r6, r5]
+ 908 0020 3A68     		ldr	r2, [r7]
+ 909 0022 9342     		cmp	r3, r2
+ 910 0024 12D8     		bhi	.L77
+ 362:./Application/Funtion/CanLib/CANTxCycle.c ****                 txTime = ((u16)gCANTxBreDef_11[3 + i * 3] << 8) | gCANTxBreDef_11[2 + i * 3];
+ 911              		.loc 1 362 0
+ 912 0026 0323     		movs	r3, #3
+ 913 0028 6343     		muls	r3, r4
+ 914              	.LVL77:
+ 363:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 915              		.loc 1 363 0
+ 916 002a 314A     		ldr	r2, .L95
+ 917 002c D318     		adds	r3, r2, r3
+ARM GAS  /tmp/ccG422Kx.s 			page 27
+
+
+ 918              	.LVL78:
+ 919 002e DA78     		ldrb	r2, [r3, #3]
+ 920 0030 9978     		ldrb	r1, [r3, #2]
+ 921 0032 1202     		lsls	r2, r2, #8
+ 922 0034 1143     		orrs	r1, r2
+ 366:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 923              		.loc 1 366 0
+ 924 0036 5878     		ldrb	r0, [r3, #1]
+ 363:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 925              		.loc 1 363 0
+ 926 0038 0391     		str	r1, [sp, #12]
+ 927              	.LVL79:
+ 366:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 928              		.loc 1 366 0
+ 929 003a FFF7FEFF 		bl	CANBuildSendBreMsg_API
+ 930              	.LVL80:
+ 369:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 931              		.loc 1 369 0
+ 932 003e 039A     		ldr	r2, [sp, #12]
+ 933 0040 3B68     		ldr	r3, [r7]
+ 934 0042 D318     		adds	r3, r2, r3
+ 372:./Application/Funtion/CanLib/CANTxCycle.c ****                 {
+ 935              		.loc 1 372 0
+ 936 0044 2E4A     		ldr	r2, .L95+16
+ 937 0046 9342     		cmp	r3, r2
+ 938 0048 07D8     		bhi	.L78
+ 939              	.L93:
+ 375:./Application/Funtion/CanLib/CANTxCycle.c ****                 }
+ 940              		.loc 1 375 0
+ 941 004a 7351     		str	r3, [r6, r5]
+ 942              	.LVL81:
+ 943              	.L77:
+ 356:./Application/Funtion/CanLib/CANTxCycle.c ****     	{
+ 944              		.loc 1 356 0 discriminator 2
+ 945 004c 0134     		adds	r4, r4, #1
+ 946              	.LVL82:
+ 947 004e E4B2     		uxtb	r4, r4
+ 948              	.LVL83:
+ 949              	.L73:
+ 356:./Application/Funtion/CanLib/CANTxCycle.c ****     	{
+ 950              		.loc 1 356 0 is_stmt 0 discriminator 1
+ 951 0050 2C4B     		ldr	r3, .L95+20
+ 952 0052 1B79     		ldrb	r3, [r3, #4]
+ 953 0054 A342     		cmp	r3, r4
+ 954 0056 DFD8     		bhi	.L80
+ 955 0058 D8E7     		b	.L81
+ 956              	.LVL84:
+ 957              	.L78:
+ 375:./Application/Funtion/CanLib/CANTxCycle.c ****                 }
+ 958              		.loc 1 375 0 is_stmt 1
+ 959 005a 2B4A     		ldr	r2, .L95+24
+ 960 005c 9B18     		adds	r3, r3, r2
+ 961 005e F4E7     		b	.L93
+ 962              	.LVL85:
+ 963              	.L91:
+ 356:./Application/Funtion/CanLib/CANTxCycle.c ****     	{
+ 964              		.loc 1 356 0
+ARM GAS  /tmp/ccG422Kx.s 			page 28
+
+
+ 965 0060 0024     		movs	r4, #0
+ 966 0062 F5E7     		b	.L73
+ 967              	.LVL86:
+ 968              	.L88:
+ 386:./Application/Funtion/CanLib/CANTxCycle.c ****     	{
+ 387:./Application/Funtion/CanLib/CANTxCycle.c ****             /*达到发送周期*/
+ 388:./Application/Funtion/CanLib/CANTxCycle.c ****             if(gCANCountTime >= sVerTime[i])
+ 969              		.loc 1 388 0
+ 970 0064 294D     		ldr	r5, .L95+28
+ 971 0066 254F     		ldr	r7, .L95+12
+ 972 0068 A600     		lsls	r6, r4, #2
+ 973 006a 7359     		ldr	r3, [r6, r5]
+ 974 006c 3A68     		ldr	r2, [r7]
+ 975 006e 9342     		cmp	r3, r2
+ 976 0070 12D8     		bhi	.L85
+ 389:./Application/Funtion/CanLib/CANTxCycle.c ****             {
+ 390:./Application/Funtion/CanLib/CANTxCycle.c ****         	    /*每组3个信息*/
+ 391:./Application/Funtion/CanLib/CANTxCycle.c ****                 canNum = gCANTxVerDef_10[1 + i * 3];
+ 977              		.loc 1 391 0
+ 978 0072 0323     		movs	r3, #3
+ 979 0074 6343     		muls	r3, r4
+ 980              	.LVL87:
+ 392:./Application/Funtion/CanLib/CANTxCycle.c ****                 txTime = ((u16)gCANTxVerDef_10[3 + i * 3] << 8) | gCANTxVerDef_10[2 + i * 3];
+ 981              		.loc 1 392 0
+ 982 0076 1F4A     		ldr	r2, .L95+4
+ 983 0078 D318     		adds	r3, r2, r3
+ 984              	.LVL88:
+ 985 007a DA78     		ldrb	r2, [r3, #3]
+ 986 007c 9978     		ldrb	r1, [r3, #2]
+ 987 007e 1202     		lsls	r2, r2, #8
+ 988 0080 1143     		orrs	r1, r2
+ 393:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 394:./Application/Funtion/CanLib/CANTxCycle.c ****             	/*发送校时报文*/
+ 395:./Application/Funtion/CanLib/CANTxCycle.c ****             	(void)CANBuildSendVerMsg_API(canNum);
+ 989              		.loc 1 395 0
+ 990 0082 5878     		ldrb	r0, [r3, #1]
+ 392:./Application/Funtion/CanLib/CANTxCycle.c ****                 txTime = ((u16)gCANTxVerDef_10[3 + i * 3] << 8) | gCANTxVerDef_10[2 + i * 3];
+ 991              		.loc 1 392 0
+ 992 0084 0391     		str	r1, [sp, #12]
+ 993              	.LVL89:
+ 994              		.loc 1 395 0
+ 995 0086 FFF7FEFF 		bl	CANBuildSendVerMsg_API
+ 996              	.LVL90:
+ 396:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 397:./Application/Funtion/CanLib/CANTxCycle.c ****             	/*更新下一次发送信息的时间*/
+ 398:./Application/Funtion/CanLib/CANTxCycle.c ****             	sVerTime[i] = gCANCountTime + txTime;
+ 997              		.loc 1 398 0
+ 998 008a 039A     		ldr	r2, [sp, #12]
+ 999 008c 3B68     		ldr	r3, [r7]
+ 1000 008e D318     		adds	r3, r2, r3
+ 399:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 400:./Application/Funtion/CanLib/CANTxCycle.c ****                 /*超过最大时间时间*/
+ 401:./Application/Funtion/CanLib/CANTxCycle.c ****                 if(sVerTime[i] >= CAN_MAX_COUNT_TIME)
+ 1001              		.loc 1 401 0
+ 1002 0090 1B4A     		ldr	r2, .L95+16
+ 1003 0092 9342     		cmp	r3, r2
+ 1004 0094 0CD8     		bhi	.L86
+ARM GAS  /tmp/ccG422Kx.s 			page 29
+
+
+ 1005              	.L94:
+ 402:./Application/Funtion/CanLib/CANTxCycle.c ****                 {
+ 403:./Application/Funtion/CanLib/CANTxCycle.c ****                     /*回头计时*/
+ 404:./Application/Funtion/CanLib/CANTxCycle.c ****                 	sVerTime[i] = sVerTime[i] - CAN_MAX_COUNT_TIME;
+ 1006              		.loc 1 404 0
+ 1007 0096 7351     		str	r3, [r6, r5]
+ 1008              	.LVL91:
+ 1009              	.L85:
+ 385:./Application/Funtion/CanLib/CANTxCycle.c ****     	{
+ 1010              		.loc 1 385 0 discriminator 2
+ 1011 0098 0134     		adds	r4, r4, #1
+ 1012              	.LVL92:
+ 1013 009a E4B2     		uxtb	r4, r4
+ 1014              	.LVL93:
+ 1015              	.L74:
+ 385:./Application/Funtion/CanLib/CANTxCycle.c ****     	{
+ 1016              		.loc 1 385 0 is_stmt 0 discriminator 1
+ 1017 009c 194B     		ldr	r3, .L95+20
+ 1018 009e DB78     		ldrb	r3, [r3, #3]
+ 1019 00a0 A342     		cmp	r3, r4
+ 1020 00a2 DFD8     		bhi	.L88
+ 1021              	.LVL94:
+ 1022              	.L75:
+ 405:./Application/Funtion/CanLib/CANTxCycle.c ****                 }
+ 406:./Application/Funtion/CanLib/CANTxCycle.c ****             }
+ 407:./Application/Funtion/CanLib/CANTxCycle.c ****     	}
+ 408:./Application/Funtion/CanLib/CANTxCycle.c ****     }
+ 409:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 410:./Application/Funtion/CanLib/CANTxCycle.c ****     /*参数批量配置状态信息发送(500ms周期)*/
+ 411:./Application/Funtion/CanLib/CANTxCycle.c ****     /*进入参数配置模式*/
+ 412:./Application/Funtion/CanLib/CANTxCycle.c ****     if(gCANParCfgStat_20[0] > 0)
+ 1023              		.loc 1 412 0 is_stmt 1
+ 1024 00a4 1A4B     		ldr	r3, .L95+32
+ 1025 00a6 1B78     		ldrb	r3, [r3]
+ 1026 00a8 002B     		cmp	r3, #0
+ 1027 00aa 04D1     		bne	.L82
+ 1028              	.L72:
+ 413:./Application/Funtion/CanLib/CANTxCycle.c ****     {
+ 414:./Application/Funtion/CanLib/CANTxCycle.c ****         /*达到发送周期*/
+ 415:./Application/Funtion/CanLib/CANTxCycle.c ****         if(gCANCountTime >= sCfgTime)
+ 416:./Application/Funtion/CanLib/CANTxCycle.c ****         {
+ 417:./Application/Funtion/CanLib/CANTxCycle.c ****     	    /*发送主动发送长帧报文*/
+ 418:./Application/Funtion/CanLib/CANTxCycle.c ****         	(void)CANBuildSendUpmMsg_API(0xff, 0, 20, 0, 2, CAN_UPDATE_PORT);
+ 419:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 420:./Application/Funtion/CanLib/CANTxCycle.c ****         	/*更新下一次发送信息的时间*/
+ 421:./Application/Funtion/CanLib/CANTxCycle.c ****         	sCfgTime = gCANCountTime + 500;
+ 422:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 423:./Application/Funtion/CanLib/CANTxCycle.c ****             /*超过最大时间时间*/
+ 424:./Application/Funtion/CanLib/CANTxCycle.c ****             if(sCfgTime >= CAN_MAX_COUNT_TIME)
+ 425:./Application/Funtion/CanLib/CANTxCycle.c ****             {
+ 426:./Application/Funtion/CanLib/CANTxCycle.c ****                 /*回头计时*/
+ 427:./Application/Funtion/CanLib/CANTxCycle.c ****             	sCfgTime = sCfgTime - CAN_MAX_COUNT_TIME;
+ 428:./Application/Funtion/CanLib/CANTxCycle.c ****             }
+ 429:./Application/Funtion/CanLib/CANTxCycle.c ****         }
+ 430:./Application/Funtion/CanLib/CANTxCycle.c ****     }
+ 431:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 432:./Application/Funtion/CanLib/CANTxCycle.c ****     /*事件记录数目状态信息发送(500ms周期)*/
+ARM GAS  /tmp/ccG422Kx.s 			page 30
+
+
+ 433:./Application/Funtion/CanLib/CANTxCycle.c ****     /*有记录数目则主动发送(改为需要查询,因为数目需要查询才更新显示值)
+ 434:./Application/Funtion/CanLib/CANTxCycle.c **** //    if((gCANRcdNum_30[0] > 0) || (gCANRcdNum_30[1] > 0) || (gCANRcdNum_30[2] > 0) || (gCANRcdNum_
+ 435:./Application/Funtion/CanLib/CANTxCycle.c **** //    {
+ 436:./Application/Funtion/CanLib/CANTxCycle.c **** //        /*达到发送周期*/
+ 437:./Application/Funtion/CanLib/CANTxCycle.c **** //        if(gCANCountTime >= sSoeTime)
+ 438:./Application/Funtion/CanLib/CANTxCycle.c **** //        {
+ 439:./Application/Funtion/CanLib/CANTxCycle.c **** //    	    /*发送主动发送长帧报文*/
+ 440:./Application/Funtion/CanLib/CANTxCycle.c **** //        	(void)CANBuildSendUpmMsg_API(0xff, 0, 30, 0, 4, CAN_UPDATE_PORT);
+ 441:./Application/Funtion/CanLib/CANTxCycle.c **** //
+ 442:./Application/Funtion/CanLib/CANTxCycle.c **** //        	/*更新下一次发送信息的时间*/
+ 443:./Application/Funtion/CanLib/CANTxCycle.c **** //        	sSoeTime = gCANCountTime + 500;
+ 444:./Application/Funtion/CanLib/CANTxCycle.c **** //
+ 445:./Application/Funtion/CanLib/CANTxCycle.c **** //            /*超过最大时间时间*/
+ 446:./Application/Funtion/CanLib/CANTxCycle.c **** //            if(sSoeTime >= CAN_MAX_COUNT_TIME)
+ 447:./Application/Funtion/CanLib/CANTxCycle.c **** //            {
+ 448:./Application/Funtion/CanLib/CANTxCycle.c **** //                /*回头计时*/
+ 449:./Application/Funtion/CanLib/CANTxCycle.c **** //            	sSoeTime = sSoeTime - CAN_MAX_COUNT_TIME;
+ 450:./Application/Funtion/CanLib/CANTxCycle.c **** //            }
+ 451:./Application/Funtion/CanLib/CANTxCycle.c **** //        }
+ 452:./Application/Funtion/CanLib/CANTxCycle.c **** //    }
+ 453:./Application/Funtion/CanLib/CANTxCycle.c **** }
+ 1029              		.loc 1 453 0
+ 1030 00ac 05B0     		add	sp, sp, #20
+ 1031              		@ sp needed
+ 1032 00ae F0BD     		pop	{r4, r5, r6, r7, pc}
+ 1033              	.LVL95:
+ 1034              	.L86:
+ 404:./Application/Funtion/CanLib/CANTxCycle.c ****                 }
+ 1035              		.loc 1 404 0
+ 1036 00b0 154A     		ldr	r2, .L95+24
+ 1037 00b2 9B18     		adds	r3, r3, r2
+ 1038 00b4 EFE7     		b	.L94
+ 1039              	.LVL96:
+ 1040              	.L82:
+ 415:./Application/Funtion/CanLib/CANTxCycle.c ****         {
+ 1041              		.loc 1 415 0
+ 1042 00b6 114D     		ldr	r5, .L95+12
+ 1043 00b8 164C     		ldr	r4, .L95+36
+ 1044 00ba 2B68     		ldr	r3, [r5]
+ 1045 00bc 2268     		ldr	r2, [r4]
+ 1046 00be 9342     		cmp	r3, r2
+ 1047 00c0 F4D3     		bcc	.L72
+ 418:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 1048              		.loc 1 418 0
+ 1049 00c2 0021     		movs	r1, #0
+ 1050 00c4 0223     		movs	r3, #2
+ 1051 00c6 0191     		str	r1, [sp, #4]
+ 1052 00c8 0093     		str	r3, [sp]
+ 1053 00ca 1422     		movs	r2, #20
+ 1054 00cc 0B00     		movs	r3, r1
+ 1055 00ce FF20     		movs	r0, #255
+ 1056 00d0 FFF7FEFF 		bl	CANBuildSendUpmMsg_API
+ 1057              	.LVL97:
+ 421:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 1058              		.loc 1 421 0
+ 1059 00d4 2B68     		ldr	r3, [r5]
+ 424:./Application/Funtion/CanLib/CANTxCycle.c ****             {
+ARM GAS  /tmp/ccG422Kx.s 			page 31
+
+
+ 1060              		.loc 1 424 0
+ 1061 00d6 0A49     		ldr	r1, .L95+16
+ 421:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 1062              		.loc 1 421 0
+ 1063 00d8 1A00     		movs	r2, r3
+ 1064 00da F532     		adds	r2, r2, #245
+ 1065 00dc FF32     		adds	r2, r2, #255
+ 424:./Application/Funtion/CanLib/CANTxCycle.c ****             {
+ 1066              		.loc 1 424 0
+ 1067 00de 8A42     		cmp	r2, r1
+ 1068 00e0 01D8     		bhi	.L90
+ 421:./Application/Funtion/CanLib/CANTxCycle.c **** 
+ 1069              		.loc 1 421 0
+ 1070 00e2 2260     		str	r2, [r4]
+ 1071 00e4 E2E7     		b	.L72
+ 1072              	.L90:
+ 427:./Application/Funtion/CanLib/CANTxCycle.c ****             }
+ 1073              		.loc 1 427 0
+ 1074 00e6 0C4A     		ldr	r2, .L95+40
+ 1075 00e8 9B18     		adds	r3, r3, r2
+ 1076 00ea 2360     		str	r3, [r4]
+ 1077              		.loc 1 453 0
+ 1078 00ec DEE7     		b	.L72
+ 1079              	.L96:
+ 1080 00ee C046     		.align	2
+ 1081              	.L95:
+ 1082 00f0 00000000 		.word	gCANTxBreDef_11
+ 1083 00f4 00000000 		.word	gCANTxVerDef_10
+ 1084 00f8 00000000 		.word	.LANCHOR0
+ 1085 00fc 00000000 		.word	gCANCountTime
+ 1086 0100 FEFFFFEF 		.word	-268435458
+ 1087 0104 00000000 		.word	gCANBaseDef_3
+ 1088 0108 01000010 		.word	268435457
+ 1089 010c 00000000 		.word	.LANCHOR1
+ 1090 0110 00000000 		.word	gCANParCfgStat_20
+ 1091 0114 00000000 		.word	.LANCHOR2
+ 1092 0118 F5010010 		.word	268435957
+ 1093              		.cfi_endproc
+ 1094              	.LFE495:
+ 1096              		.section	.bss.sBreTime.10374,"aw",%nobits
+ 1097              		.align	2
+ 1098              		.set	.LANCHOR0,. + 0
+ 1101              	sBreTime.10374:
+ 1102 0000 00000000 		.space	4
+ 1103              		.section	.bss.sCfgTime.10372,"aw",%nobits
+ 1104              		.align	2
+ 1105              		.set	.LANCHOR2,. + 0
+ 1108              	sCfgTime.10372:
+ 1109 0000 00000000 		.space	4
+ 1110              		.section	.bss.sVerTime.10373,"aw",%nobits
+ 1111              		.align	2
+ 1112              		.set	.LANCHOR1,. + 0
+ 1115              	sVerTime.10373:
+ 1116 0000 00000000 		.space	4
+ 1117              		.text
+ 1118              	.Letext0:
+ 1119              		.file 2 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/machine/_default_types.h"
+ARM GAS  /tmp/ccG422Kx.s 			page 32
+
+
+ 1120              		.file 3 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/lock.h"
+ 1121              		.file 4 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_types.h"
+ 1122              		.file 5 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/lib/gcc/arm-none-eabi/7.3.1/include/stddef.h"
+ 1123              		.file 6 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/reent.h"
+ 1124              		.file 7 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/stdlib.h"
+ 1125              		.file 8 "Application/BSPSys/Util/BSPTypeDef.h"
+ 1126              		.file 9 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_stdint.h"
+ 1127              		.file 10 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/system_stm32g0xx.h"
+ 1128              		.file 11 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/stm32g0b1xx.h"
+ 1129              		.file 12 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/stm32g0xx.h"
+ 1130              		.file 13 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_def.h"
+ 1131              		.file 14 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_flash.h"
+ 1132              		.file 15 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_fdcan.h"
+ 1133              		.file 16 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_uart.h"
+ 1134              		.file 17 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal.h"
+ 1135              		.file 18 "Core/Inc/main.h"
+ 1136              		.file 19 "Core/Inc/fdcan.h"
+ 1137              		.file 20 "./Application/Funtion/CanLib/CANInterface.h"
+ 1138              		.file 21 "./Application/Funtion/CanLib/CANUser.h"
+ 1139              		.file 22 "Application/Funtion/SystemInfo/SystemInfo.h"
+ 1140              		.file 23 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_ll_dma.h"
+ 1141              		.file 24 "./Application/Funtion/CanLib/CANHandle.h"
+ 1142              		.file 25 "./Application/Funtion/CanLib/CANTabOper.h"
+ARM GAS  /tmp/ccG422Kx.s 			page 33
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 CANTxCycle.c
+     /tmp/ccG422Kx.s:16     .text.CANTxCycleTabInit:0000000000000000 $t
+     /tmp/ccG422Kx.s:23     .text.CANTxCycleTabInit:0000000000000000 CANTxCycleTabInit
+     /tmp/ccG422Kx.s:517    .text.CANTxCycleTabInit:0000000000000234 $d
+     /tmp/ccG422Kx.s:528    .text.CANTxCycleTabHandle:0000000000000000 $t
+     /tmp/ccG422Kx.s:535    .text.CANTxCycleTabHandle:0000000000000000 CANTxCycleTabHandle
+     /tmp/ccG422Kx.s:845    .text.CANTxCycleTabHandle:0000000000000180 $d
+     /tmp/ccG422Kx.s:859    .text.CANLibCycInfoTxHandle:0000000000000000 $t
+     /tmp/ccG422Kx.s:866    .text.CANLibCycInfoTxHandle:0000000000000000 CANLibCycInfoTxHandle
+     /tmp/ccG422Kx.s:1082   .text.CANLibCycInfoTxHandle:00000000000000f0 $d
+     /tmp/ccG422Kx.s:1097   .bss.sBreTime.10374:0000000000000000 $d
+     /tmp/ccG422Kx.s:1101   .bss.sBreTime.10374:0000000000000000 sBreTime.10374
+     /tmp/ccG422Kx.s:1104   .bss.sCfgTime.10372:0000000000000000 $d
+     /tmp/ccG422Kx.s:1108   .bss.sCfgTime.10372:0000000000000000 sCfgTime.10372
+     /tmp/ccG422Kx.s:1111   .bss.sVerTime.10373:0000000000000000 $d
+     /tmp/ccG422Kx.s:1115   .bss.sVerTime.10373:0000000000000000 sVerTime.10373
+
+UNDEFINED SYMBOLS
+CanScanIndexTabInfo
+gCANBaseDef_3
+gCanTxCycTable
+gCANTxSinDef_13
+SystemInfo_1
+gCANTxCelDef_14
+gCANTxMulDef_12
+gCANTxParDef_15
+CANReqIdleTxRcvTab
+CANTxCycUpUserEnState_Hook
+gCANCountTime
+CANBuildSendBreMsg_API
+CANBuildSendVerMsg_API
+CANBuildSendUpmMsg_API
+gCANTxBreDef_11
+gCANTxVerDef_10
+gCANParCfgStat_20

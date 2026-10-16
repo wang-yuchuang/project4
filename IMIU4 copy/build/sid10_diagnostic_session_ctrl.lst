@@ -1,0 +1,229 @@
+ARM GAS  /tmp/cc3yKCAs.s 			page 1
+
+
+   1              		.cpu cortex-m0plus
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 4
+   9              		.eabi_attribute 34, 0
+  10              		.eabi_attribute 18, 4
+  11              		.file	"sid10_diagnostic_session_ctrl.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.sid10_diagnostic_session_ctrl_solve,"ax",%progbits
+  16              		.align	1
+  17              		.global	sid10_diagnostic_session_ctrl_solve
+  18              		.syntax unified
+  19              		.code	16
+  20              		.thumb_func
+  21              		.fpu softvfp
+  23              	sid10_diagnostic_session_ctrl_solve:
+  24              	.LFB493:
+  25              		.file 1 "./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.
+   1:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c **** /* ******************* 
+   2:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c ****  * can uds 10h服务的实现
+   3:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c ****  **********************/
+   4:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c **** #include <string.h>
+   5:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c **** #include "network_layer/can_uds_network_layer.h"
+   6:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c **** #include "services_layer/device_role/sid_internal_header.h"
+   7:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c **** #include "services_layer/device_role/can_uds_services_layer.h"
+   8:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c **** #include "sid_internal_header.h"
+   9:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c **** 
+  10:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c **** void sid10_diagnostic_session_ctrl_solve(unsigned char *msg_buff,unsigned short msg_len)
+  11:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c **** {
+  26              		.loc 1 11 0
+  27              		.cfi_startproc
+  28              		@ args = 0, pretend = 0, frame = 8
+  29              		@ frame_needed = 0, uses_anonymous_args = 0
+  30              	.LVL0:
+  31 0000 07B5     		push	{r0, r1, r2, lr}
+  32              	.LCFI0:
+  33              		.cfi_def_cfa_offset 16
+  34              		.cfi_offset 0, -16
+  35              		.cfi_offset 1, -12
+  36              		.cfi_offset 2, -8
+  37              		.cfi_offset 14, -4
+  12:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c ****     unsigned char rsp_msg[6] = {0};
+  38              		.loc 1 12 0
+  39 0002 0022     		movs	r2, #0
+  40 0004 6B46     		mov	r3, sp
+  41 0006 5A80     		strh	r2, [r3, #2]
+  13:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c **** 
+  14:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c ****     rsp_msg[0] = ds_diagnostic_session_ctrl | UDS_SRV_RET_ID_OFFSET;
+  42              		.loc 1 14 0
+  43 0008 6A46     		mov	r2, sp
+  44 000a 5023     		movs	r3, #80
+ARM GAS  /tmp/cc3yKCAs.s 			page 2
+
+
+  45 000c 1370     		strb	r3, [r2]
+  15:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c ****     rsp_msg[1] = msg_buff[1];
+  46              		.loc 1 15 0
+  47 000e 4378     		ldrb	r3, [r0, #1]
+  16:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c ****     rsp_msg[2] = 0x00;
+  17:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c ****     rsp_msg[3] = 0x32;
+  48              		.loc 1 17 0
+  49 0010 6946     		mov	r1, sp
+  50              	.LVL1:
+  15:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c ****     rsp_msg[1] = msg_buff[1];
+  51              		.loc 1 15 0
+  52 0012 5370     		strb	r3, [r2, #1]
+  53              		.loc 1 17 0
+  54 0014 3222     		movs	r2, #50
+  55 0016 CA70     		strb	r2, [r1, #3]
+  18:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c ****     rsp_msg[4] = 0x01;
+  56              		.loc 1 18 0
+  57 0018 313A     		subs	r2, r2, #49
+  58 001a 0A71     		strb	r2, [r1, #4]
+  19:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c ****     rsp_msg[5] = 0xf4;
+  59              		.loc 1 19 0
+  60 001c F332     		adds	r2, r2, #243
+  61 001e 4A71     		strb	r2, [r1, #5]
+  20:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c **** 
+  21:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c ****     switch(cur_session_type)
+  62              		.loc 1 21 0
+  63 0020 0B4A     		ldr	r2, .L8
+  64 0022 1178     		ldrb	r1, [r2]
+  65 0024 0139     		subs	r1, r1, #1
+  66 0026 0229     		cmp	r1, #2
+  67 0028 10D8     		bhi	.L1
+  68 002a 7F21     		movs	r1, #127
+  69 002c 0B40     		ands	r3, r1
+  22:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c ****     {
+  23:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c ****     case DEFAULT_SESSION:
+  24:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c ****     case EXTENDED_SESSION:
+  25:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c ****     case PROGRAMMING_SESSION:
+  26:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c ****         if((msg_buff[1]&0x7f) == EXTENDED_SESSION){//要求切换到扩展会话
+  70              		.loc 1 26 0
+  71 002e 032B     		cmp	r3, #3
+  72 0030 05D1     		bne	.L4
+  27:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c ****             cur_session_type = EXTENDED_SESSION;
+  73              		.loc 1 27 0
+  74 0032 1370     		strb	r3, [r2]
+  28:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c ****             uds_ack_accept(rsp_msg,6);
+  75              		.loc 1 28 0
+  76 0034 7939     		subs	r1, r1, #121
+  77              	.L6:
+  29:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c ****         }else if((msg_buff[1]&0x7f) == PROGRAMMING_SESSION){//要求切换到编程会话
+  30:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c ****             cur_session_type = PROGRAMMING_SESSION;
+  31:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c ****             uds_ack_accept(rsp_msg,6);
+  32:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c ****         }else if((msg_buff[1]&0x7f) == DEFAULT_SESSION){//要求切换到默认会话
+  33:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c ****             cur_session_type = DEFAULT_SESSION;
+  34:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c ****             uds_ack_accept(rsp_msg,6);
+  78              		.loc 1 34 0
+  79 0036 6846     		mov	r0, sp
+  80              	.LVL2:
+ARM GAS  /tmp/cc3yKCAs.s 			page 3
+
+
+  81 0038 FFF7FEFF 		bl	uds_ack_accept
+  82              	.LVL3:
+  35:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c ****         }
+  36:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c ****         break;
+  37:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c ****     #if 0
+  38:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c ****     case EXTENDED_SESSION:
+  39:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c ****         if((msg_buff[1]&0x7f) == DEFAULT_SESSION){//要求切换到扩展会话
+  40:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c ****             cur_session_type = DEFAULT_SESSION;
+  41:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c ****             uds_ack_accept(rsp_msg,6);
+  42:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c ****         }else if((msg_buff[1]&0x7f) == PROGRAMMING_SESSION){//要求切换到编程会话
+  43:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c ****             cur_session_type = PROGRAMMING_SESSION;
+  44:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c ****             uds_ack_accept(rsp_msg,6);
+  45:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c ****         }else if((msg_buff[1]&0x7f) == EXTENDED_SESSION){//要求切换到默认会话
+  46:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c ****             cur_session_type = EXTENDED_SESSION;
+  47:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c ****             uds_ack_accept(rsp_msg,6);
+  48:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c ****         }
+  49:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c ****         break;
+  50:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c ****     case PROGRAMMING_SESSION:
+  51:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c ****         if((msg_buff[1]&0x7f) == DEFAULT_SESSION){//要求切换到扩展会话
+  52:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c ****             cur_session_type = DEFAULT_SESSION;
+  53:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c ****             uds_ack_accept(rsp_msg,6);
+  54:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c ****         }else if((msg_buff[1]&0x7f) == PROGRAMMING_SESSION){//要求切换到编程会话
+  55:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c ****             cur_session_type = PROGRAMMING_SESSION;
+  56:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c ****             uds_ack_accept(rsp_msg,6);
+  57:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c ****         else if((msg_buff[1]&0x7f) == EXTENDED_SESSION){//要求切换到默认会话
+  58:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c ****             cur_session_type = EXTENDED_SESSION;
+  59:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c ****             uds_ack_accept(rsp_msg,6);
+  60:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c ****         }
+  61:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c ****         break;
+  62:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c ****     #endif
+  63:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c ****     }
+  64:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c **** }...
+  83              		.loc 1 64 0
+  84 003c 06E0     		b	.L1
+  85              	.LVL4:
+  86              	.L4:
+  29:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c ****         }else if((msg_buff[1]&0x7f) == PROGRAMMING_SESSION){//要求切换到编程会话
+  87              		.loc 1 29 0
+  88 003e 022B     		cmp	r3, #2
+  89 0040 02D1     		bne	.L5
+  90              	.L7:
+  33:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c ****             cur_session_type = DEFAULT_SESSION;
+  91              		.loc 1 33 0
+  92 0042 1370     		strb	r3, [r2]
+  34:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c ****             uds_ack_accept(rsp_msg,6);
+  93              		.loc 1 34 0
+  94 0044 0621     		movs	r1, #6
+  95 0046 F6E7     		b	.L6
+  96              	.L5:
+  32:./Application/Addition/UDSCanfd/services_layer/device_role/sid10_diagnostic_session_ctrl.c ****         }else if((msg_buff[1]&0x7f) == DEFAULT_SESSION){//要求切换到默认会话
+  97              		.loc 1 32 0
+  98 0048 012B     		cmp	r3, #1
+  99 004a FAD0     		beq	.L7
+ 100              	.LVL5:
+ 101              	.L1:
+ 102              		.loc 1 64 0
+ 103              		@ sp needed
+ARM GAS  /tmp/cc3yKCAs.s 			page 4
+
+
+ 104 004c 07BD     		pop	{r0, r1, r2, pc}
+ 105              	.L9:
+ 106 004e C046     		.align	2
+ 107              	.L8:
+ 108 0050 00000000 		.word	cur_session_type
+ 109              		.cfi_endproc
+ 110              	.LFE493:
+ 112              		.text
+ 113              	.Letext0:
+ 114              		.file 2 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/machine/_default_types.h"
+ 115              		.file 3 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/lock.h"
+ 116              		.file 4 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_types.h"
+ 117              		.file 5 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/lib/gcc/arm-none-eabi/7.3.1/include/stddef.h"
+ 118              		.file 6 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/reent.h"
+ 119              		.file 7 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/stdlib.h"
+ 120              		.file 8 "Application/BSPSys/Util/BSPTypeDef.h"
+ 121              		.file 9 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_stdint.h"
+ 122              		.file 10 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/system_stm32g0xx.h"
+ 123              		.file 11 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/stm32g0b1xx.h"
+ 124              		.file 12 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_def.h"
+ 125              		.file 13 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_dma.h"
+ 126              		.file 14 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_flash.h"
+ 127              		.file 15 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_spi.h"
+ 128              		.file 16 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_uart.h"
+ 129              		.file 17 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal.h"
+ 130              		.file 18 "Core/Inc/main.h"
+ 131              		.file 19 "Core/Inc/spi.h"
+ 132              		.file 20 "Application/BSPSys/BSPDevice/gd25q32e/BSPGD25Q32E.h"
+ 133              		.file 21 "Application/Addition/UDSCanfd/can_uds_arch.h"
+ 134              		.file 22 "Application/Addition/UDSCanfd/network_layer/can_uds_network_layer.h"
+ 135              		.file 23 "Application/Addition/RTT/SEGGER_RTT.h"
+ 136              		.file 24 "Application/Addition/UDSCanfd/services_layer/device_role/sid_internal_header.h"
+ 137              		.file 25 "Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.h"
+ 138              		.file 26 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_ll_dma.h"
+ARM GAS  /tmp/cc3yKCAs.s 			page 5
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 sid10_diagnostic_session_ctrl.c
+     /tmp/cc3yKCAs.s:16     .text.sid10_diagnostic_session_ctrl_solve:0000000000000000 $t
+     /tmp/cc3yKCAs.s:23     .text.sid10_diagnostic_session_ctrl_solve:0000000000000000 sid10_diagnostic_session_ctrl_solve
+     /tmp/cc3yKCAs.s:108    .text.sid10_diagnostic_session_ctrl_solve:0000000000000050 $d
+
+UNDEFINED SYMBOLS
+uds_ack_accept
+cur_session_type

@@ -1,0 +1,243 @@
+ARM GAS  /tmp/ccadMJGh.s 			page 1
+
+
+   1              		.cpu cortex-m0plus
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 4
+   9              		.eabi_attribute 34, 0
+  10              		.eabi_attribute 18, 4
+  11              		.file	"UsartHandle.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.Usart1RcvMsgHandle_API,"ax",%progbits
+  16              		.align	1
+  17              		.global	Usart1RcvMsgHandle_API
+  18              		.syntax unified
+  19              		.code	16
+  20              		.thumb_func
+  21              		.fpu softvfp
+  23              	Usart1RcvMsgHandle_API:
+  24              	.LFB0:
+  25              		.file 1 "./Application/Funtion/Usart/UsartHandle.c"
+   1:./Application/Funtion/Usart/UsartHandle.c **** /*==========================================Copyright(c)=======================================
+   2:./Application/Funtion/Usart/UsartHandle.c **** **                                  Shenzhen Infypower Co., Ltd.
+   3:./Application/Funtion/Usart/UsartHandle.c **** **                                  Power conversion Department
+   4:./Application/Funtion/Usart/UsartHandle.c **** **                                       BMS Product Line
+   5:./Application/Funtion/Usart/UsartHandle.c **** **
+   6:./Application/Funtion/Usart/UsartHandle.c **** **---------------------------------------File Information--------------------------------------
+   7:./Application/Funtion/Usart/UsartHandle.c **** ** @File Name    : UsartHandle.c
+   8:./Application/Funtion/Usart/UsartHandle.c **** ** @Founder      : WYP40505
+   9:./Application/Funtion/Usart/UsartHandle.c **** ** @Date         : 20260228
+  10:./Application/Funtion/Usart/UsartHandle.c **** ** @Function     : usart信息接收模块
+  11:./Application/Funtion/Usart/UsartHandle.c **** ** @Instructions : 
+  12:./Application/Funtion/Usart/UsartHandle.c **** **===========================================================================================*/
+  13:./Application/Funtion/Usart/UsartHandle.c **** 
+  14:./Application/Funtion/Usart/UsartHandle.c **** /*=============================================================================================
+  15:./Application/Funtion/Usart/UsartHandle.c **** ** @Header file definition
+  16:./Application/Funtion/Usart/UsartHandle.c **** **===========================================================================================*/
+  17:./Application/Funtion/Usart/UsartHandle.c **** #include "BSPTypeDef.h"
+  18:./Application/Funtion/Usart/UsartHandle.c **** #include "UsartHandle.h"
+  19:./Application/Funtion/Usart/UsartHandle.c **** #include "Modbus.h"
+  20:./Application/Funtion/Usart/UsartHandle.c **** #include "SystemInfo.h"
+  21:./Application/Funtion/Usart/UsartHandle.c **** 
+  22:./Application/Funtion/Usart/UsartHandle.c **** 
+  23:./Application/Funtion/Usart/UsartHandle.c **** /*=============================================================================================
+  24:./Application/Funtion/Usart/UsartHandle.c **** ** @Interface function definition
+  25:./Application/Funtion/Usart/UsartHandle.c **** **===========================================================================================*/
+  26:./Application/Funtion/Usart/UsartHandle.c **** /*=================================================================================================
+  27:./Application/Funtion/Usart/UsartHandle.c **** ** @Name      : void Usart1RcvMsgHandle_API(t_USARTMSG *msg)
+  28:./Application/Funtion/Usart/UsartHandle.c **** ** @Input     : msg:usart报文信息
+  29:./Application/Funtion/Usart/UsartHandle.c **** ** @Output    : void
+  30:./Application/Funtion/Usart/UsartHandle.c **** ** @Function  : usart1通讯信息接收处理函数
+  31:./Application/Funtion/Usart/UsartHandle.c **** ** @The notes : 放在usart接收处理hook中
+  32:./Application/Funtion/Usart/UsartHandle.c **** **===============================================================================================*/
+  33:./Application/Funtion/Usart/UsartHandle.c **** void Usart1RcvMsgHandle_API(t_USARTMSG *msg)
+ARM GAS  /tmp/ccadMJGh.s 			page 2
+
+
+  34:./Application/Funtion/Usart/UsartHandle.c **** {
+  26              		.loc 1 34 0
+  27              		.cfi_startproc
+  28              		@ args = 0, pretend = 0, frame = 0
+  29              		@ frame_needed = 0, uses_anonymous_args = 0
+  30              		@ link register save eliminated.
+  31              	.LVL0:
+  35:./Application/Funtion/Usart/UsartHandle.c **** 
+  36:./Application/Funtion/Usart/UsartHandle.c **** }
+  32              		.loc 1 36 0
+  33              		@ sp needed
+  34 0000 7047     		bx	lr
+  35              		.cfi_endproc
+  36              	.LFE0:
+  38              		.section	.text.Usart2RcvMsgHandle_API,"ax",%progbits
+  39              		.align	1
+  40              		.global	Usart2RcvMsgHandle_API
+  41              		.syntax unified
+  42              		.code	16
+  43              		.thumb_func
+  44              		.fpu softvfp
+  46              	Usart2RcvMsgHandle_API:
+  47              	.LFB6:
+  48              		.cfi_startproc
+  49              		@ args = 0, pretend = 0, frame = 0
+  50              		@ frame_needed = 0, uses_anonymous_args = 0
+  51              		@ link register save eliminated.
+  52              		@ sp needed
+  53 0000 7047     		bx	lr
+  54              		.cfi_endproc
+  55              	.LFE6:
+  57              		.section	.text.Usart3RcvMsgHandle_API,"ax",%progbits
+  58              		.align	1
+  59              		.global	Usart3RcvMsgHandle_API
+  60              		.syntax unified
+  61              		.code	16
+  62              		.thumb_func
+  63              		.fpu softvfp
+  65              	Usart3RcvMsgHandle_API:
+  66              	.LFB8:
+  67              		.cfi_startproc
+  68              		@ args = 0, pretend = 0, frame = 0
+  69              		@ frame_needed = 0, uses_anonymous_args = 0
+  70              		@ link register save eliminated.
+  71              		@ sp needed
+  72 0000 7047     		bx	lr
+  73              		.cfi_endproc
+  74              	.LFE8:
+  76              		.section	.text.Usart4RcvMsgHandle_API,"ax",%progbits
+  77              		.align	1
+  78              		.global	Usart4RcvMsgHandle_API
+  79              		.syntax unified
+  80              		.code	16
+  81              		.thumb_func
+  82              		.fpu softvfp
+  84              	Usart4RcvMsgHandle_API:
+  85              	.LFB10:
+ARM GAS  /tmp/ccadMJGh.s 			page 3
+
+
+  86              		.cfi_startproc
+  87              		@ args = 0, pretend = 0, frame = 0
+  88              		@ frame_needed = 0, uses_anonymous_args = 0
+  89              		@ link register save eliminated.
+  90              		@ sp needed
+  91 0000 7047     		bx	lr
+  92              		.cfi_endproc
+  93              	.LFE10:
+  95              		.section	.text.Usart6RcvMsgHandle_API,"ax",%progbits
+  96              		.align	1
+  97              		.global	Usart6RcvMsgHandle_API
+  98              		.syntax unified
+  99              		.code	16
+ 100              		.thumb_func
+ 101              		.fpu softvfp
+ 103              	Usart6RcvMsgHandle_API:
+ 104              	.LFB4:
+  37:./Application/Funtion/Usart/UsartHandle.c **** 
+  38:./Application/Funtion/Usart/UsartHandle.c **** /*=================================================================================================
+  39:./Application/Funtion/Usart/UsartHandle.c **** ** @Name      : void Usart2RcvMsgHandle_API(t_USARTMSG *msg)
+  40:./Application/Funtion/Usart/UsartHandle.c **** ** @Input     : msg:usart报文信息
+  41:./Application/Funtion/Usart/UsartHandle.c **** ** @Output    : void
+  42:./Application/Funtion/Usart/UsartHandle.c **** ** @Function  : usart2通讯信息接收处理函数
+  43:./Application/Funtion/Usart/UsartHandle.c **** ** @The notes : 放在usart接收处理hook中
+  44:./Application/Funtion/Usart/UsartHandle.c **** **===============================================================================================*/
+  45:./Application/Funtion/Usart/UsartHandle.c **** void Usart2RcvMsgHandle_API(t_USARTMSG *msg)
+  46:./Application/Funtion/Usart/UsartHandle.c **** {
+  47:./Application/Funtion/Usart/UsartHandle.c **** 
+  48:./Application/Funtion/Usart/UsartHandle.c **** 
+  49:./Application/Funtion/Usart/UsartHandle.c **** 
+  50:./Application/Funtion/Usart/UsartHandle.c **** }
+  51:./Application/Funtion/Usart/UsartHandle.c **** 
+  52:./Application/Funtion/Usart/UsartHandle.c **** /*=================================================================================================
+  53:./Application/Funtion/Usart/UsartHandle.c **** ** @Name      : void Usart3RcvMsgHandle_API(t_USARTMSG *msg)
+  54:./Application/Funtion/Usart/UsartHandle.c **** ** @Input     : msg:usart报文信息
+  55:./Application/Funtion/Usart/UsartHandle.c **** ** @Output    : void
+  56:./Application/Funtion/Usart/UsartHandle.c **** ** @Function  : usart3通讯信息接收处理函数
+  57:./Application/Funtion/Usart/UsartHandle.c **** ** @The notes : 放在usart接收处理hook中
+  58:./Application/Funtion/Usart/UsartHandle.c **** **===============================================================================================*/
+  59:./Application/Funtion/Usart/UsartHandle.c **** void Usart3RcvMsgHandle_API(t_USARTMSG *msg)
+  60:./Application/Funtion/Usart/UsartHandle.c **** {
+  61:./Application/Funtion/Usart/UsartHandle.c **** 
+  62:./Application/Funtion/Usart/UsartHandle.c **** 
+  63:./Application/Funtion/Usart/UsartHandle.c **** }
+  64:./Application/Funtion/Usart/UsartHandle.c **** 
+  65:./Application/Funtion/Usart/UsartHandle.c **** /*=================================================================================================
+  66:./Application/Funtion/Usart/UsartHandle.c **** ** @Name      : void Usart4RcvMsgHandle_API(t_USARTMSG *msg)
+  67:./Application/Funtion/Usart/UsartHandle.c **** ** @Input     : msg:usart报文信息
+  68:./Application/Funtion/Usart/UsartHandle.c **** ** @Output    : void
+  69:./Application/Funtion/Usart/UsartHandle.c **** ** @Function  : usart4通讯信息接收处理函数
+  70:./Application/Funtion/Usart/UsartHandle.c **** ** @The notes : 放在usart接收处理hook中
+  71:./Application/Funtion/Usart/UsartHandle.c **** **===============================================================================================*/
+  72:./Application/Funtion/Usart/UsartHandle.c **** void Usart4RcvMsgHandle_API(t_USARTMSG *msg)
+  73:./Application/Funtion/Usart/UsartHandle.c **** {
+  74:./Application/Funtion/Usart/UsartHandle.c **** 
+  75:./Application/Funtion/Usart/UsartHandle.c **** }
+  76:./Application/Funtion/Usart/UsartHandle.c **** 
+ARM GAS  /tmp/ccadMJGh.s 			page 4
+
+
+  77:./Application/Funtion/Usart/UsartHandle.c **** /*=================================================================================================
+  78:./Application/Funtion/Usart/UsartHandle.c **** ** @Name      : void Usart6RcvMsgHandle_API(t_USARTMSG *msg)
+  79:./Application/Funtion/Usart/UsartHandle.c **** ** @Input     : msg:usart报文信息
+  80:./Application/Funtion/Usart/UsartHandle.c **** ** @Output    : void
+  81:./Application/Funtion/Usart/UsartHandle.c **** ** @Function  : usart6通讯信息接收处理函数
+  82:./Application/Funtion/Usart/UsartHandle.c **** ** @The notes : 放在usart接收处理hook中
+  83:./Application/Funtion/Usart/UsartHandle.c **** **===============================================================================================*/
+  84:./Application/Funtion/Usart/UsartHandle.c **** void Usart6RcvMsgHandle_API(t_USARTMSG *msg)
+  85:./Application/Funtion/Usart/UsartHandle.c **** {
+ 105              		.loc 1 85 0
+ 106              		.cfi_startproc
+ 107              		@ args = 0, pretend = 0, frame = 0
+ 108              		@ frame_needed = 0, uses_anonymous_args = 0
+ 109              	.LVL1:
+ 110              		.loc 1 85 0
+ 111 0000 10B5     		push	{r4, lr}
+ 112              	.LCFI0:
+ 113              		.cfi_def_cfa_offset 8
+ 114              		.cfi_offset 4, -8
+ 115              		.cfi_offset 14, -4
+  86:./Application/Funtion/Usart/UsartHandle.c **** 	Modbus_ToolingInterface(msg);
+ 116              		.loc 1 86 0
+ 117 0002 FFF7FEFF 		bl	Modbus_ToolingInterface
+ 118              	.LVL2:
+  87:./Application/Funtion/Usart/UsartHandle.c **** }
+ 119              		.loc 1 87 0
+ 120              		@ sp needed
+ 121 0006 10BD     		pop	{r4, pc}
+ 122              		.cfi_endproc
+ 123              	.LFE4:
+ 125              		.text
+ 126              	.Letext0:
+ 127              		.file 2 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/lock.h"
+ 128              		.file 3 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_types.h"
+ 129              		.file 4 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/lib/gcc/arm-none-eabi/7.3.1/include/stddef.h"
+ 130              		.file 5 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/reent.h"
+ 131              		.file 6 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/stdlib.h"
+ 132              		.file 7 "Application/BSPSys/Util/BSPTypeDef.h"
+ 133              		.file 8 "Application/BSPSys/BSPDriver/BSPUSART.h"
+ 134              		.file 9 "Application/Funtion/SystemDebug/SystemDebug.h"
+ 135              		.file 10 "Application/Addition/Modbus/Modbus.h"
+ 136              		.file 11 "Application/Funtion/SystemInfo/SystemInfo.h"
+ARM GAS  /tmp/ccadMJGh.s 			page 5
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 UsartHandle.c
+     /tmp/ccadMJGh.s:16     .text.Usart1RcvMsgHandle_API:0000000000000000 $t
+     /tmp/ccadMJGh.s:23     .text.Usart1RcvMsgHandle_API:0000000000000000 Usart1RcvMsgHandle_API
+     /tmp/ccadMJGh.s:39     .text.Usart2RcvMsgHandle_API:0000000000000000 $t
+     /tmp/ccadMJGh.s:46     .text.Usart2RcvMsgHandle_API:0000000000000000 Usart2RcvMsgHandle_API
+     /tmp/ccadMJGh.s:58     .text.Usart3RcvMsgHandle_API:0000000000000000 $t
+     /tmp/ccadMJGh.s:65     .text.Usart3RcvMsgHandle_API:0000000000000000 Usart3RcvMsgHandle_API
+     /tmp/ccadMJGh.s:77     .text.Usart4RcvMsgHandle_API:0000000000000000 $t
+     /tmp/ccadMJGh.s:84     .text.Usart4RcvMsgHandle_API:0000000000000000 Usart4RcvMsgHandle_API
+     /tmp/ccadMJGh.s:96     .text.Usart6RcvMsgHandle_API:0000000000000000 $t
+     /tmp/ccadMJGh.s:103    .text.Usart6RcvMsgHandle_API:0000000000000000 Usart6RcvMsgHandle_API
+
+UNDEFINED SYMBOLS
+Modbus_ToolingInterface

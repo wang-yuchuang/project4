@@ -1,0 +1,522 @@
+ARM GAS  /tmp/ccg54adB.s 			page 1
+
+
+   1              		.cpu cortex-m0plus
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 4
+   9              		.eabi_attribute 34, 0
+  10              		.eabi_attribute 18, 4
+  11              		.file	"can_uds_interface.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.init_uds,"ax",%progbits
+  16              		.align	1
+  17              		.global	init_uds
+  18              		.syntax unified
+  19              		.code	16
+  20              		.thumb_func
+  21              		.fpu softvfp
+  23              	init_uds:
+  24              	.LFB493:
+  25              		.file 1 "./Application/Addition/UDSCanfd/can_uds_interface.c"
+   1:./Application/Addition/UDSCanfd/can_uds_interface.c **** /*
+   2:./Application/Addition/UDSCanfd/can_uds_interface.c ****  * @Author: WYP40505 wang.yaob@infypower.cn
+   3:./Application/Addition/UDSCanfd/can_uds_interface.c ****  * @Date: 2026-04-16 09:03:06
+   4:./Application/Addition/UDSCanfd/can_uds_interface.c ****  * @LastEditors: WYP40505 wang.yaob@infypower.cn
+   5:./Application/Addition/UDSCanfd/can_uds_interface.c ****  * @LastEditTime: 2026-04-16 11:46:21
+   6:./Application/Addition/UDSCanfd/can_uds_interface.c ****  * @FilePath: \IMIU4_Canfd_Uds_APP\Application\Addition\UDSCanfd\can_uds_interface.c
+   7:./Application/Addition/UDSCanfd/can_uds_interface.c ****  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行�
+   8:./Application/Addition/UDSCanfd/can_uds_interface.c ****  */
+   9:./Application/Addition/UDSCanfd/can_uds_interface.c **** 
+  10:./Application/Addition/UDSCanfd/can_uds_interface.c **** // can uds对外的接口实现
+  11:./Application/Addition/UDSCanfd/can_uds_interface.c **** #include "can_uds_interface.h"
+  12:./Application/Addition/UDSCanfd/can_uds_interface.c **** #include "network_layer/can_uds_network_layer.h"
+  13:./Application/Addition/UDSCanfd/can_uds_interface.c **** #include "services_layer/device_role/can_uds_services_layer.h"
+  14:./Application/Addition/UDSCanfd/can_uds_interface.c **** #include "can_uds_arch.h"
+  15:./Application/Addition/UDSCanfd/can_uds_interface.c **** #include "BSPCAN.h"
+  16:./Application/Addition/UDSCanfd/can_uds_interface.c **** #include "Measure.h"
+  17:./Application/Addition/UDSCanfd/can_uds_interface.c **** #include "SystemInfo.h"
+  18:./Application/Addition/UDSCanfd/can_uds_interface.c **** #include "BSPTypeDef.h"
+  19:./Application/Addition/UDSCanfd/can_uds_interface.c **** #include "sid_internal_header.h"
+  20:./Application/Addition/UDSCanfd/can_uds_interface.c **** u16 CANfdudscount = 0;
+  21:./Application/Addition/UDSCanfd/can_uds_interface.c **** extern unsigned char cur_session_type;
+  22:./Application/Addition/UDSCanfd/can_uds_interface.c **** // --- 内部函数声明 ---
+  23:./Application/Addition/UDSCanfd/can_uds_interface.c **** static void CANFDUDSCount(u16* count);
+  24:./Application/Addition/UDSCanfd/can_uds_interface.c **** static void CANFDUDSCountCheck(void);
+  25:./Application/Addition/UDSCanfd/can_uds_interface.c **** // --- 内部函数定义 --- 
+  26:./Application/Addition/UDSCanfd/can_uds_interface.c **** 
+  27:./Application/Addition/UDSCanfd/can_uds_interface.c **** 
+  28:./Application/Addition/UDSCanfd/can_uds_interface.c **** // --- 外部函数定义 ---
+  29:./Application/Addition/UDSCanfd/can_uds_interface.c **** void init_uds(void)
+  30:./Application/Addition/UDSCanfd/can_uds_interface.c **** {
+  26              		.loc 1 30 0
+  27              		.cfi_startproc
+  28              		@ args = 0, pretend = 0, frame = 0
+ARM GAS  /tmp/ccg54adB.s 			page 2
+
+
+  29              		@ frame_needed = 0, uses_anonymous_args = 0
+  30 0000 10B5     		push	{r4, lr}
+  31              	.LCFI0:
+  32              		.cfi_def_cfa_offset 8
+  33              		.cfi_offset 4, -8
+  34              		.cfi_offset 14, -4
+  31:./Application/Addition/UDSCanfd/can_uds_interface.c ****     
+  32:./Application/Addition/UDSCanfd/can_uds_interface.c ****     g_uds_config.tx_id = LOCAL_DEVICE_CAN_ID |(LOAD_DEV_ID <<8) | (SystemInfo_1[DeviceAddr]);
+  35              		.loc 1 32 0
+  36 0002 0A4B     		ldr	r3, .L2
+  33:./Application/Addition/UDSCanfd/can_uds_interface.c ****     g_uds_config.tx_id_type = 1;//扩展帧
+  34:./Application/Addition/UDSCanfd/can_uds_interface.c ****     g_uds_config.rx_phy_id = REMOTE_TESTER_CAN_ID |(LOAD_DEV_ID <<8) | (SystemInfo_1[DeviceAddr]);/
+  37              		.loc 1 34 0
+  38 0004 0A49     		ldr	r1, .L2+4
+  32:./Application/Addition/UDSCanfd/can_uds_interface.c ****     g_uds_config.tx_id_type = 1;//扩展帧
+  39              		.loc 1 32 0
+  40 0006 5C88     		ldrh	r4, [r3, #2]
+  41 0008 0A4B     		ldr	r3, .L2+8
+  33:./Application/Addition/UDSCanfd/can_uds_interface.c ****     g_uds_config.tx_id_type = 1;//扩展帧
+  42              		.loc 1 33 0
+  43 000a 0120     		movs	r0, #1
+  44              		.loc 1 34 0
+  45 000c 2143     		orrs	r1, r4
+  46 000e 9960     		str	r1, [r3, #8]
+  35:./Application/Addition/UDSCanfd/can_uds_interface.c ****     g_uds_config.rx_phy_id_type = 1;//扩展帧
+  36:./Application/Addition/UDSCanfd/can_uds_interface.c ****     g_uds_config.rx_fuc_id = REMOTE_TESTER_CAN_ID |(LOAD_DEV_ID <<8) | (SystemInfo_1[DeviceAddr]);
+  47              		.loc 1 36 0
+  48 0010 D960     		str	r1, [r3, #12]
+  37:./Application/Addition/UDSCanfd/can_uds_interface.c ****     g_uds_config.rx_fuc_id_type = 1;//扩展帧
+  49              		.loc 1 37 0
+  50 0012 0621     		movs	r1, #6
+  32:./Application/Addition/UDSCanfd/can_uds_interface.c ****     g_uds_config.tx_id_type = 1;//扩展帧
+  51              		.loc 1 32 0
+  52 0014 084A     		ldr	r2, .L2+12
+  38:./Application/Addition/UDSCanfd/can_uds_interface.c ****     g_uds_config.stmin = 1;//设置stmin为50ms
+  53              		.loc 1 38 0
+  54 0016 1874     		strb	r0, [r3, #16]
+  32:./Application/Addition/UDSCanfd/can_uds_interface.c ****     g_uds_config.tx_id_type = 1;//扩展帧
+  55              		.loc 1 32 0
+  56 0018 2243     		orrs	r2, r4
+  57 001a 5A60     		str	r2, [r3, #4]
+  33:./Application/Addition/UDSCanfd/can_uds_interface.c ****     g_uds_config.rx_phy_id = REMOTE_TESTER_CAN_ID |(LOAD_DEV_ID <<8) | (SystemInfo_1[DeviceAddr]);/
+  58              		.loc 1 33 0
+  59 001c 1A78     		ldrb	r2, [r3]
+  39:./Application/Addition/UDSCanfd/can_uds_interface.c ****     // g_uds_config.pack_with_crc = 1;//默认传输包带crc 31 36服务
+  40:./Application/Addition/UDSCanfd/can_uds_interface.c **** 	reset_uds_send_buf();
+  41:./Application/Addition/UDSCanfd/can_uds_interface.c ****     // RefreshBootVersion();
+  42:./Application/Addition/UDSCanfd/can_uds_interface.c **** }
+  60              		.loc 1 42 0
+  61              		@ sp needed
+  35:./Application/Addition/UDSCanfd/can_uds_interface.c ****     g_uds_config.rx_fuc_id = REMOTE_TESTER_CAN_ID |(LOAD_DEV_ID <<8) | (SystemInfo_1[DeviceAddr]);
+  62              		.loc 1 35 0
+  63 001e 0243     		orrs	r2, r0
+  37:./Application/Addition/UDSCanfd/can_uds_interface.c ****     g_uds_config.stmin = 1;//设置stmin为50ms
+  64              		.loc 1 37 0
+  65 0020 0A43     		orrs	r2, r1
+  66 0022 1A70     		strb	r2, [r3]
+ARM GAS  /tmp/ccg54adB.s 			page 3
+
+
+  40:./Application/Addition/UDSCanfd/can_uds_interface.c ****     // RefreshBootVersion();
+  67              		.loc 1 40 0
+  68 0024 FFF7FEFF 		bl	reset_uds_send_buf
+  69              	.LVL0:
+  70              		.loc 1 42 0
+  71 0028 10BD     		pop	{r4, pc}
+  72              	.L3:
+  73 002a C046     		.align	2
+  74              	.L2:
+  75 002c 00000000 		.word	SystemInfo_1
+  76 0030 0005110B 		.word	185664768
+  77 0034 00000000 		.word	g_uds_config
+  78 0038 0005110C 		.word	202441984
+  79              		.cfi_endproc
+  80              	.LFE493:
+  82              		.section	.text.uds_proc_device,"ax",%progbits
+  83              		.align	1
+  84              		.global	uds_proc_device
+  85              		.syntax unified
+  86              		.code	16
+  87              		.thumb_func
+  88              		.fpu softvfp
+  90              	uds_proc_device:
+  91              	.LFB494:
+  43:./Application/Addition/UDSCanfd/can_uds_interface.c **** 
+  44:./Application/Addition/UDSCanfd/can_uds_interface.c **** 
+  45:./Application/Addition/UDSCanfd/can_uds_interface.c **** 
+  46:./Application/Addition/UDSCanfd/can_uds_interface.c **** void uds_proc_device(void)
+  47:./Application/Addition/UDSCanfd/can_uds_interface.c **** {
+  92              		.loc 1 47 0
+  93              		.cfi_startproc
+  94              		@ args = 0, pretend = 0, frame = 0
+  95              		@ frame_needed = 0, uses_anonymous_args = 0
+  48:./Application/Addition/UDSCanfd/can_uds_interface.c ****     uds_phy_recv(0,FALSE);//仅运行流程
+  96              		.loc 1 48 0
+  97 0000 0021     		movs	r1, #0
+  47:./Application/Addition/UDSCanfd/can_uds_interface.c ****     uds_phy_recv(0,FALSE);//仅运行流程
+  98              		.loc 1 47 0
+  99 0002 10B5     		push	{r4, lr}
+ 100              	.LCFI1:
+ 101              		.cfi_def_cfa_offset 8
+ 102              		.cfi_offset 4, -8
+ 103              		.cfi_offset 14, -4
+ 104              		.loc 1 48 0
+ 105 0004 0800     		movs	r0, r1
+ 106 0006 FFF7FEFF 		bl	uds_phy_recv
+ 107              	.LVL1:
+  49:./Application/Addition/UDSCanfd/can_uds_interface.c ****     uds_phy_send(FALSE);
+ 108              		.loc 1 49 0
+ 109 000a 0020     		movs	r0, #0
+ 110 000c FFF7FEFF 		bl	uds_phy_send
+ 111              	.LVL2:
+ 112              	.LBB7:
+ 113              	.LBB8:
+  50:./Application/Addition/UDSCanfd/can_uds_interface.c ****     CANFDUDSCountCheck();
+  51:./Application/Addition/UDSCanfd/can_uds_interface.c **** }
+  52:./Application/Addition/UDSCanfd/can_uds_interface.c **** 
+ARM GAS  /tmp/ccg54adB.s 			page 4
+
+
+  53:./Application/Addition/UDSCanfd/can_uds_interface.c **** void uds_recv_data(struct CAN_DATA *p_can_data)
+  54:./Application/Addition/UDSCanfd/can_uds_interface.c **** {
+  55:./Application/Addition/UDSCanfd/can_uds_interface.c ****     uds_phy_recv(p_can_data,FALSE);
+  56:./Application/Addition/UDSCanfd/can_uds_interface.c **** }
+  57:./Application/Addition/UDSCanfd/can_uds_interface.c **** 
+  58:./Application/Addition/UDSCanfd/can_uds_interface.c **** 
+  59:./Application/Addition/UDSCanfd/can_uds_interface.c **** void uds_recv_data_fristhandle(t_CANMSG *msg)
+  60:./Application/Addition/UDSCanfd/can_uds_interface.c **** {
+  61:./Application/Addition/UDSCanfd/can_uds_interface.c ****     // /*test UDS
+  62:./Application/Addition/UDSCanfd/can_uds_interface.c ****     static u8 update_first_id = 0;
+  63:./Application/Addition/UDSCanfd/can_uds_interface.c ****     if (update_first_id == 0)
+  64:./Application/Addition/UDSCanfd/can_uds_interface.c ****     {
+  65:./Application/Addition/UDSCanfd/can_uds_interface.c **** 
+  66:./Application/Addition/UDSCanfd/can_uds_interface.c ****         d_printf("update start 10");
+  67:./Application/Addition/UDSCanfd/can_uds_interface.c ****         update_first_id = 1;
+  68:./Application/Addition/UDSCanfd/can_uds_interface.c ****     }
+  69:./Application/Addition/UDSCanfd/can_uds_interface.c ****     // test UDS*/
+  70:./Application/Addition/UDSCanfd/can_uds_interface.c **** 
+  71:./Application/Addition/UDSCanfd/can_uds_interface.c **** 
+  72:./Application/Addition/UDSCanfd/can_uds_interface.c ****     struct CAN_DATA can_data;
+  73:./Application/Addition/UDSCanfd/can_uds_interface.c ****     can_data.idt.id = msg->ID;
+  74:./Application/Addition/UDSCanfd/can_uds_interface.c ****     can_data.idt.type = 1;//扩展帧
+  75:./Application/Addition/UDSCanfd/can_uds_interface.c ****     can_data.dlc = msg->Len;
+  76:./Application/Addition/UDSCanfd/can_uds_interface.c ****     CANFDUDSCount(&CANfdudscount);
+  77:./Application/Addition/UDSCanfd/can_uds_interface.c ****     for(u8 i=0; i<can_data.dlc; i++ )
+  78:./Application/Addition/UDSCanfd/can_uds_interface.c ****     {
+  79:./Application/Addition/UDSCanfd/can_uds_interface.c ****         can_data.data[i] = msg->Data[i];
+  80:./Application/Addition/UDSCanfd/can_uds_interface.c ****     }
+  81:./Application/Addition/UDSCanfd/can_uds_interface.c ****     uds_recv_data(&can_data);
+  82:./Application/Addition/UDSCanfd/can_uds_interface.c **** }
+  83:./Application/Addition/UDSCanfd/can_uds_interface.c **** 
+  84:./Application/Addition/UDSCanfd/can_uds_interface.c **** static void CANFDUDSCount(u16* count)
+  85:./Application/Addition/UDSCanfd/can_uds_interface.c **** {
+  86:./Application/Addition/UDSCanfd/can_uds_interface.c ****     *count = 15000;  //15s复位默认会话 (1ms tick × 15000 = 15s)
+  87:./Application/Addition/UDSCanfd/can_uds_interface.c **** }
+  88:./Application/Addition/UDSCanfd/can_uds_interface.c **** 
+  89:./Application/Addition/UDSCanfd/can_uds_interface.c **** static void CANFDUDSCountCheck(void)
+  90:./Application/Addition/UDSCanfd/can_uds_interface.c **** {
+  91:./Application/Addition/UDSCanfd/can_uds_interface.c ****     if(CANfdudscount >0)
+ 114              		.loc 1 91 0
+ 115 0010 064A     		ldr	r2, .L10
+ 116 0012 1388     		ldrh	r3, [r2]
+ 117 0014 002B     		cmp	r3, #0
+ 118 0016 01D0     		beq	.L5
+  92:./Application/Addition/UDSCanfd/can_uds_interface.c ****     {
+  93:./Application/Addition/UDSCanfd/can_uds_interface.c ****         CANfdudscount--;
+ 119              		.loc 1 93 0
+ 120 0018 013B     		subs	r3, r3, #1
+ 121 001a 1380     		strh	r3, [r2]
+ 122              	.L5:
+  94:./Application/Addition/UDSCanfd/can_uds_interface.c ****     }
+  95:./Application/Addition/UDSCanfd/can_uds_interface.c ****     if(CANfdudscount == 0)
+ 123              		.loc 1 95 0
+ 124 001c 1388     		ldrh	r3, [r2]
+ 125 001e 002B     		cmp	r3, #0
+ 126 0020 02D1     		bne	.L4
+  96:./Application/Addition/UDSCanfd/can_uds_interface.c ****     {
+ARM GAS  /tmp/ccg54adB.s 			page 5
+
+
+  97:./Application/Addition/UDSCanfd/can_uds_interface.c ****         cur_session_type = DEFAULT_SESSION;
+ 127              		.loc 1 97 0
+ 128 0022 0122     		movs	r2, #1
+ 129 0024 024B     		ldr	r3, .L10+4
+ 130 0026 1A70     		strb	r2, [r3]
+ 131              	.L4:
+ 132              	.LBE8:
+ 133              	.LBE7:
+  51:./Application/Addition/UDSCanfd/can_uds_interface.c **** 
+ 134              		.loc 1 51 0
+ 135              		@ sp needed
+ 136 0028 10BD     		pop	{r4, pc}
+ 137              	.L11:
+ 138 002a C046     		.align	2
+ 139              	.L10:
+ 140 002c 00000000 		.word	.LANCHOR0
+ 141 0030 00000000 		.word	cur_session_type
+ 142              		.cfi_endproc
+ 143              	.LFE494:
+ 145              		.section	.text.uds_recv_data,"ax",%progbits
+ 146              		.align	1
+ 147              		.global	uds_recv_data
+ 148              		.syntax unified
+ 149              		.code	16
+ 150              		.thumb_func
+ 151              		.fpu softvfp
+ 153              	uds_recv_data:
+ 154              	.LFB495:
+  54:./Application/Addition/UDSCanfd/can_uds_interface.c ****     uds_phy_recv(p_can_data,FALSE);
+ 155              		.loc 1 54 0
+ 156              		.cfi_startproc
+ 157              		@ args = 0, pretend = 0, frame = 0
+ 158              		@ frame_needed = 0, uses_anonymous_args = 0
+ 159              	.LVL3:
+ 160 0000 10B5     		push	{r4, lr}
+ 161              	.LCFI2:
+ 162              		.cfi_def_cfa_offset 8
+ 163              		.cfi_offset 4, -8
+ 164              		.cfi_offset 14, -4
+  55:./Application/Addition/UDSCanfd/can_uds_interface.c **** }
+ 165              		.loc 1 55 0
+ 166 0002 0021     		movs	r1, #0
+ 167 0004 FFF7FEFF 		bl	uds_phy_recv
+ 168              	.LVL4:
+  56:./Application/Addition/UDSCanfd/can_uds_interface.c **** 
+ 169              		.loc 1 56 0
+ 170              		@ sp needed
+ 171 0008 10BD     		pop	{r4, pc}
+ 172              		.cfi_endproc
+ 173              	.LFE495:
+ 175              		.section	.text.uds_recv_data_fristhandle,"ax",%progbits
+ 176              		.align	1
+ 177              		.global	uds_recv_data_fristhandle
+ 178              		.syntax unified
+ 179              		.code	16
+ 180              		.thumb_func
+ 181              		.fpu softvfp
+ARM GAS  /tmp/ccg54adB.s 			page 6
+
+
+ 183              	uds_recv_data_fristhandle:
+ 184              	.LFB496:
+  60:./Application/Addition/UDSCanfd/can_uds_interface.c ****     // /*test UDS
+ 185              		.loc 1 60 0
+ 186              		.cfi_startproc
+ 187              		@ args = 0, pretend = 0, frame = 72
+ 188              		@ frame_needed = 0, uses_anonymous_args = 0
+ 189              	.LVL5:
+ 190 0000 30B5     		push	{r4, r5, lr}
+ 191              	.LCFI3:
+ 192              		.cfi_def_cfa_offset 12
+ 193              		.cfi_offset 4, -12
+ 194              		.cfi_offset 5, -8
+ 195              		.cfi_offset 14, -4
+  63:./Application/Addition/UDSCanfd/can_uds_interface.c ****     {
+ 196              		.loc 1 63 0
+ 197 0002 164D     		ldr	r5, .L17
+  60:./Application/Addition/UDSCanfd/can_uds_interface.c ****     // /*test UDS
+ 198              		.loc 1 60 0
+ 199 0004 0400     		movs	r4, r0
+  63:./Application/Addition/UDSCanfd/can_uds_interface.c ****     {
+ 200              		.loc 1 63 0
+ 201 0006 2878     		ldrb	r0, [r5]
+ 202              	.LVL6:
+  60:./Application/Addition/UDSCanfd/can_uds_interface.c ****     // /*test UDS
+ 203              		.loc 1 60 0
+ 204 0008 93B0     		sub	sp, sp, #76
+ 205              	.LCFI4:
+ 206              		.cfi_def_cfa_offset 88
+  63:./Application/Addition/UDSCanfd/can_uds_interface.c ****     {
+ 207              		.loc 1 63 0
+ 208 000a 0028     		cmp	r0, #0
+ 209 000c 04D1     		bne	.L14
+  66:./Application/Addition/UDSCanfd/can_uds_interface.c ****         update_first_id = 1;
+ 210              		.loc 1 66 0
+ 211 000e 1449     		ldr	r1, .L17+4
+ 212 0010 FFF7FEFF 		bl	SEGGER_RTT_printf
+ 213              	.LVL7:
+  67:./Application/Addition/UDSCanfd/can_uds_interface.c ****     }
+ 214              		.loc 1 67 0
+ 215 0014 0123     		movs	r3, #1
+ 216 0016 2B70     		strb	r3, [r5]
+ 217              	.L14:
+  73:./Application/Addition/UDSCanfd/can_uds_interface.c ****     can_data.idt.type = 1;//扩展帧
+ 218              		.loc 1 73 0
+ 219 0018 2368     		ldr	r3, [r4]
+ 220              	.LBB9:
+ 221              	.LBB10:
+  86:./Application/Addition/UDSCanfd/can_uds_interface.c **** }
+ 222              		.loc 1 86 0
+ 223 001a 1249     		ldr	r1, .L17+8
+ 224              	.LBE10:
+ 225              	.LBE9:
+  73:./Application/Addition/UDSCanfd/can_uds_interface.c ****     can_data.idt.type = 1;//扩展帧
+ 226              		.loc 1 73 0
+ 227 001c DA00     		lsls	r2, r3, #3
+ 228 001e 009B     		ldr	r3, [sp]
+ARM GAS  /tmp/ccg54adB.s 			page 7
+
+
+ 229 0020 D208     		lsrs	r2, r2, #3
+ 230 0022 5B0F     		lsrs	r3, r3, #29
+ 231 0024 5B07     		lsls	r3, r3, #29
+ 232 0026 1343     		orrs	r3, r2
+  74:./Application/Addition/UDSCanfd/can_uds_interface.c ****     can_data.dlc = msg->Len;
+ 233              		.loc 1 74 0
+ 234 0028 8022     		movs	r2, #128
+  73:./Application/Addition/UDSCanfd/can_uds_interface.c ****     can_data.idt.type = 1;//扩展帧
+ 235              		.loc 1 73 0
+ 236 002a 0093     		str	r3, [sp]
+  74:./Application/Addition/UDSCanfd/can_uds_interface.c ****     can_data.dlc = msg->Len;
+ 237              		.loc 1 74 0
+ 238 002c 5242     		rsbs	r2, r2, #0
+ 239 002e 1B0E     		lsrs	r3, r3, #24
+ 240 0030 1343     		orrs	r3, r2
+ 241 0032 6A46     		mov	r2, sp
+ 242 0034 D370     		strb	r3, [r2, #3]
+  75:./Application/Addition/UDSCanfd/can_uds_interface.c ****     CANFDUDSCount(&CANfdudscount);
+ 243              		.loc 1 75 0
+ 244 0036 2379     		ldrb	r3, [r4, #4]
+ 245 0038 1371     		strb	r3, [r2, #4]
+ 246              	.LVL8:
+ 247              	.LBB12:
+ 248              	.LBB11:
+  86:./Application/Addition/UDSCanfd/can_uds_interface.c **** }
+ 249              		.loc 1 86 0
+ 250 003a 0B4A     		ldr	r2, .L17+12
+ 251 003c 1180     		strh	r1, [r2]
+ 252              	.LVL9:
+ 253 003e 5A1D     		adds	r2, r3, #5
+ 254              	.LBE11:
+ 255              	.LBE12:
+ 256              	.LBB13:
+  77:./Application/Addition/UDSCanfd/can_uds_interface.c ****     {
+ 257              		.loc 1 77 0
+ 258 0040 0523     		movs	r3, #5
+ 259              	.LVL10:
+ 260              	.L15:
+  77:./Application/Addition/UDSCanfd/can_uds_interface.c ****     {
+ 261              		.loc 1 77 0 is_stmt 0 discriminator 1
+ 262 0042 9342     		cmp	r3, r2
+ 263 0044 04D1     		bne	.L16
+ 264              	.LBE13:
+  81:./Application/Addition/UDSCanfd/can_uds_interface.c **** }
+ 265              		.loc 1 81 0 is_stmt 1
+ 266 0046 6846     		mov	r0, sp
+ 267 0048 FFF7FEFF 		bl	uds_recv_data
+ 268              	.LVL11:
+  82:./Application/Addition/UDSCanfd/can_uds_interface.c **** 
+ 269              		.loc 1 82 0
+ 270 004c 13B0     		add	sp, sp, #76
+ 271              		@ sp needed
+ 272              	.LVL12:
+ 273 004e 30BD     		pop	{r4, r5, pc}
+ 274              	.LVL13:
+ 275              	.L16:
+ 276              	.LBB14:
+ARM GAS  /tmp/ccg54adB.s 			page 8
+
+
+  79:./Application/Addition/UDSCanfd/can_uds_interface.c ****     }
+ 277              		.loc 1 79 0 discriminator 3
+ 278 0050 6846     		mov	r0, sp
+ 279 0052 E15C     		ldrb	r1, [r4, r3]
+ 280 0054 C154     		strb	r1, [r0, r3]
+ 281              	.LVL14:
+ 282 0056 0133     		adds	r3, r3, #1
+ 283              	.LVL15:
+ 284 0058 F3E7     		b	.L15
+ 285              	.L18:
+ 286 005a C046     		.align	2
+ 287              	.L17:
+ 288 005c 00000000 		.word	.LANCHOR1
+ 289 0060 00000000 		.word	.LC7
+ 290 0064 983A0000 		.word	15000
+ 291 0068 00000000 		.word	.LANCHOR0
+ 292              	.LBE14:
+ 293              		.cfi_endproc
+ 294              	.LFE496:
+ 296              		.global	CANfdudscount
+ 297              		.section	.bss.CANfdudscount,"aw",%nobits
+ 298              		.align	1
+ 299              		.set	.LANCHOR0,. + 0
+ 302              	CANfdudscount:
+ 303 0000 0000     		.space	2
+ 304              		.section	.bss.update_first_id.10381,"aw",%nobits
+ 305              		.set	.LANCHOR1,. + 0
+ 308              	update_first_id.10381:
+ 309 0000 00       		.space	1
+ 310              		.section	.rodata.uds_recv_data_fristhandle.str1.1,"aMS",%progbits,1
+ 311              	.LC7:
+ 312 0000 75706461 		.ascii	"update start 10\000"
+ 312      74652073 
+ 312      74617274 
+ 312      20313000 
+ 313              		.text
+ 314              	.Letext0:
+ 315              		.file 2 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/machine/_default_types.h"
+ 316              		.file 3 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/lock.h"
+ 317              		.file 4 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_types.h"
+ 318              		.file 5 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/lib/gcc/arm-none-eabi/7.3.1/include/stddef.h"
+ 319              		.file 6 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/reent.h"
+ 320              		.file 7 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/stdlib.h"
+ 321              		.file 8 "Application/BSPSys/Util/BSPTypeDef.h"
+ 322              		.file 9 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_stdint.h"
+ 323              		.file 10 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/system_stm32g0xx.h"
+ 324              		.file 11 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/stm32g0b1xx.h"
+ 325              		.file 12 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/stm32g0xx.h"
+ 326              		.file 13 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_def.h"
+ 327              		.file 14 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_dma.h"
+ 328              		.file 15 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_flash.h"
+ 329              		.file 16 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_fdcan.h"
+ 330              		.file 17 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_spi.h"
+ 331              		.file 18 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_uart.h"
+ 332              		.file 19 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal.h"
+ 333              		.file 20 "Core/Inc/main.h"
+ 334              		.file 21 "Core/Inc/spi.h"
+ARM GAS  /tmp/ccg54adB.s 			page 9
+
+
+ 335              		.file 22 "Application/BSPSys/BSPDevice/gd25q32e/BSPGD25Q32E.h"
+ 336              		.file 23 "./Application/Addition/UDSCanfd/can_uds_arch.h"
+ 337              		.file 24 "Core/Inc/fdcan.h"
+ 338              		.file 25 "Application/BSPSys/BSPDriver/BSPCAN.h"
+ 339              		.file 26 "./Application/Addition/UDSCanfd/network_layer/can_uds_network_layer.h"
+ 340              		.file 27 "./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.h"
+ 341              		.file 28 "Application/Funtion/SystemInfo/SystemInfo.h"
+ 342              		.file 29 "Application/Addition/RTT/SEGGER_RTT.h"
+ 343              		.file 30 "Application/Addition/UDSCanfd/services_layer/device_role/sid_internal_header.h"
+ 344              		.file 31 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_ll_dma.h"
+ARM GAS  /tmp/ccg54adB.s 			page 10
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 can_uds_interface.c
+     /tmp/ccg54adB.s:16     .text.init_uds:0000000000000000 $t
+     /tmp/ccg54adB.s:23     .text.init_uds:0000000000000000 init_uds
+     /tmp/ccg54adB.s:75     .text.init_uds:000000000000002c $d
+     /tmp/ccg54adB.s:83     .text.uds_proc_device:0000000000000000 $t
+     /tmp/ccg54adB.s:90     .text.uds_proc_device:0000000000000000 uds_proc_device
+     /tmp/ccg54adB.s:140    .text.uds_proc_device:000000000000002c $d
+     /tmp/ccg54adB.s:146    .text.uds_recv_data:0000000000000000 $t
+     /tmp/ccg54adB.s:153    .text.uds_recv_data:0000000000000000 uds_recv_data
+     /tmp/ccg54adB.s:176    .text.uds_recv_data_fristhandle:0000000000000000 $t
+     /tmp/ccg54adB.s:183    .text.uds_recv_data_fristhandle:0000000000000000 uds_recv_data_fristhandle
+     /tmp/ccg54adB.s:288    .text.uds_recv_data_fristhandle:000000000000005c $d
+     /tmp/ccg54adB.s:302    .bss.CANfdudscount:0000000000000000 CANfdudscount
+     /tmp/ccg54adB.s:298    .bss.CANfdudscount:0000000000000000 $d
+     /tmp/ccg54adB.s:308    .bss.update_first_id.10381:0000000000000000 update_first_id.10381
+     /tmp/ccg54adB.s:309    .bss.update_first_id.10381:0000000000000000 $d
+
+UNDEFINED SYMBOLS
+reset_uds_send_buf
+SystemInfo_1
+g_uds_config
+uds_phy_recv
+uds_phy_send
+cur_session_type
+SEGGER_RTT_printf

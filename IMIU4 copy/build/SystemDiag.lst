@@ -1,0 +1,1700 @@
+ARM GAS  /tmp/ccW036vO.s 			page 1
+
+
+   1              		.cpu cortex-m0plus
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 4
+   9              		.eabi_attribute 34, 0
+  10              		.eabi_attribute 18, 4
+  11              		.file	"SystemDiag.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.DiagSetErrState,"ax",%progbits
+  16              		.align	1
+  17              		.syntax unified
+  18              		.code	16
+  19              		.thumb_func
+  20              		.fpu softvfp
+  22              	DiagSetErrState:
+  23              	.LFB9:
+  24              		.file 1 "./Application/Funtion/SystemDiag/SystemDiag.c"
+   1:./Application/Funtion/SystemDiag/SystemDiag.c **** /*==========================================Copyright(c)=======================================
+   2:./Application/Funtion/SystemDiag/SystemDiag.c **** **                                  Shenzhen Infypower Co., Ltd.
+   3:./Application/Funtion/SystemDiag/SystemDiag.c **** **                                  Power conversion Department
+   4:./Application/Funtion/SystemDiag/SystemDiag.c **** **                                       BMS Product Line
+   5:./Application/Funtion/SystemDiag/SystemDiag.c **** **
+   6:./Application/Funtion/SystemDiag/SystemDiag.c **** **---------------------------------------File Information--------------------------------------
+   7:./Application/Funtion/SystemDiag/SystemDiag.c **** ** @File Name    : SystemDiag.c
+   8:./Application/Funtion/SystemDiag/SystemDiag.c **** ** @Founder      : WYC834
+   9:./Application/Funtion/SystemDiag/SystemDiag.c **** ** @Date         : 2026.1.8
+  10:./Application/Funtion/SystemDiag/SystemDiag.c **** ** @Function     : 自身诊断模块
+  11:./Application/Funtion/SystemDiag/SystemDiag.c **** ** @Instructions : 系统诊断自身故障告警
+  12:./Application/Funtion/SystemDiag/SystemDiag.c **** **===========================================================================================*/
+  13:./Application/Funtion/SystemDiag/SystemDiag.c **** 
+  14:./Application/Funtion/SystemDiag/SystemDiag.c **** /*=============================================================================================
+  15:./Application/Funtion/SystemDiag/SystemDiag.c **** ** @Header file definition
+  16:./Application/Funtion/SystemDiag/SystemDiag.c **** **===========================================================================================*/
+  17:./Application/Funtion/SystemDiag/SystemDiag.c **** #include "SystemDiag.h"
+  18:./Application/Funtion/SystemDiag/SystemDiag.c **** #include "SystemPara.h"
+  19:./Application/Funtion/SystemDiag/SystemDiag.c **** 
+  20:./Application/Funtion/SystemDiag/SystemDiag.c **** /*=============================================================================================
+  21:./Application/Funtion/SystemDiag/SystemDiag.c **** ** @Global variable definition
+  22:./Application/Funtion/SystemDiag/SystemDiag.c **** **===========================================================================================*/
+  23:./Application/Funtion/SystemDiag/SystemDiag.c **** u16 SystemDiag_57[SystemDiag_Len];//系统信息
+  24:./Application/Funtion/SystemDiag/SystemDiag.c **** 
+  25:./Application/Funtion/SystemDiag/SystemDiag.c **** t_FilState gErrFilTab[eERR_ID_FINISH] = {0};                /*故障诊断滤波处理(判断故障
+  26:./Application/Funtion/SystemDiag/SystemDiag.c **** 
+  27:./Application/Funtion/SystemDiag/SystemDiag.c **** const t_FilPara gErrFilPara[eERR_ID_FINISH] =               /*故障诊断滤波参数(故障滤波
+  28:./Application/Funtion/SystemDiag/SystemDiag.c **** {
+  29:./Application/Funtion/SystemDiag/SystemDiag.c **** 	/*故障类型/检测滤波时间(ms)/恢复滤波时间(ms)/允许自恢复次数*/
+  30:./Application/Funtion/SystemDiag/SystemDiag.c **** 	/*故障类型:[0:正常(不检测),1:仅提示类，2:充电限制类,3:放电限制类,4:充放�
+  31:./Application/Funtion/SystemDiag/SystemDiag.c **** 	/*以下为告警*/
+  32:./Application/Funtion/SystemDiag/SystemDiag.c **** 	{eErr_SysErr,    1000, 10000, 255},                       /*[0]高压采集芯片917初始化异�
+  33:./Application/Funtion/SystemDiag/SystemDiag.c **** 	{eErr_SysErr,    1000, 10000, 255},                       /*[1]高压采集芯片917通信异常*/
+  34:./Application/Funtion/SystemDiag/SystemDiag.c **** 	{eErr_SysErr,    1000, 10000, 255},                       /*[2]高压采样芯片+5V回检异常*/
+ARM GAS  /tmp/ccW036vO.s 			page 2
+
+
+  35:./Application/Funtion/SystemDiag/SystemDiag.c **** 	{eErr_SysErr,    1000, 10000, 255},                       /*[3]高压采样芯片-5V回检异常*/
+  36:./Application/Funtion/SystemDiag/SystemDiag.c **** 	{eErr_SysErr,    1000, 10000, 255},                       /*[4]LINK总压采样值异常*/
+  37:./Application/Funtion/SystemDiag/SystemDiag.c **** 	{eErr_SysErr,    1000, 10000, 255},                       /*[5]电池总压采样值异常*/
+  38:./Application/Funtion/SystemDiag/SystemDiag.c **** 	{eErr_SysErr,    1000, 10000, 255},                       /*[6]霍尔过载故障*/
+  39:./Application/Funtion/SystemDiag/SystemDiag.c **** 	{eErr_SysErr,    1000, 10000, 255},                       /*[7]霍尔供电异常*/
+  40:./Application/Funtion/SystemDiag/SystemDiag.c **** 	{eErr_SysErr,    1000, 10000, 255},                       /*[8]霍尔AD值异常*/
+  41:./Application/Funtion/SystemDiag/SystemDiag.c **** 	{eErr_SysErr,    1000, 10000, 255},                       /*[9]电池端分流器采样值异常*/
+  42:./Application/Funtion/SystemDiag/SystemDiag.c **** 	{eErr_SysErr,    1000, 10000, 255},                       /*[10]分流器与霍尔采样偏差过�
+  43:./Application/Funtion/SystemDiag/SystemDiag.c **** 	{eErr_SysErr,    1000, 10000, 255},                       /*[11]负载端分流器采样值异常*
+  44:./Application/Funtion/SystemDiag/SystemDiag.c **** 	{eErr_SysErr,    1000, 10000, 255},                       /*[12]绝缘检测电压不稳*/
+  45:./Application/Funtion/SystemDiag/SystemDiag.c **** 	{eErr_SysErr,    1000, 10000, 255},                       /*[13]绝缘检测电压过小或负值*
+  46:./Application/Funtion/SystemDiag/SystemDiag.c **** 	{eErr_SysErr,    1000, 10000, 255},                       /*[14]菊花链芯片通信异常*/
+  47:./Application/Funtion/SystemDiag/SystemDiag.c **** 	{eErr_SysErr,    1000, 10000, 255},                       /*[15]计量芯片通信异常*/
+  48:./Application/Funtion/SystemDiag/SystemDiag.c **** 
+  49:./Application/Funtion/SystemDiag/SystemDiag.c **** 	{eErr_SysErr,    1000, 10000, 255},                       /*[16]板子5V供电电压回检异常*/
+  50:./Application/Funtion/SystemDiag/SystemDiag.c **** 	{eErr_SysErr,    1000, 10000, 255},                       /*[17]电流采样自检异常*/
+  51:./Application/Funtion/SystemDiag/SystemDiag.c **** 
+  52:./Application/Funtion/SystemDiag/SystemDiag.c **** 
+  53:./Application/Funtion/SystemDiag/SystemDiag.c **** };
+  54:./Application/Funtion/SystemDiag/SystemDiag.c **** /*=============================================================================================
+  55:./Application/Funtion/SystemDiag/SystemDiag.c **** ** @Static function declaration
+  56:./Application/Funtion/SystemDiag/SystemDiag.c **** **===========================================================================================*/
+  57:./Application/Funtion/SystemDiag/SystemDiag.c **** /*=================================================================================================
+  58:./Application/Funtion/SystemDiag/SystemDiag.c **** ** @Name      : static void DiagSetErrState(e_ERR_ID id, u8 state)
+  59:./Application/Funtion/SystemDiag/SystemDiag.c **** ** @Input     : id:故障码ID state:设置状态:0清除状态 1:发生状态
+  60:./Application/Funtion/SystemDiag/SystemDiag.c **** ** @Output    : void
+  61:./Application/Funtion/SystemDiag/SystemDiag.c **** ** @Function  : 设置故障码状态
+  62:./Application/Funtion/SystemDiag/SystemDiag.c **** ** @The notes : 清0或置1
+  63:./Application/Funtion/SystemDiag/SystemDiag.c **** **===============================================================================================*/
+  64:./Application/Funtion/SystemDiag/SystemDiag.c **** static void DiagSetErrState(e_ERR_ID id, u8 state);
+  65:./Application/Funtion/SystemDiag/SystemDiag.c **** // /*==============================================================================================
+  66:./Application/Funtion/SystemDiag/SystemDiag.c **** // ** @Name      : static u8 DiagGetExpBefState(e_ERR_ID id)
+  67:./Application/Funtion/SystemDiag/SystemDiag.c **** // ** @Input     : id:故障码ID
+  68:./Application/Funtion/SystemDiag/SystemDiag.c **** // ** @Output    : 故障前置状态:0:正常 1:故障/告警
+  69:./Application/Funtion/SystemDiag/SystemDiag.c **** // ** @Function  : 获取故障前置状态
+  70:./Application/Funtion/SystemDiag/SystemDiag.c **** // ** @The notes : 当前显示状态
+  71:./Application/Funtion/SystemDiag/SystemDiag.c **** // **==============================================================================================
+  72:./Application/Funtion/SystemDiag/SystemDiag.c **** // static u8 DiagGetExpBefState(e_ERR_ID id);
+  73:./Application/Funtion/SystemDiag/SystemDiag.c **** 
+  74:./Application/Funtion/SystemDiag/SystemDiag.c **** 
+  75:./Application/Funtion/SystemDiag/SystemDiag.c **** /*=============================================================================================
+  76:./Application/Funtion/SystemDiag/SystemDiag.c **** ** @Interface function definition
+  77:./Application/Funtion/SystemDiag/SystemDiag.c **** **===========================================================================================*/
+  78:./Application/Funtion/SystemDiag/SystemDiag.c **** void InitSystemDiag(void)
+  79:./Application/Funtion/SystemDiag/SystemDiag.c **** {
+  80:./Application/Funtion/SystemDiag/SystemDiag.c **** 	for(int i  = 0;i < SystemDiag_Len; i++)
+  81:./Application/Funtion/SystemDiag/SystemDiag.c **** 	{
+  82:./Application/Funtion/SystemDiag/SystemDiag.c **** 		SystemDiag_57[i] = 0;
+  83:./Application/Funtion/SystemDiag/SystemDiag.c **** 	}
+  84:./Application/Funtion/SystemDiag/SystemDiag.c **** }
+  85:./Application/Funtion/SystemDiag/SystemDiag.c **** 
+  86:./Application/Funtion/SystemDiag/SystemDiag.c **** /*=================================================================================================
+  87:./Application/Funtion/SystemDiag/SystemDiag.c **** ** @Name      : void DiagErrFilterInit(void)
+  88:./Application/Funtion/SystemDiag/SystemDiag.c **** ** @Input     : swhSort:接触器名称[0,11] state:控制接触器状态 0:断开 1:闭合
+  89:./Application/Funtion/SystemDiag/SystemDiag.c **** ** @Output    : void
+  90:./Application/Funtion/SystemDiag/SystemDiag.c **** ** @Function  : 故障诊断滤波初始化
+  91:./Application/Funtion/SystemDiag/SystemDiag.c **** ** @The notes : 滤波处理数组清零
+ARM GAS  /tmp/ccW036vO.s 			page 3
+
+
+  92:./Application/Funtion/SystemDiag/SystemDiag.c **** **===============================================================================================*/
+  93:./Application/Funtion/SystemDiag/SystemDiag.c **** void DiagErrFilterInit(void)
+  94:./Application/Funtion/SystemDiag/SystemDiag.c **** {
+  95:./Application/Funtion/SystemDiag/SystemDiag.c **** 	e_ERR_ID i = eERR_ID_FINISH;
+  96:./Application/Funtion/SystemDiag/SystemDiag.c **** 
+  97:./Application/Funtion/SystemDiag/SystemDiag.c **** 	/*所有故障位*/
+  98:./Application/Funtion/SystemDiag/SystemDiag.c **** 	for(i = (e_ERR_ID)0; i < eERR_ID_FINISH; i++)
+  99:./Application/Funtion/SystemDiag/SystemDiag.c **** 	{
+ 100:./Application/Funtion/SystemDiag/SystemDiag.c **** 	    /*根据故障检测类型设置是否使能故障检测*/
+ 101:./Application/Funtion/SystemDiag/SystemDiag.c **** 	    if(gErrFilPara[i].errSort > 0)
+ 102:./Application/Funtion/SystemDiag/SystemDiag.c **** 	    {
+ 103:./Application/Funtion/SystemDiag/SystemDiag.c **** 	        gErrFilTab[i].enable = 1;
+ 104:./Application/Funtion/SystemDiag/SystemDiag.c **** 	    }
+ 105:./Application/Funtion/SystemDiag/SystemDiag.c **** 	    else
+ 106:./Application/Funtion/SystemDiag/SystemDiag.c **** 	    {
+ 107:./Application/Funtion/SystemDiag/SystemDiag.c **** 	        gErrFilTab[i].enable = 0;
+ 108:./Application/Funtion/SystemDiag/SystemDiag.c **** 	    }
+ 109:./Application/Funtion/SystemDiag/SystemDiag.c **** 
+ 110:./Application/Funtion/SystemDiag/SystemDiag.c **** 	    /*复位所有故障滤波参数*/
+ 111:./Application/Funtion/SystemDiag/SystemDiag.c **** 	    gErrFilTab[i].nowState = eErr_A;
+ 112:./Application/Funtion/SystemDiag/SystemDiag.c **** 	    gErrFilTab[i].filState = eErr_A;
+ 113:./Application/Funtion/SystemDiag/SystemDiag.c **** 	    gErrFilTab[i].resTimes = 0;
+ 114:./Application/Funtion/SystemDiag/SystemDiag.c **** 	    gErrFilTab[i].timer = 0;
+ 115:./Application/Funtion/SystemDiag/SystemDiag.c **** 	}
+ 116:./Application/Funtion/SystemDiag/SystemDiag.c **** }
+ 117:./Application/Funtion/SystemDiag/SystemDiag.c **** 
+ 118:./Application/Funtion/SystemDiag/SystemDiag.c **** /*=================================================================================================
+ 119:./Application/Funtion/SystemDiag/SystemDiag.c **** ** @Name      : e_ErrSort DiagGetGroupNowErrLevelAPI(void)
+ 120:./Application/Funtion/SystemDiag/SystemDiag.c **** ** @Input     : void
+ 121:./Application/Funtion/SystemDiag/SystemDiag.c **** ** @Output    : 当前故障级别[0,8]
+ 122:./Application/Funtion/SystemDiag/SystemDiag.c **** ** @Function  : 获取当前故障级别
+ 123:./Application/Funtion/SystemDiag/SystemDiag.c **** ** @The notes : 当前故障的最高级别
+ 124:./Application/Funtion/SystemDiag/SystemDiag.c **** **===============================================================================================*/
+ 125:./Application/Funtion/SystemDiag/SystemDiag.c **** e_ErrSort DiagGetGroupNowErrLevelAPI(void)
+ 126:./Application/Funtion/SystemDiag/SystemDiag.c **** {
+ 127:./Application/Funtion/SystemDiag/SystemDiag.c **** 	e_ERR_ID i = eERR_ID_FINISH;
+ 128:./Application/Funtion/SystemDiag/SystemDiag.c **** 	e_ErrSort sort = eErr_Norm;
+ 129:./Application/Funtion/SystemDiag/SystemDiag.c **** 
+ 130:./Application/Funtion/SystemDiag/SystemDiag.c ****     for(i = (e_ERR_ID)0; i < eERR_ID_FINISH; i++)
+ 131:./Application/Funtion/SystemDiag/SystemDiag.c ****     {
+ 132:./Application/Funtion/SystemDiag/SystemDiag.c ****         if(eErr_Norm == DiagGetFilErrSortAPI(i))            /*不检测类型故障*/
+ 133:./Application/Funtion/SystemDiag/SystemDiag.c ****         {
+ 134:./Application/Funtion/SystemDiag/SystemDiag.c ****             ;                                               /*无故障*/
+ 135:./Application/Funtion/SystemDiag/SystemDiag.c ****         }
+ 136:./Application/Funtion/SystemDiag/SystemDiag.c ****         else if(eErr_Warm == DiagGetFilErrSortAPI(i))       /*提示类型故障*/
+ 137:./Application/Funtion/SystemDiag/SystemDiag.c ****         {
+ 138:./Application/Funtion/SystemDiag/SystemDiag.c ****             if(eErr_B == DiagGetErrLastStateAPI(i))         /*出现提示类异常*/
+ 139:./Application/Funtion/SystemDiag/SystemDiag.c ****             {
+ 140:./Application/Funtion/SystemDiag/SystemDiag.c ****                 if(sort < eErr_Warm)                        /*未检测到级别更高的异常*/
+ 141:./Application/Funtion/SystemDiag/SystemDiag.c ****                 {
+ 142:./Application/Funtion/SystemDiag/SystemDiag.c ****                     sort = eErr_Warm;                       /*设置为提示级别类型*/
+ 143:./Application/Funtion/SystemDiag/SystemDiag.c ****                 }
+ 144:./Application/Funtion/SystemDiag/SystemDiag.c ****             }
+ 145:./Application/Funtion/SystemDiag/SystemDiag.c ****         }
+ 146:./Application/Funtion/SystemDiag/SystemDiag.c ****         else if(eErr_SysErr == DiagGetFilErrSortAPI(i))     /*故障类型故障*/
+ 147:./Application/Funtion/SystemDiag/SystemDiag.c ****         {
+ 148:./Application/Funtion/SystemDiag/SystemDiag.c ****             if(eErr_B == DiagGetErrLastStateAPI(i))         /*出现停机类异常*/
+ARM GAS  /tmp/ccW036vO.s 			page 4
+
+
+ 149:./Application/Funtion/SystemDiag/SystemDiag.c ****             {
+ 150:./Application/Funtion/SystemDiag/SystemDiag.c ****                 sort = eErr_SysErr;                         /*设置为停机级别类型*/
+ 151:./Application/Funtion/SystemDiag/SystemDiag.c ****                 break;                                      /*已是最高级,不需再检测*/
+ 152:./Application/Funtion/SystemDiag/SystemDiag.c ****             }
+ 153:./Application/Funtion/SystemDiag/SystemDiag.c ****         }
+ 154:./Application/Funtion/SystemDiag/SystemDiag.c **** 
+ 155:./Application/Funtion/SystemDiag/SystemDiag.c ****     }
+ 156:./Application/Funtion/SystemDiag/SystemDiag.c **** 
+ 157:./Application/Funtion/SystemDiag/SystemDiag.c ****     return(sort);
+ 158:./Application/Funtion/SystemDiag/SystemDiag.c **** }
+ 159:./Application/Funtion/SystemDiag/SystemDiag.c **** 
+ 160:./Application/Funtion/SystemDiag/SystemDiag.c **** /*=================================================================================================
+ 161:./Application/Funtion/SystemDiag/SystemDiag.c **** ** @Name      : e_ErrSort DiagGetFilErrSortAPI(e_ERR_ID id)
+ 162:./Application/Funtion/SystemDiag/SystemDiag.c **** ** @Input     : id:故障ID
+ 163:./Application/Funtion/SystemDiag/SystemDiag.c **** ** @Output    : 故障类型[0,8]
+ 164:./Application/Funtion/SystemDiag/SystemDiag.c **** ** @Function  : 获取故障类型
+ 165:./Application/Funtion/SystemDiag/SystemDiag.c **** ** @The notes :
+ 166:./Application/Funtion/SystemDiag/SystemDiag.c **** **===============================================================================================*/
+ 167:./Application/Funtion/SystemDiag/SystemDiag.c **** e_ErrSort DiagGetFilErrSortAPI(e_ERR_ID id)
+ 168:./Application/Funtion/SystemDiag/SystemDiag.c **** {
+ 169:./Application/Funtion/SystemDiag/SystemDiag.c **** 	if(id < eERR_ID_FINISH)
+ 170:./Application/Funtion/SystemDiag/SystemDiag.c **** 	{
+ 171:./Application/Funtion/SystemDiag/SystemDiag.c ****         /*返回故障类型*/
+ 172:./Application/Funtion/SystemDiag/SystemDiag.c ****         return(gErrFilPara[id].errSort);
+ 173:./Application/Funtion/SystemDiag/SystemDiag.c **** 	}
+ 174:./Application/Funtion/SystemDiag/SystemDiag.c **** 	else
+ 175:./Application/Funtion/SystemDiag/SystemDiag.c **** 	{
+ 176:./Application/Funtion/SystemDiag/SystemDiag.c **** 		return(eErr_Norm);
+ 177:./Application/Funtion/SystemDiag/SystemDiag.c **** 	}
+ 178:./Application/Funtion/SystemDiag/SystemDiag.c **** }
+ 179:./Application/Funtion/SystemDiag/SystemDiag.c **** 
+ 180:./Application/Funtion/SystemDiag/SystemDiag.c **** /*=================================================================================================
+ 181:./Application/Funtion/SystemDiag/SystemDiag.c **** ** @Name      : void DiagErrFilterTask(u8 from, u8 to)
+ 182:./Application/Funtion/SystemDiag/SystemDiag.c **** ** @Input     : from-to:检测故障滤波起始和结束ID(包括from不包to)
+ 183:./Application/Funtion/SystemDiag/SystemDiag.c **** ** @Output    : void
+ 184:./Application/Funtion/SystemDiag/SystemDiag.c **** ** @Function  : 故障诊断滤波任务
+ 185:./Application/Funtion/SystemDiag/SystemDiag.c **** ** @The notes : 50ms周期调用,与DIAG_FILTER_TICK一致
+ 186:./Application/Funtion/SystemDiag/SystemDiag.c **** **===============================================================================================*/
+ 187:./Application/Funtion/SystemDiag/SystemDiag.c **** void DiagErrFilterTask(e_ERR_ID from, e_ERR_ID to)
+ 188:./Application/Funtion/SystemDiag/SystemDiag.c **** {
+ 189:./Application/Funtion/SystemDiag/SystemDiag.c **** 	e_ERR_ID i = eERR_ID_FINISH;
+ 190:./Application/Funtion/SystemDiag/SystemDiag.c **** 	e_ERR_ID temp = eERR_ID_FINISH;
+ 191:./Application/Funtion/SystemDiag/SystemDiag.c **** 
+ 192:./Application/Funtion/SystemDiag/SystemDiag.c ****     if(to > temp)                                          /*to必须小于最大值*/
+ 193:./Application/Funtion/SystemDiag/SystemDiag.c ****     {
+ 194:./Application/Funtion/SystemDiag/SystemDiag.c ****         to = temp;
+ 195:./Application/Funtion/SystemDiag/SystemDiag.c ****     }
+ 196:./Application/Funtion/SystemDiag/SystemDiag.c **** 
+ 197:./Application/Funtion/SystemDiag/SystemDiag.c ****     if(from > temp)                                        /*from必须小于最大值*/
+ 198:./Application/Funtion/SystemDiag/SystemDiag.c ****     {
+ 199:./Application/Funtion/SystemDiag/SystemDiag.c ****         from = temp;
+ 200:./Application/Funtion/SystemDiag/SystemDiag.c ****     }
+ 201:./Application/Funtion/SystemDiag/SystemDiag.c **** 
+ 202:./Application/Funtion/SystemDiag/SystemDiag.c ****     if(from > to)                                           /*from 必须小于等于to*/
+ 203:./Application/Funtion/SystemDiag/SystemDiag.c ****     {
+ 204:./Application/Funtion/SystemDiag/SystemDiag.c ****         temp = from;
+ 205:./Application/Funtion/SystemDiag/SystemDiag.c ****         from = to;
+ARM GAS  /tmp/ccW036vO.s 			page 5
+
+
+ 206:./Application/Funtion/SystemDiag/SystemDiag.c ****         to = temp;
+ 207:./Application/Funtion/SystemDiag/SystemDiag.c ****     }
+ 208:./Application/Funtion/SystemDiag/SystemDiag.c **** 
+ 209:./Application/Funtion/SystemDiag/SystemDiag.c ****     for(i = from; i < to; i++)                              /*逐个检测指定故障id*/
+ 210:./Application/Funtion/SystemDiag/SystemDiag.c ****     {
+ 211:./Application/Funtion/SystemDiag/SystemDiag.c ****         if(IsEqual(gErrFilTab[i].enable, 1))                /*该故障id使能检测*/
+ 212:./Application/Funtion/SystemDiag/SystemDiag.c ****         {
+ 213:./Application/Funtion/SystemDiag/SystemDiag.c ****         	/*当前稳定状态*/
+ 214:./Application/Funtion/SystemDiag/SystemDiag.c ****             switch(gErrFilTab[i].filState)
+ 215:./Application/Funtion/SystemDiag/SystemDiag.c ****             {
+ 216:./Application/Funtion/SystemDiag/SystemDiag.c ****                 case eErr_A:                                /*正常状态*/
+ 217:./Application/Funtion/SystemDiag/SystemDiag.c ****                     if(IsEqual(gErrFilTab[i].nowState, eErr_B))/*如果其瞬态值是eErr_B则设�
+ 218:./Application/Funtion/SystemDiag/SystemDiag.c ****                     {
+ 219:./Application/Funtion/SystemDiag/SystemDiag.c ****                     	gErrFilTab[i].filState = eErr_AtoB;
+ 220:./Application/Funtion/SystemDiag/SystemDiag.c ****                     	gErrFilTab[i].timer = 0;
+ 221:./Application/Funtion/SystemDiag/SystemDiag.c ****                     }
+ 222:./Application/Funtion/SystemDiag/SystemDiag.c ****                     break;
+ 223:./Application/Funtion/SystemDiag/SystemDiag.c **** 
+ 224:./Application/Funtion/SystemDiag/SystemDiag.c ****                 case eErr_AtoB:                             /*正常到故障的过渡态*/
+ 225:./Application/Funtion/SystemDiag/SystemDiag.c ****                     if(IsEqual(gErrFilTab[i].nowState, eErr_B))
+ 226:./Application/Funtion/SystemDiag/SystemDiag.c ****                     {
+ 227:./Application/Funtion/SystemDiag/SystemDiag.c ****                     	gErrFilTab[i].timer++;              /*如果次数达到了设置值则变化�
+ 228:./Application/Funtion/SystemDiag/SystemDiag.c ****                         if(gErrFilTab[i].timer > (gErrFilPara[i].AtoBTime / DIAG_FILTER_TICK))/*50m
+ 229:./Application/Funtion/SystemDiag/SystemDiag.c ****                         {
+ 230:./Application/Funtion/SystemDiag/SystemDiag.c ****                         	/*计算A->B的次数*/
+ 231:./Application/Funtion/SystemDiag/SystemDiag.c ****                             if(gErrFilTab[i].resTimes < 254)/*防止越界*/
+ 232:./Application/Funtion/SystemDiag/SystemDiag.c ****                             {
+ 233:./Application/Funtion/SystemDiag/SystemDiag.c ****                             	gErrFilTab[i].resTimes++;   /*次数加1*/
+ 234:./Application/Funtion/SystemDiag/SystemDiag.c ****                             }
+ 235:./Application/Funtion/SystemDiag/SystemDiag.c **** 
+ 236:./Application/Funtion/SystemDiag/SystemDiag.c ****                             gErrFilTab[i].filState = eErr_B;
+ 237:./Application/Funtion/SystemDiag/SystemDiag.c ****                             gErrFilTab[i].timer = 0;
+ 238:./Application/Funtion/SystemDiag/SystemDiag.c ****                         }
+ 239:./Application/Funtion/SystemDiag/SystemDiag.c ****                     }
+ 240:./Application/Funtion/SystemDiag/SystemDiag.c ****                     else if(IsEqual(gErrFilTab[i].nowState, eErr_A))/*A->B过渡状态下如果其�
+ 241:./Application/Funtion/SystemDiag/SystemDiag.c ****                     {
+ 242:./Application/Funtion/SystemDiag/SystemDiag.c ****                     	gErrFilTab[i].filState = eErr_A;
+ 243:./Application/Funtion/SystemDiag/SystemDiag.c ****                     	gErrFilTab[i].timer = 0;
+ 244:./Application/Funtion/SystemDiag/SystemDiag.c ****                     }
+ 245:./Application/Funtion/SystemDiag/SystemDiag.c ****                     break;
+ 246:./Application/Funtion/SystemDiag/SystemDiag.c **** 
+ 247:./Application/Funtion/SystemDiag/SystemDiag.c ****                 case eErr_B:                                /*故障状态*/
+ 248:./Application/Funtion/SystemDiag/SystemDiag.c ****                     if(IsEqual(gErrFilTab[i].nowState, eErr_A))/*如果其瞬态值是eErr_A则设�
+ 249:./Application/Funtion/SystemDiag/SystemDiag.c ****                     {
+ 250:./Application/Funtion/SystemDiag/SystemDiag.c ****                     	gErrFilTab[i].filState = eErr_BtoA;
+ 251:./Application/Funtion/SystemDiag/SystemDiag.c ****                     	gErrFilTab[i].timer = 0;
+ 252:./Application/Funtion/SystemDiag/SystemDiag.c ****                     }
+ 253:./Application/Funtion/SystemDiag/SystemDiag.c ****                     break;
+ 254:./Application/Funtion/SystemDiag/SystemDiag.c **** 
+ 255:./Application/Funtion/SystemDiag/SystemDiag.c ****                 case eErr_BtoA:                             /*故障到正常的过渡态*/
+ 256:./Application/Funtion/SystemDiag/SystemDiag.c ****                     if(IsEqual(gErrFilTab[i].nowState, eErr_A))
+ 257:./Application/Funtion/SystemDiag/SystemDiag.c ****                     {
+ 258:./Application/Funtion/SystemDiag/SystemDiag.c ****                     	gErrFilTab[i].timer++;              /*如果次数达到了设置值则变化�
+ 259:./Application/Funtion/SystemDiag/SystemDiag.c ****                         if(gErrFilTab[i].timer > (gErrFilPara[i].BtoATime / DIAG_FILTER_TICK))/*50m
+ 260:./Application/Funtion/SystemDiag/SystemDiag.c ****                         {
+ 261:./Application/Funtion/SystemDiag/SystemDiag.c ****                         	gErrFilTab[i].filState = eErr_A;
+ 262:./Application/Funtion/SystemDiag/SystemDiag.c ****                         	gErrFilTab[i].timer = 0;
+ARM GAS  /tmp/ccW036vO.s 			page 6
+
+
+ 263:./Application/Funtion/SystemDiag/SystemDiag.c ****                         }
+ 264:./Application/Funtion/SystemDiag/SystemDiag.c ****                     }
+ 265:./Application/Funtion/SystemDiag/SystemDiag.c ****                     else if(IsEqual(gErrFilTab[i].nowState, eErr_B))/*B->A过渡状态下如果其�
+ 266:./Application/Funtion/SystemDiag/SystemDiag.c ****                     {
+ 267:./Application/Funtion/SystemDiag/SystemDiag.c ****                     	gErrFilTab[i].filState = eErr_B;
+ 268:./Application/Funtion/SystemDiag/SystemDiag.c ****                     	gErrFilTab[i].timer = 0;
+ 269:./Application/Funtion/SystemDiag/SystemDiag.c ****                     }
+ 270:./Application/Funtion/SystemDiag/SystemDiag.c ****                     break;
+ 271:./Application/Funtion/SystemDiag/SystemDiag.c **** 
+ 272:./Application/Funtion/SystemDiag/SystemDiag.c ****                 default:
+ 273:./Application/Funtion/SystemDiag/SystemDiag.c ****                     break;
+ 274:./Application/Funtion/SystemDiag/SystemDiag.c ****             }
+ 275:./Application/Funtion/SystemDiag/SystemDiag.c ****         }
+ 276:./Application/Funtion/SystemDiag/SystemDiag.c ****     }
+ 277:./Application/Funtion/SystemDiag/SystemDiag.c **** }
+ 278:./Application/Funtion/SystemDiag/SystemDiag.c **** 
+ 279:./Application/Funtion/SystemDiag/SystemDiag.c **** /*=================================================================================================
+ 280:./Application/Funtion/SystemDiag/SystemDiag.c **** ** @Name      : void DiagSetErrNowStateAPI(e_ERR_ID id, e_ErrState state)
+ 281:./Application/Funtion/SystemDiag/SystemDiag.c **** ** @Input     : id:故障ID state:目标故障状态
+ 282:./Application/Funtion/SystemDiag/SystemDiag.c **** ** @Output    : void
+ 283:./Application/Funtion/SystemDiag/SystemDiag.c **** ** @Function  : 设置故障诊断滤波当前瞬时状态
+ 284:./Application/Funtion/SystemDiag/SystemDiag.c **** ** @The notes :
+ 285:./Application/Funtion/SystemDiag/SystemDiag.c **** **===============================================================================================*/
+ 286:./Application/Funtion/SystemDiag/SystemDiag.c **** void DiagSetErrNowStateAPI(e_ERR_ID id, e_ErrState state)
+ 287:./Application/Funtion/SystemDiag/SystemDiag.c **** {
+ 288:./Application/Funtion/SystemDiag/SystemDiag.c **** 	if((id < eERR_ID_FINISH) && (1 == gErrFilTab[id].enable))
+ 289:./Application/Funtion/SystemDiag/SystemDiag.c **** 	{
+ 290:./Application/Funtion/SystemDiag/SystemDiag.c **** 	    /*检测是否可以设置恢复为A*/
+ 291:./Application/Funtion/SystemDiag/SystemDiag.c **** 	    if((255 != gErrFilPara[id].maxTimes)                /*非无限次恢复*/
+ 292:./Application/Funtion/SystemDiag/SystemDiag.c **** 	        && (eErr_B == gErrFilTab[id].filState)          /*正处于B状态*/
+ 293:./Application/Funtion/SystemDiag/SystemDiag.c **** 	        && (eErr_A == state))                           /*需要设置为A状态*/
+ 294:./Application/Funtion/SystemDiag/SystemDiag.c **** 	    {
+ 295:./Application/Funtion/SystemDiag/SystemDiag.c **** 	        if(gErrFilTab[id].resTimes >= gErrFilPara[id].maxTimes)/*达到最大恢复次数*/
+ 296:./Application/Funtion/SystemDiag/SystemDiag.c **** 	        {
+ 297:./Application/Funtion/SystemDiag/SystemDiag.c **** 	            return;                                     /*不能设置恢复为A*/
+ 298:./Application/Funtion/SystemDiag/SystemDiag.c **** 	        }
+ 299:./Application/Funtion/SystemDiag/SystemDiag.c **** 	    }
+ 300:./Application/Funtion/SystemDiag/SystemDiag.c **** 
+ 301:./Application/Funtion/SystemDiag/SystemDiag.c **** 		gErrFilTab[id].nowState = state;
+ 302:./Application/Funtion/SystemDiag/SystemDiag.c **** 	}
+ 303:./Application/Funtion/SystemDiag/SystemDiag.c **** }
+ 304:./Application/Funtion/SystemDiag/SystemDiag.c **** 
+ 305:./Application/Funtion/SystemDiag/SystemDiag.c **** /*=================================================================================================
+ 306:./Application/Funtion/SystemDiag/SystemDiag.c **** ** @Name      : void DiagSetErrFilStateAPI(e_ERR_ID id, e_ErrState state)
+ 307:./Application/Funtion/SystemDiag/SystemDiag.c **** ** @Input     : id:故障ID state:目标故障状态
+ 308:./Application/Funtion/SystemDiag/SystemDiag.c **** ** @Output    : void
+ 309:./Application/Funtion/SystemDiag/SystemDiag.c **** ** @Function  : 设置故障诊断滤波当前稳定状态
+ 310:./Application/Funtion/SystemDiag/SystemDiag.c **** ** @The notes : 只能eErr_A或eErr_B
+ 311:./Application/Funtion/SystemDiag/SystemDiag.c **** **===============================================================================================*/
+ 312:./Application/Funtion/SystemDiag/SystemDiag.c **** void DiagSetErrFilStateAPI(e_ERR_ID id, e_ErrState state)
+ 313:./Application/Funtion/SystemDiag/SystemDiag.c **** {
+ 314:./Application/Funtion/SystemDiag/SystemDiag.c **** 	if((id < eERR_ID_FINISH) && (1 == gErrFilTab[id].enable)
+ 315:./Application/Funtion/SystemDiag/SystemDiag.c **** 		&& ((eErr_A == state) || (eErr_B == state)))
+ 316:./Application/Funtion/SystemDiag/SystemDiag.c **** 	{
+ 317:./Application/Funtion/SystemDiag/SystemDiag.c **** 	    /*检测是否可以设置恢复为A*/
+ 318:./Application/Funtion/SystemDiag/SystemDiag.c **** 	    if((255 != gErrFilPara[id].maxTimes)                /*非无限次恢复*/
+ 319:./Application/Funtion/SystemDiag/SystemDiag.c **** 	        && (eErr_B == gErrFilTab[id].filState)          /*正处于B状态*/
+ARM GAS  /tmp/ccW036vO.s 			page 7
+
+
+ 320:./Application/Funtion/SystemDiag/SystemDiag.c **** 	        && (eErr_A == state))                           /*需要设置为A状态*/
+ 321:./Application/Funtion/SystemDiag/SystemDiag.c **** 	    {
+ 322:./Application/Funtion/SystemDiag/SystemDiag.c **** 	        if(gErrFilTab[id].resTimes >= gErrFilPara[id].maxTimes)/*达到最大恢复次数*/
+ 323:./Application/Funtion/SystemDiag/SystemDiag.c **** 	        {
+ 324:./Application/Funtion/SystemDiag/SystemDiag.c **** 	            return;                                     /*不能设置恢复为A*/
+ 325:./Application/Funtion/SystemDiag/SystemDiag.c **** 	        }
+ 326:./Application/Funtion/SystemDiag/SystemDiag.c **** 	    }
+ 327:./Application/Funtion/SystemDiag/SystemDiag.c **** 
+ 328:./Application/Funtion/SystemDiag/SystemDiag.c **** 	    /*计算A->B的次数*/
+ 329:./Application/Funtion/SystemDiag/SystemDiag.c **** 	    if((eErr_A == DiagGetErrLastStateAPI(id))           /*正处于A状态*/
+ 330:./Application/Funtion/SystemDiag/SystemDiag.c **** 	        && (eErr_B == state))                           /*需要设置为B状态*/
+ 331:./Application/Funtion/SystemDiag/SystemDiag.c **** 	    {
+ 332:./Application/Funtion/SystemDiag/SystemDiag.c **** 	        if(gErrFilTab[id].resTimes < 254)               /*防止越界*/
+ 333:./Application/Funtion/SystemDiag/SystemDiag.c **** 	        {
+ 334:./Application/Funtion/SystemDiag/SystemDiag.c **** 	        	gErrFilTab[id].resTimes++;                  /*次数加1*/
+ 335:./Application/Funtion/SystemDiag/SystemDiag.c **** 	        }
+ 336:./Application/Funtion/SystemDiag/SystemDiag.c **** 	    }
+ 337:./Application/Funtion/SystemDiag/SystemDiag.c **** 
+ 338:./Application/Funtion/SystemDiag/SystemDiag.c **** 		gErrFilTab[id].nowState = state;
+ 339:./Application/Funtion/SystemDiag/SystemDiag.c **** 		gErrFilTab[id].filState = state;
+ 340:./Application/Funtion/SystemDiag/SystemDiag.c **** 	}
+ 341:./Application/Funtion/SystemDiag/SystemDiag.c **** }
+ 342:./Application/Funtion/SystemDiag/SystemDiag.c **** 
+ 343:./Application/Funtion/SystemDiag/SystemDiag.c **** /*=================================================================================================
+ 344:./Application/Funtion/SystemDiag/SystemDiag.c **** ** @Name      : void DiagErrDisplayTask(void)
+ 345:./Application/Funtion/SystemDiag/SystemDiag.c **** ** @Input     : void
+ 346:./Application/Funtion/SystemDiag/SystemDiag.c **** ** @Output    : void
+ 347:./Application/Funtion/SystemDiag/SystemDiag.c **** ** @Function  : 故障显示任务
+ 348:./Application/Funtion/SystemDiag/SystemDiag.c **** ** @The notes : 100ms周期,将滤波故障转入故障显示位
+ 349:./Application/Funtion/SystemDiag/SystemDiag.c **** **===============================================================================================*/
+ 350:./Application/Funtion/SystemDiag/SystemDiag.c **** void DiagErrDisplayTask(void)
+ 351:./Application/Funtion/SystemDiag/SystemDiag.c **** {
+ 352:./Application/Funtion/SystemDiag/SystemDiag.c **** 	// u16 flag = 0;
+ 353:./Application/Funtion/SystemDiag/SystemDiag.c **** 	e_ERR_ID i = eERR_ID_FINISH;
+ 354:./Application/Funtion/SystemDiag/SystemDiag.c **** 	// e_ERR_ID index = eERR_ID_FINISH;
+ 355:./Application/Funtion/SystemDiag/SystemDiag.c **** 	// static u8 sFlag = 0;
+ 356:./Application/Funtion/SystemDiag/SystemDiag.c **** 
+ 357:./Application/Funtion/SystemDiag/SystemDiag.c ****     for(i = (e_ERR_ID)0; i < eERR_ID_FINISH; i++)           /*检测滤波最大个数*/
+ 358:./Application/Funtion/SystemDiag/SystemDiag.c ****     {
+ 359:./Application/Funtion/SystemDiag/SystemDiag.c **** 		if(eErr_B == DiagGetErrLastStateAPI(i))             /*出现告警*/
+ 360:./Application/Funtion/SystemDiag/SystemDiag.c **** 		{
+ 361:./Application/Funtion/SystemDiag/SystemDiag.c **** 			DiagSetErrState(i, 1);                   /*设置产生异常状态*/
+ 362:./Application/Funtion/SystemDiag/SystemDiag.c **** 		}
+ 363:./Application/Funtion/SystemDiag/SystemDiag.c **** 		else                                                /*无异常*/
+ 364:./Application/Funtion/SystemDiag/SystemDiag.c **** 		{
+ 365:./Application/Funtion/SystemDiag/SystemDiag.c **** 			DiagSetErrState(i, 0);                   /*清除异常状态*/
+ 366:./Application/Funtion/SystemDiag/SystemDiag.c **** 		}
+ 367:./Application/Funtion/SystemDiag/SystemDiag.c ****     }
+ 368:./Application/Funtion/SystemDiag/SystemDiag.c **** }
+ 369:./Application/Funtion/SystemDiag/SystemDiag.c **** 
+ 370:./Application/Funtion/SystemDiag/SystemDiag.c **** /*=================================================================================================
+ 371:./Application/Funtion/SystemDiag/SystemDiag.c **** ** @Name      : e_ErrState DiagGetErrLastStateAPI(e_ERR_ID id)
+ 372:./Application/Funtion/SystemDiag/SystemDiag.c **** ** @Input     : id:故障ID
+ 373:./Application/Funtion/SystemDiag/SystemDiag.c **** ** @Output    : 当前稳定故障状态
+ 374:./Application/Funtion/SystemDiag/SystemDiag.c **** ** @Function  : 获取故障当前稳定状态
+ 375:./Application/Funtion/SystemDiag/SystemDiag.c **** ** @The notes : 不包括过渡状态
+ 376:./Application/Funtion/SystemDiag/SystemDiag.c **** **===============================================================================================*/
+ARM GAS  /tmp/ccW036vO.s 			page 8
+
+
+ 377:./Application/Funtion/SystemDiag/SystemDiag.c **** e_ErrState DiagGetErrLastStateAPI(e_ERR_ID id)
+ 378:./Application/Funtion/SystemDiag/SystemDiag.c **** {
+ 379:./Application/Funtion/SystemDiag/SystemDiag.c **** 	if(id < eERR_ID_FINISH)
+ 380:./Application/Funtion/SystemDiag/SystemDiag.c **** 	{
+ 381:./Application/Funtion/SystemDiag/SystemDiag.c **** 	    /*如果a to b 则返回a*/
+ 382:./Application/Funtion/SystemDiag/SystemDiag.c **** 		if(IsEqual(gErrFilTab[id].filState, eErr_AtoB))
+ 383:./Application/Funtion/SystemDiag/SystemDiag.c **** 		{
+ 384:./Application/Funtion/SystemDiag/SystemDiag.c **** 		    return(eErr_A);
+ 385:./Application/Funtion/SystemDiag/SystemDiag.c **** 		}
+ 386:./Application/Funtion/SystemDiag/SystemDiag.c **** 	    /*如果b to a 则返回b*/
+ 387:./Application/Funtion/SystemDiag/SystemDiag.c **** 		else if(IsEqual(gErrFilTab[id].filState, eErr_BtoA))
+ 388:./Application/Funtion/SystemDiag/SystemDiag.c **** 		{
+ 389:./Application/Funtion/SystemDiag/SystemDiag.c **** 		    return(eErr_B);
+ 390:./Application/Funtion/SystemDiag/SystemDiag.c **** 		}
+ 391:./Application/Funtion/SystemDiag/SystemDiag.c **** 
+ 392:./Application/Funtion/SystemDiag/SystemDiag.c **** 		return(gErrFilTab[id].filState);
+ 393:./Application/Funtion/SystemDiag/SystemDiag.c **** 	}
+ 394:./Application/Funtion/SystemDiag/SystemDiag.c **** 
+ 395:./Application/Funtion/SystemDiag/SystemDiag.c **** 	return(eErr_A);
+ 396:./Application/Funtion/SystemDiag/SystemDiag.c **** }
+ 397:./Application/Funtion/SystemDiag/SystemDiag.c **** 
+ 398:./Application/Funtion/SystemDiag/SystemDiag.c **** /*=============================================================================================
+ 399:./Application/Funtion/SystemDiag/SystemDiag.c **** ** @Static function definition
+ 400:./Application/Funtion/SystemDiag/SystemDiag.c **** **===========================================================================================*/
+ 401:./Application/Funtion/SystemDiag/SystemDiag.c **** /*=================================================================================================
+ 402:./Application/Funtion/SystemDiag/SystemDiag.c **** ** @Name      : static void DiagSetErrState(e_ERR_ID id, u8 state)
+ 403:./Application/Funtion/SystemDiag/SystemDiag.c **** ** @Input     : id:故障码ID state:设置状态:0清除状态 1:发生状态
+ 404:./Application/Funtion/SystemDiag/SystemDiag.c **** ** @Output    : void
+ 405:./Application/Funtion/SystemDiag/SystemDiag.c **** ** @Function  : 设置故障码状态
+ 406:./Application/Funtion/SystemDiag/SystemDiag.c **** ** @The notes : 清0或置1
+ 407:./Application/Funtion/SystemDiag/SystemDiag.c **** **===============================================================================================*/
+ 408:./Application/Funtion/SystemDiag/SystemDiag.c **** static void DiagSetErrState(e_ERR_ID id, u8 state)
+ 409:./Application/Funtion/SystemDiag/SystemDiag.c **** {
+  25              		.loc 1 409 0
+  26              		.cfi_startproc
+  27              		@ args = 0, pretend = 0, frame = 0
+  28              		@ frame_needed = 0, uses_anonymous_args = 0
+  29              	.LVL0:
+  30 0000 70B5     		push	{r4, r5, r6, lr}
+  31              	.LCFI0:
+  32              		.cfi_def_cfa_offset 16
+  33              		.cfi_offset 4, -16
+  34              		.cfi_offset 5, -12
+  35              		.cfi_offset 6, -8
+  36              		.cfi_offset 14, -4
+  37              	.LBB18:
+  38              	.LBB19:
+ 410:./Application/Funtion/SystemDiag/SystemDiag.c ****     u8 index = 0;
+ 411:./Application/Funtion/SystemDiag/SystemDiag.c ****     u8 expbit = 0;
+ 412:./Application/Funtion/SystemDiag/SystemDiag.c **** 
+ 413:./Application/Funtion/SystemDiag/SystemDiag.c **** 	u8 Current_mode = GetCurrentSamplingMode();
+ 414:./Application/Funtion/SystemDiag/SystemDiag.c **** 
+ 415:./Application/Funtion/SystemDiag/SystemDiag.c **** 	//故障屏蔽
+ 416:./Application/Funtion/SystemDiag/SystemDiag.c **** 	switch (Current_mode)
+ 417:./Application/Funtion/SystemDiag/SystemDiag.c **** 	{
+ 418:./Application/Funtion/SystemDiag/SystemDiag.c **** 		case 0://仅霍尔
+ 419:./Application/Funtion/SystemDiag/SystemDiag.c **** 			if ((id == eERR_ID_SHU_BSA)   /*电池端分流器采样值异常*/     
+ARM GAS  /tmp/ccW036vO.s 			page 9
+
+
+ 420:./Application/Funtion/SystemDiag/SystemDiag.c **** 			|| (id == eERR_ID_SHU_DIF)    /*电池端分流器与霍尔采样偏差过大*/
+ 421:./Application/Funtion/SystemDiag/SystemDiag.c **** 		 	|| (id == eERR_ID_CUR_SAM ))  /*电池端分流器采样自检异常*/
+ 422:./Application/Funtion/SystemDiag/SystemDiag.c **** 			{
+ 423:./Application/Funtion/SystemDiag/SystemDiag.c **** 				return;
+ 424:./Application/Funtion/SystemDiag/SystemDiag.c **** 			}
+ 425:./Application/Funtion/SystemDiag/SystemDiag.c **** 		
+ 426:./Application/Funtion/SystemDiag/SystemDiag.c **** 			break;
+ 427:./Application/Funtion/SystemDiag/SystemDiag.c **** 
+ 428:./Application/Funtion/SystemDiag/SystemDiag.c **** 		case 1://仅分流器
+ 429:./Application/Funtion/SystemDiag/SystemDiag.c **** 			if ((id == eERR_ID_HAL_OVE)	/*霍尔过载故障*/
+ 430:./Application/Funtion/SystemDiag/SystemDiag.c **** 			|| (id == eERR_ID_HAL_SUP)	/*霍尔供电异常*/
+ 431:./Application/Funtion/SystemDiag/SystemDiag.c **** 			||(id == eERR_ID_HAL_ADC)	/*霍尔AD值异常*/
+ 432:./Application/Funtion/SystemDiag/SystemDiag.c **** 			|| (id == eERR_ID_SHU_DIF)) /*电池端分流器与霍尔采样偏差过大*/
+ 433:./Application/Funtion/SystemDiag/SystemDiag.c **** 				{
+ 434:./Application/Funtion/SystemDiag/SystemDiag.c **** 					return;
+ 435:./Application/Funtion/SystemDiag/SystemDiag.c **** 				}
+ 436:./Application/Funtion/SystemDiag/SystemDiag.c **** 			break;
+ 437:./Application/Funtion/SystemDiag/SystemDiag.c **** 
+ 438:./Application/Funtion/SystemDiag/SystemDiag.c **** 		case 2://霍尔和分流器
+ 439:./Application/Funtion/SystemDiag/SystemDiag.c **** 		/* */
+ 440:./Application/Funtion/SystemDiag/SystemDiag.c **** 		break;
+ 441:./Application/Funtion/SystemDiag/SystemDiag.c ****                
+ 442:./Application/Funtion/SystemDiag/SystemDiag.c **** 	default:
+ 443:./Application/Funtion/SystemDiag/SystemDiag.c **** 		break;
+ 444:./Application/Funtion/SystemDiag/SystemDiag.c **** 	}
+ 445:./Application/Funtion/SystemDiag/SystemDiag.c **** 
+ 446:./Application/Funtion/SystemDiag/SystemDiag.c **** 
+ 447:./Application/Funtion/SystemDiag/SystemDiag.c **** 
+ 448:./Application/Funtion/SystemDiag/SystemDiag.c **** 
+ 449:./Application/Funtion/SystemDiag/SystemDiag.c **** 	if(id < eERR_ID_FINISH)                            /*故障ID(按位显示)*/
+ 450:./Application/Funtion/SystemDiag/SystemDiag.c ****     {
+ 451:./Application/Funtion/SystemDiag/SystemDiag.c ****         /*计算故障位*/
+ 452:./Application/Funtion/SystemDiag/SystemDiag.c ****         index = (u32)id / FAULT_DATATYPE;/*获得故障id的数组子索引*/
+ 453:./Application/Funtion/SystemDiag/SystemDiag.c ****         if(index >= FAULT_INDEX_LEN)                        /*故障数组子索引越界*/
+ 454:./Application/Funtion/SystemDiag/SystemDiag.c ****         {
+ 455:./Application/Funtion/SystemDiag/SystemDiag.c ****             return;                                         /*无效*/
+ 456:./Application/Funtion/SystemDiag/SystemDiag.c ****         }
+ 457:./Application/Funtion/SystemDiag/SystemDiag.c **** 
+ 458:./Application/Funtion/SystemDiag/SystemDiag.c ****         expbit = id % FAULT_DATATYPE;                       /*获得故障相应位*/
+ 459:./Application/Funtion/SystemDiag/SystemDiag.c **** 
+ 460:./Application/Funtion/SystemDiag/SystemDiag.c ****         if(1 == state)                                      /*故障发生*/
+ 461:./Application/Funtion/SystemDiag/SystemDiag.c ****         {
+ 462:./Application/Funtion/SystemDiag/SystemDiag.c ****             BitSet(SystemDiag_57[index], expbit);         /*设置故障位状态置1*/
+ 463:./Application/Funtion/SystemDiag/SystemDiag.c ****         }
+ 464:./Application/Funtion/SystemDiag/SystemDiag.c ****         else
+ 465:./Application/Funtion/SystemDiag/SystemDiag.c ****         {
+ 466:./Application/Funtion/SystemDiag/SystemDiag.c ****         	BitClr(SystemDiag_57[index], expbit);          /*消除故障显示位状态清0*/
+ 467:./Application/Funtion/SystemDiag/SystemDiag.c ****         }
+ 468:./Application/Funtion/SystemDiag/SystemDiag.c ****     }
+ 469:./Application/Funtion/SystemDiag/SystemDiag.c **** }
+ 470:./Application/Funtion/SystemDiag/SystemDiag.c **** 
+ 471:./Application/Funtion/SystemDiag/SystemDiag.c **** 
+ 472:./Application/Funtion/SystemDiag/SystemDiag.c **** /*=================================================================================================
+ 473:./Application/Funtion/SystemDiag/SystemDiag.c **** ** @Name      : u8 GetCurrentSamplingMode(void)
+ 474:./Application/Funtion/SystemDiag/SystemDiag.c **** ** @Input     : void
+ 475:./Application/Funtion/SystemDiag/SystemDiag.c **** ** @Output    : 电流采样通道设置:0:HALL 1:分流器 2：HALL和分流器
+ 476:./Application/Funtion/SystemDiag/SystemDiag.c **** ** @Function  : 获取电流采样通道设置
+ARM GAS  /tmp/ccW036vO.s 			page 10
+
+
+ 477:./Application/Funtion/SystemDiag/SystemDiag.c **** ** @The notes :
+ 478:./Application/Funtion/SystemDiag/SystemDiag.c **** **===============================================================================================*/
+ 479:./Application/Funtion/SystemDiag/SystemDiag.c **** u8 GetCurrentSamplingMode(void)
+ 480:./Application/Funtion/SystemDiag/SystemDiag.c **** { 
+ 481:./Application/Funtion/SystemDiag/SystemDiag.c **** 	return stParameter.u16ArraySet[CurrentSampChannel];
+  39              		.loc 1 481 0
+  40 0002 134B     		ldr	r3, .L13
+  41 0004 1B8D     		ldrh	r3, [r3, #40]
+  42              	.LBE19:
+  43              	.LBE18:
+ 416:./Application/Funtion/SystemDiag/SystemDiag.c **** 	{
+  44              		.loc 1 416 0
+  45 0006 DBB2     		uxtb	r3, r3
+  46 0008 002B     		cmp	r3, #0
+  47 000a 11D0     		beq	.L3
+  48 000c 012B     		cmp	r3, #1
+  49 000e 16D0     		beq	.L4
+  50              	.L2:
+ 449:./Application/Funtion/SystemDiag/SystemDiag.c ****     {
+  51              		.loc 1 449 0
+  52 0010 1128     		cmp	r0, #17
+  53 0012 13D8     		bhi	.L1
+  54              	.LVL1:
+  55 0014 0F23     		movs	r3, #15
+  56 0016 0122     		movs	r2, #1
+  57 0018 0409     		lsrs	r4, r0, #4
+  58 001a 1840     		ands	r0, r3
+  59              	.LVL2:
+  60 001c 8240     		lsls	r2, r2, r0
+  61 001e 0D4E     		ldr	r6, .L13+4
+  62 0020 6400     		lsls	r4, r4, #1
+  63 0022 A55B     		ldrh	r5, [r4, r6]
+  64 0024 93B2     		uxth	r3, r2
+  65              	.LBB20:
+  66              	.LBB21:
+ 460:./Application/Funtion/SystemDiag/SystemDiag.c ****         {
+  67              		.loc 1 460 0
+  68 0026 0129     		cmp	r1, #1
+  69 0028 0FD1     		bne	.L6
+ 462:./Application/Funtion/SystemDiag/SystemDiag.c ****         }
+  70              		.loc 1 462 0
+  71 002a 2B43     		orrs	r3, r5
+  72 002c A353     		strh	r3, [r4, r6]
+  73 002e 05E0     		b	.L1
+  74              	.LVL3:
+  75              	.L3:
+  76              	.LBE21:
+  77              	.LBE20:
+ 419:./Application/Funtion/SystemDiag/SystemDiag.c **** 			|| (id == eERR_ID_SHU_DIF)    /*电池端分流器与霍尔采样偏差过大*/
+  78              		.loc 1 419 0
+  79 0030 0300     		movs	r3, r0
+  80 0032 093B     		subs	r3, r3, #9
+  81 0034 012B     		cmp	r3, #1
+  82 0036 01D9     		bls	.L1
+ 421:./Application/Funtion/SystemDiag/SystemDiag.c **** 			{
+  83              		.loc 1 421 0
+  84 0038 1128     		cmp	r0, #17
+ARM GAS  /tmp/ccW036vO.s 			page 11
+
+
+  85 003a E9D1     		bne	.L2
+  86              	.LVL4:
+  87              	.L1:
+ 469:./Application/Funtion/SystemDiag/SystemDiag.c **** 
+  88              		.loc 1 469 0
+  89              		@ sp needed
+  90 003c 70BD     		pop	{r4, r5, r6, pc}
+  91              	.LVL5:
+  92              	.L4:
+ 429:./Application/Funtion/SystemDiag/SystemDiag.c **** 			|| (id == eERR_ID_HAL_SUP)	/*霍尔供电异常*/
+  93              		.loc 1 429 0
+  94 003e 831F     		subs	r3, r0, #6
+  95 0040 022B     		cmp	r3, #2
+  96 0042 FBD9     		bls	.L1
+ 432:./Application/Funtion/SystemDiag/SystemDiag.c **** 				{
+  97              		.loc 1 432 0
+  98 0044 0A28     		cmp	r0, #10
+  99 0046 E3D1     		bne	.L2
+ 100 0048 F8E7     		b	.L1
+ 101              	.LVL6:
+ 102              	.L6:
+ 103              	.LBB23:
+ 104              	.LBB22:
+ 466:./Application/Funtion/SystemDiag/SystemDiag.c ****         }
+ 105              		.loc 1 466 0
+ 106 004a 9D43     		bics	r5, r3
+ 107 004c A553     		strh	r5, [r4, r6]
+ 108 004e F5E7     		b	.L1
+ 109              	.L14:
+ 110              		.align	2
+ 111              	.L13:
+ 112 0050 00000000 		.word	stParameter
+ 113 0054 00000000 		.word	SystemDiag_57
+ 114              	.LBE22:
+ 115              	.LBE23:
+ 116              		.cfi_endproc
+ 117              	.LFE9:
+ 119              		.section	.text.InitSystemDiag,"ax",%progbits
+ 120              		.align	1
+ 121              		.global	InitSystemDiag
+ 122              		.syntax unified
+ 123              		.code	16
+ 124              		.thumb_func
+ 125              		.fpu softvfp
+ 127              	InitSystemDiag:
+ 128              	.LFB0:
+  79:./Application/Funtion/SystemDiag/SystemDiag.c **** 	for(int i  = 0;i < SystemDiag_Len; i++)
+ 129              		.loc 1 79 0
+ 130              		.cfi_startproc
+ 131              		@ args = 0, pretend = 0, frame = 0
+ 132              		@ frame_needed = 0, uses_anonymous_args = 0
+ 133              		@ link register save eliminated.
+ 134              	.LVL7:
+ 135              	.LBB24:
+  82:./Application/Funtion/SystemDiag/SystemDiag.c **** 	}
+ 136              		.loc 1 82 0
+ 137 0000 0022     		movs	r2, #0
+ARM GAS  /tmp/ccW036vO.s 			page 12
+
+
+ 138 0002 044B     		ldr	r3, .L16
+ 139              	.LBE24:
+  84:./Application/Funtion/SystemDiag/SystemDiag.c **** 
+ 140              		.loc 1 84 0
+ 141              		@ sp needed
+ 142              	.LBB25:
+  82:./Application/Funtion/SystemDiag/SystemDiag.c **** 	}
+ 143              		.loc 1 82 0
+ 144 0004 1A80     		strh	r2, [r3]
+ 145              	.LVL8:
+ 146 0006 5A80     		strh	r2, [r3, #2]
+ 147              	.LVL9:
+ 148 0008 9A80     		strh	r2, [r3, #4]
+ 149              	.LVL10:
+ 150 000a DA80     		strh	r2, [r3, #6]
+ 151              	.LVL11:
+ 152 000c 1A81     		strh	r2, [r3, #8]
+ 153              	.LVL12:
+ 154 000e 5A81     		strh	r2, [r3, #10]
+ 155              	.LVL13:
+ 156              	.LBE25:
+  84:./Application/Funtion/SystemDiag/SystemDiag.c **** 
+ 157              		.loc 1 84 0
+ 158 0010 7047     		bx	lr
+ 159              	.L17:
+ 160 0012 C046     		.align	2
+ 161              	.L16:
+ 162 0014 00000000 		.word	SystemDiag_57
+ 163              		.cfi_endproc
+ 164              	.LFE0:
+ 166              		.section	.text.DiagErrFilterInit,"ax",%progbits
+ 167              		.align	1
+ 168              		.global	DiagErrFilterInit
+ 169              		.syntax unified
+ 170              		.code	16
+ 171              		.thumb_func
+ 172              		.fpu softvfp
+ 174              	DiagErrFilterInit:
+ 175              	.LFB1:
+  94:./Application/Funtion/SystemDiag/SystemDiag.c **** 	e_ERR_ID i = eERR_ID_FINISH;
+ 176              		.loc 1 94 0
+ 177              		.cfi_startproc
+ 178              		@ args = 0, pretend = 0, frame = 0
+ 179              		@ frame_needed = 0, uses_anonymous_args = 0
+ 180              	.LVL14:
+ 181 0000 0022     		movs	r2, #0
+ 182 0002 30B5     		push	{r4, r5, lr}
+ 183              	.LCFI1:
+ 184              		.cfi_def_cfa_offset 12
+ 185              		.cfi_offset 4, -12
+ 186              		.cfi_offset 5, -8
+ 187              		.cfi_offset 14, -4
+ 111:./Application/Funtion/SystemDiag/SystemDiag.c **** 	    gErrFilTab[i].filState = eErr_A;
+ 188              		.loc 1 111 0
+ 189 0004 1100     		movs	r1, r2
+ 103:./Application/Funtion/SystemDiag/SystemDiag.c **** 	    }
+ 190              		.loc 1 103 0
+ARM GAS  /tmp/ccW036vO.s 			page 13
+
+
+ 191 0006 0125     		movs	r5, #1
+ 192 0008 084B     		ldr	r3, .L23
+ 101:./Application/Funtion/SystemDiag/SystemDiag.c **** 	    {
+ 193              		.loc 1 101 0
+ 194 000a 094C     		ldr	r4, .L23+4
+ 195              	.LVL15:
+ 196              	.L21:
+ 197 000c A05C     		ldrb	r0, [r4, r2]
+ 198 000e 0028     		cmp	r0, #0
+ 199 0010 09D0     		beq	.L19
+ 103:./Application/Funtion/SystemDiag/SystemDiag.c **** 	    }
+ 200              		.loc 1 103 0
+ 201 0012 1D70     		strb	r5, [r3]
+ 202              	.L20:
+ 203 0014 0832     		adds	r2, r2, #8
+ 111:./Application/Funtion/SystemDiag/SystemDiag.c **** 	    gErrFilTab[i].filState = eErr_A;
+ 204              		.loc 1 111 0 discriminator 2
+ 205 0016 1971     		strb	r1, [r3, #4]
+ 112:./Application/Funtion/SystemDiag/SystemDiag.c **** 	    gErrFilTab[i].resTimes = 0;
+ 206              		.loc 1 112 0 discriminator 2
+ 207 0018 5971     		strb	r1, [r3, #5]
+ 113:./Application/Funtion/SystemDiag/SystemDiag.c **** 	    gErrFilTab[i].timer = 0;
+ 208              		.loc 1 113 0 discriminator 2
+ 209 001a 9971     		strb	r1, [r3, #6]
+ 114:./Application/Funtion/SystemDiag/SystemDiag.c **** 	}
+ 210              		.loc 1 114 0 discriminator 2
+ 211 001c 5980     		strh	r1, [r3, #2]
+ 212 001e 0833     		adds	r3, r3, #8
+  98:./Application/Funtion/SystemDiag/SystemDiag.c **** 	{
+ 213              		.loc 1 98 0 discriminator 2
+ 214 0020 902A     		cmp	r2, #144
+ 215 0022 F3D1     		bne	.L21
+ 116:./Application/Funtion/SystemDiag/SystemDiag.c **** 
+ 216              		.loc 1 116 0
+ 217              		@ sp needed
+ 218 0024 30BD     		pop	{r4, r5, pc}
+ 219              	.L19:
+ 107:./Application/Funtion/SystemDiag/SystemDiag.c **** 	    }
+ 220              		.loc 1 107 0
+ 221 0026 1870     		strb	r0, [r3]
+ 222 0028 F4E7     		b	.L20
+ 223              	.L24:
+ 224 002a C046     		.align	2
+ 225              	.L23:
+ 226 002c 00000000 		.word	gErrFilTab
+ 227 0030 00000000 		.word	gErrFilPara
+ 228              		.cfi_endproc
+ 229              	.LFE1:
+ 231              		.section	.text.DiagGetFilErrSortAPI,"ax",%progbits
+ 232              		.align	1
+ 233              		.global	DiagGetFilErrSortAPI
+ 234              		.syntax unified
+ 235              		.code	16
+ 236              		.thumb_func
+ 237              		.fpu softvfp
+ 239              	DiagGetFilErrSortAPI:
+ 240              	.LFB3:
+ARM GAS  /tmp/ccW036vO.s 			page 14
+
+
+ 168:./Application/Funtion/SystemDiag/SystemDiag.c **** 	if(id < eERR_ID_FINISH)
+ 241              		.loc 1 168 0
+ 242              		.cfi_startproc
+ 243              		@ args = 0, pretend = 0, frame = 0
+ 244              		@ frame_needed = 0, uses_anonymous_args = 0
+ 245              		@ link register save eliminated.
+ 246              	.LVL16:
+ 176:./Application/Funtion/SystemDiag/SystemDiag.c **** 	}
+ 247              		.loc 1 176 0
+ 248 0000 0023     		movs	r3, #0
+ 169:./Application/Funtion/SystemDiag/SystemDiag.c **** 	{
+ 249              		.loc 1 169 0
+ 250 0002 1128     		cmp	r0, #17
+ 251 0004 02D8     		bhi	.L26
+ 172:./Application/Funtion/SystemDiag/SystemDiag.c **** 	}
+ 252              		.loc 1 172 0
+ 253 0006 024B     		ldr	r3, .L28
+ 254 0008 C000     		lsls	r0, r0, #3
+ 255              	.LVL17:
+ 256 000a C35C     		ldrb	r3, [r0, r3]
+ 257              	.L26:
+ 178:./Application/Funtion/SystemDiag/SystemDiag.c **** 
+ 258              		.loc 1 178 0
+ 259 000c 1800     		movs	r0, r3
+ 260              		@ sp needed
+ 261 000e 7047     		bx	lr
+ 262              	.L29:
+ 263              		.align	2
+ 264              	.L28:
+ 265 0010 00000000 		.word	gErrFilPara
+ 266              		.cfi_endproc
+ 267              	.LFE3:
+ 269              		.global	__aeabi_uidiv
+ 270              		.section	.text.DiagErrFilterTask,"ax",%progbits
+ 271              		.align	1
+ 272              		.global	DiagErrFilterTask
+ 273              		.syntax unified
+ 274              		.code	16
+ 275              		.thumb_func
+ 276              		.fpu softvfp
+ 278              	DiagErrFilterTask:
+ 279              	.LFB4:
+ 188:./Application/Funtion/SystemDiag/SystemDiag.c **** 	e_ERR_ID i = eERR_ID_FINISH;
+ 280              		.loc 1 188 0
+ 281              		.cfi_startproc
+ 282              		@ args = 0, pretend = 0, frame = 8
+ 283              		@ frame_needed = 0, uses_anonymous_args = 0
+ 284              	.LVL18:
+ 285 0000 F7B5     		push	{r0, r1, r2, r4, r5, r6, r7, lr}
+ 286              	.LCFI2:
+ 287              		.cfi_def_cfa_offset 32
+ 288              		.cfi_offset 0, -32
+ 289              		.cfi_offset 1, -28
+ 290              		.cfi_offset 2, -24
+ 291              		.cfi_offset 4, -20
+ 292              		.cfi_offset 5, -16
+ 293              		.cfi_offset 6, -12
+ARM GAS  /tmp/ccW036vO.s 			page 15
+
+
+ 294              		.cfi_offset 7, -8
+ 295              		.cfi_offset 14, -4
+ 296 0002 0B1C     		adds	r3, r1, #0
+ 297 0004 1229     		cmp	r1, #18
+ 298 0006 00D9     		bls	.L31
+ 299 0008 1223     		movs	r3, #18
+ 300              	.L31:
+ 301 000a DBB2     		uxtb	r3, r3
+ 302 000c 0193     		str	r3, [sp, #4]
+ 303              	.LVL19:
+ 304 000e 031C     		adds	r3, r0, #0
+ 305 0010 1228     		cmp	r0, #18
+ 306 0012 00D9     		bls	.L32
+ 307 0014 1223     		movs	r3, #18
+ 308              	.L32:
+ 202:./Application/Funtion/SystemDiag/SystemDiag.c ****     {
+ 309              		.loc 1 202 0
+ 310 0016 019A     		ldr	r2, [sp, #4]
+ 311 0018 DBB2     		uxtb	r3, r3
+ 312              	.LVL20:
+ 313 001a 9A42     		cmp	r2, r3
+ 314 001c 02D2     		bcs	.L33
+ 315 001e 1A00     		movs	r2, r3
+ 316 0020 019B     		ldr	r3, [sp, #4]
+ 317 0022 0192     		str	r2, [sp, #4]
+ 318              	.L33:
+ 319              	.LVL21:
+ 320 0024 0093     		str	r3, [sp]
+ 321 0026 DF00     		lsls	r7, r3, #3
+ 322              	.LVL22:
+ 323              	.L34:
+ 209:./Application/Funtion/SystemDiag/SystemDiag.c ****     {
+ 324              		.loc 1 209 0 discriminator 1
+ 325 0028 6B46     		mov	r3, sp
+ 326 002a 019A     		ldr	r2, [sp, #4]
+ 327 002c 1B78     		ldrb	r3, [r3]
+ 328 002e 9A42     		cmp	r2, r3
+ 329 0030 00D8     		bhi	.L46
+ 277:./Application/Funtion/SystemDiag/SystemDiag.c **** 
+ 330              		.loc 1 277 0
+ 331              		@ sp needed
+ 332 0032 F7BD     		pop	{r0, r1, r2, r4, r5, r6, r7, pc}
+ 333              	.L46:
+ 211:./Application/Funtion/SystemDiag/SystemDiag.c ****         {
+ 334              		.loc 1 211 0
+ 335 0034 254B     		ldr	r3, .L51
+ 336 0036 FC18     		adds	r4, r7, r3
+ 337 0038 2378     		ldrb	r3, [r4]
+ 338 003a 012B     		cmp	r3, #1
+ 339 003c 0AD1     		bne	.L36
+ 214:./Application/Funtion/SystemDiag/SystemDiag.c ****             {
+ 340              		.loc 1 214 0
+ 341 003e 6079     		ldrb	r0, [r4, #5]
+ 342 0040 0328     		cmp	r0, #3
+ 343 0042 07D8     		bhi	.L36
+ 344 0044 2579     		ldrb	r5, [r4, #4]
+ 345 0046 FFF7FEFF 		bl	__gnu_thumb1_case_uqi
+ARM GAS  /tmp/ccW036vO.s 			page 16
+
+
+ 346              	.L38:
+ 347 004a 02       		.byte	(.L37-.L38)/2
+ 348 004b 27       		.byte	(.L39-.L38)/2
+ 349 004c 0A       		.byte	(.L40-.L38)/2
+ 350 004d 2D       		.byte	(.L41-.L38)/2
+ 351              		.p2align 1
+ 352              	.L37:
+ 219:./Application/Funtion/SystemDiag/SystemDiag.c ****                     	gErrFilTab[i].timer = 0;
+ 353              		.loc 1 219 0
+ 354 004e 0223     		movs	r3, #2
+ 217:./Application/Funtion/SystemDiag/SystemDiag.c ****                     {
+ 355              		.loc 1 217 0
+ 356 0050 012D     		cmp	r5, #1
+ 357 0052 19D0     		beq	.L50
+ 358              	.L36:
+ 359              	.LVL23:
+ 360 0054 009B     		ldr	r3, [sp]
+ 361 0056 0837     		adds	r7, r7, #8
+ 362 0058 0133     		adds	r3, r3, #1
+ 363 005a 0093     		str	r3, [sp]
+ 364              	.LVL24:
+ 365 005c E4E7     		b	.L34
+ 366              	.LVL25:
+ 367              	.L40:
+ 225:./Application/Funtion/SystemDiag/SystemDiag.c ****                     {
+ 368              		.loc 1 225 0
+ 369 005e 012D     		cmp	r5, #1
+ 370 0060 16D1     		bne	.L43
+ 227:./Application/Funtion/SystemDiag/SystemDiag.c ****                         if(gErrFilTab[i].timer > (gErrFilPara[i].AtoBTime / DIAG_FILTER_TICK))/*50m
+ 371              		.loc 1 227 0
+ 372 0062 6588     		ldrh	r5, [r4, #2]
+ 228:./Application/Funtion/SystemDiag/SystemDiag.c ****                         {
+ 373              		.loc 1 228 0
+ 374 0064 1A4B     		ldr	r3, .L51+4
+ 227:./Application/Funtion/SystemDiag/SystemDiag.c ****                         if(gErrFilTab[i].timer > (gErrFilPara[i].AtoBTime / DIAG_FILTER_TICK))/*50m
+ 375              		.loc 1 227 0
+ 376 0066 0135     		adds	r5, r5, #1
+ 228:./Application/Funtion/SystemDiag/SystemDiag.c ****                         {
+ 377              		.loc 1 228 0
+ 378 0068 FB18     		adds	r3, r7, r3
+ 227:./Application/Funtion/SystemDiag/SystemDiag.c ****                         if(gErrFilTab[i].timer > (gErrFilPara[i].AtoBTime / DIAG_FILTER_TICK))/*50m
+ 379              		.loc 1 227 0
+ 380 006a ADB2     		uxth	r5, r5
+ 381 006c 6580     		strh	r5, [r4, #2]
+ 228:./Application/Funtion/SystemDiag/SystemDiag.c ****                         {
+ 382              		.loc 1 228 0
+ 383 006e 5888     		ldrh	r0, [r3, #2]
+ 384 0070 3221     		movs	r1, #50
+ 385 0072 FFF7FEFF 		bl	__aeabi_uidiv
+ 386              	.LVL26:
+ 387 0076 80B2     		uxth	r0, r0
+ 388 0078 8542     		cmp	r5, r0
+ 389 007a EBD9     		bls	.L36
+ 231:./Application/Funtion/SystemDiag/SystemDiag.c ****                             {
+ 390              		.loc 1 231 0
+ 391 007c A379     		ldrb	r3, [r4, #6]
+ 392 007e FD2B     		cmp	r3, #253
+ARM GAS  /tmp/ccW036vO.s 			page 17
+
+
+ 393 0080 01D8     		bhi	.L44
+ 233:./Application/Funtion/SystemDiag/SystemDiag.c ****                             }
+ 394              		.loc 1 233 0
+ 395 0082 0133     		adds	r3, r3, #1
+ 396 0084 A371     		strb	r3, [r4, #6]
+ 397              	.L44:
+ 236:./Application/Funtion/SystemDiag/SystemDiag.c ****                             gErrFilTab[i].timer = 0;
+ 398              		.loc 1 236 0
+ 399 0086 0123     		movs	r3, #1
+ 400              	.L50:
+ 401 0088 6371     		strb	r3, [r4, #5]
+ 402              	.L49:
+ 268:./Application/Funtion/SystemDiag/SystemDiag.c ****                     }
+ 403              		.loc 1 268 0
+ 404 008a 0023     		movs	r3, #0
+ 405 008c 6380     		strh	r3, [r4, #2]
+ 406 008e E1E7     		b	.L36
+ 407              	.L43:
+ 240:./Application/Funtion/SystemDiag/SystemDiag.c ****                     {
+ 408              		.loc 1 240 0
+ 409 0090 002D     		cmp	r5, #0
+ 410 0092 DFD1     		bne	.L36
+ 411              	.L48:
+ 261:./Application/Funtion/SystemDiag/SystemDiag.c ****                         	gErrFilTab[i].timer = 0;
+ 412              		.loc 1 261 0
+ 413 0094 6571     		strb	r5, [r4, #5]
+ 414 0096 03E0     		b	.L47
+ 415              	.L39:
+ 248:./Application/Funtion/SystemDiag/SystemDiag.c ****                     {
+ 416              		.loc 1 248 0
+ 417 0098 002D     		cmp	r5, #0
+ 418 009a DBD1     		bne	.L36
+ 250:./Application/Funtion/SystemDiag/SystemDiag.c ****                     	gErrFilTab[i].timer = 0;
+ 419              		.loc 1 250 0
+ 420 009c 0323     		movs	r3, #3
+ 421 009e 6371     		strb	r3, [r4, #5]
+ 422              	.L47:
+ 262:./Application/Funtion/SystemDiag/SystemDiag.c ****                         }
+ 423              		.loc 1 262 0
+ 424 00a0 6580     		strh	r5, [r4, #2]
+ 425 00a2 D7E7     		b	.L36
+ 426              	.L41:
+ 256:./Application/Funtion/SystemDiag/SystemDiag.c ****                     {
+ 427              		.loc 1 256 0
+ 428 00a4 002D     		cmp	r5, #0
+ 429 00a6 0DD1     		bne	.L45
+ 258:./Application/Funtion/SystemDiag/SystemDiag.c ****                         if(gErrFilTab[i].timer > (gErrFilPara[i].BtoATime / DIAG_FILTER_TICK))/*50m
+ 430              		.loc 1 258 0
+ 431 00a8 6688     		ldrh	r6, [r4, #2]
+ 259:./Application/Funtion/SystemDiag/SystemDiag.c ****                         {
+ 432              		.loc 1 259 0
+ 433 00aa 094B     		ldr	r3, .L51+4
+ 258:./Application/Funtion/SystemDiag/SystemDiag.c ****                         if(gErrFilTab[i].timer > (gErrFilPara[i].BtoATime / DIAG_FILTER_TICK))/*50m
+ 434              		.loc 1 258 0
+ 435 00ac 0136     		adds	r6, r6, #1
+ 259:./Application/Funtion/SystemDiag/SystemDiag.c ****                         {
+ 436              		.loc 1 259 0
+ARM GAS  /tmp/ccW036vO.s 			page 18
+
+
+ 437 00ae FB18     		adds	r3, r7, r3
+ 258:./Application/Funtion/SystemDiag/SystemDiag.c ****                         if(gErrFilTab[i].timer > (gErrFilPara[i].BtoATime / DIAG_FILTER_TICK))/*50m
+ 438              		.loc 1 258 0
+ 439 00b0 B6B2     		uxth	r6, r6
+ 440 00b2 6680     		strh	r6, [r4, #2]
+ 259:./Application/Funtion/SystemDiag/SystemDiag.c ****                         {
+ 441              		.loc 1 259 0
+ 442 00b4 9888     		ldrh	r0, [r3, #4]
+ 443 00b6 3221     		movs	r1, #50
+ 444 00b8 FFF7FEFF 		bl	__aeabi_uidiv
+ 445              	.LVL27:
+ 446 00bc 80B2     		uxth	r0, r0
+ 447 00be 8642     		cmp	r6, r0
+ 448 00c0 C8D9     		bls	.L36
+ 449 00c2 E7E7     		b	.L48
+ 450              	.L45:
+ 265:./Application/Funtion/SystemDiag/SystemDiag.c ****                     {
+ 451              		.loc 1 265 0
+ 452 00c4 012D     		cmp	r5, #1
+ 453 00c6 C5D1     		bne	.L36
+ 267:./Application/Funtion/SystemDiag/SystemDiag.c ****                     	gErrFilTab[i].timer = 0;
+ 454              		.loc 1 267 0
+ 455 00c8 6571     		strb	r5, [r4, #5]
+ 456 00ca DEE7     		b	.L49
+ 457              	.L52:
+ 458              		.align	2
+ 459              	.L51:
+ 460 00cc 00000000 		.word	gErrFilTab
+ 461 00d0 00000000 		.word	gErrFilPara
+ 462              		.cfi_endproc
+ 463              	.LFE4:
+ 465              		.section	.text.DiagSetErrNowStateAPI,"ax",%progbits
+ 466              		.align	1
+ 467              		.global	DiagSetErrNowStateAPI
+ 468              		.syntax unified
+ 469              		.code	16
+ 470              		.thumb_func
+ 471              		.fpu softvfp
+ 473              	DiagSetErrNowStateAPI:
+ 474              	.LFB5:
+ 287:./Application/Funtion/SystemDiag/SystemDiag.c **** 	if((id < eERR_ID_FINISH) && (1 == gErrFilTab[id].enable))
+ 475              		.loc 1 287 0
+ 476              		.cfi_startproc
+ 477              		@ args = 0, pretend = 0, frame = 0
+ 478              		@ frame_needed = 0, uses_anonymous_args = 0
+ 479              	.LVL28:
+ 480 0000 30B5     		push	{r4, r5, lr}
+ 481              	.LCFI3:
+ 482              		.cfi_def_cfa_offset 12
+ 483              		.cfi_offset 4, -12
+ 484              		.cfi_offset 5, -8
+ 485              		.cfi_offset 14, -4
+ 288:./Application/Funtion/SystemDiag/SystemDiag.c **** 	{
+ 486              		.loc 1 288 0
+ 487 0002 1128     		cmp	r0, #17
+ 488 0004 14D8     		bhi	.L53
+ 288:./Application/Funtion/SystemDiag/SystemDiag.c **** 	{
+ARM GAS  /tmp/ccW036vO.s 			page 19
+
+
+ 489              		.loc 1 288 0 is_stmt 0 discriminator 1
+ 490 0006 0B4C     		ldr	r4, .L59
+ 491 0008 C000     		lsls	r0, r0, #3
+ 492              	.LVL29:
+ 493 000a 035D     		ldrb	r3, [r0, r4]
+ 494 000c 012B     		cmp	r3, #1
+ 495 000e 0FD1     		bne	.L53
+ 291:./Application/Funtion/SystemDiag/SystemDiag.c **** 	        && (eErr_B == gErrFilTab[id].filState)          /*正处于B状态*/
+ 496              		.loc 1 291 0 is_stmt 1
+ 497 0010 094B     		ldr	r3, .L59+4
+ 498 0012 1B18     		adds	r3, r3, r0
+ 499 0014 9B79     		ldrb	r3, [r3, #6]
+ 500 0016 FF2B     		cmp	r3, #255
+ 501 0018 08D0     		beq	.L55
+ 292:./Application/Funtion/SystemDiag/SystemDiag.c **** 	        && (eErr_A == state))                           /*需要设置为A状态*/
+ 502              		.loc 1 292 0
+ 503 001a 2218     		adds	r2, r4, r0
+ 504 001c 5579     		ldrb	r5, [r2, #5]
+ 505 001e 012D     		cmp	r5, #1
+ 506 0020 04D1     		bne	.L55
+ 293:./Application/Funtion/SystemDiag/SystemDiag.c **** 	    {
+ 507              		.loc 1 293 0
+ 508 0022 0029     		cmp	r1, #0
+ 509 0024 02D1     		bne	.L55
+ 295:./Application/Funtion/SystemDiag/SystemDiag.c **** 	        {
+ 510              		.loc 1 295 0
+ 511 0026 9279     		ldrb	r2, [r2, #6]
+ 512 0028 9A42     		cmp	r2, r3
+ 513 002a 01D2     		bcs	.L53
+ 514              	.L55:
+ 301:./Application/Funtion/SystemDiag/SystemDiag.c **** 	}
+ 515              		.loc 1 301 0
+ 516 002c 2018     		adds	r0, r4, r0
+ 517 002e 0171     		strb	r1, [r0, #4]
+ 518              	.L53:
+ 303:./Application/Funtion/SystemDiag/SystemDiag.c **** 
+ 519              		.loc 1 303 0
+ 520              		@ sp needed
+ 521 0030 30BD     		pop	{r4, r5, pc}
+ 522              	.L60:
+ 523 0032 C046     		.align	2
+ 524              	.L59:
+ 525 0034 00000000 		.word	gErrFilTab
+ 526 0038 00000000 		.word	gErrFilPara
+ 527              		.cfi_endproc
+ 528              	.LFE5:
+ 530              		.section	.text.DiagGetErrLastStateAPI,"ax",%progbits
+ 531              		.align	1
+ 532              		.global	DiagGetErrLastStateAPI
+ 533              		.syntax unified
+ 534              		.code	16
+ 535              		.thumb_func
+ 536              		.fpu softvfp
+ 538              	DiagGetErrLastStateAPI:
+ 539              	.LFB8:
+ 378:./Application/Funtion/SystemDiag/SystemDiag.c **** 	if(id < eERR_ID_FINISH)
+ 540              		.loc 1 378 0
+ARM GAS  /tmp/ccW036vO.s 			page 20
+
+
+ 541              		.cfi_startproc
+ 542              		@ args = 0, pretend = 0, frame = 0
+ 543              		@ frame_needed = 0, uses_anonymous_args = 0
+ 544              		@ link register save eliminated.
+ 545              	.LVL30:
+ 395:./Application/Funtion/SystemDiag/SystemDiag.c **** }
+ 546              		.loc 1 395 0
+ 547 0000 0023     		movs	r3, #0
+ 379:./Application/Funtion/SystemDiag/SystemDiag.c **** 	{
+ 548              		.loc 1 379 0
+ 549 0002 1128     		cmp	r0, #17
+ 550 0004 0AD8     		bhi	.L62
+ 551              	.LVL31:
+ 552              	.LBB28:
+ 553              	.LBB29:
+ 382:./Application/Funtion/SystemDiag/SystemDiag.c **** 		{
+ 554              		.loc 1 382 0
+ 555 0006 064B     		ldr	r3, .L66
+ 556 0008 C000     		lsls	r0, r0, #3
+ 557              	.LVL32:
+ 558 000a 1818     		adds	r0, r3, r0
+ 559 000c 4379     		ldrb	r3, [r0, #5]
+ 560 000e 022B     		cmp	r3, #2
+ 561 0010 03D0     		beq	.L64
+ 387:./Application/Funtion/SystemDiag/SystemDiag.c **** 		{
+ 562              		.loc 1 387 0
+ 563 0012 032B     		cmp	r3, #3
+ 564 0014 02D1     		bne	.L62
+ 389:./Application/Funtion/SystemDiag/SystemDiag.c **** 		}
+ 565              		.loc 1 389 0
+ 566 0016 0123     		movs	r3, #1
+ 567 0018 00E0     		b	.L62
+ 568              	.L64:
+ 569              	.LBE29:
+ 570              	.LBE28:
+ 395:./Application/Funtion/SystemDiag/SystemDiag.c **** }
+ 571              		.loc 1 395 0
+ 572 001a 0023     		movs	r3, #0
+ 573              	.LVL33:
+ 574              	.L62:
+ 396:./Application/Funtion/SystemDiag/SystemDiag.c **** 
+ 575              		.loc 1 396 0
+ 576 001c 1800     		movs	r0, r3
+ 577              		@ sp needed
+ 578 001e 7047     		bx	lr
+ 579              	.L67:
+ 580              		.align	2
+ 581              	.L66:
+ 582 0020 00000000 		.word	gErrFilTab
+ 583              		.cfi_endproc
+ 584              	.LFE8:
+ 586              		.section	.text.DiagGetGroupNowErrLevelAPI,"ax",%progbits
+ 587              		.align	1
+ 588              		.global	DiagGetGroupNowErrLevelAPI
+ 589              		.syntax unified
+ 590              		.code	16
+ 591              		.thumb_func
+ARM GAS  /tmp/ccW036vO.s 			page 21
+
+
+ 592              		.fpu softvfp
+ 594              	DiagGetGroupNowErrLevelAPI:
+ 595              	.LFB2:
+ 126:./Application/Funtion/SystemDiag/SystemDiag.c **** 	e_ERR_ID i = eERR_ID_FINISH;
+ 596              		.loc 1 126 0
+ 597              		.cfi_startproc
+ 598              		@ args = 0, pretend = 0, frame = 0
+ 599              		@ frame_needed = 0, uses_anonymous_args = 0
+ 600              	.LVL34:
+ 601 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+ 602              	.LCFI4:
+ 603              		.cfi_def_cfa_offset 24
+ 604              		.cfi_offset 3, -24
+ 605              		.cfi_offset 4, -20
+ 606              		.cfi_offset 5, -16
+ 607              		.cfi_offset 6, -12
+ 608              		.cfi_offset 7, -8
+ 609              		.cfi_offset 14, -4
+ 126:./Application/Funtion/SystemDiag/SystemDiag.c **** 	e_ERR_ID i = eERR_ID_FINISH;
+ 610              		.loc 1 126 0
+ 611 0002 0024     		movs	r4, #0
+ 142:./Application/Funtion/SystemDiag/SystemDiag.c ****                 }
+ 612              		.loc 1 142 0
+ 613 0004 0127     		movs	r7, #1
+ 128:./Application/Funtion/SystemDiag/SystemDiag.c **** 
+ 614              		.loc 1 128 0
+ 615 0006 2600     		movs	r6, r4
+ 616              	.LVL35:
+ 617              	.L72:
+ 618              	.LBB30:
+ 619              	.LBB31:
+ 172:./Application/Funtion/SystemDiag/SystemDiag.c **** 	}
+ 620              		.loc 1 172 0
+ 621 0008 0C4A     		ldr	r2, .L78
+ 622 000a E300     		lsls	r3, r4, #3
+ 623 000c D55C     		ldrb	r5, [r2, r3]
+ 624 000e E0B2     		uxtb	r0, r4
+ 625              	.LVL36:
+ 626              	.LBE31:
+ 627              	.LBE30:
+ 132:./Application/Funtion/SystemDiag/SystemDiag.c ****         {
+ 628              		.loc 1 132 0
+ 629 0010 002D     		cmp	r5, #0
+ 630 0012 06D0     		beq	.L69
+ 136:./Application/Funtion/SystemDiag/SystemDiag.c ****         {
+ 631              		.loc 1 136 0
+ 632 0014 012D     		cmp	r5, #1
+ 633 0016 09D1     		bne	.L70
+ 138:./Application/Funtion/SystemDiag/SystemDiag.c ****             {
+ 634              		.loc 1 138 0
+ 635 0018 FFF7FEFF 		bl	DiagGetErrLastStateAPI
+ 636              	.LVL37:
+ 637 001c 0128     		cmp	r0, #1
+ 638 001e 00D1     		bne	.L69
+ 142:./Application/Funtion/SystemDiag/SystemDiag.c ****                 }
+ 639              		.loc 1 142 0
+ 640 0020 3E00     		movs	r6, r7
+ARM GAS  /tmp/ccW036vO.s 			page 22
+
+
+ 641              	.LVL38:
+ 642              	.L69:
+ 643 0022 0134     		adds	r4, r4, #1
+ 644              	.LVL39:
+ 130:./Application/Funtion/SystemDiag/SystemDiag.c ****     {
+ 645              		.loc 1 130 0 discriminator 2
+ 646 0024 122C     		cmp	r4, #18
+ 647 0026 EFD1     		bne	.L72
+ 648              	.LVL40:
+ 649              	.L71:
+ 158:./Application/Funtion/SystemDiag/SystemDiag.c **** 
+ 650              		.loc 1 158 0
+ 651 0028 3000     		movs	r0, r6
+ 652              		@ sp needed
+ 653              	.LVL41:
+ 654 002a F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 655              	.LVL42:
+ 656              	.L70:
+ 146:./Application/Funtion/SystemDiag/SystemDiag.c ****         {
+ 657              		.loc 1 146 0
+ 658 002c 022D     		cmp	r5, #2
+ 659 002e F8D1     		bne	.L69
+ 148:./Application/Funtion/SystemDiag/SystemDiag.c ****             {
+ 660              		.loc 1 148 0
+ 661 0030 FFF7FEFF 		bl	DiagGetErrLastStateAPI
+ 662              	.LVL43:
+ 663 0034 0128     		cmp	r0, #1
+ 664 0036 F4D1     		bne	.L69
+ 150:./Application/Funtion/SystemDiag/SystemDiag.c ****                 break;                                      /*已是最高级,不需再检测*/
+ 665              		.loc 1 150 0
+ 666 0038 2E00     		movs	r6, r5
+ 667              	.LVL44:
+ 668 003a F5E7     		b	.L71
+ 669              	.L79:
+ 670              		.align	2
+ 671              	.L78:
+ 672 003c 00000000 		.word	gErrFilPara
+ 673              		.cfi_endproc
+ 674              	.LFE2:
+ 676              		.section	.text.DiagSetErrFilStateAPI,"ax",%progbits
+ 677              		.align	1
+ 678              		.global	DiagSetErrFilStateAPI
+ 679              		.syntax unified
+ 680              		.code	16
+ 681              		.thumb_func
+ 682              		.fpu softvfp
+ 684              	DiagSetErrFilStateAPI:
+ 685              	.LFB6:
+ 313:./Application/Funtion/SystemDiag/SystemDiag.c **** 	if((id < eERR_ID_FINISH) && (1 == gErrFilTab[id].enable)
+ 686              		.loc 1 313 0
+ 687              		.cfi_startproc
+ 688              		@ args = 0, pretend = 0, frame = 0
+ 689              		@ frame_needed = 0, uses_anonymous_args = 0
+ 690              	.LVL45:
+ 691 0000 70B5     		push	{r4, r5, r6, lr}
+ 692              	.LCFI5:
+ 693              		.cfi_def_cfa_offset 16
+ARM GAS  /tmp/ccW036vO.s 			page 23
+
+
+ 694              		.cfi_offset 4, -16
+ 695              		.cfi_offset 5, -12
+ 696              		.cfi_offset 6, -8
+ 697              		.cfi_offset 14, -4
+ 313:./Application/Funtion/SystemDiag/SystemDiag.c **** 	if((id < eERR_ID_FINISH) && (1 == gErrFilTab[id].enable)
+ 698              		.loc 1 313 0
+ 699 0002 0D00     		movs	r5, r1
+ 314:./Application/Funtion/SystemDiag/SystemDiag.c **** 		&& ((eErr_A == state) || (eErr_B == state)))
+ 700              		.loc 1 314 0
+ 701 0004 1128     		cmp	r0, #17
+ 702 0006 23D8     		bhi	.L80
+ 314:./Application/Funtion/SystemDiag/SystemDiag.c **** 		&& ((eErr_A == state) || (eErr_B == state)))
+ 703              		.loc 1 314 0 is_stmt 0 discriminator 1
+ 704 0008 124C     		ldr	r4, .L87
+ 705 000a C600     		lsls	r6, r0, #3
+ 706 000c 335D     		ldrb	r3, [r6, r4]
+ 707 000e 012B     		cmp	r3, #1
+ 708 0010 1ED1     		bne	.L80
+ 315:./Application/Funtion/SystemDiag/SystemDiag.c **** 	{
+ 709              		.loc 1 315 0 is_stmt 1
+ 710 0012 0129     		cmp	r1, #1
+ 711 0014 1CD8     		bhi	.L80
+ 318:./Application/Funtion/SystemDiag/SystemDiag.c **** 	        && (eErr_B == gErrFilTab[id].filState)          /*正处于B状态*/
+ 712              		.loc 1 318 0
+ 713 0016 104B     		ldr	r3, .L87+4
+ 714 0018 9B19     		adds	r3, r3, r6
+ 715 001a 9B79     		ldrb	r3, [r3, #6]
+ 716 001c FF2B     		cmp	r3, #255
+ 717 001e 08D0     		beq	.L82
+ 319:./Application/Funtion/SystemDiag/SystemDiag.c **** 	        && (eErr_A == state))                           /*需要设置为A状态*/
+ 718              		.loc 1 319 0
+ 719 0020 A219     		adds	r2, r4, r6
+ 720 0022 5179     		ldrb	r1, [r2, #5]
+ 721              	.LVL46:
+ 722 0024 0129     		cmp	r1, #1
+ 723 0026 04D1     		bne	.L82
+ 320:./Application/Funtion/SystemDiag/SystemDiag.c **** 	    {
+ 724              		.loc 1 320 0
+ 725 0028 002D     		cmp	r5, #0
+ 726 002a 02D1     		bne	.L82
+ 322:./Application/Funtion/SystemDiag/SystemDiag.c **** 	        {
+ 727              		.loc 1 322 0
+ 728 002c 9279     		ldrb	r2, [r2, #6]
+ 729 002e 9A42     		cmp	r2, r3
+ 730 0030 0ED2     		bcs	.L80
+ 731              	.L82:
+ 329:./Application/Funtion/SystemDiag/SystemDiag.c **** 	        && (eErr_B == state))                           /*需要设置为B状态*/
+ 732              		.loc 1 329 0
+ 733 0032 FFF7FEFF 		bl	DiagGetErrLastStateAPI
+ 734              	.LVL47:
+ 735 0036 0028     		cmp	r0, #0
+ 736 0038 07D1     		bne	.L83
+ 330:./Application/Funtion/SystemDiag/SystemDiag.c **** 	    {
+ 737              		.loc 1 330 0
+ 738 003a 012D     		cmp	r5, #1
+ 739 003c 05D1     		bne	.L83
+ 332:./Application/Funtion/SystemDiag/SystemDiag.c **** 	        {
+ARM GAS  /tmp/ccW036vO.s 			page 24
+
+
+ 740              		.loc 1 332 0
+ 741 003e A219     		adds	r2, r4, r6
+ 742 0040 9379     		ldrb	r3, [r2, #6]
+ 743 0042 FD2B     		cmp	r3, #253
+ 744 0044 01D8     		bhi	.L83
+ 334:./Application/Funtion/SystemDiag/SystemDiag.c **** 	        }
+ 745              		.loc 1 334 0
+ 746 0046 0133     		adds	r3, r3, #1
+ 747 0048 9371     		strb	r3, [r2, #6]
+ 748              	.L83:
+ 338:./Application/Funtion/SystemDiag/SystemDiag.c **** 		gErrFilTab[id].filState = state;
+ 749              		.loc 1 338 0
+ 750 004a A419     		adds	r4, r4, r6
+ 751 004c 2571     		strb	r5, [r4, #4]
+ 339:./Application/Funtion/SystemDiag/SystemDiag.c **** 	}
+ 752              		.loc 1 339 0
+ 753 004e 6571     		strb	r5, [r4, #5]
+ 754              	.L80:
+ 341:./Application/Funtion/SystemDiag/SystemDiag.c **** 
+ 755              		.loc 1 341 0
+ 756              		@ sp needed
+ 757 0050 70BD     		pop	{r4, r5, r6, pc}
+ 758              	.L88:
+ 759 0052 C046     		.align	2
+ 760              	.L87:
+ 761 0054 00000000 		.word	gErrFilTab
+ 762 0058 00000000 		.word	gErrFilPara
+ 763              		.cfi_endproc
+ 764              	.LFE6:
+ 766              		.section	.text.DiagErrDisplayTask,"ax",%progbits
+ 767              		.align	1
+ 768              		.global	DiagErrDisplayTask
+ 769              		.syntax unified
+ 770              		.code	16
+ 771              		.thumb_func
+ 772              		.fpu softvfp
+ 774              	DiagErrDisplayTask:
+ 775              	.LFB7:
+ 351:./Application/Funtion/SystemDiag/SystemDiag.c **** 	// u16 flag = 0;
+ 776              		.loc 1 351 0
+ 777              		.cfi_startproc
+ 778              		@ args = 0, pretend = 0, frame = 0
+ 779              		@ frame_needed = 0, uses_anonymous_args = 0
+ 780              	.LVL48:
+ 781 0000 10B5     		push	{r4, lr}
+ 782              	.LCFI6:
+ 783              		.cfi_def_cfa_offset 8
+ 784              		.cfi_offset 4, -8
+ 785              		.cfi_offset 14, -4
+ 357:./Application/Funtion/SystemDiag/SystemDiag.c ****     {
+ 786              		.loc 1 357 0
+ 787 0002 0024     		movs	r4, #0
+ 788              	.LVL49:
+ 789              	.L92:
+ 359:./Application/Funtion/SystemDiag/SystemDiag.c **** 		{
+ 790              		.loc 1 359 0
+ 791 0004 2000     		movs	r0, r4
+ARM GAS  /tmp/ccW036vO.s 			page 25
+
+
+ 792 0006 FFF7FEFF 		bl	DiagGetErrLastStateAPI
+ 793              	.LVL50:
+ 794 000a 0100     		movs	r1, r0
+ 795 000c 0128     		cmp	r0, #1
+ 796 000e 07D1     		bne	.L90
+ 797              	.L94:
+ 365:./Application/Funtion/SystemDiag/SystemDiag.c **** 		}
+ 798              		.loc 1 365 0
+ 799 0010 2000     		movs	r0, r4
+ 357:./Application/Funtion/SystemDiag/SystemDiag.c ****     {
+ 800              		.loc 1 357 0
+ 801 0012 0134     		adds	r4, r4, #1
+ 802              	.LVL51:
+ 803 0014 E4B2     		uxtb	r4, r4
+ 365:./Application/Funtion/SystemDiag/SystemDiag.c **** 		}
+ 804              		.loc 1 365 0
+ 805 0016 FFF7FEFF 		bl	DiagSetErrState
+ 806              	.LVL52:
+ 357:./Application/Funtion/SystemDiag/SystemDiag.c ****     {
+ 807              		.loc 1 357 0
+ 808 001a 122C     		cmp	r4, #18
+ 809 001c F2D1     		bne	.L92
+ 368:./Application/Funtion/SystemDiag/SystemDiag.c **** 
+ 810              		.loc 1 368 0
+ 811              		@ sp needed
+ 812              	.LVL53:
+ 813 001e 10BD     		pop	{r4, pc}
+ 814              	.LVL54:
+ 815              	.L90:
+ 365:./Application/Funtion/SystemDiag/SystemDiag.c **** 		}
+ 816              		.loc 1 365 0
+ 817 0020 0021     		movs	r1, #0
+ 818 0022 F5E7     		b	.L94
+ 819              		.cfi_endproc
+ 820              	.LFE7:
+ 822              		.section	.text.GetCurrentSamplingMode,"ax",%progbits
+ 823              		.align	1
+ 824              		.global	GetCurrentSamplingMode
+ 825              		.syntax unified
+ 826              		.code	16
+ 827              		.thumb_func
+ 828              		.fpu softvfp
+ 830              	GetCurrentSamplingMode:
+ 831              	.LFB10:
+ 480:./Application/Funtion/SystemDiag/SystemDiag.c **** 	return stParameter.u16ArraySet[CurrentSampChannel];
+ 832              		.loc 1 480 0
+ 833              		.cfi_startproc
+ 834              		@ args = 0, pretend = 0, frame = 0
+ 835              		@ frame_needed = 0, uses_anonymous_args = 0
+ 836              		@ link register save eliminated.
+ 837              		.loc 1 481 0
+ 838 0000 014B     		ldr	r3, .L96
+ 482:./Application/Funtion/SystemDiag/SystemDiag.c **** }
+ 839              		.loc 1 482 0
+ 840              		@ sp needed
+ 481:./Application/Funtion/SystemDiag/SystemDiag.c **** }
+ 841              		.loc 1 481 0
+ARM GAS  /tmp/ccW036vO.s 			page 26
+
+
+ 842 0002 188D     		ldrh	r0, [r3, #40]
+ 843 0004 C0B2     		uxtb	r0, r0
+ 844              		.loc 1 482 0
+ 845 0006 7047     		bx	lr
+ 846              	.L97:
+ 847              		.align	2
+ 848              	.L96:
+ 849 0008 00000000 		.word	stParameter
+ 850              		.cfi_endproc
+ 851              	.LFE10:
+ 853              		.global	gErrFilPara
+ 854              		.global	gErrFilTab
+ 855              		.comm	SystemDiag_57,12,2
+ 856              		.section	.bss.gErrFilTab,"aw",%nobits
+ 857              		.align	1
+ 860              	gErrFilTab:
+ 861 0000 00000000 		.space	144
+ 861      00000000 
+ 861      00000000 
+ 861      00000000 
+ 861      00000000 
+ 862              		.section	.rodata.gErrFilPara,"a",%progbits
+ 863              		.align	1
+ 866              	gErrFilPara:
+ 867 0000 02       		.byte	2
+ 868 0001 00       		.space	1
+ 869 0002 E803     		.short	1000
+ 870 0004 1027     		.short	10000
+ 871 0006 FF       		.byte	-1
+ 872 0007 00       		.space	1
+ 873 0008 02       		.byte	2
+ 874 0009 00       		.space	1
+ 875 000a E803     		.short	1000
+ 876 000c 1027     		.short	10000
+ 877 000e FF       		.byte	-1
+ 878 000f 00       		.space	1
+ 879 0010 02       		.byte	2
+ 880 0011 00       		.space	1
+ 881 0012 E803     		.short	1000
+ 882 0014 1027     		.short	10000
+ 883 0016 FF       		.byte	-1
+ 884 0017 00       		.space	1
+ 885 0018 02       		.byte	2
+ 886 0019 00       		.space	1
+ 887 001a E803     		.short	1000
+ 888 001c 1027     		.short	10000
+ 889 001e FF       		.byte	-1
+ 890 001f 00       		.space	1
+ 891 0020 02       		.byte	2
+ 892 0021 00       		.space	1
+ 893 0022 E803     		.short	1000
+ 894 0024 1027     		.short	10000
+ 895 0026 FF       		.byte	-1
+ 896 0027 00       		.space	1
+ 897 0028 02       		.byte	2
+ 898 0029 00       		.space	1
+ 899 002a E803     		.short	1000
+ARM GAS  /tmp/ccW036vO.s 			page 27
+
+
+ 900 002c 1027     		.short	10000
+ 901 002e FF       		.byte	-1
+ 902 002f 00       		.space	1
+ 903 0030 02       		.byte	2
+ 904 0031 00       		.space	1
+ 905 0032 E803     		.short	1000
+ 906 0034 1027     		.short	10000
+ 907 0036 FF       		.byte	-1
+ 908 0037 00       		.space	1
+ 909 0038 02       		.byte	2
+ 910 0039 00       		.space	1
+ 911 003a E803     		.short	1000
+ 912 003c 1027     		.short	10000
+ 913 003e FF       		.byte	-1
+ 914 003f 00       		.space	1
+ 915 0040 02       		.byte	2
+ 916 0041 00       		.space	1
+ 917 0042 E803     		.short	1000
+ 918 0044 1027     		.short	10000
+ 919 0046 FF       		.byte	-1
+ 920 0047 00       		.space	1
+ 921 0048 02       		.byte	2
+ 922 0049 00       		.space	1
+ 923 004a E803     		.short	1000
+ 924 004c 1027     		.short	10000
+ 925 004e FF       		.byte	-1
+ 926 004f 00       		.space	1
+ 927 0050 02       		.byte	2
+ 928 0051 00       		.space	1
+ 929 0052 E803     		.short	1000
+ 930 0054 1027     		.short	10000
+ 931 0056 FF       		.byte	-1
+ 932 0057 00       		.space	1
+ 933 0058 02       		.byte	2
+ 934 0059 00       		.space	1
+ 935 005a E803     		.short	1000
+ 936 005c 1027     		.short	10000
+ 937 005e FF       		.byte	-1
+ 938 005f 00       		.space	1
+ 939 0060 02       		.byte	2
+ 940 0061 00       		.space	1
+ 941 0062 E803     		.short	1000
+ 942 0064 1027     		.short	10000
+ 943 0066 FF       		.byte	-1
+ 944 0067 00       		.space	1
+ 945 0068 02       		.byte	2
+ 946 0069 00       		.space	1
+ 947 006a E803     		.short	1000
+ 948 006c 1027     		.short	10000
+ 949 006e FF       		.byte	-1
+ 950 006f 00       		.space	1
+ 951 0070 02       		.byte	2
+ 952 0071 00       		.space	1
+ 953 0072 E803     		.short	1000
+ 954 0074 1027     		.short	10000
+ 955 0076 FF       		.byte	-1
+ 956 0077 00       		.space	1
+ARM GAS  /tmp/ccW036vO.s 			page 28
+
+
+ 957 0078 02       		.byte	2
+ 958 0079 00       		.space	1
+ 959 007a E803     		.short	1000
+ 960 007c 1027     		.short	10000
+ 961 007e FF       		.byte	-1
+ 962 007f 00       		.space	1
+ 963 0080 02       		.byte	2
+ 964 0081 00       		.space	1
+ 965 0082 E803     		.short	1000
+ 966 0084 1027     		.short	10000
+ 967 0086 FF       		.byte	-1
+ 968 0087 00       		.space	1
+ 969 0088 02       		.byte	2
+ 970 0089 00       		.space	1
+ 971 008a E803     		.short	1000
+ 972 008c 1027     		.short	10000
+ 973 008e FF       		.byte	-1
+ 974 008f 00       		.space	1
+ 975              		.text
+ 976              	.Letext0:
+ 977              		.file 2 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/lock.h"
+ 978              		.file 3 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_types.h"
+ 979              		.file 4 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/lib/gcc/arm-none-eabi/7.3.1/include/stddef.h"
+ 980              		.file 5 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/reent.h"
+ 981              		.file 6 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/stdlib.h"
+ 982              		.file 7 "Application/BSPSys/Util/BSPTypeDef.h"
+ 983              		.file 8 "./Application/Funtion/SystemDiag/SystemDiag.h"
+ 984              		.file 9 "Application/Funtion/SystemPara/SystemPara.h"
+ARM GAS  /tmp/ccW036vO.s 			page 29
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 SystemDiag.c
+     /tmp/ccW036vO.s:16     .text.DiagSetErrState:0000000000000000 $t
+     /tmp/ccW036vO.s:22     .text.DiagSetErrState:0000000000000000 DiagSetErrState
+     /tmp/ccW036vO.s:112    .text.DiagSetErrState:0000000000000050 $d
+                            *COM*:000000000000000c SystemDiag_57
+     /tmp/ccW036vO.s:120    .text.InitSystemDiag:0000000000000000 $t
+     /tmp/ccW036vO.s:127    .text.InitSystemDiag:0000000000000000 InitSystemDiag
+     /tmp/ccW036vO.s:162    .text.InitSystemDiag:0000000000000014 $d
+     /tmp/ccW036vO.s:167    .text.DiagErrFilterInit:0000000000000000 $t
+     /tmp/ccW036vO.s:174    .text.DiagErrFilterInit:0000000000000000 DiagErrFilterInit
+     /tmp/ccW036vO.s:226    .text.DiagErrFilterInit:000000000000002c $d
+     /tmp/ccW036vO.s:860    .bss.gErrFilTab:0000000000000000 gErrFilTab
+     /tmp/ccW036vO.s:866    .rodata.gErrFilPara:0000000000000000 gErrFilPara
+     /tmp/ccW036vO.s:232    .text.DiagGetFilErrSortAPI:0000000000000000 $t
+     /tmp/ccW036vO.s:239    .text.DiagGetFilErrSortAPI:0000000000000000 DiagGetFilErrSortAPI
+     /tmp/ccW036vO.s:265    .text.DiagGetFilErrSortAPI:0000000000000010 $d
+     /tmp/ccW036vO.s:271    .text.DiagErrFilterTask:0000000000000000 $t
+     /tmp/ccW036vO.s:278    .text.DiagErrFilterTask:0000000000000000 DiagErrFilterTask
+     /tmp/ccW036vO.s:347    .text.DiagErrFilterTask:000000000000004a $d
+     /tmp/ccW036vO.s:351    .text.DiagErrFilterTask:000000000000004e $t
+     /tmp/ccW036vO.s:460    .text.DiagErrFilterTask:00000000000000cc $d
+     /tmp/ccW036vO.s:466    .text.DiagSetErrNowStateAPI:0000000000000000 $t
+     /tmp/ccW036vO.s:473    .text.DiagSetErrNowStateAPI:0000000000000000 DiagSetErrNowStateAPI
+     /tmp/ccW036vO.s:525    .text.DiagSetErrNowStateAPI:0000000000000034 $d
+     /tmp/ccW036vO.s:531    .text.DiagGetErrLastStateAPI:0000000000000000 $t
+     /tmp/ccW036vO.s:538    .text.DiagGetErrLastStateAPI:0000000000000000 DiagGetErrLastStateAPI
+     /tmp/ccW036vO.s:582    .text.DiagGetErrLastStateAPI:0000000000000020 $d
+     /tmp/ccW036vO.s:587    .text.DiagGetGroupNowErrLevelAPI:0000000000000000 $t
+     /tmp/ccW036vO.s:594    .text.DiagGetGroupNowErrLevelAPI:0000000000000000 DiagGetGroupNowErrLevelAPI
+     /tmp/ccW036vO.s:672    .text.DiagGetGroupNowErrLevelAPI:000000000000003c $d
+     /tmp/ccW036vO.s:677    .text.DiagSetErrFilStateAPI:0000000000000000 $t
+     /tmp/ccW036vO.s:684    .text.DiagSetErrFilStateAPI:0000000000000000 DiagSetErrFilStateAPI
+     /tmp/ccW036vO.s:761    .text.DiagSetErrFilStateAPI:0000000000000054 $d
+     /tmp/ccW036vO.s:767    .text.DiagErrDisplayTask:0000000000000000 $t
+     /tmp/ccW036vO.s:774    .text.DiagErrDisplayTask:0000000000000000 DiagErrDisplayTask
+     /tmp/ccW036vO.s:823    .text.GetCurrentSamplingMode:0000000000000000 $t
+     /tmp/ccW036vO.s:830    .text.GetCurrentSamplingMode:0000000000000000 GetCurrentSamplingMode
+     /tmp/ccW036vO.s:849    .text.GetCurrentSamplingMode:0000000000000008 $d
+     /tmp/ccW036vO.s:857    .bss.gErrFilTab:0000000000000000 $d
+     /tmp/ccW036vO.s:863    .rodata.gErrFilPara:0000000000000000 $d
+
+UNDEFINED SYMBOLS
+stParameter
+__aeabi_uidiv
+__gnu_thumb1_case_uqi

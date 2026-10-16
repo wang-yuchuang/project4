@@ -1,0 +1,1722 @@
+ARM GAS  /tmp/cccdeKhJ.s 			page 1
+
+
+   1              		.cpu cortex-m0plus
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 4
+   9              		.eabi_attribute 34, 0
+  10              		.eabi_attribute 18, 4
+  11              		.file	"BSPCAN.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.BSPCanBufInit,"ax",%progbits
+  16              		.align	1
+  17              		.global	BSPCanBufInit
+  18              		.syntax unified
+  19              		.code	16
+  20              		.thumb_func
+  21              		.fpu softvfp
+  23              	BSPCanBufInit:
+  24              	.LFB493:
+  25              		.file 1 "./Application/BSPSys/BSPDriver/BSPCAN.c"
+   1:./Application/BSPSys/BSPDriver/BSPCAN.c **** /*==========================================Copyright(c)=======================================
+   2:./Application/BSPSys/BSPDriver/BSPCAN.c **** **                                  Shenzhen Infypower Co., Ltd.
+   3:./Application/BSPSys/BSPDriver/BSPCAN.c **** **                                  Power conversion Department
+   4:./Application/BSPSys/BSPDriver/BSPCAN.c **** **                                       BMS Product Line
+   5:./Application/BSPSys/BSPDriver/BSPCAN.c **** **
+   6:./Application/BSPSys/BSPDriver/BSPCAN.c **** **---------------------------------------File Information--------------------------------------
+   7:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @File Name    : BSPCAN.h
+   8:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Founder      : WYC834
+   9:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Date         : 2025.8.19
+  10:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Function     : CAN驱动函数模块
+  11:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Instructions : 用户完善
+  12:./Application/BSPSys/BSPDriver/BSPCAN.c **** **===========================================================================================*/
+  13:./Application/BSPSys/BSPDriver/BSPCAN.c **** 
+  14:./Application/BSPSys/BSPDriver/BSPCAN.c **** /*=============================================================================================
+  15:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Header file definition
+  16:./Application/BSPSys/BSPDriver/BSPCAN.c **** **===========================================================================================*/
+  17:./Application/BSPSys/BSPDriver/BSPCAN.c **** #include "BSPTypeDef.h"
+  18:./Application/BSPSys/BSPDriver/BSPCAN.c **** #include "BSPConfig.h"
+  19:./Application/BSPSys/BSPDriver/BSPCAN.c **** #include "BSPQueue.h"
+  20:./Application/BSPSys/BSPDriver/BSPCAN.c **** #include "BSPIRQ.h"
+  21:./Application/BSPSys/BSPDriver/BSPCAN.c **** #include "BSPCAN.h"
+  22:./Application/BSPSys/BSPDriver/BSPCAN.c **** #include "fdcan.h"
+  23:./Application/BSPSys/BSPDriver/BSPCAN.c **** #include "BSPIRQ.h"
+  24:./Application/BSPSys/BSPDriver/BSPCAN.c **** #include "BSPUserHook.h"
+  25:./Application/BSPSys/BSPDriver/BSPCAN.c **** /*=============================================================================================
+  26:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Global variable definition
+  27:./Application/BSPSys/BSPDriver/BSPCAN.c **** **===========================================================================================*/
+  28:./Application/BSPSys/BSPDriver/BSPCAN.c **** static u8 sCANSendBuff[eCANNUM][QUE_SIZEOF(CAN_QUEUE_SIZE, CAN_QUEUE_NUM)]; //定义CAN发送缓冲
+  29:./Application/BSPSys/BSPDriver/BSPCAN.c **** static s_CyRcvBuf sCANRcvCyBuf[eCANNUM];                                    //CAN接收环形缓冲
+  30:./Application/BSPSys/BSPDriver/BSPCAN.c **** static u8 sCANCyUnDealNum[eCANNUM] = {0};                                   //CAN环形缓冲区未
+  31:./Application/BSPSys/BSPDriver/BSPCAN.c **** 
+  32:./Application/BSPSys/BSPDriver/BSPCAN.c **** FDCAN_FilterTypeDef sFilterConfig1;
+  33:./Application/BSPSys/BSPDriver/BSPCAN.c **** /*=============================================================================================
+ARM GAS  /tmp/cccdeKhJ.s 			page 2
+
+
+  34:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Static function declaration
+  35:./Application/BSPSys/BSPDriver/BSPCAN.c **** **===========================================================================================*/
+  36:./Application/BSPSys/BSPDriver/BSPCAN.c **** /*=============================================================================================
+  37:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Name      : static void CANRcvCyBufInit(e_CANNUM canNum)
+  38:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Input     : canNum:CAN通道号
+  39:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Output    : void
+  40:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Function  : 环形接收缓冲区初始化
+  41:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @The notes :
+  42:./Application/BSPSys/BSPDriver/BSPCAN.c **** **===========================================================================================*/
+  43:./Application/BSPSys/BSPDriver/BSPCAN.c **** static void CANRcvCyBufInit(e_CANNUM canNum);
+  44:./Application/BSPSys/BSPDriver/BSPCAN.c **** 
+  45:./Application/BSPSys/BSPDriver/BSPCAN.c **** /*=============================================================================================
+  46:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Name      : static u8 CANWriteRcvCyBuf(e_CANNUM canNum, FDCAN_RxHeaderTypeDef *pRxMsg,u8 * data
+  47:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Input     : canNum:CAN通道号, *pRcvMsg:CAN信息结构体接收数据指针
+  48:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Output    : TRUE:成功 FALSE:失败
+  49:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Function  : CAN接收中断函数将CAN报文写入接收环形缓冲区
+  50:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @The notes :
+  51:./Application/BSPSys/BSPDriver/BSPCAN.c **** **===========================================================================================*/
+  52:./Application/BSPSys/BSPDriver/BSPCAN.c **** static u8 CANWriteRcvCyBuf(e_CANNUM canNum, FDCAN_RxHeaderTypeDef *pRxMsg,u8 * data);
+  53:./Application/BSPSys/BSPDriver/BSPCAN.c **** 
+  54:./Application/BSPSys/BSPDriver/BSPCAN.c **** /*=============================================================================================
+  55:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Name      : static u8 CANReadRcvCyBuf(e_CANNUM canNum, t_CANMSG *pRcvMsg)
+  56:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Input     : canNum:CAN通道号, *pRcvMsg:CAN信息结构体接收数据指针
+  57:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Output    : TRUE:成功 FALSE:失败
+  58:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Function  : CAN接收处理任务读CAN接收环形缓冲区信息出来处理
+  59:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @The notes :
+  60:./Application/BSPSys/BSPDriver/BSPCAN.c **** **===========================================================================================*/
+  61:./Application/BSPSys/BSPDriver/BSPCAN.c **** static u8 CANReadRcvCyBuf(e_CANNUM canNum, t_CANMSG *pRcvMsg);
+  62:./Application/BSPSys/BSPDriver/BSPCAN.c **** 
+  63:./Application/BSPSys/BSPDriver/BSPCAN.c **** /*=============================================================================================
+  64:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Name      : static u8 GetCanFdMessageLength(u8 length)
+  65:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Input     : length:数据长度
+  66:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Output    : void
+  67:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Function  : 
+  68:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @The notes : 
+  69:./Application/BSPSys/BSPDriver/BSPCAN.c **** **===========================================================================================*/
+  70:./Application/BSPSys/BSPDriver/BSPCAN.c **** static u8 GetCanFdMessageLength(u8 length);
+  71:./Application/BSPSys/BSPDriver/BSPCAN.c **** /*=============================================================================================
+  72:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Interface function definition
+  73:./Application/BSPSys/BSPDriver/BSPCAN.c **** **===========================================================================================*/
+  74:./Application/BSPSys/BSPDriver/BSPCAN.c **** /*=============================================================================================
+  75:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Name      : void BSPCanBufInit(void)
+  76:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Input     : void
+  77:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Output    : void
+  78:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Function  : 初始化CAN发送/接收BUF
+  79:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @The notes : Main()函数调用，上电初始化
+  80:./Application/BSPSys/BSPDriver/BSPCAN.c **** **===========================================================================================*/
+  81:./Application/BSPSys/BSPDriver/BSPCAN.c **** void BSPCanBufInit(void)
+  82:./Application/BSPSys/BSPDriver/BSPCAN.c **** {
+  26              		.loc 1 82 0
+  27              		.cfi_startproc
+  28              		@ args = 0, pretend = 0, frame = 0
+  29              		@ frame_needed = 0, uses_anonymous_args = 0
+  30              	.LVL0:
+  31              	.LBB4:
+  32              	.LBB5:
+  83:./Application/BSPSys/BSPDriver/BSPCAN.c ****     u8 canNum = 0;
+ARM GAS  /tmp/cccdeKhJ.s 			page 3
+
+
+  84:./Application/BSPSys/BSPDriver/BSPCAN.c ****     
+  85:./Application/BSPSys/BSPDriver/BSPCAN.c ****     //初始化发送缓冲区队列和接收缓冲区队列
+  86:./Application/BSPSys/BSPDriver/BSPCAN.c ****     for(canNum = 0; canNum < eCANNUM; canNum++)
+  87:./Application/BSPSys/BSPDriver/BSPCAN.c ****     {
+  88:./Application/BSPSys/BSPDriver/BSPCAN.c ****         //环形接收缓冲区初始化
+  89:./Application/BSPSys/BSPDriver/BSPCAN.c ****         CANRcvCyBufInit((e_CANNUM)canNum);
+  90:./Application/BSPSys/BSPDriver/BSPCAN.c **** 
+  91:./Application/BSPSys/BSPDriver/BSPCAN.c ****         //发送队列缓冲区初始化
+  92:./Application/BSPSys/BSPDriver/BSPCAN.c ****         (void)QueInit((void *)&sCANSendBuff[canNum], CAN_QUEUE_SIZE, CAN_QUEUE_NUM);
+  93:./Application/BSPSys/BSPDriver/BSPCAN.c ****     }
+  94:./Application/BSPSys/BSPDriver/BSPCAN.c **** }
+  95:./Application/BSPSys/BSPDriver/BSPCAN.c **** 
+  96:./Application/BSPSys/BSPDriver/BSPCAN.c **** /*=============================================================================================
+  97:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Name      : void BSPCANInit(e_CANNUM canNum)
+  98:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Input     : canNum:CAN通道号 osc:晶振频率 rate:CAN波特率
+  99:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Output    : 初始化结果 TRUE:成功 FALSE:失败
+ 100:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Function  : CAN驱动模块初始化
+ 101:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @The notes : BSP调用
+ 102:./Application/BSPSys/BSPDriver/BSPCAN.c **** **===========================================================================================*/
+ 103:./Application/BSPSys/BSPDriver/BSPCAN.c **** void BSPCANInit(e_CANNUM canNum)
+ 104:./Application/BSPSys/BSPDriver/BSPCAN.c **** {	
+ 105:./Application/BSPSys/BSPDriver/BSPCAN.c ****     if(canNum >= eCANNUM)
+ 106:./Application/BSPSys/BSPDriver/BSPCAN.c ****     {
+ 107:./Application/BSPSys/BSPDriver/BSPCAN.c ****         return;
+ 108:./Application/BSPSys/BSPDriver/BSPCAN.c ****     }
+ 109:./Application/BSPSys/BSPDriver/BSPCAN.c ****     if((canNum == eCAN1)&&(1 != gBSPFunCfg.Bits.CAN1En))
+ 110:./Application/BSPSys/BSPDriver/BSPCAN.c ****     {
+ 111:./Application/BSPSys/BSPDriver/BSPCAN.c ****         return;
+ 112:./Application/BSPSys/BSPDriver/BSPCAN.c ****     }
+ 113:./Application/BSPSys/BSPDriver/BSPCAN.c ****     switch(canNum)
+ 114:./Application/BSPSys/BSPDriver/BSPCAN.c ****     {
+ 115:./Application/BSPSys/BSPDriver/BSPCAN.c ****         case eCAN1:
+ 116:./Application/BSPSys/BSPDriver/BSPCAN.c ****             if(1 == gBSPFunCfg.Bits.CAN1En)  
+ 117:./Application/BSPSys/BSPDriver/BSPCAN.c ****             {
+ 118:./Application/BSPSys/BSPDriver/BSPCAN.c ****                 MX_FDCAN1_Init();
+ 119:./Application/BSPSys/BSPDriver/BSPCAN.c ****                 // fdcan1_config();
+ 120:./Application/BSPSys/BSPDriver/BSPCAN.c ****             }           
+ 121:./Application/BSPSys/BSPDriver/BSPCAN.c ****            //计算can1波特率
+ 122:./Application/BSPSys/BSPDriver/BSPCAN.c ****            // BaudRate = HAL_RCC_GetPCLK1Freq()/1000;//单位k，获取apb1时钟频率
+ 123:./Application/BSPSys/BSPDriver/BSPCAN.c ****            // BaudRate = BaudRate/(2*hfdcan1.Init.ClockDivider);
+ 124:./Application/BSPSys/BSPDriver/BSPCAN.c ****            // BaudRate = BaudRate/(hfdcan1.Init.DataTimeSeg1 +  hfdcan1.Init.DataTimeSeg2 +1);
+ 125:./Application/BSPSys/BSPDriver/BSPCAN.c ****            // InputCANStateData(eCAN1 , BaudRate);
+ 126:./Application/BSPSys/BSPDriver/BSPCAN.c **** 
+ 127:./Application/BSPSys/BSPDriver/BSPCAN.c ****             break;    
+ 128:./Application/BSPSys/BSPDriver/BSPCAN.c ****         default:
+ 129:./Application/BSPSys/BSPDriver/BSPCAN.c ****         
+ 130:./Application/BSPSys/BSPDriver/BSPCAN.c ****             break;        
+ 131:./Application/BSPSys/BSPDriver/BSPCAN.c ****     }	
+ 132:./Application/BSPSys/BSPDriver/BSPCAN.c **** }
+ 133:./Application/BSPSys/BSPDriver/BSPCAN.c **** 
+ 134:./Application/BSPSys/BSPDriver/BSPCAN.c **** /*=============================================================================================
+ 135:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Name      : u8 BSPCANSendMsg(e_CANNUM canNum, t_CANMSG *msg)
+ 136:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Input     : canNum:通道号 *msg:发送信息结构体
+ 137:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Output    : 发送结果:TRUE-成功 FALSE-失败
+ 138:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Function  : CAN发送信息(直接发送)
+ 139:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @The notes : 用户调用(尽量少用,会丢帧)
+ 140:./Application/BSPSys/BSPDriver/BSPCAN.c **** **===========================================================================================*/
+ARM GAS  /tmp/cccdeKhJ.s 			page 4
+
+
+ 141:./Application/BSPSys/BSPDriver/BSPCAN.c **** u8 BSPCANSendMsg(e_CANNUM canNum, t_CANMSG *msg)
+ 142:./Application/BSPSys/BSPDriver/BSPCAN.c **** {	
+ 143:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	static u8 failureCountCAN1 = 0; // CAN0 发送失败计数器  
+ 144:./Application/BSPSys/BSPDriver/BSPCAN.c **** 
+ 145:./Application/BSPSys/BSPDriver/BSPCAN.c ****     if(0 == msg->Len)
+ 146:./Application/BSPSys/BSPDriver/BSPCAN.c ****     {
+ 147:./Application/BSPSys/BSPDriver/BSPCAN.c ****         return(FALSE);
+ 148:./Application/BSPSys/BSPDriver/BSPCAN.c ****     }
+ 149:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	//模块未使能
+ 150:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	if(canNum == eCAN1 && 1 != gBSPFunCfg.Bits.CAN1En)
+ 151:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	{
+ 152:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		return(FALSE);
+ 153:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	}
+ 154:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	FDCAN_TxHeaderTypeDef TxHeader;
+ 155:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	/* Prepare Tx Header */
+ 156:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	TxHeader.Identifier = msg->ID;
+ 157:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	TxHeader.IdType = FDCAN_EXTENDED_ID;
+ 158:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	TxHeader.TxFrameType = FDCAN_DATA_FRAME;
+ 159:./Application/BSPSys/BSPDriver/BSPCAN.c ****         if(msg->Len<=8)
+ 160:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		TxHeader.DataLength =  msg->Len;
+ 161:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	if(msg->Len<=12&&msg->Len>8)
+ 162:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		TxHeader.DataLength = FDCAN_DLC_BYTES_12;
+ 163:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	if(msg->Len<=16&&msg->Len>12)
+ 164:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		TxHeader.DataLength = FDCAN_DLC_BYTES_16;
+ 165:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	if(msg->Len<=20&&msg->Len>16)
+ 166:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		TxHeader.DataLength = FDCAN_DLC_BYTES_20;
+ 167:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	if(msg->Len<=24&&msg->Len>20)
+ 168:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		TxHeader.DataLength = FDCAN_DLC_BYTES_24;
+ 169:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	if(msg->Len<=32&&msg->Len>24)
+ 170:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		TxHeader.DataLength = FDCAN_DLC_BYTES_32;
+ 171:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	if(msg->Len<=48&&msg->Len>32)
+ 172:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		TxHeader.DataLength = FDCAN_DLC_BYTES_48;
+ 173:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	if(msg->Len<=64&&msg->Len>48)
+ 174:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		TxHeader.DataLength = FDCAN_DLC_BYTES_64;
+ 175:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	TxHeader.ErrorStateIndicator = FDCAN_ESI_ACTIVE;
+ 176:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	TxHeader.BitRateSwitch = FDCAN_BRS_ON;
+ 177:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	TxHeader.FDFormat = FDCAN_FD_CAN;
+ 178:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	TxHeader.TxEventFifoControl = FDCAN_NO_TX_EVENTS;
+ 179:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	TxHeader.MessageMarker = 0;
+ 180:./Application/BSPSys/BSPDriver/BSPCAN.c **** 
+ 181:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	if(canNum == eCAN1)
+ 182:./Application/BSPSys/BSPDriver/BSPCAN.c ****     {	
+ 183:./Application/BSPSys/BSPDriver/BSPCAN.c ****       BSP_DISABLE_IRQ();//关中断，防止发送被打断
+ 184:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		if(HAL_OK != HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &TxHeader,msg->Data))
+ 185:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		{
+ 186:./Application/BSPSys/BSPDriver/BSPCAN.c **** 			failureCountCAN1++;
+ 187:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		     BSP_ENABLE_IRQ();//开中断
+ 188:./Application/BSPSys/BSPDriver/BSPCAN.c **** 			 if (failureCountCAN1 >= 50 )
+ 189:./Application/BSPSys/BSPDriver/BSPCAN.c **** 			 {
+ 190:./Application/BSPSys/BSPDriver/BSPCAN.c **** 				failureCountCAN1 = 0;//重置计数器
+ 191:./Application/BSPSys/BSPDriver/BSPCAN.c **** 				BSPCANInit(eCAN1);
+ 192:./Application/BSPSys/BSPDriver/BSPCAN.c **** 			 }
+ 193:./Application/BSPSys/BSPDriver/BSPCAN.c **** 			return(FALSE);
+ 194:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		}	
+ 195:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		BSP_ENABLE_IRQ();//开中断
+ 196:./Application/BSPSys/BSPDriver/BSPCAN.c ****     }
+ 197:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	return(TRUE);
+ARM GAS  /tmp/cccdeKhJ.s 			page 5
+
+
+ 198:./Application/BSPSys/BSPDriver/BSPCAN.c **** }
+ 199:./Application/BSPSys/BSPDriver/BSPCAN.c **** 
+ 200:./Application/BSPSys/BSPDriver/BSPCAN.c **** /*=============================================================================================
+ 201:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Name      : u8 BSPCANSendQin(e_CANNUM canNum, t_CANMSG *msg)
+ 202:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Input     : canNum:通道号 *msg:发送信息结构体
+ 203:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Output    : 发送结果:TRUE-成功 FALSE-失败
+ 204:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Function  : CAN发送信息(数据压入队列)
+ 205:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @The notes : 用户调用
+ 206:./Application/BSPSys/BSPDriver/BSPCAN.c **** **===========================================================================================*/
+ 207:./Application/BSPSys/BSPDriver/BSPCAN.c **** u8 BSPCANSendQin(e_CANNUM canNum, t_CANMSG *msg)
+ 208:./Application/BSPSys/BSPDriver/BSPCAN.c **** {
+ 209:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	//模块未使能
+ 210:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	if(canNum != eCAN1 && 1 != gBSPFunCfg.Bits.CAN1En)
+ 211:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	{
+ 212:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		return(FALSE);
+ 213:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	}
+ 214:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	u8 result = 0;
+ 215:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	if(canNum >= eCANNUM)
+ 216:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	{
+ 217:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		return(FALSE);
+ 218:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	}
+ 219:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	result = QueIn((void *)sCANSendBuff[canNum], (void *)(msg));
+ 220:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	
+ 221:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	return(result);
+ 222:./Application/BSPSys/BSPDriver/BSPCAN.c **** }
+ 223:./Application/BSPSys/BSPDriver/BSPCAN.c **** 
+ 224:./Application/BSPSys/BSPDriver/BSPCAN.c **** /*=============================================================================================
+ 225:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Name      : void BSPCANSendTask(void)
+ 226:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Input     : void
+ 227:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Output    : void
+ 228:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Function  : CAN信息发送任务
+ 229:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @The notes : BSP调用
+ 230:./Application/BSPSys/BSPDriver/BSPCAN.c **** **===========================================================================================*/
+ 231:./Application/BSPSys/BSPDriver/BSPCAN.c **** void BSPCANSendTask(void)
+ 232:./Application/BSPSys/BSPDriver/BSPCAN.c **** {
+ 233:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	u8 index = 0;
+ 234:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	static t_CANMSG txMsg;
+ 235:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	static u8 sHisErr[eCANNUM] = {TRUE};
+ 236:./Application/BSPSys/BSPDriver/BSPCAN.c **** 
+ 237:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	//BSP_DISABLE_IRQ();
+ 238:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	for(index = 0; index < eCANNUM; index++)
+ 239:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	{
+ 240:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		if(QueGetUnitNum((void *)&sCANSendBuff[index]))                     //判断CAN发送缓冲区中
+ 241:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		{
+ 242:./Application/BSPSys/BSPDriver/BSPCAN.c **** 			if(FALSE == sHisErr[index])                                     //上次发送失败
+ 243:./Application/BSPSys/BSPDriver/BSPCAN.c **** 			{
+ 244:./Application/BSPSys/BSPDriver/BSPCAN.c **** 				(void)BSPCANSendMsg((e_CANNUM)index, &txMsg);               //直接重发一次
+ 245:./Application/BSPSys/BSPDriver/BSPCAN.c **** 				sHisErr[index] = TRUE;
+ 246:./Application/BSPSys/BSPDriver/BSPCAN.c **** 			}
+ 247:./Application/BSPSys/BSPDriver/BSPCAN.c **** 			else if(QueOut((void *)&sCANSendBuff[index], (void *)(&txMsg))) //出对列成功
+ 248:./Application/BSPSys/BSPDriver/BSPCAN.c **** 			{
+ 249:./Application/BSPSys/BSPDriver/BSPCAN.c **** 				sHisErr[index] = BSPCANSendMsg((e_CANNUM)index, &txMsg);    //发送数据
+ 250:./Application/BSPSys/BSPDriver/BSPCAN.c **** 			}
+ 251:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		}
+ 252:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	}
+ 253:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	//BSP_ENABLE_IRQ();
+ 254:./Application/BSPSys/BSPDriver/BSPCAN.c **** }
+ARM GAS  /tmp/cccdeKhJ.s 			page 6
+
+
+ 255:./Application/BSPSys/BSPDriver/BSPCAN.c **** 
+ 256:./Application/BSPSys/BSPDriver/BSPCAN.c **** /*=============================================================================================
+ 257:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Name      : void BSPCANRcvTask(void)
+ 258:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Input     : void
+ 259:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Output    : void
+ 260:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Function  : CAN信息接收任务
+ 261:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @The notes : BSP调用
+ 262:./Application/BSPSys/BSPDriver/BSPCAN.c **** **===========================================================================================*/
+ 263:./Application/BSPSys/BSPDriver/BSPCAN.c **** void BSPCANRcvTask(void)
+ 264:./Application/BSPSys/BSPDriver/BSPCAN.c **** {
+ 265:./Application/BSPSys/BSPDriver/BSPCAN.c ****     u8 index = 0;
+ 266:./Application/BSPSys/BSPDriver/BSPCAN.c ****     t_CANMSG rcvMsg;
+ 267:./Application/BSPSys/BSPDriver/BSPCAN.c ****     //BSP_DISABLE_IRQ();
+ 268:./Application/BSPSys/BSPDriver/BSPCAN.c ****     for(index = 0; index < eCANNUM; index++)
+ 269:./Application/BSPSys/BSPDriver/BSPCAN.c ****     {
+ 270:./Application/BSPSys/BSPDriver/BSPCAN.c ****         //从缓冲区读取接收到的报文提交到用户处理
+ 271:./Application/BSPSys/BSPDriver/BSPCAN.c ****         if(CANReadRcvCyBuf((e_CANNUM)index, &rcvMsg) == 1)
+ 272:./Application/BSPSys/BSPDriver/BSPCAN.c ****         {
+ 273:./Application/BSPSys/BSPDriver/BSPCAN.c ****             //计算缓冲区未处理信息
+ 274:./Application/BSPSys/BSPDriver/BSPCAN.c ****             if(sCANCyUnDealNum[index] >= 1)
+ 275:./Application/BSPSys/BSPDriver/BSPCAN.c ****             {
+ 276:./Application/BSPSys/BSPDriver/BSPCAN.c ****                 sCANCyUnDealNum[index]--;
+ 277:./Application/BSPSys/BSPDriver/BSPCAN.c ****             }
+ 278:./Application/BSPSys/BSPDriver/BSPCAN.c **** 
+ 279:./Application/BSPSys/BSPDriver/BSPCAN.c ****             //CAN接收报文处理函数
+ 280:./Application/BSPSys/BSPDriver/BSPCAN.c ****             (void)CANRcvMsgHandle_Hook((e_CANNUM)index, &rcvMsg);
+ 281:./Application/BSPSys/BSPDriver/BSPCAN.c ****         }
+ 282:./Application/BSPSys/BSPDriver/BSPCAN.c ****     }
+ 283:./Application/BSPSys/BSPDriver/BSPCAN.c ****     //BSP_ENABLE_IRQ();
+ 284:./Application/BSPSys/BSPDriver/BSPCAN.c **** }
+ 285:./Application/BSPSys/BSPDriver/BSPCAN.c **** 
+ 286:./Application/BSPSys/BSPDriver/BSPCAN.c **** 
+ 287:./Application/BSPSys/BSPDriver/BSPCAN.c **** 
+ 288:./Application/BSPSys/BSPDriver/BSPCAN.c **** /*=============================================================================================
+ 289:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Static function definition
+ 290:./Application/BSPSys/BSPDriver/BSPCAN.c **** **===========================================================================================*/
+ 291:./Application/BSPSys/BSPDriver/BSPCAN.c **** /*=============================================================================================
+ 292:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Name      : static void CANRcvCyBufInit(e_CANNUM canNum)
+ 293:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Input     : canNum:CAN通道号
+ 294:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Output    : void
+ 295:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Function  : 环形接收缓冲区初始化
+ 296:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @The notes :
+ 297:./Application/BSPSys/BSPDriver/BSPCAN.c **** **===========================================================================================*/
+ 298:./Application/BSPSys/BSPDriver/BSPCAN.c **** static void CANRcvCyBufInit(e_CANNUM canNum)
+ 299:./Application/BSPSys/BSPDriver/BSPCAN.c **** {
+ 300:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	if(canNum >= eCANNUM)
+ 301:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	{
+ 302:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		return;
+ 303:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	}
+ 304:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	//模块未使能
+ 305:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	if(canNum == eCAN1 && 1 != gBSPFunCfg.Bits.CAN1En)
+  33              		.loc 1 305 0
+  34 0000 074B     		ldr	r3, .L6
+  35              	.LBE5:
+  36              	.LBE4:
+  82:./Application/BSPSys/BSPDriver/BSPCAN.c ****     u8 canNum = 0;
+  37              		.loc 1 82 0
+ARM GAS  /tmp/cccdeKhJ.s 			page 7
+
+
+  38 0002 10B5     		push	{r4, lr}
+  39              	.LCFI0:
+  40              		.cfi_def_cfa_offset 8
+  41              		.cfi_offset 4, -8
+  42              		.cfi_offset 14, -4
+  43              	.LBB7:
+  44              	.LBB6:
+  45              		.loc 1 305 0
+  46 0004 1B88     		ldrh	r3, [r3]
+  47 0006 DB07     		lsls	r3, r3, #31
+  48 0008 04D5     		bpl	.L2
+ 306:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	{
+ 307:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		return;
+ 308:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	}
+ 309:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	memset((u8 *)(&(sCANRcvCyBuf[canNum])), 0, sizeof(sCANRcvCyBuf[canNum]));
+  49              		.loc 1 309 0
+  50 000a 064A     		ldr	r2, .L6+4
+  51 000c 0021     		movs	r1, #0
+  52 000e 0648     		ldr	r0, .L6+8
+  53 0010 FFF7FEFF 		bl	memset
+  54              	.LVL1:
+  55              	.L2:
+  56              	.LBE6:
+  57              	.LBE7:
+  92:./Application/BSPSys/BSPDriver/BSPCAN.c ****     }
+  58              		.loc 1 92 0 discriminator 3
+  59 0014 0F22     		movs	r2, #15
+  60 0016 4821     		movs	r1, #72
+  61 0018 0448     		ldr	r0, .L6+12
+  62 001a FFF7FEFF 		bl	QueInit
+  63              	.LVL2:
+  94:./Application/BSPSys/BSPDriver/BSPCAN.c **** 
+  64              		.loc 1 94 0 discriminator 3
+  65              		@ sp needed
+  66 001e 10BD     		pop	{r4, pc}
+  67              	.L7:
+  68              		.align	2
+  69              	.L6:
+  70 0020 00000000 		.word	gBSPFunCfg
+  71 0024 A4050000 		.word	1444
+  72 0028 00000000 		.word	sCANRcvCyBuf
+  73 002c 00000000 		.word	sCANSendBuff
+  74              		.cfi_endproc
+  75              	.LFE493:
+  77              		.section	.text.BSPCANInit,"ax",%progbits
+  78              		.align	1
+  79              		.global	BSPCANInit
+  80              		.syntax unified
+  81              		.code	16
+  82              		.thumb_func
+  83              		.fpu softvfp
+  85              	BSPCANInit:
+  86              	.LFB494:
+ 104:./Application/BSPSys/BSPDriver/BSPCAN.c ****     if(canNum >= eCANNUM)
+  87              		.loc 1 104 0
+  88              		.cfi_startproc
+  89              		@ args = 0, pretend = 0, frame = 0
+ARM GAS  /tmp/cccdeKhJ.s 			page 8
+
+
+  90              		@ frame_needed = 0, uses_anonymous_args = 0
+  91              	.LVL3:
+  92 0000 10B5     		push	{r4, lr}
+  93              	.LCFI1:
+  94              		.cfi_def_cfa_offset 8
+  95              		.cfi_offset 4, -8
+  96              		.cfi_offset 14, -4
+ 105:./Application/BSPSys/BSPDriver/BSPCAN.c ****     {
+  97              		.loc 1 105 0
+  98 0002 0028     		cmp	r0, #0
+  99 0004 08D1     		bne	.L8
+ 109:./Application/BSPSys/BSPDriver/BSPCAN.c ****     {
+ 100              		.loc 1 109 0 discriminator 1
+ 101 0006 054B     		ldr	r3, .L13
+ 102 0008 1A88     		ldrh	r2, [r3]
+ 103 000a D207     		lsls	r2, r2, #31
+ 104 000c 04D5     		bpl	.L8
+ 105              	.LVL4:
+ 106              	.LBB10:
+ 107              	.LBB11:
+ 116:./Application/BSPSys/BSPDriver/BSPCAN.c ****             {
+ 108              		.loc 1 116 0
+ 109 000e 1B88     		ldrh	r3, [r3]
+ 110 0010 DB07     		lsls	r3, r3, #31
+ 111 0012 01D5     		bpl	.L8
+ 118:./Application/BSPSys/BSPDriver/BSPCAN.c ****                 // fdcan1_config();
+ 112              		.loc 1 118 0
+ 113 0014 FFF7FEFF 		bl	MX_FDCAN1_Init
+ 114              	.LVL5:
+ 115              	.L8:
+ 116              	.LBE11:
+ 117              	.LBE10:
+ 132:./Application/BSPSys/BSPDriver/BSPCAN.c **** 
+ 118              		.loc 1 132 0
+ 119              		@ sp needed
+ 120 0018 10BD     		pop	{r4, pc}
+ 121              	.L14:
+ 122 001a C046     		.align	2
+ 123              	.L13:
+ 124 001c 00000000 		.word	gBSPFunCfg
+ 125              		.cfi_endproc
+ 126              	.LFE494:
+ 128              		.section	.text.BSPCANSendMsg,"ax",%progbits
+ 129              		.align	1
+ 130              		.global	BSPCANSendMsg
+ 131              		.syntax unified
+ 132              		.code	16
+ 133              		.thumb_func
+ 134              		.fpu softvfp
+ 136              	BSPCANSendMsg:
+ 137              	.LFB495:
+ 142:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	static u8 failureCountCAN1 = 0; // CAN0 发送失败计数器  
+ 138              		.loc 1 142 0
+ 139              		.cfi_startproc
+ 140              		@ args = 0, pretend = 0, frame = 40
+ 141              		@ frame_needed = 0, uses_anonymous_args = 0
+ 142              	.LVL6:
+ARM GAS  /tmp/cccdeKhJ.s 			page 9
+
+
+ 143 0000 70B5     		push	{r4, r5, r6, lr}
+ 144              	.LCFI2:
+ 145              		.cfi_def_cfa_offset 16
+ 146              		.cfi_offset 4, -16
+ 147              		.cfi_offset 5, -12
+ 148              		.cfi_offset 6, -8
+ 149              		.cfi_offset 14, -4
+ 145:./Application/BSPSys/BSPDriver/BSPCAN.c ****     {
+ 150              		.loc 1 145 0
+ 151 0002 0B79     		ldrb	r3, [r1, #4]
+ 142:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	static u8 failureCountCAN1 = 0; // CAN0 发送失败计数器  
+ 152              		.loc 1 142 0
+ 153 0004 8AB0     		sub	sp, sp, #40
+ 154              	.LCFI3:
+ 155              		.cfi_def_cfa_offset 56
+ 142:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	static u8 failureCountCAN1 = 0; // CAN0 发送失败计数器  
+ 156              		.loc 1 142 0
+ 157 0006 0400     		movs	r4, r0
+ 158 0008 0D00     		movs	r5, r1
+ 145:./Application/BSPSys/BSPDriver/BSPCAN.c ****     {
+ 159              		.loc 1 145 0
+ 160 000a 002B     		cmp	r3, #0
+ 161 000c 03D1     		bne	.L16
+ 162              	.LVL7:
+ 163              	.L19:
+ 147:./Application/BSPSys/BSPDriver/BSPCAN.c ****     }
+ 164              		.loc 1 147 0
+ 165 000e 0026     		movs	r6, #0
+ 166              	.L17:
+ 198:./Application/BSPSys/BSPDriver/BSPCAN.c **** 
+ 167              		.loc 1 198 0
+ 168 0010 3000     		movs	r0, r6
+ 169 0012 0AB0     		add	sp, sp, #40
+ 170              		@ sp needed
+ 171 0014 70BD     		pop	{r4, r5, r6, pc}
+ 172              	.LVL8:
+ 173              	.L16:
+ 150:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	{
+ 174              		.loc 1 150 0
+ 175 0016 0028     		cmp	r0, #0
+ 176 0018 03D1     		bne	.L18
+ 150:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	{
+ 177              		.loc 1 150 0 is_stmt 0 discriminator 1
+ 178 001a 2F4A     		ldr	r2, .L33
+ 179 001c 1288     		ldrh	r2, [r2]
+ 180 001e D207     		lsls	r2, r2, #31
+ 181 0020 F5D5     		bpl	.L19
+ 182              	.L18:
+ 156:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	TxHeader.IdType = FDCAN_EXTENDED_ID;
+ 183              		.loc 1 156 0 is_stmt 1
+ 184 0022 2A68     		ldr	r2, [r5]
+ 185 0024 0192     		str	r2, [sp, #4]
+ 157:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	TxHeader.TxFrameType = FDCAN_DATA_FRAME;
+ 186              		.loc 1 157 0
+ 187 0026 8022     		movs	r2, #128
+ 188 0028 D205     		lsls	r2, r2, #23
+ 189 002a 0292     		str	r2, [sp, #8]
+ARM GAS  /tmp/cccdeKhJ.s 			page 10
+
+
+ 158:./Application/BSPSys/BSPDriver/BSPCAN.c ****         if(msg->Len<=8)
+ 190              		.loc 1 158 0
+ 191 002c 0022     		movs	r2, #0
+ 192 002e 0392     		str	r2, [sp, #12]
+ 159:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		TxHeader.DataLength =  msg->Len;
+ 193              		.loc 1 159 0
+ 194 0030 082B     		cmp	r3, #8
+ 195 0032 00D8     		bhi	.L20
+ 160:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	if(msg->Len<=12&&msg->Len>8)
+ 196              		.loc 1 160 0
+ 197 0034 0493     		str	r3, [sp, #16]
+ 198              	.L20:
+ 161:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		TxHeader.DataLength = FDCAN_DLC_BYTES_12;
+ 199              		.loc 1 161 0
+ 200 0036 1A00     		movs	r2, r3
+ 201 0038 093A     		subs	r2, r2, #9
+ 202 003a 032A     		cmp	r2, #3
+ 203 003c 01D8     		bhi	.L21
+ 162:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	if(msg->Len<=16&&msg->Len>12)
+ 204              		.loc 1 162 0
+ 205 003e 0922     		movs	r2, #9
+ 206 0040 0492     		str	r2, [sp, #16]
+ 207              	.L21:
+ 163:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		TxHeader.DataLength = FDCAN_DLC_BYTES_16;
+ 208              		.loc 1 163 0
+ 209 0042 1A00     		movs	r2, r3
+ 210 0044 0D3A     		subs	r2, r2, #13
+ 211 0046 032A     		cmp	r2, #3
+ 212 0048 01D8     		bhi	.L22
+ 164:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	if(msg->Len<=20&&msg->Len>16)
+ 213              		.loc 1 164 0
+ 214 004a 0A22     		movs	r2, #10
+ 215 004c 0492     		str	r2, [sp, #16]
+ 216              	.L22:
+ 165:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		TxHeader.DataLength = FDCAN_DLC_BYTES_20;
+ 217              		.loc 1 165 0
+ 218 004e 1A00     		movs	r2, r3
+ 219 0050 113A     		subs	r2, r2, #17
+ 220 0052 032A     		cmp	r2, #3
+ 221 0054 01D8     		bhi	.L23
+ 166:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	if(msg->Len<=24&&msg->Len>20)
+ 222              		.loc 1 166 0
+ 223 0056 0B22     		movs	r2, #11
+ 224 0058 0492     		str	r2, [sp, #16]
+ 225              	.L23:
+ 167:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		TxHeader.DataLength = FDCAN_DLC_BYTES_24;
+ 226              		.loc 1 167 0
+ 227 005a 1A00     		movs	r2, r3
+ 228 005c 153A     		subs	r2, r2, #21
+ 229 005e 032A     		cmp	r2, #3
+ 230 0060 01D8     		bhi	.L24
+ 168:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	if(msg->Len<=32&&msg->Len>24)
+ 231              		.loc 1 168 0
+ 232 0062 0C22     		movs	r2, #12
+ 233 0064 0492     		str	r2, [sp, #16]
+ 234              	.L24:
+ 169:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		TxHeader.DataLength = FDCAN_DLC_BYTES_32;
+ARM GAS  /tmp/cccdeKhJ.s 			page 11
+
+
+ 235              		.loc 1 169 0
+ 236 0066 1A00     		movs	r2, r3
+ 237 0068 193A     		subs	r2, r2, #25
+ 238 006a 072A     		cmp	r2, #7
+ 239 006c 01D8     		bhi	.L25
+ 170:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	if(msg->Len<=48&&msg->Len>32)
+ 240              		.loc 1 170 0
+ 241 006e 0D22     		movs	r2, #13
+ 242 0070 0492     		str	r2, [sp, #16]
+ 243              	.L25:
+ 171:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		TxHeader.DataLength = FDCAN_DLC_BYTES_48;
+ 244              		.loc 1 171 0
+ 245 0072 1A00     		movs	r2, r3
+ 246 0074 213A     		subs	r2, r2, #33
+ 247 0076 0F2A     		cmp	r2, #15
+ 248 0078 01D8     		bhi	.L26
+ 172:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	if(msg->Len<=64&&msg->Len>48)
+ 249              		.loc 1 172 0
+ 250 007a 0E22     		movs	r2, #14
+ 251 007c 0492     		str	r2, [sp, #16]
+ 252              	.L26:
+ 173:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		TxHeader.DataLength = FDCAN_DLC_BYTES_64;
+ 253              		.loc 1 173 0
+ 254 007e 313B     		subs	r3, r3, #49
+ 255 0080 0F2B     		cmp	r3, #15
+ 256 0082 01D8     		bhi	.L27
+ 174:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	TxHeader.ErrorStateIndicator = FDCAN_ESI_ACTIVE;
+ 257              		.loc 1 174 0
+ 258 0084 0F23     		movs	r3, #15
+ 259 0086 0493     		str	r3, [sp, #16]
+ 260              	.L27:
+ 176:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	TxHeader.FDFormat = FDCAN_FD_CAN;
+ 261              		.loc 1 176 0
+ 262 0088 8022     		movs	r2, #128
+ 263 008a 5203     		lsls	r2, r2, #13
+ 264 008c 0692     		str	r2, [sp, #24]
+ 177:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	TxHeader.TxEventFifoControl = FDCAN_NO_TX_EVENTS;
+ 265              		.loc 1 177 0
+ 266 008e 8022     		movs	r2, #128
+ 175:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	TxHeader.BitRateSwitch = FDCAN_BRS_ON;
+ 267              		.loc 1 175 0
+ 268 0090 0023     		movs	r3, #0
+ 177:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	TxHeader.TxEventFifoControl = FDCAN_NO_TX_EVENTS;
+ 269              		.loc 1 177 0
+ 270 0092 9203     		lsls	r2, r2, #14
+ 175:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	TxHeader.BitRateSwitch = FDCAN_BRS_ON;
+ 271              		.loc 1 175 0
+ 272 0094 0593     		str	r3, [sp, #20]
+ 177:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	TxHeader.TxEventFifoControl = FDCAN_NO_TX_EVENTS;
+ 273              		.loc 1 177 0
+ 274 0096 0792     		str	r2, [sp, #28]
+ 178:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	TxHeader.MessageMarker = 0;
+ 275              		.loc 1 178 0
+ 276 0098 0893     		str	r3, [sp, #32]
+ 179:./Application/BSPSys/BSPDriver/BSPCAN.c **** 
+ 277              		.loc 1 179 0
+ 278 009a 0993     		str	r3, [sp, #36]
+ARM GAS  /tmp/cccdeKhJ.s 			page 12
+
+
+ 197:./Application/BSPSys/BSPDriver/BSPCAN.c **** }
+ 279              		.loc 1 197 0
+ 280 009c 0126     		movs	r6, #1
+ 181:./Application/BSPSys/BSPDriver/BSPCAN.c ****     {	
+ 281              		.loc 1 181 0
+ 282 009e 9C42     		cmp	r4, r3
+ 283 00a0 B6D1     		bne	.L17
+ 183:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		if(HAL_OK != HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &TxHeader,msg->Data))
+ 284              		.loc 1 183 0
+ 285 00a2 FFF7FEFF 		bl	BSP_DISABLE_IRQ
+ 286              	.LVL9:
+ 184:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		{
+ 287              		.loc 1 184 0
+ 288 00a6 6A1D     		adds	r2, r5, #5
+ 289 00a8 01A9     		add	r1, sp, #4
+ 290 00aa 0C48     		ldr	r0, .L33+4
+ 291 00ac FFF7FEFF 		bl	HAL_FDCAN_AddMessageToTxFifoQ
+ 292              	.LVL10:
+ 293 00b0 0028     		cmp	r0, #0
+ 294 00b2 0DD0     		beq	.L28
+ 186:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		     BSP_ENABLE_IRQ();//开中断
+ 295              		.loc 1 186 0
+ 296 00b4 0A4D     		ldr	r5, .L33+8
+ 297              	.LVL11:
+ 298 00b6 2B78     		ldrb	r3, [r5]
+ 299 00b8 9B19     		adds	r3, r3, r6
+ 300 00ba 2B70     		strb	r3, [r5]
+ 187:./Application/BSPSys/BSPDriver/BSPCAN.c **** 			 if (failureCountCAN1 >= 50 )
+ 301              		.loc 1 187 0
+ 302 00bc FFF7FEFF 		bl	BSP_ENABLE_IRQ
+ 303              	.LVL12:
+ 188:./Application/BSPSys/BSPDriver/BSPCAN.c **** 			 {
+ 304              		.loc 1 188 0
+ 305 00c0 2B78     		ldrb	r3, [r5]
+ 306 00c2 312B     		cmp	r3, #49
+ 307 00c4 A3D9     		bls	.L19
+ 191:./Application/BSPSys/BSPDriver/BSPCAN.c **** 			 }
+ 308              		.loc 1 191 0
+ 309 00c6 2000     		movs	r0, r4
+ 190:./Application/BSPSys/BSPDriver/BSPCAN.c **** 				BSPCANInit(eCAN1);
+ 310              		.loc 1 190 0
+ 311 00c8 2C70     		strb	r4, [r5]
+ 191:./Application/BSPSys/BSPDriver/BSPCAN.c **** 			 }
+ 312              		.loc 1 191 0
+ 313 00ca FFF7FEFF 		bl	BSPCANInit
+ 314              	.LVL13:
+ 315 00ce 9EE7     		b	.L19
+ 316              	.LVL14:
+ 317              	.L28:
+ 195:./Application/BSPSys/BSPDriver/BSPCAN.c ****     }
+ 318              		.loc 1 195 0
+ 319 00d0 FFF7FEFF 		bl	BSP_ENABLE_IRQ
+ 320              	.LVL15:
+ 321 00d4 9CE7     		b	.L17
+ 322              	.L34:
+ 323 00d6 C046     		.align	2
+ 324              	.L33:
+ARM GAS  /tmp/cccdeKhJ.s 			page 13
+
+
+ 325 00d8 00000000 		.word	gBSPFunCfg
+ 326 00dc 00000000 		.word	hfdcan1
+ 327 00e0 00000000 		.word	.LANCHOR0
+ 328              		.cfi_endproc
+ 329              	.LFE495:
+ 331              		.section	.text.BSPCANSendQin,"ax",%progbits
+ 332              		.align	1
+ 333              		.global	BSPCANSendQin
+ 334              		.syntax unified
+ 335              		.code	16
+ 336              		.thumb_func
+ 337              		.fpu softvfp
+ 339              	BSPCANSendQin:
+ 340              	.LFB496:
+ 208:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	//模块未使能
+ 341              		.loc 1 208 0
+ 342              		.cfi_startproc
+ 343              		@ args = 0, pretend = 0, frame = 0
+ 344              		@ frame_needed = 0, uses_anonymous_args = 0
+ 345              	.LVL16:
+ 346 0000 10B5     		push	{r4, lr}
+ 347              	.LCFI4:
+ 348              		.cfi_def_cfa_offset 8
+ 349              		.cfi_offset 4, -8
+ 350              		.cfi_offset 14, -4
+ 210:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	{
+ 351              		.loc 1 210 0
+ 352 0002 0028     		cmp	r0, #0
+ 353 0004 03D0     		beq	.L36
+ 212:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	}
+ 354              		.loc 1 212 0 discriminator 1
+ 355 0006 0020     		movs	r0, #0
+ 356              	.LVL17:
+ 210:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	{
+ 357              		.loc 1 210 0 discriminator 1
+ 358 0008 034B     		ldr	r3, .L38
+ 359 000a 1B88     		ldrh	r3, [r3]
+ 360              	.LVL18:
+ 361              	.L37:
+ 222:./Application/BSPSys/BSPDriver/BSPCAN.c **** 
+ 362              		.loc 1 222 0
+ 363              		@ sp needed
+ 364 000c 10BD     		pop	{r4, pc}
+ 365              	.LVL19:
+ 366              	.L36:
+ 219:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	
+ 367              		.loc 1 219 0
+ 368 000e 0348     		ldr	r0, .L38+4
+ 369              	.LVL20:
+ 370 0010 FFF7FEFF 		bl	QueIn
+ 371              	.LVL21:
+ 221:./Application/BSPSys/BSPDriver/BSPCAN.c **** }
+ 372              		.loc 1 221 0
+ 373 0014 FAE7     		b	.L37
+ 374              	.L39:
+ 375 0016 C046     		.align	2
+ 376              	.L38:
+ARM GAS  /tmp/cccdeKhJ.s 			page 14
+
+
+ 377 0018 00000000 		.word	gBSPFunCfg
+ 378 001c 00000000 		.word	sCANSendBuff
+ 379              		.cfi_endproc
+ 380              	.LFE496:
+ 382              		.section	.text.BSPCANSendTask,"ax",%progbits
+ 383              		.align	1
+ 384              		.global	BSPCANSendTask
+ 385              		.syntax unified
+ 386              		.code	16
+ 387              		.thumb_func
+ 388              		.fpu softvfp
+ 390              	BSPCANSendTask:
+ 391              	.LFB497:
+ 232:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	u8 index = 0;
+ 392              		.loc 1 232 0
+ 393              		.cfi_startproc
+ 394              		@ args = 0, pretend = 0, frame = 0
+ 395              		@ frame_needed = 0, uses_anonymous_args = 0
+ 396              	.LVL22:
+ 397 0000 70B5     		push	{r4, r5, r6, lr}
+ 398              	.LCFI5:
+ 399              		.cfi_def_cfa_offset 16
+ 400              		.cfi_offset 4, -16
+ 401              		.cfi_offset 5, -12
+ 402              		.cfi_offset 6, -8
+ 403              		.cfi_offset 14, -4
+ 240:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		{
+ 404              		.loc 1 240 0
+ 405 0002 0E4E     		ldr	r6, .L48
+ 406 0004 3000     		movs	r0, r6
+ 407 0006 FFF7FEFF 		bl	QueGetUnitNum
+ 408              	.LVL23:
+ 409 000a 0028     		cmp	r0, #0
+ 410 000c 09D0     		beq	.L40
+ 242:./Application/BSPSys/BSPDriver/BSPCAN.c **** 			{
+ 411              		.loc 1 242 0
+ 412 000e 0C4C     		ldr	r4, .L48+4
+ 413 0010 0C4D     		ldr	r5, .L48+8
+ 414 0012 2078     		ldrb	r0, [r4]
+ 244:./Application/BSPSys/BSPDriver/BSPCAN.c **** 				sHisErr[index] = TRUE;
+ 415              		.loc 1 244 0
+ 416 0014 2900     		movs	r1, r5
+ 242:./Application/BSPSys/BSPDriver/BSPCAN.c **** 			{
+ 417              		.loc 1 242 0
+ 418 0016 0028     		cmp	r0, #0
+ 419 0018 04D1     		bne	.L43
+ 244:./Application/BSPSys/BSPDriver/BSPCAN.c **** 				sHisErr[index] = TRUE;
+ 420              		.loc 1 244 0
+ 421 001a FFF7FEFF 		bl	BSPCANSendMsg
+ 422              	.LVL24:
+ 245:./Application/BSPSys/BSPDriver/BSPCAN.c **** 			}
+ 423              		.loc 1 245 0
+ 424 001e 0123     		movs	r3, #1
+ 425 0020 2370     		strb	r3, [r4]
+ 426              	.LVL25:
+ 427              	.L40:
+ 254:./Application/BSPSys/BSPDriver/BSPCAN.c **** 
+ARM GAS  /tmp/cccdeKhJ.s 			page 15
+
+
+ 428              		.loc 1 254 0
+ 429              		@ sp needed
+ 430 0022 70BD     		pop	{r4, r5, r6, pc}
+ 431              	.LVL26:
+ 432              	.L43:
+ 247:./Application/BSPSys/BSPDriver/BSPCAN.c **** 			{
+ 433              		.loc 1 247 0
+ 434 0024 3000     		movs	r0, r6
+ 435 0026 FFF7FEFF 		bl	QueOut
+ 436              	.LVL27:
+ 437 002a 0028     		cmp	r0, #0
+ 438 002c F9D0     		beq	.L40
+ 249:./Application/BSPSys/BSPDriver/BSPCAN.c **** 			}
+ 439              		.loc 1 249 0
+ 440 002e 2900     		movs	r1, r5
+ 441 0030 0020     		movs	r0, #0
+ 442 0032 FFF7FEFF 		bl	BSPCANSendMsg
+ 443              	.LVL28:
+ 444 0036 2070     		strb	r0, [r4]
+ 445              	.LVL29:
+ 254:./Application/BSPSys/BSPDriver/BSPCAN.c **** 
+ 446              		.loc 1 254 0
+ 447 0038 F3E7     		b	.L40
+ 448              	.L49:
+ 449 003a C046     		.align	2
+ 450              	.L48:
+ 451 003c 00000000 		.word	sCANSendBuff
+ 452 0040 00000000 		.word	.LANCHOR1
+ 453 0044 00000000 		.word	.LANCHOR2
+ 454              		.cfi_endproc
+ 455              	.LFE497:
+ 457              		.section	.text.BSPCANRcvTask,"ax",%progbits
+ 458              		.align	1
+ 459              		.global	BSPCANRcvTask
+ 460              		.syntax unified
+ 461              		.code	16
+ 462              		.thumb_func
+ 463              		.fpu softvfp
+ 465              	BSPCANRcvTask:
+ 466              	.LFB498:
+ 264:./Application/BSPSys/BSPDriver/BSPCAN.c ****     u8 index = 0;
+ 467              		.loc 1 264 0
+ 468              		.cfi_startproc
+ 469              		@ args = 0, pretend = 0, frame = 72
+ 470              		@ frame_needed = 0, uses_anonymous_args = 0
+ 471              	.LVL30:
+ 472 0000 30B5     		push	{r4, r5, lr}
+ 473              	.LCFI6:
+ 474              		.cfi_def_cfa_offset 12
+ 475              		.cfi_offset 4, -12
+ 476              		.cfi_offset 5, -8
+ 477              		.cfi_offset 14, -4
+ 478              	.LBB14:
+ 479              	.LBB15:
+ 310:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	sCANRcvCyBuf[canNum].FullFlag   = 0;   
+ 311:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	sCANRcvCyBuf[canNum].ReadPoint  = 0;
+ 312:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	sCANRcvCyBuf[canNum].WritePoint = 0;
+ARM GAS  /tmp/cccdeKhJ.s 			page 16
+
+
+ 313:./Application/BSPSys/BSPDriver/BSPCAN.c **** }
+ 314:./Application/BSPSys/BSPDriver/BSPCAN.c **** 
+ 315:./Application/BSPSys/BSPDriver/BSPCAN.c **** /*=============================================================================================
+ 316:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Name      : static u8 CANWriteRcvCyBuf(e_CANNUM canNum, FDCAN_RxHeaderTypeDef *pRxMsg,u8 * data
+ 317:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Input     : canNum:CAN通道号, *pRcvMsg:CAN信息结构体接收数据指针, u8 * data：读
+ 318:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Output    : TRUE:成功 FALSE:失败
+ 319:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Function  : CAN接收中断函数将CAN报文写入接收环形缓冲区
+ 320:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @The notes :
+ 321:./Application/BSPSys/BSPDriver/BSPCAN.c **** **===========================================================================================*/
+ 322:./Application/BSPSys/BSPDriver/BSPCAN.c **** static u8 CANWriteRcvCyBuf(e_CANNUM canNum, FDCAN_RxHeaderTypeDef *pRxMsg,u8 * data)
+ 323:./Application/BSPSys/BSPDriver/BSPCAN.c **** {
+ 324:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	
+ 325:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	u8 i = 0;
+ 326:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	u8 result = 0;
+ 327:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	u8 wrtPoint = 0;
+ 328:./Application/BSPSys/BSPDriver/BSPCAN.c **** 
+ 329:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	if((canNum >= eCANNUM) || (pRxMsg == (void *)0))
+ 330:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	{
+ 331:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		return(FALSE);
+ 332:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	}
+ 333:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	//模块未使能
+ 334:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	if(canNum == eCAN1 && 1 != gBSPFunCfg.Bits.CAN1En)
+ 335:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	{
+ 336:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		return(FALSE);
+ 337:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	}
+ 338:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	//软件过滤
+ 339:./Application/BSPSys/BSPDriver/BSPCAN.c ****     // if((canNum == eCAN1) && (((pRxMsg->Identifier >> 8) & 0xff) != gSystemInfo.Addr && ((pRxMsg-
+ 340:./Application/BSPSys/BSPDriver/BSPCAN.c ****     //        && ((pRxMsg->Identifier & 0xff) != gSystemInfo.Addr && (pRxMsg->Identifier & 0xff) !=
+ 341:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	// {
+ 342:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	// 	return(FALSE);
+ 343:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	// }
+ 344:./Application/BSPSys/BSPDriver/BSPCAN.c **** 
+ 345:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	//计算缓冲区未处理信息
+ 346:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	if(sCANCyUnDealNum[canNum] < 0xff)
+ 347:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	{
+ 348:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		sCANCyUnDealNum[canNum]++;
+ 349:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	}
+ 350:./Application/BSPSys/BSPDriver/BSPCAN.c **** 
+ 351:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	//获得缓冲区写入点
+ 352:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	wrtPoint = sCANRcvCyBuf[canNum].WritePoint;
+ 353:./Application/BSPSys/BSPDriver/BSPCAN.c **** 
+ 354:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	//缓冲区未满
+ 355:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	if((0 == sCANRcvCyBuf[canNum].FullFlag))
+ 356:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	{
+ 357:./Application/BSPSys/BSPDriver/BSPCAN.c ****         sCANRcvCyBuf[canNum].RcvBuf[wrtPoint].ID = pRxMsg->Identifier;
+ 358:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		//写长度
+ 359:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		sCANRcvCyBuf[canNum].RcvBuf[wrtPoint].Len = GetCanFdMessageLength(pRxMsg->DataLength);		
+ 360:./Application/BSPSys/BSPDriver/BSPCAN.c **** 
+ 361:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		//写数据
+ 362:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		for (i = 0; i < sCANRcvCyBuf[canNum].RcvBuf[wrtPoint].Len; i++)
+ 363:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		{
+ 364:./Application/BSPSys/BSPDriver/BSPCAN.c **** 			sCANRcvCyBuf[canNum].RcvBuf[wrtPoint].Data[i] = data[i];
+ 365:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		}
+ 366:./Application/BSPSys/BSPDriver/BSPCAN.c **** 
+ 367:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		//判断写缓冲指针是否超过最大值
+ 368:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		if(++sCANRcvCyBuf[canNum].WritePoint >= CAN_RCV_CYBUF)
+ 369:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		{
+ARM GAS  /tmp/cccdeKhJ.s 			page 17
+
+
+ 370:./Application/BSPSys/BSPDriver/BSPCAN.c **** 			sCANRcvCyBuf[canNum].WritePoint= 0;
+ 371:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		}
+ 372:./Application/BSPSys/BSPDriver/BSPCAN.c **** 
+ 373:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		//判断读指针是否等于写指针
+ 374:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		if(sCANRcvCyBuf[canNum].WritePoint == sCANRcvCyBuf[canNum].ReadPoint)
+ 375:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		{
+ 376:./Application/BSPSys/BSPDriver/BSPCAN.c **** 			sCANRcvCyBuf[canNum].FullFlag = 1;
+ 377:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		}
+ 378:./Application/BSPSys/BSPDriver/BSPCAN.c **** 
+ 379:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		result = TRUE;
+ 380:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	}
+ 381:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	//缓冲区写满
+ 382:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	else
+ 383:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	{
+ 384:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		result = FALSE;
+ 385:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	}
+ 386:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	return(result);
+ 387:./Application/BSPSys/BSPDriver/BSPCAN.c **** }
+ 388:./Application/BSPSys/BSPDriver/BSPCAN.c **** 
+ 389:./Application/BSPSys/BSPDriver/BSPCAN.c **** /*=============================================================================================
+ 390:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Name      : static u8 CANReadRcvCyBuf(e_CANNUM canNum, t_CANMSG *pRcvMsg)
+ 391:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Input     : canNum:CAN通道号, *pRcvMsg:CAN信息结构体接收数据指针
+ 392:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Output    : TRUE:成功 FALSE:失败
+ 393:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Function  : CAN接收处理任务读CAN接收环形缓冲区信息出来处理
+ 394:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @The notes :
+ 395:./Application/BSPSys/BSPDriver/BSPCAN.c **** **===========================================================================================*/
+ 396:./Application/BSPSys/BSPDriver/BSPCAN.c **** static u8 CANReadRcvCyBuf(e_CANNUM canNum, t_CANMSG *pRcvMsg)
+ 397:./Application/BSPSys/BSPDriver/BSPCAN.c **** {
+ 398:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	u8 result = 0;
+ 399:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	
+ 400:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	if((canNum >= eCANNUM) || (pRcvMsg == (void *)0))
+ 401:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	{
+ 402:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		return(FALSE);
+ 403:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	}
+ 404:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	//模块未使能
+ 405:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	if(canNum == eCAN1 && 1 != gBSPFunCfg.Bits.CAN1En)
+ 480              		.loc 1 405 0
+ 481 0002 154B     		ldr	r3, .L65
+ 482              	.LBE15:
+ 483              	.LBE14:
+ 264:./Application/BSPSys/BSPDriver/BSPCAN.c ****     u8 index = 0;
+ 484              		.loc 1 264 0
+ 485 0004 93B0     		sub	sp, sp, #76
+ 486              	.LCFI7:
+ 487              		.cfi_def_cfa_offset 88
+ 488              	.LVL31:
+ 489              	.LBB19:
+ 490              	.LBB16:
+ 491              		.loc 1 405 0
+ 492 0006 1B88     		ldrh	r3, [r3]
+ 493 0008 DB07     		lsls	r3, r3, #31
+ 494 000a 20D5     		bpl	.L50
+ 406:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	{
+ 407:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		return(FALSE);
+ 408:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	}
+ 409:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	//有数据则把数据从缓冲区中读出来
+ 410:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	if((sCANRcvCyBuf[canNum].ReadPoint != sCANRcvCyBuf[canNum].WritePoint)
+ARM GAS  /tmp/cccdeKhJ.s 			page 18
+
+
+ 495              		.loc 1 410 0
+ 496 000c 134D     		ldr	r5, .L65+4
+ 497 000e 6C78     		ldrb	r4, [r5, #1]
+ 498 0010 2B78     		ldrb	r3, [r5]
+ 499 0012 A342     		cmp	r3, r4
+ 500 0014 02D1     		bne	.L52
+ 411:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		|| (sCANRcvCyBuf[canNum].FullFlag != 0))
+ 501              		.loc 1 411 0
+ 502 0016 AB78     		ldrb	r3, [r5, #2]
+ 503 0018 002B     		cmp	r3, #0
+ 504 001a 18D0     		beq	.L50
+ 505              	.L52:
+ 412:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	{
+ 413:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		*pRcvMsg = sCANRcvCyBuf[canNum].RcvBuf[sCANRcvCyBuf[canNum].ReadPoint];
+ 506              		.loc 1 413 0
+ 507 001c 4822     		movs	r2, #72
+ 508 001e 1100     		movs	r1, r2
+ 509 0020 6143     		muls	r1, r4
+ 414:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		
+ 415:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		if(++sCANRcvCyBuf[canNum].ReadPoint >= CAN_RCV_CYBUF)
+ 510              		.loc 1 415 0
+ 511 0022 0134     		adds	r4, r4, #1
+ 413:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		
+ 512              		.loc 1 413 0
+ 513 0024 6918     		adds	r1, r5, r1
+ 514 0026 0431     		adds	r1, r1, #4
+ 515 0028 6846     		mov	r0, sp
+ 516              		.loc 1 415 0
+ 517 002a E4B2     		uxtb	r4, r4
+ 413:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		
+ 518              		.loc 1 413 0
+ 519 002c FFF7FEFF 		bl	memcpy
+ 520              	.LVL32:
+ 521 0030 0023     		movs	r3, #0
+ 522              		.loc 1 415 0
+ 523 0032 132C     		cmp	r4, #19
+ 524 0034 0DD8     		bhi	.L53
+ 525 0036 6C70     		strb	r4, [r5, #1]
+ 526              	.L54:
+ 527              	.LBE16:
+ 528              	.LBE19:
+ 274:./Application/BSPSys/BSPDriver/BSPCAN.c ****             {
+ 529              		.loc 1 274 0
+ 530 0038 094A     		ldr	r2, .L65+8
+ 531              	.LBB20:
+ 532              	.LBB17:
+ 416:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		{
+ 417:./Application/BSPSys/BSPDriver/BSPCAN.c **** 			sCANRcvCyBuf[canNum].ReadPoint = 0;
+ 418:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		}
+ 419:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		
+ 420:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		sCANRcvCyBuf[canNum].FullFlag = 0;
+ 533              		.loc 1 420 0
+ 534 003a AB70     		strb	r3, [r5, #2]
+ 535              	.LVL33:
+ 536              	.LBE17:
+ 537              	.LBE20:
+ 274:./Application/BSPSys/BSPDriver/BSPCAN.c ****             {
+ARM GAS  /tmp/cccdeKhJ.s 			page 19
+
+
+ 538              		.loc 1 274 0
+ 539 003c 1378     		ldrb	r3, [r2]
+ 540 003e 002B     		cmp	r3, #0
+ 541 0040 01D0     		beq	.L55
+ 276:./Application/BSPSys/BSPDriver/BSPCAN.c ****             }
+ 542              		.loc 1 276 0
+ 543 0042 013B     		subs	r3, r3, #1
+ 544 0044 1370     		strb	r3, [r2]
+ 545              	.L55:
+ 280:./Application/BSPSys/BSPDriver/BSPCAN.c ****         }
+ 546              		.loc 1 280 0
+ 547 0046 6946     		mov	r1, sp
+ 548 0048 0020     		movs	r0, #0
+ 549 004a FFF7FEFF 		bl	CANRcvMsgHandle_Hook
+ 550              	.LVL34:
+ 551              	.L50:
+ 284:./Application/BSPSys/BSPDriver/BSPCAN.c **** 
+ 552              		.loc 1 284 0
+ 553 004e 13B0     		add	sp, sp, #76
+ 554              		@ sp needed
+ 555 0050 30BD     		pop	{r4, r5, pc}
+ 556              	.LVL35:
+ 557              	.L53:
+ 558              	.LBB21:
+ 559              	.LBB18:
+ 417:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		}
+ 560              		.loc 1 417 0
+ 561 0052 6B70     		strb	r3, [r5, #1]
+ 562 0054 F0E7     		b	.L54
+ 563              	.L66:
+ 564 0056 C046     		.align	2
+ 565              	.L65:
+ 566 0058 00000000 		.word	gBSPFunCfg
+ 567 005c 00000000 		.word	sCANRcvCyBuf
+ 568 0060 00000000 		.word	.LANCHOR3
+ 569              	.LBE18:
+ 570              	.LBE21:
+ 571              		.cfi_endproc
+ 572              	.LFE498:
+ 574              		.section	.text.BSPCANLoop_test,"ax",%progbits
+ 575              		.align	1
+ 576              		.global	BSPCANLoop_test
+ 577              		.syntax unified
+ 578              		.code	16
+ 579              		.thumb_func
+ 580              		.fpu softvfp
+ 582              	BSPCANLoop_test:
+ 583              	.LFB502:
+ 421:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		
+ 422:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		result = TRUE;
+ 423:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	}
+ 424:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	//缓冲区无数据
+ 425:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	else 
+ 426:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	{
+ 427:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		result = FALSE;
+ 428:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	}
+ 429:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	
+ARM GAS  /tmp/cccdeKhJ.s 			page 20
+
+
+ 430:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	return(result);
+ 431:./Application/BSPSys/BSPDriver/BSPCAN.c **** }
+ 432:./Application/BSPSys/BSPDriver/BSPCAN.c **** 
+ 433:./Application/BSPSys/BSPDriver/BSPCAN.c **** /*=============================================================================================
+ 434:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Name      : u8 BSPCANLoop_test(e_CANNUM canNum)
+ 435:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Input     : canNum:通道号 
+ 436:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Output    : 发送结果:TRUE-成功 FALSE-失败
+ 437:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Function  : 
+ 438:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @The notes : CAN回环测试
+ 439:./Application/BSPSys/BSPDriver/BSPCAN.c **** **===========================================================================================*/
+ 440:./Application/BSPSys/BSPDriver/BSPCAN.c **** u8 BSPCANLoop_test(e_CANNUM canNum) 
+ 441:./Application/BSPSys/BSPDriver/BSPCAN.c **** {
+ 584              		.loc 1 441 0
+ 585              		.cfi_startproc
+ 586              		@ args = 0, pretend = 0, frame = 112
+ 587              		@ frame_needed = 0, uses_anonymous_args = 0
+ 588              	.LVL36:
+ 589 0000 70B5     		push	{r4, r5, r6, lr}
+ 590              	.LCFI8:
+ 591              		.cfi_def_cfa_offset 16
+ 592              		.cfi_offset 4, -16
+ 593              		.cfi_offset 5, -12
+ 594              		.cfi_offset 6, -8
+ 595              		.cfi_offset 14, -4
+ 442:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	t_CANMSG msg;
+ 443:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	FDCAN_RxHeaderTypeDef pRxHeader;
+ 444:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	u8 rx_flag = 0;
+ 445:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	msg.ID = 0xAAA;
+ 596              		.loc 1 445 0
+ 597 0002 124B     		ldr	r3, .L75
+ 441:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	t_CANMSG msg;
+ 598              		.loc 1 441 0
+ 599 0004 9CB0     		sub	sp, sp, #112
+ 600              	.LCFI9:
+ 601              		.cfi_def_cfa_offset 128
+ 602              		.loc 1 445 0
+ 603 0006 0A93     		str	r3, [sp, #40]
+ 446:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	msg.Len = 8;
+ 604              		.loc 1 446 0
+ 605 0008 0823     		movs	r3, #8
+ 445:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	msg.Len = 8;
+ 606              		.loc 1 445 0
+ 607 000a 0AAD     		add	r5, sp, #40
+ 441:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	t_CANMSG msg;
+ 608              		.loc 1 441 0
+ 609 000c 041E     		subs	r4, r0, #0
+ 610              		.loc 1 446 0
+ 611 000e 2B71     		strb	r3, [r5, #4]
+ 447:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	if(canNum == eCAN1)
+ 612              		.loc 1 447 0
+ 613 0010 02D0     		beq	.L68
+ 614              	.LVL37:
+ 615              	.L70:
+ 448:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	{
+ 449:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		if(HAL_FDCAN_GetRxFifoFillLevel(&hfdcan1, FDCAN_RX_FIFO0))
+ 450:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		{
+ 451:./Application/BSPSys/BSPDriver/BSPCAN.c **** 			if(HAL_OK != HAL_FDCAN_GetRxMessage(&hfdcan1, FDCAN_RX_FIFO0,&pRxHeader, msg.Data))
+ARM GAS  /tmp/cccdeKhJ.s 			page 21
+
+
+ 452:./Application/BSPSys/BSPDriver/BSPCAN.c **** 				return FALSE;
+ 453:./Application/BSPSys/BSPDriver/BSPCAN.c **** 			rx_flag ++;
+ 454:./Application/BSPSys/BSPDriver/BSPCAN.c **** 			
+ 455:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		}
+ 456:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	}
+ 457:./Application/BSPSys/BSPDriver/BSPCAN.c **** 
+ 458:./Application/BSPSys/BSPDriver/BSPCAN.c **** 
+ 459:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	if(rx_flag != 0)
+ 460:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	{
+ 461:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		if(FALSE == BSPCANSendMsg(canNum,&msg))
+ 462:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		{
+ 463:./Application/BSPSys/BSPDriver/BSPCAN.c **** 			return FALSE;
+ 464:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		}
+ 465:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	}
+ 466:./Application/BSPSys/BSPDriver/BSPCAN.c **** 
+ 467:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	return TRUE;
+ 616              		.loc 1 467 0
+ 617 0012 0120     		movs	r0, #1
+ 618              	.LVL38:
+ 619              	.L69:
+ 468:./Application/BSPSys/BSPDriver/BSPCAN.c **** }
+ 620              		.loc 1 468 0
+ 621 0014 1CB0     		add	sp, sp, #112
+ 622              		@ sp needed
+ 623 0016 70BD     		pop	{r4, r5, r6, pc}
+ 624              	.LVL39:
+ 625              	.L68:
+ 449:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		{
+ 626              		.loc 1 449 0
+ 627 0018 0D4E     		ldr	r6, .L75+4
+ 628 001a 4021     		movs	r1, #64
+ 629 001c 3000     		movs	r0, r6
+ 630              	.LVL40:
+ 631 001e FFF7FEFF 		bl	HAL_FDCAN_GetRxFifoFillLevel
+ 632              	.LVL41:
+ 633 0022 0028     		cmp	r0, #0
+ 634 0024 F5D0     		beq	.L70
+ 451:./Application/BSPSys/BSPDriver/BSPCAN.c **** 				return FALSE;
+ 635              		.loc 1 451 0
+ 636 0026 2D23     		movs	r3, #45
+ 637 0028 6A46     		mov	r2, sp
+ 638 002a 6B44     		add	r3, r3, sp
+ 639 002c 4021     		movs	r1, #64
+ 640 002e 3000     		movs	r0, r6
+ 641 0030 FFF7FEFF 		bl	HAL_FDCAN_GetRxMessage
+ 642              	.LVL42:
+ 643 0034 0300     		movs	r3, r0
+ 452:./Application/BSPSys/BSPDriver/BSPCAN.c **** 			rx_flag ++;
+ 644              		.loc 1 452 0
+ 645 0036 2000     		movs	r0, r4
+ 451:./Application/BSPSys/BSPDriver/BSPCAN.c **** 				return FALSE;
+ 646              		.loc 1 451 0
+ 647 0038 002B     		cmp	r3, #0
+ 648 003a EBD1     		bne	.L69
+ 649              	.LVL43:
+ 461:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		{
+ 650              		.loc 1 461 0
+ARM GAS  /tmp/cccdeKhJ.s 			page 22
+
+
+ 651 003c 2900     		movs	r1, r5
+ 652 003e FFF7FEFF 		bl	BSPCANSendMsg
+ 653              	.LVL44:
+ 654 0042 431E     		subs	r3, r0, #1
+ 655 0044 9841     		sbcs	r0, r0, r3
+ 452:./Application/BSPSys/BSPDriver/BSPCAN.c **** 			rx_flag ++;
+ 656              		.loc 1 452 0
+ 657 0046 C0B2     		uxtb	r0, r0
+ 658 0048 E4E7     		b	.L69
+ 659              	.L76:
+ 660 004a C046     		.align	2
+ 661              	.L75:
+ 662 004c AA0A0000 		.word	2730
+ 663 0050 00000000 		.word	hfdcan1
+ 664              		.cfi_endproc
+ 665              	.LFE502:
+ 667              		.section	.text.FDCAN_RxFifo0CallbackTypeDef,"ax",%progbits
+ 668              		.align	1
+ 669              		.global	FDCAN_RxFifo0CallbackTypeDef
+ 670              		.syntax unified
+ 671              		.code	16
+ 672              		.thumb_func
+ 673              		.fpu softvfp
+ 675              	FDCAN_RxFifo0CallbackTypeDef:
+ 676              	.LFB503:
+ 469:./Application/BSPSys/BSPDriver/BSPCAN.c **** 
+ 470:./Application/BSPSys/BSPDriver/BSPCAN.c **** /*=============================================================================================
+ 471:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Name      : void FDCAN_RxFifo0CallbackTypeDef(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
+ 472:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Input     : *hfdcan:can句柄  		RxFifo0ITs:
+ 473:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Output    : void
+ 474:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Function  : can接收回调函数，接收can报文硬件中断调用
+ 475:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @The notes : can初始化时注册
+ 476:./Application/BSPSys/BSPDriver/BSPCAN.c **** **===========================================================================================*/
+ 477:./Application/BSPSys/BSPDriver/BSPCAN.c **** void FDCAN_RxFifo0CallbackTypeDef(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
+ 478:./Application/BSPSys/BSPDriver/BSPCAN.c **** {
+ 677              		.loc 1 478 0
+ 678              		.cfi_startproc
+ 679              		@ args = 0, pretend = 0, frame = 104
+ 680              		@ frame_needed = 0, uses_anonymous_args = 0
+ 681              	.LVL45:
+ 682 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+ 683              	.LCFI10:
+ 684              		.cfi_def_cfa_offset 20
+ 685              		.cfi_offset 4, -20
+ 686              		.cfi_offset 5, -16
+ 687              		.cfi_offset 6, -12
+ 688              		.cfi_offset 7, -8
+ 689              		.cfi_offset 14, -4
+ 690 0002 0500     		movs	r5, r0
+ 691 0004 9BB0     		sub	sp, sp, #108
+ 692              	.LCFI11:
+ 693              		.cfi_def_cfa_offset 128
+ 479:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	FDCAN_RxHeaderTypeDef pRxHeader;
+ 480:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	u8 rd_data[64] = {0};
+ 694              		.loc 1 480 0
+ 695 0006 0AAC     		add	r4, sp, #40
+ 696 0008 4022     		movs	r2, #64
+ARM GAS  /tmp/cccdeKhJ.s 			page 23
+
+
+ 697 000a 0021     		movs	r1, #0
+ 698              	.LVL46:
+ 699 000c 2000     		movs	r0, r4
+ 700              	.LVL47:
+ 701 000e FFF7FEFF 		bl	memset
+ 702              	.LVL48:
+ 481:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	if(HAL_OK != HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO0,&pRxHeader, rd_data))
+ 703              		.loc 1 481 0
+ 704 0012 2300     		movs	r3, r4
+ 705 0014 6A46     		mov	r2, sp
+ 706 0016 4021     		movs	r1, #64
+ 707 0018 2800     		movs	r0, r5
+ 708 001a FFF7FEFF 		bl	HAL_FDCAN_GetRxMessage
+ 709              	.LVL49:
+ 710 001e 0028     		cmp	r0, #0
+ 711 0020 37D1     		bne	.L77
+ 482:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	{
+ 483:./Application/BSPSys/BSPDriver/BSPCAN.c ****             // Error_Handler();
+ 484:./Application/BSPSys/BSPDriver/BSPCAN.c **** 			return;
+ 485:./Application/BSPSys/BSPDriver/BSPCAN.c **** 			
+ 486:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	}
+ 487:./Application/BSPSys/BSPDriver/BSPCAN.c ****         if(hfdcan->Instance == FDCAN1)
+ 712              		.loc 1 487 0
+ 713 0022 274B     		ldr	r3, .L102
+ 714 0024 2A68     		ldr	r2, [r5]
+ 715 0026 9A42     		cmp	r2, r3
+ 716 0028 33D1     		bne	.L77
+ 717              	.LVL50:
+ 718              	.LBB26:
+ 719              	.LBB27:
+ 334:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	{
+ 720              		.loc 1 334 0
+ 721 002a 264B     		ldr	r3, .L102+4
+ 722 002c 1B88     		ldrh	r3, [r3]
+ 723 002e DB07     		lsls	r3, r3, #31
+ 724 0030 2FD5     		bpl	.L77
+ 346:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	{
+ 725              		.loc 1 346 0
+ 726 0032 254A     		ldr	r2, .L102+8
+ 727 0034 1378     		ldrb	r3, [r2]
+ 728 0036 FF2B     		cmp	r3, #255
+ 729 0038 01D0     		beq	.L81
+ 348:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	}
+ 730              		.loc 1 348 0
+ 731 003a 0133     		adds	r3, r3, #1
+ 732 003c 1370     		strb	r3, [r2]
+ 733              	.L81:
+ 734              	.LVL51:
+ 355:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	{
+ 735              		.loc 1 355 0
+ 736 003e 234A     		ldr	r2, .L102+12
+ 737 0040 9378     		ldrb	r3, [r2, #2]
+ 738 0042 002B     		cmp	r3, #0
+ 739 0044 25D1     		bne	.L77
+ 352:./Application/BSPSys/BSPDriver/BSPCAN.c **** 
+ 740              		.loc 1 352 0
+ 741 0046 1178     		ldrb	r1, [r2]
+ARM GAS  /tmp/cccdeKhJ.s 			page 24
+
+
+ 357:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		//写长度
+ 742              		.loc 1 357 0
+ 743 0048 4833     		adds	r3, r3, #72
+ 744 004a 4B43     		muls	r3, r1
+ 745 004c 0098     		ldr	r0, [sp]
+ 746 004e D318     		adds	r3, r2, r3
+ 747 0050 5860     		str	r0, [r3, #4]
+ 359:./Application/BSPSys/BSPDriver/BSPCAN.c **** 
+ 748              		.loc 1 359 0
+ 749 0052 039B     		ldr	r3, [sp, #12]
+ 750 0054 DBB2     		uxtb	r3, r3
+ 751              	.LVL52:
+ 752              	.LBB28:
+ 753              	.LBB29:
+ 488:./Application/BSPSys/BSPDriver/BSPCAN.c ****         {
+ 489:./Application/BSPSys/BSPDriver/BSPCAN.c ****             CANWriteRcvCyBuf(eCAN1,&pRxHeader,rd_data);
+ 490:./Application/BSPSys/BSPDriver/BSPCAN.c ****         }
+ 491:./Application/BSPSys/BSPDriver/BSPCAN.c **** 	
+ 492:./Application/BSPSys/BSPDriver/BSPCAN.c **** }
+ 493:./Application/BSPSys/BSPDriver/BSPCAN.c **** 
+ 494:./Application/BSPSys/BSPDriver/BSPCAN.c **** /*=============================================================================================
+ 495:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Name      : static u8 GetCanFdMessageLength(u8 length)
+ 496:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Input     : length:数据长度
+ 497:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Output    : void
+ 498:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @Function  : 
+ 499:./Application/BSPSys/BSPDriver/BSPCAN.c **** ** @The notes : 
+ 500:./Application/BSPSys/BSPDriver/BSPCAN.c **** **===========================================================================================*/
+ 501:./Application/BSPSys/BSPDriver/BSPCAN.c **** static u8 GetCanFdMessageLength(u8 length)
+ 502:./Application/BSPSys/BSPDriver/BSPCAN.c **** {
+ 503:./Application/BSPSys/BSPDriver/BSPCAN.c ****     u8 datalength = 0;
+ 504:./Application/BSPSys/BSPDriver/BSPCAN.c ****     switch(length)
+ 754              		.loc 1 504 0
+ 755 0056 1800     		movs	r0, r3
+ 756 0058 0938     		subs	r0, r0, #9
+ 757 005a 0628     		cmp	r0, #6
+ 758 005c 06D8     		bhi	.L83
+ 759 005e FFF7FEFF 		bl	__gnu_thumb1_case_uqi
+ 760              	.L84:
+ 761 0062 24       		.byte	(.L95-.L84)/2
+ 762 0063 04       		.byte	(.L85-.L84)/2
+ 763 0064 1A       		.byte	(.L86-.L84)/2
+ 764 0065 1C       		.byte	(.L87-.L84)/2
+ 765 0066 1E       		.byte	(.L88-.L84)/2
+ 766 0067 20       		.byte	(.L89-.L84)/2
+ 767 0068 22       		.byte	(.L90-.L84)/2
+ 768 0069 00       		.p2align 1
+ 769              	.L85:
+ 505:./Application/BSPSys/BSPDriver/BSPCAN.c ****     {
+ 506:./Application/BSPSys/BSPDriver/BSPCAN.c ****         case FDCAN_DLC_BYTES_12:
+ 507:./Application/BSPSys/BSPDriver/BSPCAN.c ****             datalength = 12;
+ 508:./Application/BSPSys/BSPDriver/BSPCAN.c ****             break;
+ 509:./Application/BSPSys/BSPDriver/BSPCAN.c **** 
+ 510:./Application/BSPSys/BSPDriver/BSPCAN.c ****         case FDCAN_DLC_BYTES_16:
+ 511:./Application/BSPSys/BSPDriver/BSPCAN.c ****             datalength = 16;
+ 770              		.loc 1 511 0
+ 771 006a 1023     		movs	r3, #16
+ 772              	.LVL53:
+ARM GAS  /tmp/cccdeKhJ.s 			page 25
+
+
+ 773              	.L83:
+ 774              	.LBE29:
+ 775              	.LBE28:
+ 359:./Application/BSPSys/BSPDriver/BSPCAN.c **** 
+ 776              		.loc 1 359 0
+ 777 006c 4825     		movs	r5, #72
+ 778              	.LVL54:
+ 779 006e 4D43     		muls	r5, r1
+ 780 0070 5019     		adds	r0, r2, r5
+ 781 0072 0372     		strb	r3, [r0, #8]
+ 782 0074 0020     		movs	r0, #0
+ 783              	.LVL55:
+ 784              	.L91:
+ 362:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		{
+ 785              		.loc 1 362 0
+ 786 0076 C6B2     		uxtb	r6, r0
+ 787 0078 9E42     		cmp	r6, r3
+ 788 007a 18D3     		bcc	.L92
+ 368:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		{
+ 789              		.loc 1 368 0
+ 790 007c 0131     		adds	r1, r1, #1
+ 791              	.LVL56:
+ 792 007e C9B2     		uxtb	r1, r1
+ 793              	.LVL57:
+ 794 0080 1329     		cmp	r1, #19
+ 795 0082 1AD8     		bhi	.L93
+ 796 0084 1170     		strb	r1, [r2]
+ 797              	.L94:
+ 374:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		{
+ 798              		.loc 1 374 0
+ 799 0086 1178     		ldrb	r1, [r2]
+ 800 0088 5378     		ldrb	r3, [r2, #1]
+ 801 008a 9942     		cmp	r1, r3
+ 802 008c 01D1     		bne	.L77
+ 376:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		}
+ 803              		.loc 1 376 0
+ 804 008e 0123     		movs	r3, #1
+ 805 0090 9370     		strb	r3, [r2, #2]
+ 806              	.LVL58:
+ 807              	.L77:
+ 808              	.LBE27:
+ 809              	.LBE26:
+ 492:./Application/BSPSys/BSPDriver/BSPCAN.c **** 
+ 810              		.loc 1 492 0
+ 811 0092 1BB0     		add	sp, sp, #108
+ 812              		@ sp needed
+ 813 0094 F0BD     		pop	{r4, r5, r6, r7, pc}
+ 814              	.LVL59:
+ 815              	.L86:
+ 816              	.LBB33:
+ 817              	.LBB32:
+ 818              	.LBB31:
+ 819              	.LBB30:
+ 512:./Application/BSPSys/BSPDriver/BSPCAN.c ****             break;
+ 513:./Application/BSPSys/BSPDriver/BSPCAN.c **** 
+ 514:./Application/BSPSys/BSPDriver/BSPCAN.c ****         case FDCAN_DLC_BYTES_20:
+ 515:./Application/BSPSys/BSPDriver/BSPCAN.c ****             datalength = 20;
+ARM GAS  /tmp/cccdeKhJ.s 			page 26
+
+
+ 820              		.loc 1 515 0
+ 821 0096 1423     		movs	r3, #20
+ 822              	.LVL60:
+ 823 0098 E8E7     		b	.L83
+ 824              	.LVL61:
+ 825              	.L87:
+ 516:./Application/BSPSys/BSPDriver/BSPCAN.c ****             break;
+ 517:./Application/BSPSys/BSPDriver/BSPCAN.c **** 
+ 518:./Application/BSPSys/BSPDriver/BSPCAN.c ****         case FDCAN_DLC_BYTES_24:
+ 519:./Application/BSPSys/BSPDriver/BSPCAN.c ****             datalength = 24;
+ 826              		.loc 1 519 0
+ 827 009a 1823     		movs	r3, #24
+ 828              	.LVL62:
+ 829 009c E6E7     		b	.L83
+ 830              	.LVL63:
+ 831              	.L88:
+ 520:./Application/BSPSys/BSPDriver/BSPCAN.c ****             break;
+ 521:./Application/BSPSys/BSPDriver/BSPCAN.c **** 
+ 522:./Application/BSPSys/BSPDriver/BSPCAN.c ****         case FDCAN_DLC_BYTES_32:
+ 523:./Application/BSPSys/BSPDriver/BSPCAN.c ****             datalength = 32;
+ 832              		.loc 1 523 0
+ 833 009e 2023     		movs	r3, #32
+ 834              	.LVL64:
+ 835 00a0 E4E7     		b	.L83
+ 836              	.LVL65:
+ 837              	.L89:
+ 524:./Application/BSPSys/BSPDriver/BSPCAN.c ****             break;
+ 525:./Application/BSPSys/BSPDriver/BSPCAN.c **** 
+ 526:./Application/BSPSys/BSPDriver/BSPCAN.c ****         case FDCAN_DLC_BYTES_48:
+ 527:./Application/BSPSys/BSPDriver/BSPCAN.c ****             datalength = 48;
+ 838              		.loc 1 527 0
+ 839 00a2 3023     		movs	r3, #48
+ 840              	.LVL66:
+ 841 00a4 E2E7     		b	.L83
+ 842              	.LVL67:
+ 843              	.L90:
+ 528:./Application/BSPSys/BSPDriver/BSPCAN.c ****             break;
+ 529:./Application/BSPSys/BSPDriver/BSPCAN.c ****             
+ 530:./Application/BSPSys/BSPDriver/BSPCAN.c ****         case FDCAN_DLC_BYTES_64:
+ 531:./Application/BSPSys/BSPDriver/BSPCAN.c ****             datalength = 64;
+ 844              		.loc 1 531 0
+ 845 00a6 4023     		movs	r3, #64
+ 846              	.LVL68:
+ 847 00a8 E0E7     		b	.L83
+ 848              	.LVL69:
+ 849              	.L95:
+ 507:./Application/BSPSys/BSPDriver/BSPCAN.c ****             break;
+ 850              		.loc 1 507 0
+ 851 00aa 0C23     		movs	r3, #12
+ 852              	.LVL70:
+ 853 00ac DEE7     		b	.L83
+ 854              	.LVL71:
+ 855              	.L92:
+ 856              	.LBE30:
+ 857              	.LBE31:
+ 364:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		}
+ 858              		.loc 1 364 0
+ARM GAS  /tmp/cccdeKhJ.s 			page 27
+
+
+ 859 00ae 4619     		adds	r6, r0, r5
+ 860 00b0 275C     		ldrb	r7, [r4, r0]
+ 861 00b2 9619     		adds	r6, r2, r6
+ 862 00b4 7772     		strb	r7, [r6, #9]
+ 863              	.LVL72:
+ 864 00b6 0130     		adds	r0, r0, #1
+ 865              	.LVL73:
+ 866 00b8 DDE7     		b	.L91
+ 867              	.LVL74:
+ 868              	.L93:
+ 370:./Application/BSPSys/BSPDriver/BSPCAN.c **** 		}
+ 869              		.loc 1 370 0
+ 870 00ba 0023     		movs	r3, #0
+ 871 00bc 1370     		strb	r3, [r2]
+ 872 00be E2E7     		b	.L94
+ 873              	.L103:
+ 874              		.align	2
+ 875              	.L102:
+ 876 00c0 00640040 		.word	1073767424
+ 877 00c4 00000000 		.word	gBSPFunCfg
+ 878 00c8 00000000 		.word	.LANCHOR3
+ 879 00cc 00000000 		.word	sCANRcvCyBuf
+ 880              	.LBE32:
+ 881              	.LBE33:
+ 882              		.cfi_endproc
+ 883              	.LFE503:
+ 885              		.comm	sFilterConfig1,24,4
+ 886              		.section	.bss.failureCountCAN1.10005,"aw",%nobits
+ 887              		.set	.LANCHOR0,. + 0
+ 890              	failureCountCAN1.10005:
+ 891 0000 00       		.space	1
+ 892              		.section	.bss.sCANCyUnDealNum,"aw",%nobits
+ 893              		.set	.LANCHOR3,. + 0
+ 896              	sCANCyUnDealNum:
+ 897 0000 00       		.space	1
+ 898              		.section	.bss.sCANRcvCyBuf,"aw",%nobits
+ 899              		.align	2
+ 902              	sCANRcvCyBuf:
+ 903 0000 00000000 		.space	1444
+ 903      00000000 
+ 903      00000000 
+ 903      00000000 
+ 903      00000000 
+ 904              		.section	.bss.sCANSendBuff,"aw",%nobits
+ 907              	sCANSendBuff:
+ 908 0000 00000000 		.space	1086
+ 908      00000000 
+ 908      00000000 
+ 908      00000000 
+ 908      00000000 
+ 909              		.section	.bss.txMsg.10016,"aw",%nobits
+ 910              		.align	2
+ 911              		.set	.LANCHOR2,. + 0
+ 914              	txMsg.10016:
+ 915 0000 00000000 		.space	72
+ 915      00000000 
+ 915      00000000 
+ARM GAS  /tmp/cccdeKhJ.s 			page 28
+
+
+ 915      00000000 
+ 915      00000000 
+ 916              		.section	.data.sHisErr.10017,"aw",%progbits
+ 917              		.set	.LANCHOR1,. + 0
+ 920              	sHisErr.10017:
+ 921 0000 01       		.byte	1
+ 922              		.text
+ 923              	.Letext0:
+ 924              		.file 2 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/machine/_default_types.h"
+ 925              		.file 3 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/lock.h"
+ 926              		.file 4 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_types.h"
+ 927              		.file 5 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/lib/gcc/arm-none-eabi/7.3.1/include/stddef.h"
+ 928              		.file 6 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/reent.h"
+ 929              		.file 7 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/stdlib.h"
+ 930              		.file 8 "Application/BSPSys/Util/BSPTypeDef.h"
+ 931              		.file 9 "Application/BSPSys/BSPCfg/BSPConfig.h"
+ 932              		.file 10 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_stdint.h"
+ 933              		.file 11 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/system_stm32g0xx.h"
+ 934              		.file 12 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/stm32g0b1xx.h"
+ 935              		.file 13 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/stm32g0xx.h"
+ 936              		.file 14 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_def.h"
+ 937              		.file 15 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_flash.h"
+ 938              		.file 16 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_fdcan.h"
+ 939              		.file 17 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_uart.h"
+ 940              		.file 18 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal.h"
+ 941              		.file 19 "Core/Inc/main.h"
+ 942              		.file 20 "Core/Inc/fdcan.h"
+ 943              		.file 21 "./Application/BSPSys/BSPDriver/BSPCAN.h"
+ 944              		.file 22 "Application/BSPSys/BSPDriver/BSPUSART.h"
+ 945              		.file 23 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_ll_dma.h"
+ 946              		.file 24 "<built-in>"
+ 947              		.file 25 "Application/BSPSys/BSPUser/BSPUserHook.h"
+ 948              		.file 26 "Application/BSPSys/Util/BSPQueue.h"
+ 949              		.file 27 "./Application/BSPSys/BSPDriver/BSPIRQ.h"
+ARM GAS  /tmp/cccdeKhJ.s 			page 29
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 BSPCAN.c
+     /tmp/cccdeKhJ.s:16     .text.BSPCanBufInit:0000000000000000 $t
+     /tmp/cccdeKhJ.s:23     .text.BSPCanBufInit:0000000000000000 BSPCanBufInit
+     /tmp/cccdeKhJ.s:70     .text.BSPCanBufInit:0000000000000020 $d
+     /tmp/cccdeKhJ.s:902    .bss.sCANRcvCyBuf:0000000000000000 sCANRcvCyBuf
+     /tmp/cccdeKhJ.s:907    .bss.sCANSendBuff:0000000000000000 sCANSendBuff
+     /tmp/cccdeKhJ.s:78     .text.BSPCANInit:0000000000000000 $t
+     /tmp/cccdeKhJ.s:85     .text.BSPCANInit:0000000000000000 BSPCANInit
+     /tmp/cccdeKhJ.s:124    .text.BSPCANInit:000000000000001c $d
+     /tmp/cccdeKhJ.s:129    .text.BSPCANSendMsg:0000000000000000 $t
+     /tmp/cccdeKhJ.s:136    .text.BSPCANSendMsg:0000000000000000 BSPCANSendMsg
+     /tmp/cccdeKhJ.s:325    .text.BSPCANSendMsg:00000000000000d8 $d
+     /tmp/cccdeKhJ.s:332    .text.BSPCANSendQin:0000000000000000 $t
+     /tmp/cccdeKhJ.s:339    .text.BSPCANSendQin:0000000000000000 BSPCANSendQin
+     /tmp/cccdeKhJ.s:377    .text.BSPCANSendQin:0000000000000018 $d
+     /tmp/cccdeKhJ.s:383    .text.BSPCANSendTask:0000000000000000 $t
+     /tmp/cccdeKhJ.s:390    .text.BSPCANSendTask:0000000000000000 BSPCANSendTask
+     /tmp/cccdeKhJ.s:451    .text.BSPCANSendTask:000000000000003c $d
+     /tmp/cccdeKhJ.s:458    .text.BSPCANRcvTask:0000000000000000 $t
+     /tmp/cccdeKhJ.s:465    .text.BSPCANRcvTask:0000000000000000 BSPCANRcvTask
+     /tmp/cccdeKhJ.s:566    .text.BSPCANRcvTask:0000000000000058 $d
+     /tmp/cccdeKhJ.s:575    .text.BSPCANLoop_test:0000000000000000 $t
+     /tmp/cccdeKhJ.s:582    .text.BSPCANLoop_test:0000000000000000 BSPCANLoop_test
+     /tmp/cccdeKhJ.s:662    .text.BSPCANLoop_test:000000000000004c $d
+     /tmp/cccdeKhJ.s:668    .text.FDCAN_RxFifo0CallbackTypeDef:0000000000000000 $t
+     /tmp/cccdeKhJ.s:675    .text.FDCAN_RxFifo0CallbackTypeDef:0000000000000000 FDCAN_RxFifo0CallbackTypeDef
+     /tmp/cccdeKhJ.s:761    .text.FDCAN_RxFifo0CallbackTypeDef:0000000000000062 $d
+     /tmp/cccdeKhJ.s:876    .text.FDCAN_RxFifo0CallbackTypeDef:00000000000000c0 $d
+                            *COM*:0000000000000018 sFilterConfig1
+     /tmp/cccdeKhJ.s:890    .bss.failureCountCAN1.10005:0000000000000000 failureCountCAN1.10005
+     /tmp/cccdeKhJ.s:891    .bss.failureCountCAN1.10005:0000000000000000 $d
+     /tmp/cccdeKhJ.s:896    .bss.sCANCyUnDealNum:0000000000000000 sCANCyUnDealNum
+     /tmp/cccdeKhJ.s:897    .bss.sCANCyUnDealNum:0000000000000000 $d
+     /tmp/cccdeKhJ.s:899    .bss.sCANRcvCyBuf:0000000000000000 $d
+     /tmp/cccdeKhJ.s:908    .bss.sCANSendBuff:0000000000000000 $d
+     /tmp/cccdeKhJ.s:910    .bss.txMsg.10016:0000000000000000 $d
+     /tmp/cccdeKhJ.s:914    .bss.txMsg.10016:0000000000000000 txMsg.10016
+     /tmp/cccdeKhJ.s:920    .data.sHisErr.10017:0000000000000000 sHisErr.10017
+     /tmp/cccdeKhJ.s:768    .text.FDCAN_RxFifo0CallbackTypeDef:0000000000000069 $d
+     /tmp/cccdeKhJ.s:768    .text.FDCAN_RxFifo0CallbackTypeDef:000000000000006a $t
+
+UNDEFINED SYMBOLS
+memset
+QueInit
+gBSPFunCfg
+MX_FDCAN1_Init
+BSP_DISABLE_IRQ
+HAL_FDCAN_AddMessageToTxFifoQ
+BSP_ENABLE_IRQ
+hfdcan1
+QueIn
+QueGetUnitNum
+QueOut
+memcpy
+CANRcvMsgHandle_Hook
+HAL_FDCAN_GetRxFifoFillLevel
+ARM GAS  /tmp/cccdeKhJ.s 			page 30
+
+
+HAL_FDCAN_GetRxMessage
+__gnu_thumb1_case_uqi

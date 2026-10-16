@@ -1,0 +1,12 @@
+{
+  "project": {
+    "path": "${workspaceFolder}\\IAR\\IMCU.ewp"
+  },
+  "workbench": {
+    "path": "C:\\Program Files\\IAR Systems\\Embedded Workbench 9.1"
+  },
+  "configs": {
+    "${workspaceFolder}\\IAR\\IMCU.ewp": "HAL_Debug",
+    "${workspaceFolder}\\IAR\\ESPCU.ewp": "Debug"
+  }
+}

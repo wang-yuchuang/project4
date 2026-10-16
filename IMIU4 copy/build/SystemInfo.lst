@@ -1,0 +1,380 @@
+ARM GAS  /tmp/ccoKtKIS.s 			page 1
+
+
+   1              		.cpu cortex-m0plus
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 4
+   9              		.eabi_attribute 34, 0
+  10              		.eabi_attribute 18, 4
+  11              		.file	"SystemInfo.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.InitSystemInfo,"ax",%progbits
+  16              		.align	1
+  17              		.global	InitSystemInfo
+  18              		.syntax unified
+  19              		.code	16
+  20              		.thumb_func
+  21              		.fpu softvfp
+  23              	InitSystemInfo:
+  24              	.LFB0:
+  25              		.file 1 "./Application/Funtion/SystemInfo/SystemInfo.c"
+   1:./Application/Funtion/SystemInfo/SystemInfo.c **** /*==========================================Copyright(c)=======================================
+   2:./Application/Funtion/SystemInfo/SystemInfo.c **** **                                  Shenzhen Infypower Co., Ltd.
+   3:./Application/Funtion/SystemInfo/SystemInfo.c **** **                                  Power conversion Department
+   4:./Application/Funtion/SystemInfo/SystemInfo.c **** **                                       BMS Product Line
+   5:./Application/Funtion/SystemInfo/SystemInfo.c **** **
+   6:./Application/Funtion/SystemInfo/SystemInfo.c **** **---------------------------------------File Information--------------------------------------
+   7:./Application/Funtion/SystemInfo/SystemInfo.c **** ** @File Name    : SystemInfo.c
+   8:./Application/Funtion/SystemInfo/SystemInfo.c **** ** @Founder      : WYC834
+   9:./Application/Funtion/SystemInfo/SystemInfo.c **** ** @Date         : 2025.11.3
+  10:./Application/Funtion/SystemInfo/SystemInfo.c **** ** @Function     : 自身参数模块
+  11:./Application/Funtion/SystemInfo/SystemInfo.c **** ** @Instructions : 系统自身所有参数
+  12:./Application/Funtion/SystemInfo/SystemInfo.c **** **===========================================================================================*/
+  13:./Application/Funtion/SystemInfo/SystemInfo.c **** 
+  14:./Application/Funtion/SystemInfo/SystemInfo.c **** /*=============================================================================================
+  15:./Application/Funtion/SystemInfo/SystemInfo.c **** ** @Header file definition
+  16:./Application/Funtion/SystemInfo/SystemInfo.c **** **===========================================================================================*/
+  17:./Application/Funtion/SystemInfo/SystemInfo.c **** #include "SystemInfo.h"
+  18:./Application/Funtion/SystemInfo/SystemInfo.c **** #include "BSPDIDO.h"
+  19:./Application/Funtion/SystemInfo/SystemInfo.c **** /*=============================================================================================
+  20:./Application/Funtion/SystemInfo/SystemInfo.c **** ** @Global variable definition
+  21:./Application/Funtion/SystemInfo/SystemInfo.c **** **===========================================================================================*/
+  22:./Application/Funtion/SystemInfo/SystemInfo.c **** 
+  23:./Application/Funtion/SystemInfo/SystemInfo.c **** u8 gHardVersion = 0;
+  24:./Application/Funtion/SystemInfo/SystemInfo.c **** /*=======================================校时信息==============================================
+  25:./Application/Funtion/SystemInfo/SystemInfo.c **** u16 SystemTime_0[SystemTime_len] =
+  26:./Application/Funtion/SystemInfo/SystemInfo.c **** {
+  27:./Application/Funtion/SystemInfo/SystemInfo.c ****     2026,                           /*系统时间-年*/
+  28:./Application/Funtion/SystemInfo/SystemInfo.c ****     0x0101,                         /*系统时间-月/日*/
+  29:./Application/Funtion/SystemInfo/SystemInfo.c ****     0x0,                            /*系统时间-时/分*/
+  30:./Application/Funtion/SystemInfo/SystemInfo.c ****     0x0                             /*系统时间-毫秒*/
+  31:./Application/Funtion/SystemInfo/SystemInfo.c **** };
+  32:./Application/Funtion/SystemInfo/SystemInfo.c **** /*=======================================系统信息==============================================
+  33:./Application/Funtion/SystemInfo/SystemInfo.c **** u16 SystemInfo_1[DeviceInfo1_len] = 
+ARM GAS  /tmp/ccoKtKIS.s 			page 2
+
+
+  34:./Application/Funtion/SystemInfo/SystemInfo.c **** {
+  35:./Application/Funtion/SystemInfo/SystemInfo.c ****     DIVICE_MARK,                          /*设备识别码*/
+  36:./Application/Funtion/SystemInfo/SystemInfo.c ****     DIVICE_ADDR,                          /*设备地址*/
+  37:./Application/Funtion/SystemInfo/SystemInfo.c ****     HARDWARE_VERSION,                     /*硬件版本号*/
+  38:./Application/Funtion/SystemInfo/SystemInfo.c ****     SOFTWARE_VERSIONL,                    /*软件支线版本号*/
+  39:./Application/Funtion/SystemInfo/SystemInfo.c ****     SOFTWARE_VERSIONH ,                   /*软件主线版本号*/
+  40:./Application/Funtion/SystemInfo/SystemInfo.c ****     BSP_VERSION,                          /*BSP版本号*/
+  41:./Application/Funtion/SystemInfo/SystemInfo.c ****     CAN_LIB_VERSION,                      /*CAN协议包版本号*/
+  42:./Application/Funtion/SystemInfo/SystemInfo.c ****     UART_LIB_VERSION                      /*USAT协议包版本号*/
+  43:./Application/Funtion/SystemInfo/SystemInfo.c **** };//系统信息
+  44:./Application/Funtion/SystemInfo/SystemInfo.c **** 
+  45:./Application/Funtion/SystemInfo/SystemInfo.c **** // fot systemtest
+  46:./Application/Funtion/SystemInfo/SystemInfo.c **** // u16 SystemWorkState_50[WorkMode_Len];
+  47:./Application/Funtion/SystemInfo/SystemInfo.c **** u16 SystemWorkState_50[WorkMode_Len]=
+  48:./Application/Funtion/SystemInfo/SystemInfo.c **** {
+  49:./Application/Funtion/SystemInfo/SystemInfo.c ****     eMODE_Normal
+  50:./Application/Funtion/SystemInfo/SystemInfo.c **** };
+  51:./Application/Funtion/SystemInfo/SystemInfo.c **** /*=============================================================================================
+  52:./Application/Funtion/SystemInfo/SystemInfo.c **** ** @Static function declaration
+  53:./Application/Funtion/SystemInfo/SystemInfo.c **** **===========================================================================================*/
+  54:./Application/Funtion/SystemInfo/SystemInfo.c **** 
+  55:./Application/Funtion/SystemInfo/SystemInfo.c **** /*=============================================================================================
+  56:./Application/Funtion/SystemInfo/SystemInfo.c **** ** @Interface function definition
+  57:./Application/Funtion/SystemInfo/SystemInfo.c **** **===========================================================================================*/
+  58:./Application/Funtion/SystemInfo/SystemInfo.c **** void InitSystemInfo(void)
+  59:./Application/Funtion/SystemInfo/SystemInfo.c **** {
+  26              		.loc 1 59 0
+  27              		.cfi_startproc
+  28              		@ args = 0, pretend = 0, frame = 0
+  29              		@ frame_needed = 0, uses_anonymous_args = 0
+  30 0000 10B5     		push	{r4, lr}
+  31              	.LCFI0:
+  32              		.cfi_def_cfa_offset 8
+  33              		.cfi_offset 4, -8
+  34              		.cfi_offset 14, -4
+  60:./Application/Funtion/SystemInfo/SystemInfo.c ****     SystemInfo_1[DeviceAddr] = SWReadData()+20;//本设备地址读取
+  35              		.loc 1 60 0
+  36 0002 FFF7FEFF 		bl	SWReadData
+  37              	.LVL0:
+  38 0006 024B     		ldr	r3, .L2
+  39 0008 1430     		adds	r0, r0, #20
+  40 000a 5880     		strh	r0, [r3, #2]
+  61:./Application/Funtion/SystemInfo/SystemInfo.c **** }
+  41              		.loc 1 61 0
+  42              		@ sp needed
+  43 000c 10BD     		pop	{r4, pc}
+  44              	.L3:
+  45 000e C046     		.align	2
+  46              	.L2:
+  47 0010 00000000 		.word	.LANCHOR0
+  48              		.cfi_endproc
+  49              	.LFE0:
+  51              		.section	.text.InPutSystemInfoArray,"ax",%progbits
+  52              		.align	1
+  53              		.global	InPutSystemInfoArray
+  54              		.syntax unified
+  55              		.code	16
+ARM GAS  /tmp/ccoKtKIS.s 			page 3
+
+
+  56              		.thumb_func
+  57              		.fpu softvfp
+  59              	InPutSystemInfoArray:
+  60              	.LFB1:
+  62:./Application/Funtion/SystemInfo/SystemInfo.c **** 
+  63:./Application/Funtion/SystemInfo/SystemInfo.c **** /*=============================================================================================
+  64:./Application/Funtion/SystemInfo/SystemInfo.c **** ** @Name      : void InPutSystemInfoArray (u8 index ,u16 data);
+  65:./Application/Funtion/SystemInfo/SystemInfo.c **** ** @Input     : index:系统数据下标 data:数据
+  66:./Application/Funtion/SystemInfo/SystemInfo.c **** ** @Output    : void
+  67:./Application/Funtion/SystemInfo/SystemInfo.c **** ** @Function  : 输入系统数据
+  68:./Application/Funtion/SystemInfo/SystemInfo.c **** ** @The notes :
+  69:./Application/Funtion/SystemInfo/SystemInfo.c **** **===========================================================================================*/
+  70:./Application/Funtion/SystemInfo/SystemInfo.c **** void InPutSystemInfoArray (u8 index ,u16 data)
+  71:./Application/Funtion/SystemInfo/SystemInfo.c **** {
+  61              		.loc 1 71 0
+  62              		.cfi_startproc
+  63              		@ args = 0, pretend = 0, frame = 0
+  64              		@ frame_needed = 0, uses_anonymous_args = 0
+  65              		@ link register save eliminated.
+  66              	.LVL1:
+  72:./Application/Funtion/SystemInfo/SystemInfo.c ****     if (index > DeviceInfo1_len)
+  67              		.loc 1 72 0
+  68 0000 0A28     		cmp	r0, #10
+  69 0002 02D8     		bhi	.L4
+  73:./Application/Funtion/SystemInfo/SystemInfo.c ****     {
+  74:./Application/Funtion/SystemInfo/SystemInfo.c ****         return;
+  75:./Application/Funtion/SystemInfo/SystemInfo.c ****     }
+  76:./Application/Funtion/SystemInfo/SystemInfo.c ****     SystemInfo_1[index] = data;
+  70              		.loc 1 76 0
+  71 0004 014B     		ldr	r3, .L6
+  72 0006 4000     		lsls	r0, r0, #1
+  73              	.LVL2:
+  74 0008 C152     		strh	r1, [r0, r3]
+  75              	.L4:
+  77:./Application/Funtion/SystemInfo/SystemInfo.c **** }
+  76              		.loc 1 77 0
+  77              		@ sp needed
+  78 000a 7047     		bx	lr
+  79              	.L7:
+  80              		.align	2
+  81              	.L6:
+  82 000c 00000000 		.word	.LANCHOR0
+  83              		.cfi_endproc
+  84              	.LFE1:
+  86              		.section	.text.GetSystemInfoArray,"ax",%progbits
+  87              		.align	1
+  88              		.global	GetSystemInfoArray
+  89              		.syntax unified
+  90              		.code	16
+  91              		.thumb_func
+  92              		.fpu softvfp
+  94              	GetSystemInfoArray:
+  95              	.LFB2:
+  78:./Application/Funtion/SystemInfo/SystemInfo.c **** 
+  79:./Application/Funtion/SystemInfo/SystemInfo.c **** 
+  80:./Application/Funtion/SystemInfo/SystemInfo.c **** /*=============================================================================================
+  81:./Application/Funtion/SystemInfo/SystemInfo.c **** ** @Name      : u16 GetSystemInfoArray (u8 index);
+ARM GAS  /tmp/ccoKtKIS.s 			page 4
+
+
+  82:./Application/Funtion/SystemInfo/SystemInfo.c **** ** @Input     : index:系统数据下标
+  83:./Application/Funtion/SystemInfo/SystemInfo.c **** ** @Output    : 系统数据
+  84:./Application/Funtion/SystemInfo/SystemInfo.c **** ** @Function  : 获取系统数据
+  85:./Application/Funtion/SystemInfo/SystemInfo.c **** ** @The notes :
+  86:./Application/Funtion/SystemInfo/SystemInfo.c **** **===========================================================================================*/
+  87:./Application/Funtion/SystemInfo/SystemInfo.c **** u16 GetSystemInfoArray (u8 index)
+  88:./Application/Funtion/SystemInfo/SystemInfo.c **** {
+  96              		.loc 1 88 0
+  97              		.cfi_startproc
+  98              		@ args = 0, pretend = 0, frame = 0
+  99              		@ frame_needed = 0, uses_anonymous_args = 0
+ 100              		@ link register save eliminated.
+ 101              	.LVL3:
+  89:./Application/Funtion/SystemInfo/SystemInfo.c ****     return SystemInfo_1[index];
+ 102              		.loc 1 89 0
+ 103 0000 014B     		ldr	r3, .L9
+ 104 0002 4000     		lsls	r0, r0, #1
+ 105              	.LVL4:
+ 106 0004 185A     		ldrh	r0, [r3, r0]
+  90:./Application/Funtion/SystemInfo/SystemInfo.c **** }
+ 107              		.loc 1 90 0
+ 108              		@ sp needed
+ 109 0006 7047     		bx	lr
+ 110              	.L10:
+ 111              		.align	2
+ 112              	.L9:
+ 113 0008 00000000 		.word	.LANCHOR0
+ 114              		.cfi_endproc
+ 115              	.LFE2:
+ 117              		.section	.text.GetSystemWorkModeArray,"ax",%progbits
+ 118              		.align	1
+ 119              		.global	GetSystemWorkModeArray
+ 120              		.syntax unified
+ 121              		.code	16
+ 122              		.thumb_func
+ 123              		.fpu softvfp
+ 125              	GetSystemWorkModeArray:
+ 126              	.LFB3:
+  91:./Application/Funtion/SystemInfo/SystemInfo.c **** 
+  92:./Application/Funtion/SystemInfo/SystemInfo.c **** /*=============================================================================================
+  93:./Application/Funtion/SystemInfo/SystemInfo.c **** ** @Name      : u16 GetSystemWorkModeArray (u8 index);
+  94:./Application/Funtion/SystemInfo/SystemInfo.c **** ** @Input     : index:系统工作模式信息下标
+  95:./Application/Funtion/SystemInfo/SystemInfo.c **** ** @Output    : 系统权限信息
+  96:./Application/Funtion/SystemInfo/SystemInfo.c **** ** @Function  : 获取系统工作模式信息
+  97:./Application/Funtion/SystemInfo/SystemInfo.c **** ** @The notes :
+  98:./Application/Funtion/SystemInfo/SystemInfo.c **** **===========================================================================================*/
+  99:./Application/Funtion/SystemInfo/SystemInfo.c **** u16 GetSystemWorkModeArray (u8 index)
+ 100:./Application/Funtion/SystemInfo/SystemInfo.c **** {
+ 127              		.loc 1 100 0
+ 128              		.cfi_startproc
+ 129              		@ args = 0, pretend = 0, frame = 0
+ 130              		@ frame_needed = 0, uses_anonymous_args = 0
+ 131              		@ link register save eliminated.
+ 132              	.LVL5:
+ 101:./Application/Funtion/SystemInfo/SystemInfo.c ****     return SystemWorkState_50[index];
+ 133              		.loc 1 101 0
+ 134 0000 014B     		ldr	r3, .L12
+ARM GAS  /tmp/ccoKtKIS.s 			page 5
+
+
+ 135 0002 4000     		lsls	r0, r0, #1
+ 136              	.LVL6:
+ 137 0004 185A     		ldrh	r0, [r3, r0]
+ 102:./Application/Funtion/SystemInfo/SystemInfo.c **** }
+ 138              		.loc 1 102 0
+ 139              		@ sp needed
+ 140 0006 7047     		bx	lr
+ 141              	.L13:
+ 142              		.align	2
+ 143              	.L12:
+ 144 0008 00000000 		.word	.LANCHOR1
+ 145              		.cfi_endproc
+ 146              	.LFE3:
+ 148              		.section	.text.InPutSystemWorkModeArray,"ax",%progbits
+ 149              		.align	1
+ 150              		.global	InPutSystemWorkModeArray
+ 151              		.syntax unified
+ 152              		.code	16
+ 153              		.thumb_func
+ 154              		.fpu softvfp
+ 156              	InPutSystemWorkModeArray:
+ 157              	.LFB4:
+ 103:./Application/Funtion/SystemInfo/SystemInfo.c **** 
+ 104:./Application/Funtion/SystemInfo/SystemInfo.c **** /*=============================================================================================
+ 105:./Application/Funtion/SystemInfo/SystemInfo.c **** ** @Name      : void InPutSystemWorkModeArray (u8 index ,u16 data);
+ 106:./Application/Funtion/SystemInfo/SystemInfo.c **** ** @Input     : index:系统工作模式信息下标 data:数据
+ 107:./Application/Funtion/SystemInfo/SystemInfo.c **** ** @Output    : void
+ 108:./Application/Funtion/SystemInfo/SystemInfo.c **** ** @Function  : 输入系统工作模式信息
+ 109:./Application/Funtion/SystemInfo/SystemInfo.c **** ** @The notes :
+ 110:./Application/Funtion/SystemInfo/SystemInfo.c **** **===========================================================================================*/
+ 111:./Application/Funtion/SystemInfo/SystemInfo.c **** void InPutSystemWorkModeArray (u8 index ,u16 data)
+ 112:./Application/Funtion/SystemInfo/SystemInfo.c **** {
+ 158              		.loc 1 112 0
+ 159              		.cfi_startproc
+ 160              		@ args = 0, pretend = 0, frame = 0
+ 161              		@ frame_needed = 0, uses_anonymous_args = 0
+ 162              		@ link register save eliminated.
+ 163              	.LVL7:
+ 113:./Application/Funtion/SystemInfo/SystemInfo.c ****     if (index >= WorkMode_Len)
+ 164              		.loc 1 113 0
+ 165 0000 0028     		cmp	r0, #0
+ 166 0002 01D1     		bne	.L14
+ 114:./Application/Funtion/SystemInfo/SystemInfo.c ****     {
+ 115:./Application/Funtion/SystemInfo/SystemInfo.c ****         return;
+ 116:./Application/Funtion/SystemInfo/SystemInfo.c ****     }
+ 117:./Application/Funtion/SystemInfo/SystemInfo.c ****     
+ 118:./Application/Funtion/SystemInfo/SystemInfo.c ****     SystemWorkState_50[index] = data;
+ 167              		.loc 1 118 0
+ 168 0004 014B     		ldr	r3, .L16
+ 169 0006 1980     		strh	r1, [r3]
+ 170              	.L14:
+ 119:./Application/Funtion/SystemInfo/SystemInfo.c **** }
+ 171              		.loc 1 119 0
+ 172              		@ sp needed
+ 173 0008 7047     		bx	lr
+ 174              	.L17:
+ 175 000a C046     		.align	2
+ARM GAS  /tmp/ccoKtKIS.s 			page 6
+
+
+ 176              	.L16:
+ 177 000c 00000000 		.word	.LANCHOR1
+ 178              		.cfi_endproc
+ 179              	.LFE4:
+ 181              		.global	SystemWorkState_50
+ 182              		.global	SystemInfo_1
+ 183              		.global	SystemTime_0
+ 184              		.global	gHardVersion
+ 185              		.section	.bss.SystemWorkState_50,"aw",%nobits
+ 186              		.align	1
+ 187              		.set	.LANCHOR1,. + 0
+ 190              	SystemWorkState_50:
+ 191 0000 0000     		.space	2
+ 192              		.section	.bss.gHardVersion,"aw",%nobits
+ 195              	gHardVersion:
+ 196 0000 00       		.space	1
+ 197              		.section	.data.SystemInfo_1,"aw",%progbits
+ 198              		.align	1
+ 199              		.set	.LANCHOR0,. + 0
+ 202              	SystemInfo_1:
+ 203 0000 FC55     		.short	22012
+ 204 0002 1400     		.short	20
+ 205 0004 0000     		.short	0
+ 206 0006 0100     		.short	1
+ 207 0008 0100     		.short	1
+ 208 000a 0000     		.short	0
+ 209 000c 0000     		.short	0
+ 210 000e 0000     		.short	0
+ 211 0010 00000000 		.space	4
+ 212              		.section	.data.SystemTime_0,"aw",%progbits
+ 213              		.align	1
+ 216              	SystemTime_0:
+ 217 0000 EA07     		.short	2026
+ 218 0002 0101     		.short	257
+ 219 0004 0000     		.short	0
+ 220 0006 0000     		.short	0
+ 221              		.text
+ 222              	.Letext0:
+ 223              		.file 2 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/lock.h"
+ 224              		.file 3 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_types.h"
+ 225              		.file 4 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/lib/gcc/arm-none-eabi/7.3.1/include/stddef.h"
+ 226              		.file 5 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/reent.h"
+ 227              		.file 6 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/stdlib.h"
+ 228              		.file 7 "Application/BSPSys/Util/BSPTypeDef.h"
+ 229              		.file 8 "./Application/Funtion/SystemInfo/SystemInfo.h"
+ 230              		.file 9 "Application/BSPSys/BSPDriver/BSPDIDO.h"
+ARM GAS  /tmp/ccoKtKIS.s 			page 7
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 SystemInfo.c
+     /tmp/ccoKtKIS.s:16     .text.InitSystemInfo:0000000000000000 $t
+     /tmp/ccoKtKIS.s:23     .text.InitSystemInfo:0000000000000000 InitSystemInfo
+     /tmp/ccoKtKIS.s:47     .text.InitSystemInfo:0000000000000010 $d
+     /tmp/ccoKtKIS.s:52     .text.InPutSystemInfoArray:0000000000000000 $t
+     /tmp/ccoKtKIS.s:59     .text.InPutSystemInfoArray:0000000000000000 InPutSystemInfoArray
+     /tmp/ccoKtKIS.s:82     .text.InPutSystemInfoArray:000000000000000c $d
+     /tmp/ccoKtKIS.s:87     .text.GetSystemInfoArray:0000000000000000 $t
+     /tmp/ccoKtKIS.s:94     .text.GetSystemInfoArray:0000000000000000 GetSystemInfoArray
+     /tmp/ccoKtKIS.s:113    .text.GetSystemInfoArray:0000000000000008 $d
+     /tmp/ccoKtKIS.s:118    .text.GetSystemWorkModeArray:0000000000000000 $t
+     /tmp/ccoKtKIS.s:125    .text.GetSystemWorkModeArray:0000000000000000 GetSystemWorkModeArray
+     /tmp/ccoKtKIS.s:144    .text.GetSystemWorkModeArray:0000000000000008 $d
+     /tmp/ccoKtKIS.s:149    .text.InPutSystemWorkModeArray:0000000000000000 $t
+     /tmp/ccoKtKIS.s:156    .text.InPutSystemWorkModeArray:0000000000000000 InPutSystemWorkModeArray
+     /tmp/ccoKtKIS.s:177    .text.InPutSystemWorkModeArray:000000000000000c $d
+     /tmp/ccoKtKIS.s:190    .bss.SystemWorkState_50:0000000000000000 SystemWorkState_50
+     /tmp/ccoKtKIS.s:202    .data.SystemInfo_1:0000000000000000 SystemInfo_1
+     /tmp/ccoKtKIS.s:216    .data.SystemTime_0:0000000000000000 SystemTime_0
+     /tmp/ccoKtKIS.s:195    .bss.gHardVersion:0000000000000000 gHardVersion
+     /tmp/ccoKtKIS.s:186    .bss.SystemWorkState_50:0000000000000000 $d
+     /tmp/ccoKtKIS.s:196    .bss.gHardVersion:0000000000000000 $d
+     /tmp/ccoKtKIS.s:198    .data.SystemInfo_1:0000000000000000 $d
+     /tmp/ccoKtKIS.s:213    .data.SystemTime_0:0000000000000000 $d
+
+UNDEFINED SYMBOLS
+SWReadData

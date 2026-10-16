@@ -1,0 +1,3692 @@
+ARM GAS  /tmp/ccYAzQ9X.s 			page 1
+
+
+   1              		.cpu cortex-m0plus
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 4
+   9              		.eabi_attribute 34, 0
+  10              		.eabi_attribute 18, 4
+  11              		.file	"CANTabOper.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.CanScanIndexTabInfo,"ax",%progbits
+  16              		.align	1
+  17              		.global	CanScanIndexTabInfo
+  18              		.syntax unified
+  19              		.code	16
+  20              		.thumb_func
+  21              		.fpu softvfp
+  23              	CanScanIndexTabInfo:
+  24              	.LFB493:
+  25              		.file 1 "./Application/Funtion/CanLib/CANTabOper.c"
+   1:./Application/Funtion/CanLib/CANTabOper.c **** /*==========================================Copyright(c)===========================================
+   2:./Application/Funtion/CanLib/CANTabOper.c **** **                                  Shenzhen Infypower Co., Ltd.
+   3:./Application/Funtion/CanLib/CANTabOper.c **** **                                  Power conversion Department
+   4:./Application/Funtion/CanLib/CANTabOper.c **** **                                       BMS Product Line
+   5:./Application/Funtion/CanLib/CANTabOper.c **** **
+   6:./Application/Funtion/CanLib/CANTabOper.c **** **---------------------------------------File Information------------------------------------------
+   7:./Application/Funtion/CanLib/CANTabOper.c **** ** @File Name    : CANTabOper.c
+   8:./Application/Funtion/CanLib/CANTabOper.c **** ** @Founder      : SBK326
+   9:./Application/Funtion/CanLib/CANTabOper.c **** ** @Date         : 2019.11.1
+  10:./Application/Funtion/CanLib/CANTabOper.c **** ** @Function     : CAN通信包表格读写操作接口
+  11:./Application/Funtion/CanLib/CANTabOper.c **** ** @Instructions :
+  12:./Application/Funtion/CanLib/CANTabOper.c **** **===============================================================================================*/
+  13:./Application/Funtion/CanLib/CANTabOper.c **** 
+  14:./Application/Funtion/CanLib/CANTabOper.c **** /*=================================================================================================
+  15:./Application/Funtion/CanLib/CANTabOper.c **** ** @Header file definition
+  16:./Application/Funtion/CanLib/CANTabOper.c **** **===============================================================================================*/
+  17:./Application/Funtion/CanLib/CANTabOper.c **** #include "BSPTypeDef.h"
+  18:./Application/Funtion/CanLib/CANTabOper.c **** #include "CANHandle.h"
+  19:./Application/Funtion/CanLib/CANTabOper.c **** #include "CANInterface.h"
+  20:./Application/Funtion/CanLib/CANTabOper.c **** #include "CANUser.h"
+  21:./Application/Funtion/CanLib/CANTabOper.c **** #include "CANTabOper.h"
+  22:./Application/Funtion/CanLib/CANTabOper.c **** #include "SystemInfo.h"
+  23:./Application/Funtion/CanLib/CANTabOper.c **** #include "BSPIRQ.h"
+  24:./Application/Funtion/CanLib/CANTabOper.c **** /*=================================================================================================
+  25:./Application/Funtion/CanLib/CANTabOper.c **** ** @Global variable definition
+  26:./Application/Funtion/CanLib/CANTabOper.c **** **===============================================================================================*/
+  27:./Application/Funtion/CanLib/CANTabOper.c **** /* SAE J1850 crc lookup table */
+  28:./Application/Funtion/CanLib/CANTabOper.c **** static const u8 Crc8Table[256] =
+  29:./Application/Funtion/CanLib/CANTabOper.c **** {
+  30:./Application/Funtion/CanLib/CANTabOper.c **** 	0x00u, 0x1du, 0x3au, 0x27u, 0x74u, 0x69u, 0x4eu, 0x53u, 0xe8u, 0xf5u, 0xd2u, 0xcfu, 0x9cu, 0x81u, 
+  31:./Application/Funtion/CanLib/CANTabOper.c **** 	0xcdu, 0xd0u, 0xf7u, 0xeau, 0xb9u, 0xa4u, 0x83u, 0x9eu, 0x25u, 0x38u, 0x1fu, 0x02u, 0x51u, 0x4cu, 
+  32:./Application/Funtion/CanLib/CANTabOper.c **** 	0x87u, 0x9au, 0xbdu, 0xa0u, 0xf3u, 0xeeu, 0xc9u, 0xd4u, 0x6fu, 0x72u, 0x55u, 0x48u, 0x1bu, 0x06u, 
+  33:./Application/Funtion/CanLib/CANTabOper.c **** 	0x4au, 0x57u, 0x70u, 0x6du, 0x3eu, 0x23u, 0x04u, 0x19u, 0xa2u, 0xbfu, 0x98u, 0x85u, 0xd6u, 0xcbu, 
+ARM GAS  /tmp/ccYAzQ9X.s 			page 2
+
+
+  34:./Application/Funtion/CanLib/CANTabOper.c **** 	0x13u, 0x0eu, 0x29u, 0x34u, 0x67u, 0x7au, 0x5du, 0x40u, 0xfbu, 0xe6u, 0xc1u, 0xdcu, 0x8fu, 0x92u, 
+  35:./Application/Funtion/CanLib/CANTabOper.c **** 	0xdeu, 0xc3u, 0xe4u, 0xf9u, 0xaau, 0xb7u, 0x90u, 0x8du, 0x36u, 0x2bu, 0x0cu, 0x11u, 0x42u, 0x5fu, 
+  36:./Application/Funtion/CanLib/CANTabOper.c **** 	0x94u, 0x89u, 0xaeu, 0xb3u, 0xe0u, 0xfdu, 0xdau, 0xc7u, 0x7cu, 0x61u, 0x46u, 0x5bu, 0x08u, 0x15u, 
+  37:./Application/Funtion/CanLib/CANTabOper.c **** 	0x59u, 0x44u, 0x63u, 0x7eu, 0x2du, 0x30u, 0x17u, 0x0au, 0xb1u, 0xacu, 0x8bu, 0x96u, 0xc5u, 0xd8u, 
+  38:./Application/Funtion/CanLib/CANTabOper.c **** 	0x26u, 0x3bu, 0x1cu, 0x01u, 0x52u, 0x4fu, 0x68u, 0x75u, 0xceu, 0xd3u, 0xf4u, 0xe9u, 0xbau, 0xa7u, 
+  39:./Application/Funtion/CanLib/CANTabOper.c **** 	0xebu, 0xf6u, 0xd1u, 0xccu, 0x9fu, 0x82u, 0xa5u, 0xb8u, 0x03u, 0x1eu, 0x39u, 0x24u, 0x77u, 0x6au, 
+  40:./Application/Funtion/CanLib/CANTabOper.c **** 	0xa1u, 0xbcu, 0x9bu, 0x86u, 0xd5u, 0xc8u, 0xefu, 0xf2u, 0x49u, 0x54u, 0x73u, 0x6eu, 0x3du, 0x20u, 
+  41:./Application/Funtion/CanLib/CANTabOper.c **** 	0x6cu, 0x71u, 0x56u, 0x4bu, 0x18u, 0x05u, 0x22u, 0x3fu, 0x84u, 0x99u, 0xbeu, 0xa3u, 0xf0u, 0xedu, 
+  42:./Application/Funtion/CanLib/CANTabOper.c **** 	0x35u, 0x28u, 0x0fu, 0x12u, 0x41u, 0x5cu, 0x7bu, 0x66u, 0xddu, 0xc0u, 0xe7u, 0xfau, 0xa9u, 0xb4u, 
+  43:./Application/Funtion/CanLib/CANTabOper.c **** 	0xf8u, 0xe5u, 0xc2u, 0xdfu, 0x8cu, 0x91u, 0xb6u, 0xabu, 0x10u, 0x0du, 0x2au, 0x37u, 0x64u, 0x79u, 
+  44:./Application/Funtion/CanLib/CANTabOper.c **** 	0xb2u, 0xafu, 0x88u, 0x95u, 0xc6u, 0xdbu, 0xfcu, 0xe1u, 0x5au, 0x47u, 0x60u, 0x7du, 0x2eu, 0x33u, 
+  45:./Application/Funtion/CanLib/CANTabOper.c **** 	0x7fu, 0x62u, 0x45u, 0x58u, 0x0bu, 0x16u, 0x31u, 0x2cu, 0x97u, 0x8au, 0xadu, 0xb0u, 0xe3u, 0xfeu, 
+  46:./Application/Funtion/CanLib/CANTabOper.c **** };
+  47:./Application/Funtion/CanLib/CANTabOper.c **** 
+  48:./Application/Funtion/CanLib/CANTabOper.c **** extern t_CANDevTab gCanDevTable[];                                  /*CAN通信设备表*/
+  49:./Application/Funtion/CanLib/CANTabOper.c **** extern t_CANTxRcvTab gCanTxRcvTable[];                              /*CAN通信收发处理表*/
+  50:./Application/Funtion/CanLib/CANTabOper.c **** 
+  51:./Application/Funtion/CanLib/CANTabOper.c **** extern u8 gCANBaseDef_3[];                                          /*通信包基本配置信息*/
+  52:./Application/Funtion/CanLib/CANTabOper.c **** 
+  53:./Application/Funtion/CanLib/CANTabOper.c **** /*=================================================================================================
+  54:./Application/Funtion/CanLib/CANTabOper.c **** ** @Static function declaration
+  55:./Application/Funtion/CanLib/CANTabOper.c **** **===============================================================================================*/
+  56:./Application/Funtion/CanLib/CANTabOper.c **** /*=================================================================================================
+  57:./Application/Funtion/CanLib/CANTabOper.c **** ** @Name      : static u8 CANFindDevTabMIndexDim(u8 findIndex, u8 mindexNum, const t_CANIndexTab *p
+  58:./Application/Funtion/CanLib/CANTabOper.c **** ** @Input     : findIndex:查找的主索引号  mindexNum:主索引数目 *pindextable:所要查�
+  59:./Application/Funtion/CanLib/CANTabOper.c **** ** @Output    : 对应主索引所在位置
+  60:./Application/Funtion/CanLib/CANTabOper.c **** ** @Function  : 查找主索引所在设备表中偏移位置(第几个主索引)
+  61:./Application/Funtion/CanLib/CANTabOper.c **** ** @The notes : 二分查找法
+  62:./Application/Funtion/CanLib/CANTabOper.c **** **===============================================================================================*/
+  63:./Application/Funtion/CanLib/CANTabOper.c **** static u8 CANFindDevTabMIndexDim(u8 findIndex, u8 mindexNum, const t_CANIndexTab *pindextable);
+  64:./Application/Funtion/CanLib/CANTabOper.c **** 
+  65:./Application/Funtion/CanLib/CANTabOper.c **** /*=================================================================================================
+  66:./Application/Funtion/CanLib/CANTabOper.c **** ** @Name      : static u8 CANCalcRemainFrameNum(u8 framSort, u8 dataType, u8 sIndexNum)
+  67:./Application/Funtion/CanLib/CANTabOper.c **** ** @Input     : framSort:帧类型[0长帧 1单帧] dataType:主索引数据类型 sIndexNum:子索
+  68:./Application/Funtion/CanLib/CANTabOper.c **** ** @Output    : 剩余帧数
+  69:./Application/Funtion/CanLib/CANTabOper.c **** ** @Function  : 计算剩余帧数
+  70:./Application/Funtion/CanLib/CANTabOper.c **** ** @The notes : 根据数据类型和子索引数目计算
+  71:./Application/Funtion/CanLib/CANTabOper.c **** **===============================================================================================*/
+  72:./Application/Funtion/CanLib/CANTabOper.c **** static u8 CANCalcRemainFrameNum(u8 framSort, u8 dataType, u8 sIndexNum);
+  73:./Application/Funtion/CanLib/CANTabOper.c **** 
+  74:./Application/Funtion/CanLib/CANTabOper.c **** /*=================================================================================================
+  75:./Application/Funtion/CanLib/CANTabOper.c **** ** @Interface function definition
+  76:./Application/Funtion/CanLib/CANTabOper.c **** **===============================================================================================*/
+  77:./Application/Funtion/CanLib/CANTabOper.c **** /*=================================================================================================
+  78:./Application/Funtion/CanLib/CANTabOper.c **** ** @Name      : const t_CANIndexTab *CanScanIndexTabInfo(u8 devaddr, u8 mindex, u8 sIndex, u8 sInde
+  79:./Application/Funtion/CanLib/CANTabOper.c **** ** @Input     : devaddr:索引表设备地址 mindex:主索引号  sindex:子索引号  sIndexNum:�
+  80:./Application/Funtion/CanLib/CANTabOper.c **** ** @Output    : 对应主索引信息
+  81:./Application/Funtion/CanLib/CANTabOper.c **** ** @Function  : 查找主索引表信息
+  82:./Application/Funtion/CanLib/CANTabOper.c **** ** @The notes : 并且判断子索引是否越界
+  83:./Application/Funtion/CanLib/CANTabOper.c **** **===============================================================================================*/
+  84:./Application/Funtion/CanLib/CANTabOper.c **** const t_CANIndexTab *CanScanIndexTabInfo(u8 devaddr, u8 mindex, u8 sIndex, u8 sIndexNum, u8 *errorC
+  85:./Application/Funtion/CanLib/CANTabOper.c **** {
+  26              		.loc 1 85 0
+  27              		.cfi_startproc
+  28              		@ args = 4, pretend = 0, frame = 24
+  29              		@ frame_needed = 0, uses_anonymous_args = 0
+  30              	.LVL0:
+ARM GAS  /tmp/ccYAzQ9X.s 			page 3
+
+
+  31 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+  32              	.LCFI0:
+  33              		.cfi_def_cfa_offset 20
+  34              		.cfi_offset 4, -20
+  35              		.cfi_offset 5, -16
+  36              		.cfi_offset 6, -12
+  37              		.cfi_offset 7, -8
+  38              		.cfi_offset 14, -4
+  39 0002 87B0     		sub	sp, sp, #28
+  40              	.LCFI1:
+  41              		.cfi_def_cfa_offset 48
+  42              		.loc 1 85 0
+  43 0004 0593     		str	r3, [sp, #20]
+  86:./Application/Funtion/CanLib/CANTabOper.c ****     u8 i = 0;
+  87:./Application/Funtion/CanLib/CANTabOper.c ****     u8 offset = 0;
+  88:./Application/Funtion/CanLib/CANTabOper.c ****     t_CANDevTab *pDeviceTable;
+  89:./Application/Funtion/CanLib/CANTabOper.c ****     const t_CANIndexTab *pIndexTable;
+  90:./Application/Funtion/CanLib/CANTabOper.c **** 
+  91:./Application/Funtion/CanLib/CANTabOper.c ****     *errorCode = eCANERR_SUCCESSFUL;
+  44              		.loc 1 91 0
+  45 0006 0023     		movs	r3, #0
+  46              	.LVL1:
+  85:./Application/Funtion/CanLib/CANTabOper.c ****     u8 i = 0;
+  47              		.loc 1 85 0
+  48 0008 0192     		str	r2, [sp, #4]
+  49              		.loc 1 91 0
+  50 000a 0C9A     		ldr	r2, [sp, #48]
+  51              	.LVL2:
+  92:./Application/Funtion/CanLib/CANTabOper.c **** 
+  93:./Application/Funtion/CanLib/CANTabOper.c ****     for(i = 0; i < gCANBaseDef_3[eCANRBas3_DevNum]; i++)
+  94:./Application/Funtion/CanLib/CANTabOper.c ****     {
+  95:./Application/Funtion/CanLib/CANTabOper.c ****         //获得设备表
+  96:./Application/Funtion/CanLib/CANTabOper.c ****         pDeviceTable = &gCanDevTable[i];
+  97:./Application/Funtion/CanLib/CANTabOper.c **** 
+  98:./Application/Funtion/CanLib/CANTabOper.c ****         if(pDeviceTable == NULL)
+  99:./Application/Funtion/CanLib/CANTabOper.c ****         {
+ 100:./Application/Funtion/CanLib/CANTabOper.c ****             //该设备不存在
+ 101:./Application/Funtion/CanLib/CANTabOper.c ****             *errorCode = eCANERR_NOSUCH_DEV;
+ 102:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 103:./Application/Funtion/CanLib/CANTabOper.c ****             return(NULL);
+ 104:./Application/Funtion/CanLib/CANTabOper.c ****         }
+ 105:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 106:./Application/Funtion/CanLib/CANTabOper.c ****         //广播报文当作自身报文
+ 107:./Application/Funtion/CanLib/CANTabOper.c ****         if(0xff == devaddr)
+ 108:./Application/Funtion/CanLib/CANTabOper.c ****         {
+ 109:./Application/Funtion/CanLib/CANTabOper.c ****         	devaddr = SystemInfo_1[DeviceAddr];
+ 110:./Application/Funtion/CanLib/CANTabOper.c ****         }
+ 111:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 112:./Application/Funtion/CanLib/CANTabOper.c ****         //找到当前设备表
+ 113:./Application/Funtion/CanLib/CANTabOper.c ****         if(pDeviceTable->devAdrr == devaddr)
+  52              		.loc 1 113 0
+  53 000c 2A4E     		ldr	r6, .L21
+  91:./Application/Funtion/CanLib/CANTabOper.c **** 
+  54              		.loc 1 91 0
+  55 000e 1370     		strb	r3, [r2]
+  93:./Application/Funtion/CanLib/CANTabOper.c ****     {
+  56              		.loc 1 93 0
+ARM GAS  /tmp/ccYAzQ9X.s 			page 4
+
+
+  57 0010 2A4A     		ldr	r2, .L21+4
+  58 0012 1778     		ldrb	r7, [r2]
+ 109:./Application/Funtion/CanLib/CANTabOper.c ****         }
+  59              		.loc 1 109 0
+  60 0014 2A4A     		ldr	r2, .L21+8
+  61 0016 9278     		ldrb	r2, [r2, #2]
+  62 0018 9446     		mov	ip, r2
+  63              	.LVL3:
+  64              	.L2:
+  65 001a DAB2     		uxtb	r2, r3
+  66 001c 0392     		str	r2, [sp, #12]
+  67              	.LVL4:
+  93:./Application/Funtion/CanLib/CANTabOper.c ****     {
+  68              		.loc 1 93 0 discriminator 1
+  69 001e 9742     		cmp	r7, r2
+  70 0020 2BD9     		bls	.L11
+  96:./Application/Funtion/CanLib/CANTabOper.c **** 
+  71              		.loc 1 96 0
+  72 0022 1A00     		movs	r2, r3
+  73              	.LVL5:
+ 107:./Application/Funtion/CanLib/CANTabOper.c ****         {
+  74              		.loc 1 107 0
+  75 0024 FF28     		cmp	r0, #255
+  76 0026 00D1     		bne	.L3
+ 109:./Application/Funtion/CanLib/CANTabOper.c ****         }
+  77              		.loc 1 109 0
+  78 0028 6046     		mov	r0, ip
+  79              	.LVL6:
+  80              	.L3:
+  81 002a 0133     		adds	r3, r3, #1
+  82              		.loc 1 113 0
+  83 002c DC00     		lsls	r4, r3, #3
+  84 002e 083C     		subs	r4, r4, #8
+  85 0030 345D     		ldrb	r4, [r6, r4]
+  86 0032 8442     		cmp	r4, r0
+  87 0034 F1D1     		bne	.L2
+ 114:./Application/Funtion/CanLib/CANTabOper.c ****         {
+ 115:./Application/Funtion/CanLib/CANTabOper.c ****             //二分查找主索引表
+ 116:./Application/Funtion/CanLib/CANTabOper.c ****             offset = CANFindDevTabMIndexDim(mindex, pDeviceTable->mIndexNum, pDeviceTable->pIndexTa
+  88              		.loc 1 116 0
+  89 0036 D200     		lsls	r2, r2, #3
+  90              	.LVL7:
+  91 0038 B618     		adds	r6, r6, r2
+  92 003a 7278     		ldrb	r2, [r6, #1]
+  93 003c 7368     		ldr	r3, [r6, #4]
+  94              	.LVL8:
+  95              	.LBB4:
+  96              	.LBB5:
+ 117:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 118:./Application/Funtion/CanLib/CANTabOper.c ****             /*未找到对应主索引*/
+ 119:./Application/Funtion/CanLib/CANTabOper.c ****             if(offset == 0xff)
+ 120:./Application/Funtion/CanLib/CANTabOper.c ****             {
+ 121:./Application/Funtion/CanLib/CANTabOper.c ****                 *errorCode = eCANERR_NOSUCH_MID;
+ 122:./Application/Funtion/CanLib/CANTabOper.c ****             }
+ 123:./Application/Funtion/CanLib/CANTabOper.c ****             else
+ 124:./Application/Funtion/CanLib/CANTabOper.c ****             {
+ 125:./Application/Funtion/CanLib/CANTabOper.c ****                 //对应主索引所在位置
+ARM GAS  /tmp/ccYAzQ9X.s 			page 5
+
+
+ 126:./Application/Funtion/CanLib/CANTabOper.c ****                 pIndexTable = pDeviceTable->pIndexTable + offset;
+ 127:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 128:./Application/Funtion/CanLib/CANTabOper.c ****                 //判断查找的子索引是否越界
+ 129:./Application/Funtion/CanLib/CANTabOper.c ****                 if((pIndexTable->sIndexNum >= (sIndex + sIndexNum)) && (pIndexTable->sIndexNum > sI
+ 130:./Application/Funtion/CanLib/CANTabOper.c ****                 {
+ 131:./Application/Funtion/CanLib/CANTabOper.c ****                     //找到主索引表
+ 132:./Application/Funtion/CanLib/CANTabOper.c ****                     return(pIndexTable);
+ 133:./Application/Funtion/CanLib/CANTabOper.c ****                 }
+ 134:./Application/Funtion/CanLib/CANTabOper.c ****                 else
+ 135:./Application/Funtion/CanLib/CANTabOper.c ****                 {
+ 136:./Application/Funtion/CanLib/CANTabOper.c ****                     /*子索引越界*/
+ 137:./Application/Funtion/CanLib/CANTabOper.c ****                     *errorCode = eCANERR_SIDLEN_OVE;
+ 138:./Application/Funtion/CanLib/CANTabOper.c ****                 }
+ 139:./Application/Funtion/CanLib/CANTabOper.c ****             }
+ 140:./Application/Funtion/CanLib/CANTabOper.c ****             break;
+ 141:./Application/Funtion/CanLib/CANTabOper.c ****         }
+ 142:./Application/Funtion/CanLib/CANTabOper.c ****     }
+ 143:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 144:./Application/Funtion/CanLib/CANTabOper.c ****     if(i >= gCANBaseDef_3[eCANRBas3_DevNum])
+ 145:./Application/Funtion/CanLib/CANTabOper.c ****     {
+ 146:./Application/Funtion/CanLib/CANTabOper.c ****         //该设备不存在
+ 147:./Application/Funtion/CanLib/CANTabOper.c ****         *errorCode = eCANERR_NOSUCH_DEV;
+ 148:./Application/Funtion/CanLib/CANTabOper.c ****     }
+ 149:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 150:./Application/Funtion/CanLib/CANTabOper.c ****     //未找到主索引表
+ 151:./Application/Funtion/CanLib/CANTabOper.c ****     return(NULL);
+ 152:./Application/Funtion/CanLib/CANTabOper.c **** }
+ 153:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 154:./Application/Funtion/CanLib/CANTabOper.c **** /*=================================================================================================
+ 155:./Application/Funtion/CanLib/CANTabOper.c **** ** @Name      : void CANReadCanIndexData(const t_CANIndexTab *ptrTable, u8 subIndex, u8 sIndexNum, 
+ 156:./Application/Funtion/CanLib/CANTabOper.c **** ** @Input     : *ptrTable:主索引信息  sindex:子索引号  sIndexNum:子索引数目 *Data:读
+ 157:./Application/Funtion/CanLib/CANTabOper.c **** ** @Output    : void
+ 158:./Application/Funtion/CanLib/CANTabOper.c **** ** @Function  : 读索引表中对应子索引当前数据值
+ 159:./Application/Funtion/CanLib/CANTabOper.c **** ** @The notes : 必须确保主索引存在且子索引长度合法
+ 160:./Application/Funtion/CanLib/CANTabOper.c **** **===============================================================================================*/
+ 161:./Application/Funtion/CanLib/CANTabOper.c **** void CANReadCanIndexData(const t_CANIndexTab *ptrTable, u8 subIndex, u8 sIndexNum, u8 *Data)
+ 162:./Application/Funtion/CanLib/CANTabOper.c **** {
+ 163:./Application/Funtion/CanLib/CANTabOper.c ****     u8 i = 0;
+ 164:./Application/Funtion/CanLib/CANTabOper.c ****     u8 dataType = 0;
+ 165:./Application/Funtion/CanLib/CANTabOper.c ****     u16 Datatemp = 0;
+ 166:./Application/Funtion/CanLib/CANTabOper.c ****     u32 Datatemp1 = 0;
+ 167:./Application/Funtion/CanLib/CANTabOper.c ****     void *pObject = NULL;
+ 168:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 169:./Application/Funtion/CanLib/CANTabOper.c ****     //主索引数据地址
+ 170:./Application/Funtion/CanLib/CANTabOper.c ****     pObject = ptrTable->pObject;
+ 171:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 172:./Application/Funtion/CanLib/CANTabOper.c ****     //主索引数据类型
+ 173:./Application/Funtion/CanLib/CANTabOper.c ****     dataType = ptrTable->dataType;
+ 174:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 175:./Application/Funtion/CanLib/CANTabOper.c ****     /*主索引有效*/
+ 176:./Application/Funtion/CanLib/CANTabOper.c ****     if(pObject != NULL)
+ 177:./Application/Funtion/CanLib/CANTabOper.c ****     {
+ 178:./Application/Funtion/CanLib/CANTabOper.c ****         /*逐个读取各个子索引*/
+ 179:./Application/Funtion/CanLib/CANTabOper.c ****         for(i = 0; i < sIndexNum; i++)
+ 180:./Application/Funtion/CanLib/CANTabOper.c ****         {
+ 181:./Application/Funtion/CanLib/CANTabOper.c ****             /*8位*/
+ 182:./Application/Funtion/CanLib/CANTabOper.c ****         	if(dataType == 1)
+ARM GAS  /tmp/ccYAzQ9X.s 			page 6
+
+
+ 183:./Application/Funtion/CanLib/CANTabOper.c ****             {
+ 184:./Application/Funtion/CanLib/CANTabOper.c ****                 pObject = (u8*)(ptrTable->pObject) + (subIndex + i);
+ 185:./Application/Funtion/CanLib/CANTabOper.c ****                 *(Data + i) = *((u8*)pObject);
+ 186:./Application/Funtion/CanLib/CANTabOper.c ****             }
+ 187:./Application/Funtion/CanLib/CANTabOper.c ****         	/*16位*/
+ 188:./Application/Funtion/CanLib/CANTabOper.c ****             else if(dataType == 2)
+ 189:./Application/Funtion/CanLib/CANTabOper.c ****             {
+ 190:./Application/Funtion/CanLib/CANTabOper.c ****                 pObject = (u16*)(ptrTable->pObject) + (subIndex + i);
+ 191:./Application/Funtion/CanLib/CANTabOper.c ****                 Datatemp = *((u16*)pObject);;
+ 192:./Application/Funtion/CanLib/CANTabOper.c ****                 *(Data + 2 * i) = (u8)(Datatemp & 0x00FF);
+ 193:./Application/Funtion/CanLib/CANTabOper.c ****                 *(Data + 2 * i + 1) = (u8)((Datatemp & 0xFF00) >> 8);
+ 194:./Application/Funtion/CanLib/CANTabOper.c ****             }
+ 195:./Application/Funtion/CanLib/CANTabOper.c ****         	/*32位*/
+ 196:./Application/Funtion/CanLib/CANTabOper.c ****         	else if(dataType == 4)
+ 197:./Application/Funtion/CanLib/CANTabOper.c ****             {
+ 198:./Application/Funtion/CanLib/CANTabOper.c ****                 pObject = (u32*)(ptrTable->pObject) + (subIndex + i);
+ 199:./Application/Funtion/CanLib/CANTabOper.c ****                 Datatemp1 = *((u32*)pObject);
+ 200:./Application/Funtion/CanLib/CANTabOper.c ****                 *(Data + 4 * i) = (u8)(Datatemp1 & 0x000000FF);
+ 201:./Application/Funtion/CanLib/CANTabOper.c ****                 *(Data + 4 * i + 1) = (u8)((Datatemp1 & 0x0000FF00) >> 8);
+ 202:./Application/Funtion/CanLib/CANTabOper.c ****                 *(Data + 4 * i + 2) = (u8)((Datatemp1 & 0x00FF0000) >> 16);
+ 203:./Application/Funtion/CanLib/CANTabOper.c ****                 *(Data + 4 * i + 3) = (u8)((Datatemp1 & 0xFF000000) >> 24);
+ 204:./Application/Funtion/CanLib/CANTabOper.c ****             }
+ 205:./Application/Funtion/CanLib/CANTabOper.c ****         }
+ 206:./Application/Funtion/CanLib/CANTabOper.c ****     }
+ 207:./Application/Funtion/CanLib/CANTabOper.c **** }
+ 208:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 209:./Application/Funtion/CanLib/CANTabOper.c **** /*=================================================================================================
+ 210:./Application/Funtion/CanLib/CANTabOper.c **** ** @Name      : u8 CANWriteCanIndexData(const t_CANIndexTab *ptrTable, u8 subIndex, u8 sIndexNum, u
+ 211:./Application/Funtion/CanLib/CANTabOper.c **** ** @Input     : *ptrTable:主索引信息  sindex:子索引号  sIndexNum:子索引数目 *Data:需
+ 212:./Application/Funtion/CanLib/CANTabOper.c **** ** @Output    : 写结果(0:成功 其它:错误码)
+ 213:./Application/Funtion/CanLib/CANTabOper.c **** ** @Function  : 向索引表中对应子索引写入数据值
+ 214:./Application/Funtion/CanLib/CANTabOper.c **** ** @The notes : 必须确保主索引存在且子索引长度合法
+ 215:./Application/Funtion/CanLib/CANTabOper.c **** **===============================================================================================*/
+ 216:./Application/Funtion/CanLib/CANTabOper.c **** u8 CANWriteCanIndexData(const t_CANIndexTab *ptrTable, u8 subIndex, u8 sIndexNum, u8 *Data, u8 cann
+ 217:./Application/Funtion/CanLib/CANTabOper.c **** {
+ 218:./Application/Funtion/CanLib/CANTabOper.c ****     u8 i = 0;
+ 219:./Application/Funtion/CanLib/CANTabOper.c ****     u8 dataType = 0;
+ 220:./Application/Funtion/CanLib/CANTabOper.c ****     u16 Datatemp = 0;
+ 221:./Application/Funtion/CanLib/CANTabOper.c ****     u32 Datatemp1 =0;
+ 222:./Application/Funtion/CanLib/CANTabOper.c ****     void *pObject = NULL;
+ 223:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 224:./Application/Funtion/CanLib/CANTabOper.c ****     //主索引数据地址
+ 225:./Application/Funtion/CanLib/CANTabOper.c ****     pObject = ptrTable->pObject;
+ 226:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 227:./Application/Funtion/CanLib/CANTabOper.c ****     //主索引数据类型
+ 228:./Application/Funtion/CanLib/CANTabOper.c ****     dataType = ptrTable->dataType;
+ 229:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 230:./Application/Funtion/CanLib/CANTabOper.c ****     //不允许该CAN口修改本主索引
+ 231:./Application/Funtion/CanLib/CANTabOper.c ****     if(((ptrTable->acceType >> cannum) & 0x01) != 1)
+ 232:./Application/Funtion/CanLib/CANTabOper.c ****     {
+ 233:./Application/Funtion/CanLib/CANTabOper.c ****         return(eCANERR_CANPW_DIS);
+ 234:./Application/Funtion/CanLib/CANTabOper.c ****     }
+ 235:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 236:./Application/Funtion/CanLib/CANTabOper.c ****     if(pObject != NULL)
+ 237:./Application/Funtion/CanLib/CANTabOper.c ****     {
+ 238:./Application/Funtion/CanLib/CANTabOper.c ****         //逐个修改各个子索引
+ 239:./Application/Funtion/CanLib/CANTabOper.c ****         for(i = 0; i < sIndexNum; i++)
+ARM GAS  /tmp/ccYAzQ9X.s 			page 7
+
+
+ 240:./Application/Funtion/CanLib/CANTabOper.c ****         {
+ 241:./Application/Funtion/CanLib/CANTabOper.c ****             /*8位*/
+ 242:./Application/Funtion/CanLib/CANTabOper.c ****             if(dataType == 1)
+ 243:./Application/Funtion/CanLib/CANTabOper.c ****             {
+ 244:./Application/Funtion/CanLib/CANTabOper.c ****                 pObject = (u8*)(ptrTable->pObject) + (subIndex + i);
+ 245:./Application/Funtion/CanLib/CANTabOper.c ****                 *((u8*)pObject) = *(Data + i);
+ 246:./Application/Funtion/CanLib/CANTabOper.c ****             }
+ 247:./Application/Funtion/CanLib/CANTabOper.c ****             else if(dataType == 2)
+ 248:./Application/Funtion/CanLib/CANTabOper.c ****             {
+ 249:./Application/Funtion/CanLib/CANTabOper.c ****                 Datatemp = *(Data + 2 * i + 1);
+ 250:./Application/Funtion/CanLib/CANTabOper.c ****                 Datatemp = (Datatemp << 8) | *(Data + 2 * i);
+ 251:./Application/Funtion/CanLib/CANTabOper.c ****                 pObject = (u16*)(ptrTable->pObject) + (subIndex + i);
+ 252:./Application/Funtion/CanLib/CANTabOper.c ****                 *((u16*)pObject) = Datatemp;
+ 253:./Application/Funtion/CanLib/CANTabOper.c ****             }
+ 254:./Application/Funtion/CanLib/CANTabOper.c ****             else if(dataType == 4)
+ 255:./Application/Funtion/CanLib/CANTabOper.c ****             {
+ 256:./Application/Funtion/CanLib/CANTabOper.c ****                 Datatemp1 = *(Data + 4 * i + 3);
+ 257:./Application/Funtion/CanLib/CANTabOper.c ****                 Datatemp1 = (Datatemp1 << 8) | *(Data + 4 * i + 2);
+ 258:./Application/Funtion/CanLib/CANTabOper.c ****                 Datatemp1 = (Datatemp1 << 8) | *(Data + 4 * i + 1);
+ 259:./Application/Funtion/CanLib/CANTabOper.c ****                 Datatemp1 = (Datatemp1 << 8) | *(Data + 4 * i);
+ 260:./Application/Funtion/CanLib/CANTabOper.c ****                 pObject = (u32*)(ptrTable->pObject) + (subIndex + i);
+ 261:./Application/Funtion/CanLib/CANTabOper.c ****                 *((u32*)pObject) = Datatemp1;
+ 262:./Application/Funtion/CanLib/CANTabOper.c ****             }
+ 263:./Application/Funtion/CanLib/CANTabOper.c ****         }
+ 264:./Application/Funtion/CanLib/CANTabOper.c ****     }
+ 265:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 266:./Application/Funtion/CanLib/CANTabOper.c ****     return(eCANERR_SUCCESSFUL);
+ 267:./Application/Funtion/CanLib/CANTabOper.c **** }
+ 268:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 269:./Application/Funtion/CanLib/CANTabOper.c **** /*=================================================================================================
+ 270:./Application/Funtion/CanLib/CANTabOper.c **** ** @Name      : u8 CANReqIdleTxRcvTab(e_CANFunCode funcode, u8 attrib, void *pdata, u8 dataType, u8
+ 271:./Application/Funtion/CanLib/CANTabOper.c **** ** @Input     : funcode:功能码 attrib:帧属性 pdata:数据首地址 dataType:数据类型 mInd
+ 272:./Application/Funtion/CanLib/CANTabOper.c **** ** @Output    : 申请结果(0:成功 其它:错误码)
+ 273:./Application/Funtion/CanLib/CANTabOper.c **** ** @Function  : 请求空闲的收发表记录发送信息
+ 274:./Application/Funtion/CanLib/CANTabOper.c **** ** @The notes : 设置定时发送
+ 275:./Application/Funtion/CanLib/CANTabOper.c **** **===============================================================================================*/
+ 276:./Application/Funtion/CanLib/CANTabOper.c **** u8 CANReqIdleTxRcvTab(e_CANFunCode funcode, u8 attrib, void *pdata, u8 dataType, u8 mIndex, u8 sInd
+ 277:./Application/Funtion/CanLib/CANTabOper.c **** {
+ 278:./Application/Funtion/CanLib/CANTabOper.c ****     u8 i = 0;
+ 279:./Application/Funtion/CanLib/CANTabOper.c ****     u8 errcode = eCANERR_NOIDLE_TAB;
+ 280:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 281:./Application/Funtion/CanLib/CANTabOper.c ****     /*禁止中断*/
+ 282:./Application/Funtion/CanLib/CANTabOper.c ****     BSP_DISABLE_IRQ();
+ 283:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 284:./Application/Funtion/CanLib/CANTabOper.c ****     /*查找空闲发送区*/
+ 285:./Application/Funtion/CanLib/CANTabOper.c ****     for(i = 0; i < gCANBaseDef_3[eCANRBas3_TRTabNum]; i++)
+ 286:./Application/Funtion/CanLib/CANTabOper.c ****     {
+ 287:./Application/Funtion/CanLib/CANTabOper.c ****         /*空闲监听状态*/
+ 288:./Application/Funtion/CanLib/CANTabOper.c ****         if(gCanTxRcvTable[i].ready == eCANTAB_LEISUREL)
+ 289:./Application/Funtion/CanLib/CANTabOper.c ****         {
+ 290:./Application/Funtion/CanLib/CANTabOper.c ****             gCanTxRcvTable[i].funcode = funcode;
+ 291:./Application/Funtion/CanLib/CANTabOper.c ****             gCanTxRcvTable[i].attrib = attrib;
+ 292:./Application/Funtion/CanLib/CANTabOper.c ****             gCanTxRcvTable[i].pdata = pdata;
+ 293:./Application/Funtion/CanLib/CANTabOper.c ****             gCanTxRcvTable[i].dataType = dataType;
+ 294:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 295:./Application/Funtion/CanLib/CANTabOper.c ****             /*单体信息功能码和参数信息功能码命令字当做映射起始主索引使�
+ 296:./Application/Funtion/CanLib/CANTabOper.c ****             if((eCANFUN_UPC == funcode) || (eCANFUN_UPP == funcode))
+ARM GAS  /tmp/ccYAzQ9X.s 			page 8
+
+
+ 297:./Application/Funtion/CanLib/CANTabOper.c ****             {
+ 298:./Application/Funtion/CanLib/CANTabOper.c ****             	gCanTxRcvTable[i].mIndex = conflag;
+ 299:./Application/Funtion/CanLib/CANTabOper.c ****                 gCanTxRcvTable[i].cmd.Bits.CON = 0;
+ 300:./Application/Funtion/CanLib/CANTabOper.c ****             }
+ 301:./Application/Funtion/CanLib/CANTabOper.c ****             /*只有请求修改和请求查询有确认标准*/
+ 302:./Application/Funtion/CanLib/CANTabOper.c ****             else
+ 303:./Application/Funtion/CanLib/CANTabOper.c ****             {
+ 304:./Application/Funtion/CanLib/CANTabOper.c ****             	gCanTxRcvTable[i].mIndex = mIndex;
+ 305:./Application/Funtion/CanLib/CANTabOper.c ****                 gCanTxRcvTable[i].cmd.Bits.CON = conflag & 0x01;
+ 306:./Application/Funtion/CanLib/CANTabOper.c ****             }
+ 307:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 308:./Application/Funtion/CanLib/CANTabOper.c ****             gCanTxRcvTable[i].beginIndex = sIndex;
+ 309:./Application/Funtion/CanLib/CANTabOper.c ****             gCanTxRcvTable[i].sIndex = sIndex;
+ 310:./Application/Funtion/CanLib/CANTabOper.c ****             gCanTxRcvTable[i].nextsIndex = sIndex;
+ 311:./Application/Funtion/CanLib/CANTabOper.c ****             gCanTxRcvTable[i].sIndexNum = sIndexNum;
+ 312:./Application/Funtion/CanLib/CANTabOper.c ****             gCanTxRcvTable[i].daddr = daddr;
+ 313:./Application/Funtion/CanLib/CANTabOper.c ****             gCanTxRcvTable[i].cannum = cannum;
+ 314:./Application/Funtion/CanLib/CANTabOper.c ****             gCanTxRcvTable[i].ready = eCANTAB_WAIT;
+ 315:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 316:./Application/Funtion/CanLib/CANTabOper.c ****             //发送信息数据包
+ 317:./Application/Funtion/CanLib/CANTabOper.c ****             errcode = CANSendTxRcvTabMsgPack(i);
+ 318:./Application/Funtion/CanLib/CANTabOper.c ****             break;
+ 319:./Application/Funtion/CanLib/CANTabOper.c ****         }
+ 320:./Application/Funtion/CanLib/CANTabOper.c ****     }
+ 321:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 322:./Application/Funtion/CanLib/CANTabOper.c ****     /*使能中断*/
+ 323:./Application/Funtion/CanLib/CANTabOper.c ****     BSP_ENABLE_IRQ();
+ 324:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 325:./Application/Funtion/CanLib/CANTabOper.c ****     return(errcode);
+ 326:./Application/Funtion/CanLib/CANTabOper.c **** }
+ 327:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 328:./Application/Funtion/CanLib/CANTabOper.c **** /*=================================================================================================
+ 329:./Application/Funtion/CanLib/CANTabOper.c **** ** @Name      : u8 CANSendTxRcvTabMsgPack(u8 id)
+ 330:./Application/Funtion/CanLib/CANTabOper.c **** ** @Input     : id:CAN收发通信表序号
+ 331:./Application/Funtion/CanLib/CANTabOper.c **** ** @Output    : 发送结果(0:正常,其它:错误码)
+ 332:./Application/Funtion/CanLib/CANTabOper.c **** ** @Function  : 发送CAN收发通信表中需要发送的数据包
+ 333:./Application/Funtion/CanLib/CANTabOper.c **** ** @The notes : CAN收发通信表有报文需要发送时调用
+ 334:./Application/Funtion/CanLib/CANTabOper.c **** **===============================================================================================*/
+ 335:./Application/Funtion/CanLib/CANTabOper.c **** u8 CANSendTxRcvTabMsgPack(u8 id)
+ 336:./Application/Funtion/CanLib/CANTabOper.c **** {
+ 337:./Application/Funtion/CanLib/CANTabOper.c ****     u8 i = 0;
+ 338:./Application/Funtion/CanLib/CANTabOper.c ****     u32 ID = 0;
+ 339:./Application/Funtion/CanLib/CANTabOper.c ****     u16 msgLen = 0;
+ 340:./Application/Funtion/CanLib/CANTabOper.c ****     u8 data[64] = {0};
+ 341:./Application/Funtion/CanLib/CANTabOper.c ****     u8 errcode = eCANERR_SUCCESSFUL;
+ 342:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 343:./Application/Funtion/CanLib/CANTabOper.c ****     /*通信收发表序号越界*/
+ 344:./Application/Funtion/CanLib/CANTabOper.c ****     if(id >= gCANBaseDef_3[eCANRBas3_TRTabNum])
+ 345:./Application/Funtion/CanLib/CANTabOper.c ****     {
+ 346:./Application/Funtion/CanLib/CANTabOper.c ****         return(eCANERR_NOSUCH_TAB);
+ 347:./Application/Funtion/CanLib/CANTabOper.c ****     }
+ 348:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 349:./Application/Funtion/CanLib/CANTabOper.c ****     /*发送单帧信息(周期单帧/校时/心跳)*/
+ 350:./Application/Funtion/CanLib/CANTabOper.c ****     if((gCanTxRcvTable[id].funcode == eCANFUN_UPS) || (gCanTxRcvTable[id].funcode <= eCANFUN_BRE))
+ 351:./Application/Funtion/CanLib/CANTabOper.c ****     {
+ 352:./Application/Funtion/CanLib/CANTabOper.c ****     	/*计算需要发送的字节数*/
+ 353:./Application/Funtion/CanLib/CANTabOper.c ****         msgLen = (u16)gCanTxRcvTable[id].sIndexNum * gCanTxRcvTable[id].dataType;
+ARM GAS  /tmp/ccYAzQ9X.s 			page 9
+
+
+ 354:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 355:./Application/Funtion/CanLib/CANTabOper.c ****     	/*需要发送的字节数不能超过1帧64个字节*/
+ 356:./Application/Funtion/CanLib/CANTabOper.c ****     	if(msgLen <= 64)
+ 357:./Application/Funtion/CanLib/CANTabOper.c ****         {
+ 358:./Application/Funtion/CanLib/CANTabOper.c ****             /*生成信息ID*/
+ 359:./Application/Funtion/CanLib/CANTabOper.c ****             ID = CANBuildMsgID_API(gCanTxRcvTable[id].funcode, gCanTxRcvTable[id].mIndex, gCanTxRcv
+ 360:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 361:./Application/Funtion/CanLib/CANTabOper.c ****     	    /*读通信收发表中子索引数据*/
+ 362:./Application/Funtion/CanLib/CANTabOper.c ****             CANReadTxRcvTabData(id, gCanTxRcvTable[id].sIndexNum, data);
+ 363:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 364:./Application/Funtion/CanLib/CANTabOper.c ****             /*发送报文*/
+ 365:./Application/Funtion/CanLib/CANTabOper.c ****             CANSendMsgUser_Hook(ID, data, (u8)msgLen, gCanTxRcvTable[id].cannum);
+ 366:./Application/Funtion/CanLib/CANTabOper.c ****         }
+ 367:./Application/Funtion/CanLib/CANTabOper.c ****     	/*需要发送的字节数超过1帧64个字节*/
+ 368:./Application/Funtion/CanLib/CANTabOper.c ****     	else
+ 369:./Application/Funtion/CanLib/CANTabOper.c ****     	{
+ 370:./Application/Funtion/CanLib/CANTabOper.c ****     		/*子索引越界*/
+ 371:./Application/Funtion/CanLib/CANTabOper.c ****     	    errcode = eCANERR_SIDLEN_OVE;
+ 372:./Application/Funtion/CanLib/CANTabOper.c ****     	}
+ 373:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 374:./Application/Funtion/CanLib/CANTabOper.c ****         /*单帧则发送完成直接清零收发通信表*/
+ 375:./Application/Funtion/CanLib/CANTabOper.c ****         CANClrTxRcvTabInfo(id);
+ 376:./Application/Funtion/CanLib/CANTabOper.c ****     }
+ 377:./Application/Funtion/CanLib/CANTabOper.c ****     //发送单体信息和参数信息*/
+ 378:./Application/Funtion/CanLib/CANTabOper.c ****     else if((gCanTxRcvTable[id].funcode == eCANFUN_UPC) || (gCanTxRcvTable[id].funcode == eCANFUN_U
+ 379:./Application/Funtion/CanLib/CANTabOper.c ****     {
+ 380:./Application/Funtion/CanLib/CANTabOper.c ****     	/*生成信息ID(使用映射主索引作为主索引)*/
+ 381:./Application/Funtion/CanLib/CANTabOper.c ****         ID = CANBuildMsgID_API(gCanTxRcvTable[id].funcode, gCanTxRcvTable[id].mIndex, gCanTxRcvTabl
+ 382:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 383:./Application/Funtion/CanLib/CANTabOper.c ****         /*判断是否为第一帧*/
+ 384:./Application/Funtion/CanLib/CANTabOper.c ****         if(gCanTxRcvTable[id].beginIndex == gCanTxRcvTable[id].nextsIndex)
+ 385:./Application/Funtion/CanLib/CANTabOper.c ****         {
+ 386:./Application/Funtion/CanLib/CANTabOper.c ****             gCanTxRcvTable[id].remframe = CANCalcRemainFrameNum(1, gCanTxRcvTable[id].dataType, gCa
+ 387:./Application/Funtion/CanLib/CANTabOper.c ****         }
+ 388:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 389:./Application/Funtion/CanLib/CANTabOper.c ****         /*获得当前帧的起始子索引*/
+ 390:./Application/Funtion/CanLib/CANTabOper.c ****         gCanTxRcvTable[id].sIndex = gCanTxRcvTable[id].nextsIndex;
+ 391:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 392:./Application/Funtion/CanLib/CANTabOper.c ****         /*计算当前帧需要读取子索引长度*/
+ 393:./Application/Funtion/CanLib/CANTabOper.c ****         for(i = 0; i < gCanTxRcvTable[id].sIndexNum; i++)
+ 394:./Application/Funtion/CanLib/CANTabOper.c ****         {
+ 395:./Application/Funtion/CanLib/CANTabOper.c ****             /*计一帧发送64个字节数据*/
+ 396:./Application/Funtion/CanLib/CANTabOper.c ****             if(gCanTxRcvTable[id].dataType > (64 - msgLen))
+ 397:./Application/Funtion/CanLib/CANTabOper.c ****             {
+ 398:./Application/Funtion/CanLib/CANTabOper.c ****                 break;
+ 399:./Application/Funtion/CanLib/CANTabOper.c ****             }
+ 400:./Application/Funtion/CanLib/CANTabOper.c ****             msgLen += gCanTxRcvTable[id].dataType;
+ 401:./Application/Funtion/CanLib/CANTabOper.c ****         }
+ 402:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 403:./Application/Funtion/CanLib/CANTabOper.c ****         /*计算下一次发送起始子索引和剩余子索引数目，映射主索引递增1*/
+ 404:./Application/Funtion/CanLib/CANTabOper.c ****         gCanTxRcvTable[id].sIndexNum -=  i;
+ 405:./Application/Funtion/CanLib/CANTabOper.c ****         gCanTxRcvTable[id].nextsIndex = gCanTxRcvTable[id].sIndex + i;
+ 406:./Application/Funtion/CanLib/CANTabOper.c ****         gCanTxRcvTable[id].mIndex++;
+ 407:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 408:./Application/Funtion/CanLib/CANTabOper.c ****         /*通信收发表中子索引数据*/
+ 409:./Application/Funtion/CanLib/CANTabOper.c ****         CANReadTxRcvTabData(id, (u8)(msgLen / gCanTxRcvTable[id].dataType), data);
+ 410:./Application/Funtion/CanLib/CANTabOper.c **** 
+ARM GAS  /tmp/ccYAzQ9X.s 			page 10
+
+
+ 411:./Application/Funtion/CanLib/CANTabOper.c ****         /*发送数据*/
+ 412:./Application/Funtion/CanLib/CANTabOper.c ****         CANSendMsgUser_Hook(ID, data, (u8)msgLen, gCanTxRcvTable[id].cannum);
+ 413:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 414:./Application/Funtion/CanLib/CANTabOper.c ****         /*剩余帧数目-1*/
+ 415:./Application/Funtion/CanLib/CANTabOper.c ****         if(gCanTxRcvTable[id].remframe > 0)
+ 416:./Application/Funtion/CanLib/CANTabOper.c ****         {
+ 417:./Application/Funtion/CanLib/CANTabOper.c ****             gCanTxRcvTable[id].remframe--;
+ 418:./Application/Funtion/CanLib/CANTabOper.c ****         }
+ 419:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 420:./Application/Funtion/CanLib/CANTabOper.c ****         /*最后一帧则清除收发通信表*/
+ 421:./Application/Funtion/CanLib/CANTabOper.c ****         if(gCanTxRcvTable[id].remframe == 0)
+ 422:./Application/Funtion/CanLib/CANTabOper.c ****         {
+ 423:./Application/Funtion/CanLib/CANTabOper.c ****             CANClrTxRcvTabInfo(id);
+ 424:./Application/Funtion/CanLib/CANTabOper.c ****         }
+ 425:./Application/Funtion/CanLib/CANTabOper.c ****     }
+ 426:./Application/Funtion/CanLib/CANTabOper.c ****     /*发送长帧请求查询信息*/
+ 427:./Application/Funtion/CanLib/CANTabOper.c ****     else if(gCanTxRcvTable[id].funcode == eCANFUN_REQ)
+ 428:./Application/Funtion/CanLib/CANTabOper.c ****     {
+ 429:./Application/Funtion/CanLib/CANTabOper.c ****         /*生成信息ID*/
+ 430:./Application/Funtion/CanLib/CANTabOper.c ****         ID = CANBuildMsgID_API(gCanTxRcvTable[id].funcode, gCanTxRcvTable[id].mIndex, gCanTxRcvTabl
+ 431:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 432:./Application/Funtion/CanLib/CANTabOper.c ****         /*帧命令字清零*/
+ 433:./Application/Funtion/CanLib/CANTabOper.c ****         gCanTxRcvTable[id].cmd.Bits.FIR = 0;
+ 434:./Application/Funtion/CanLib/CANTabOper.c ****         gCanTxRcvTable[id].cmd.Bits.FIN = 0;
+ 435:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 436:./Application/Funtion/CanLib/CANTabOper.c ****         data[0] = gCanTxRcvTable[id].cmd.Byte;
+ 437:./Application/Funtion/CanLib/CANTabOper.c ****         data[1] = gCanTxRcvTable[id].beginIndex;
+ 438:./Application/Funtion/CanLib/CANTabOper.c ****         data[2] = gCanTxRcvTable[id].sIndexNum;
+ 439:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 440:./Application/Funtion/CanLib/CANTabOper.c ****         /*发送报文(接收回复完成才清除收发通信表)*/
+ 441:./Application/Funtion/CanLib/CANTabOper.c ****         CANSendMsgUser_Hook(ID, data, 3, gCanTxRcvTable[id].cannum);
+ 442:./Application/Funtion/CanLib/CANTabOper.c ****     }
+ 443:./Application/Funtion/CanLib/CANTabOper.c ****     /*发送长帧其他类型信息*/
+ 444:./Application/Funtion/CanLib/CANTabOper.c ****     else if((gCanTxRcvTable[id].funcode >= eCANFUN_RUP) && (gCanTxRcvTable[id].funcode <= eCANFUN_U
+ 445:./Application/Funtion/CanLib/CANTabOper.c ****     {
+ 446:./Application/Funtion/CanLib/CANTabOper.c ****         /*生成信息ID*/
+ 447:./Application/Funtion/CanLib/CANTabOper.c ****         ID = CANBuildMsgID_API(gCanTxRcvTable[id].funcode, gCanTxRcvTable[id].mIndex, gCanTxRcvTabl
+ 448:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 449:./Application/Funtion/CanLib/CANTabOper.c ****         /*帧命令字清零*/
+ 450:./Application/Funtion/CanLib/CANTabOper.c ****         gCanTxRcvTable[id].cmd.Bits.FIR = 0;
+ 451:./Application/Funtion/CanLib/CANTabOper.c ****         gCanTxRcvTable[id].cmd.Bits.FIN = 0;
+ 452:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 453:./Application/Funtion/CanLib/CANTabOper.c ****         /*判断是否为第一帧*/
+ 454:./Application/Funtion/CanLib/CANTabOper.c ****         if(gCanTxRcvTable[id].cmd.Bits.NUM == 0)
+ 455:./Application/Funtion/CanLib/CANTabOper.c ****         {
+ 456:./Application/Funtion/CanLib/CANTabOper.c ****         	gCanTxRcvTable[id].cmd.Bits.FIR = 1;
+ 457:./Application/Funtion/CanLib/CANTabOper.c ****         	gCanTxRcvTable[id].remframe = CANCalcRemainFrameNum(0, gCanTxRcvTable[id].dataType, gCanTx
+ 458:./Application/Funtion/CanLib/CANTabOper.c ****         }
+ 459:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 460:./Application/Funtion/CanLib/CANTabOper.c ****         /*判断是否为最后一帧*/
+ 461:./Application/Funtion/CanLib/CANTabOper.c ****         if(gCanTxRcvTable[id].remframe == 1)
+ 462:./Application/Funtion/CanLib/CANTabOper.c ****         {
+ 463:./Application/Funtion/CanLib/CANTabOper.c ****         	gCanTxRcvTable[id].cmd.Bits.FIN = 1;
+ 464:./Application/Funtion/CanLib/CANTabOper.c ****         }
+ 465:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 466:./Application/Funtion/CanLib/CANTabOper.c ****         /*获得当前帧的起始子索引*/
+ 467:./Application/Funtion/CanLib/CANTabOper.c ****         gCanTxRcvTable[id].sIndex = gCanTxRcvTable[id].nextsIndex;
+ARM GAS  /tmp/ccYAzQ9X.s 			page 11
+
+
+ 468:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 469:./Application/Funtion/CanLib/CANTabOper.c ****         /*计算当前帧需要读取子索引长度*/
+ 470:./Application/Funtion/CanLib/CANTabOper.c ****         for(i = 0; i < gCanTxRcvTable[id].sIndexNum; i++)
+ 471:./Application/Funtion/CanLib/CANTabOper.c ****         {
+ 472:./Application/Funtion/CanLib/CANTabOper.c ****             /*计一帧发送60个字节数据*/
+ 473:./Application/Funtion/CanLib/CANTabOper.c ****             if(gCanTxRcvTable[id].dataType > (60 - msgLen))
+ 474:./Application/Funtion/CanLib/CANTabOper.c ****             {
+ 475:./Application/Funtion/CanLib/CANTabOper.c ****                 break;
+ 476:./Application/Funtion/CanLib/CANTabOper.c ****             }
+ 477:./Application/Funtion/CanLib/CANTabOper.c ****             msgLen += gCanTxRcvTable[id].dataType;
+ 478:./Application/Funtion/CanLib/CANTabOper.c ****         }
+ 479:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 480:./Application/Funtion/CanLib/CANTabOper.c ****         /*计算下一次发送起始子索引和剩余子索引数目*/
+ 481:./Application/Funtion/CanLib/CANTabOper.c ****         gCanTxRcvTable[id].sIndexNum -=  i;
+ 482:./Application/Funtion/CanLib/CANTabOper.c ****         gCanTxRcvTable[id].nextsIndex = gCanTxRcvTable[id].sIndex + i;
+ 483:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 484:./Application/Funtion/CanLib/CANTabOper.c ****         /*命令字*/
+ 485:./Application/Funtion/CanLib/CANTabOper.c ****         data[1] = (gCanTxRcvTable[id].nextsIndex - gCanTxRcvTable[id].sIndex);
+ 486:./Application/Funtion/CanLib/CANTabOper.c ****         data[0] = gCanTxRcvTable[id].cmd.Byte;
+ 487:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 488:./Application/Funtion/CanLib/CANTabOper.c ****         /*起始子索引*/
+ 489:./Application/Funtion/CanLib/CANTabOper.c ****         data[2] = gCanTxRcvTable[id].sIndex;
+ 490:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 491:./Application/Funtion/CanLib/CANTabOper.c ****         /*通信收发表中子索引数据*/
+ 492:./Application/Funtion/CanLib/CANTabOper.c ****         (void)CANReadTxRcvTabData(id, (u8)(msgLen / gCanTxRcvTable[id].dataType), &data[4]);
+ 493:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 494:./Application/Funtion/CanLib/CANTabOper.c ****         /*发送请求修改命令未满8byte时需要增加校验码*/
+ 495:./Application/Funtion/CanLib/CANTabOper.c ****         if((gCanTxRcvTable[id].funcode == eCANFUN_RUP) && (msgLen < 60))
+ 496:./Application/Funtion/CanLib/CANTabOper.c ****         {
+ 497:./Application/Funtion/CanLib/CANTabOper.c ****         	/*保留byte补0*/
+ 498:./Application/Funtion/CanLib/CANTabOper.c ****         	for(i = msgLen; i < 60; i++)
+ 499:./Application/Funtion/CanLib/CANTabOper.c ****         	{
+ 500:./Application/Funtion/CanLib/CANTabOper.c ****         		data[4 + i] = 0;
+ 501:./Application/Funtion/CanLib/CANTabOper.c ****         	}
+ 502:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 503:./Application/Funtion/CanLib/CANTabOper.c ****         	/*最后byte为校验码*/
+ 504:./Application/Funtion/CanLib/CANTabOper.c ****         	data[63] = CANComputeRequestCRC8((ID & 0xffff), &data[0], 63);
+ 505:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 506:./Application/Funtion/CanLib/CANTabOper.c ****         	/*帧长度满64byte*/
+ 507:./Application/Funtion/CanLib/CANTabOper.c ****         	msgLen = 60;
+ 508:./Application/Funtion/CanLib/CANTabOper.c ****         }
+ 509:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 510:./Application/Funtion/CanLib/CANTabOper.c ****         /*发送数据*/
+ 511:./Application/Funtion/CanLib/CANTabOper.c ****         CANSendMsgUser_Hook(ID, data, (u8)(msgLen + 4), gCanTxRcvTable[id].cannum);
+ 512:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 513:./Application/Funtion/CanLib/CANTabOper.c ****         /*剩余帧数目-1*/
+ 514:./Application/Funtion/CanLib/CANTabOper.c ****         if(gCanTxRcvTable[id].remframe > 0)
+ 515:./Application/Funtion/CanLib/CANTabOper.c ****         {
+ 516:./Application/Funtion/CanLib/CANTabOper.c ****         	gCanTxRcvTable[id].remframe--;
+ 517:./Application/Funtion/CanLib/CANTabOper.c ****         }
+ 518:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 519:./Application/Funtion/CanLib/CANTabOper.c ****         /*如果是主动发送信息和查询回复无确认的最后一帧，则清除收发通�
+ 520:./Application/Funtion/CanLib/CANTabOper.c ****         if((gCanTxRcvTable[id].remframe == 0) && ((gCanTxRcvTable[id].funcode == eCANFUN_UPM) || ((
+ 521:./Application/Funtion/CanLib/CANTabOper.c ****         {
+ 522:./Application/Funtion/CanLib/CANTabOper.c ****         	CANClrTxRcvTabInfo(id);
+ 523:./Application/Funtion/CanLib/CANTabOper.c ****         }
+ 524:./Application/Funtion/CanLib/CANTabOper.c ****     }
+ARM GAS  /tmp/ccYAzQ9X.s 			page 12
+
+
+ 525:./Application/Funtion/CanLib/CANTabOper.c ****     /*其它不支持的功能码*/
+ 526:./Application/Funtion/CanLib/CANTabOper.c ****     else
+ 527:./Application/Funtion/CanLib/CANTabOper.c ****     {
+ 528:./Application/Funtion/CanLib/CANTabOper.c ****     	/*无此功能码,直接清除该收发通信表*/
+ 529:./Application/Funtion/CanLib/CANTabOper.c ****         CANClrTxRcvTabInfo(id);
+ 530:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 531:./Application/Funtion/CanLib/CANTabOper.c ****     	errcode = eCANERR_NOSUCH_FUN;
+ 532:./Application/Funtion/CanLib/CANTabOper.c ****     }
+ 533:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 534:./Application/Funtion/CanLib/CANTabOper.c ****     return(errcode);
+ 535:./Application/Funtion/CanLib/CANTabOper.c **** }
+ 536:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 537:./Application/Funtion/CanLib/CANTabOper.c **** /*=================================================================================================
+ 538:./Application/Funtion/CanLib/CANTabOper.c **** ** @Name      : void CANClrTxRcvTabInfo(u8 id)
+ 539:./Application/Funtion/CanLib/CANTabOper.c **** ** @Input     : id:CAN收发通信表序号
+ 540:./Application/Funtion/CanLib/CANTabOper.c **** ** @Output    : void
+ 541:./Application/Funtion/CanLib/CANTabOper.c **** ** @Function  : 清除CAN收发通信表中的记录
+ 542:./Application/Funtion/CanLib/CANTabOper.c **** ** @The notes :
+ 543:./Application/Funtion/CanLib/CANTabOper.c **** **===============================================================================================*/
+ 544:./Application/Funtion/CanLib/CANTabOper.c **** void CANClrTxRcvTabInfo(u8 id)
+ 545:./Application/Funtion/CanLib/CANTabOper.c **** {
+ 546:./Application/Funtion/CanLib/CANTabOper.c ****     /*通信收发表序号越界*/
+ 547:./Application/Funtion/CanLib/CANTabOper.c ****     if(id >= gCANBaseDef_3[eCANRBas3_TRTabNum])
+ 548:./Application/Funtion/CanLib/CANTabOper.c ****     {
+ 549:./Application/Funtion/CanLib/CANTabOper.c ****         return;
+ 550:./Application/Funtion/CanLib/CANTabOper.c ****     }
+ 551:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 552:./Application/Funtion/CanLib/CANTabOper.c ****     gCanTxRcvTable[id].ready = eCANTAB_LEISUREL;
+ 553:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 554:./Application/Funtion/CanLib/CANTabOper.c **** 	gCanTxRcvTable[id].pdata = NULL;
+ 555:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 556:./Application/Funtion/CanLib/CANTabOper.c **** 	gCanTxRcvTable[id].funcode = eCANFUN_VFT;
+ 557:./Application/Funtion/CanLib/CANTabOper.c **** 	gCanTxRcvTable[id].beginIndex = 0;
+ 558:./Application/Funtion/CanLib/CANTabOper.c **** 	gCanTxRcvTable[id].sIndex = 0;
+ 559:./Application/Funtion/CanLib/CANTabOper.c **** 	gCanTxRcvTable[id].nextsIndex = 0;
+ 560:./Application/Funtion/CanLib/CANTabOper.c **** 	gCanTxRcvTable[id].sIndexNum = 0;
+ 561:./Application/Funtion/CanLib/CANTabOper.c **** 	gCanTxRcvTable[id].daddr = 0;
+ 562:./Application/Funtion/CanLib/CANTabOper.c **** 	gCanTxRcvTable[id].cmd.Byte = 0;
+ 563:./Application/Funtion/CanLib/CANTabOper.c **** 	gCanTxRcvTable[id].mIndex = 0;
+ 564:./Application/Funtion/CanLib/CANTabOper.c **** 	gCanTxRcvTable[id].dataType = 0;
+ 565:./Application/Funtion/CanLib/CANTabOper.c **** 	gCanTxRcvTable[id].cannum = 0;
+ 566:./Application/Funtion/CanLib/CANTabOper.c **** 	gCanTxRcvTable[id].timer.timeResend = 0;
+ 567:./Application/Funtion/CanLib/CANTabOper.c **** 	gCanTxRcvTable[id].timer.timeElasped = 0;
+ 568:./Application/Funtion/CanLib/CANTabOper.c **** }
+ 569:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 570:./Application/Funtion/CanLib/CANTabOper.c **** /*=================================================================================================
+ 571:./Application/Funtion/CanLib/CANTabOper.c **** ** @Name      : void CANClrTxRcvTabTimer(u8 id)
+ 572:./Application/Funtion/CanLib/CANTabOper.c **** ** @Input     : id:CAN收发通信表序号
+ 573:./Application/Funtion/CanLib/CANTabOper.c **** ** @Output    : void
+ 574:./Application/Funtion/CanLib/CANTabOper.c **** ** @Function  : 清除CAN收发通信表中的计时
+ 575:./Application/Funtion/CanLib/CANTabOper.c **** ** @The notes : 两帧交互正常计时结束
+ 576:./Application/Funtion/CanLib/CANTabOper.c **** **===============================================================================================*/
+ 577:./Application/Funtion/CanLib/CANTabOper.c **** void CANClrTxRcvTabTimer(u8 id)
+ 578:./Application/Funtion/CanLib/CANTabOper.c **** {
+ 579:./Application/Funtion/CanLib/CANTabOper.c ****     /*通信收发表序号越界*/
+ 580:./Application/Funtion/CanLib/CANTabOper.c ****     if(id >= gCANBaseDef_3[eCANRBas3_TRTabNum])
+ 581:./Application/Funtion/CanLib/CANTabOper.c ****     {
+ARM GAS  /tmp/ccYAzQ9X.s 			page 13
+
+
+ 582:./Application/Funtion/CanLib/CANTabOper.c ****         return;
+ 583:./Application/Funtion/CanLib/CANTabOper.c ****     }
+ 584:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 585:./Application/Funtion/CanLib/CANTabOper.c **** 	gCanTxRcvTable[id].timer.timeResend = 0;
+ 586:./Application/Funtion/CanLib/CANTabOper.c **** 	gCanTxRcvTable[id].timer.timeElasped = 0;
+ 587:./Application/Funtion/CanLib/CANTabOper.c **** }
+ 588:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 589:./Application/Funtion/CanLib/CANTabOper.c **** /*=================================================================================================
+ 590:./Application/Funtion/CanLib/CANTabOper.c **** ** @Name      : void CANMulFramTxTimerCheck(u8 id, u16 timer)
+ 591:./Application/Funtion/CanLib/CANTabOper.c **** ** @Input     : id:通信表序号, timer:发送帧间隔时间(1ms)
+ 592:./Application/Funtion/CanLib/CANTabOper.c **** ** @Output    : void
+ 593:./Application/Funtion/CanLib/CANTabOper.c **** ** @Function  : 多帧发送帧间间隔计时检测(长帧/单帧/单体/参数)
+ 594:./Application/Funtion/CanLib/CANTabOper.c **** ** @The notes : 通讯表状态为等待发送长帧时1ms定时调用
+ 595:./Application/Funtion/CanLib/CANTabOper.c **** **===============================================================================================*/
+ 596:./Application/Funtion/CanLib/CANTabOper.c **** void CANMulFramTxTimerCheck(u8 id, u16 timer)
+ 597:./Application/Funtion/CanLib/CANTabOper.c **** {
+ 598:./Application/Funtion/CanLib/CANTabOper.c ****     /*通信收发表序号越界*/
+ 599:./Application/Funtion/CanLib/CANTabOper.c ****     if(id >= gCANBaseDef_3[eCANRBas3_TRTabNum])
+ 600:./Application/Funtion/CanLib/CANTabOper.c ****     {
+ 601:./Application/Funtion/CanLib/CANTabOper.c ****         return;
+ 602:./Application/Funtion/CanLib/CANTabOper.c ****     }
+ 603:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 604:./Application/Funtion/CanLib/CANTabOper.c ****     /*发送间隔时间到则发送剩余帧*/
+ 605:./Application/Funtion/CanLib/CANTabOper.c ****     if(gCanTxRcvTable[id].timer.timeElasped >= timer)
+ 606:./Application/Funtion/CanLib/CANTabOper.c ****     {
+ 607:./Application/Funtion/CanLib/CANTabOper.c ****         /*如果是最后一帧(发送完成)，则清除收发通信表*/
+ 608:./Application/Funtion/CanLib/CANTabOper.c ****         if(gCanTxRcvTable[id].remframe == 0)
+ 609:./Application/Funtion/CanLib/CANTabOper.c ****         {
+ 610:./Application/Funtion/CanLib/CANTabOper.c ****         	CANClrTxRcvTabInfo(id);
+ 611:./Application/Funtion/CanLib/CANTabOper.c ****         }
+ 612:./Application/Funtion/CanLib/CANTabOper.c ****         /*还有长帧未发送，则继续发送*/
+ 613:./Application/Funtion/CanLib/CANTabOper.c ****         else
+ 614:./Application/Funtion/CanLib/CANTabOper.c ****         {
+ 615:./Application/Funtion/CanLib/CANTabOper.c ****         	CANSendTxRcvTabMsgPack(id);
+ 616:./Application/Funtion/CanLib/CANTabOper.c ****         }
+ 617:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 618:./Application/Funtion/CanLib/CANTabOper.c ****         /*间隔时间清零,重新等待下一帧发送*/
+ 619:./Application/Funtion/CanLib/CANTabOper.c ****     	gCanTxRcvTable[id].timer.timeElasped = 0;
+ 620:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 621:./Application/Funtion/CanLib/CANTabOper.c ****     }
+ 622:./Application/Funtion/CanLib/CANTabOper.c ****     /*未达到间隔时间则继续计时*/
+ 623:./Application/Funtion/CanLib/CANTabOper.c ****     else
+ 624:./Application/Funtion/CanLib/CANTabOper.c ****     {
+ 625:./Application/Funtion/CanLib/CANTabOper.c ****         /*计时*/
+ 626:./Application/Funtion/CanLib/CANTabOper.c ****     	gCanTxRcvTable[id].timer.timeElasped++;
+ 627:./Application/Funtion/CanLib/CANTabOper.c ****     }
+ 628:./Application/Funtion/CanLib/CANTabOper.c **** }
+ 629:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 630:./Application/Funtion/CanLib/CANTabOper.c **** /*=================================================================================================
+ 631:./Application/Funtion/CanLib/CANTabOper.c **** ** @Name      : void CANWaitAnsFramTimerCheck(u8 id, u16 timer, u8 times)
+ 632:./Application/Funtion/CanLib/CANTabOper.c **** ** @Input     : id:通信表序号, timer:发送帧间隔时间(1ms) times:重发次数(1次)
+ 633:./Application/Funtion/CanLib/CANTabOper.c **** ** @Output    : void
+ 634:./Application/Funtion/CanLib/CANTabOper.c **** ** @Function  : 等待回复帧间间隔计时检测
+ 635:./Application/Funtion/CanLib/CANTabOper.c **** ** @The notes : 通讯表状态为等待接收回复时1ms定时调用
+ 636:./Application/Funtion/CanLib/CANTabOper.c **** **===============================================================================================*/
+ 637:./Application/Funtion/CanLib/CANTabOper.c **** void CANWaitAnsFramTimerCheck(u8 id, u16 timer, u8 times)
+ 638:./Application/Funtion/CanLib/CANTabOper.c **** {
+ARM GAS  /tmp/ccYAzQ9X.s 			page 14
+
+
+ 639:./Application/Funtion/CanLib/CANTabOper.c ****     /*通信收发表序号越界*/
+ 640:./Application/Funtion/CanLib/CANTabOper.c ****     if(id >= gCANBaseDef_3[eCANRBas3_TRTabNum])
+ 641:./Application/Funtion/CanLib/CANTabOper.c ****     {
+ 642:./Application/Funtion/CanLib/CANTabOper.c ****         return;
+ 643:./Application/Funtion/CanLib/CANTabOper.c ****     }
+ 644:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 645:./Application/Funtion/CanLib/CANTabOper.c ****     gCanTxRcvTable[id].timer.timeElasped++;
+ 646:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 647:./Application/Funtion/CanLib/CANTabOper.c ****     //重发时间到
+ 648:./Application/Funtion/CanLib/CANTabOper.c ****     if(gCanTxRcvTable[id].timer.timeElasped >= timer)
+ 649:./Application/Funtion/CanLib/CANTabOper.c ****     {
+ 650:./Application/Funtion/CanLib/CANTabOper.c ****         //超时重发前，通讯表状态返回上一帧
+ 651:./Application/Funtion/CanLib/CANTabOper.c ****     	gCanTxRcvTable[id].sIndexNum += gCanTxRcvTable[id].cmd.Bits.NUM;
+ 652:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 653:./Application/Funtion/CanLib/CANTabOper.c ****         //判断重发帧是否为首帧
+ 654:./Application/Funtion/CanLib/CANTabOper.c ****         if(gCanTxRcvTable[id].cmd.Bits.FIR == 1)
+ 655:./Application/Funtion/CanLib/CANTabOper.c ****         {
+ 656:./Application/Funtion/CanLib/CANTabOper.c ****         	gCanTxRcvTable[id].cmd.Bits.NUM = 0;
+ 657:./Application/Funtion/CanLib/CANTabOper.c ****         }
+ 658:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 659:./Application/Funtion/CanLib/CANTabOper.c ****         //剩余帧数目加1
+ 660:./Application/Funtion/CanLib/CANTabOper.c ****         gCanTxRcvTable[id].remframe++;
+ 661:./Application/Funtion/CanLib/CANTabOper.c ****         gCanTxRcvTable[id].nextsIndex = gCanTxRcvTable[id].sIndex;
+ 662:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 663:./Application/Funtion/CanLib/CANTabOper.c ****         //发送数据
+ 664:./Application/Funtion/CanLib/CANTabOper.c ****         CANSendTxRcvTabMsgPack(id);
+ 665:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 666:./Application/Funtion/CanLib/CANTabOper.c ****         //时间清零
+ 667:./Application/Funtion/CanLib/CANTabOper.c ****         gCanTxRcvTable[id].timer.timeElasped = 0;
+ 668:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 669:./Application/Funtion/CanLib/CANTabOper.c ****         //重发次数加1
+ 670:./Application/Funtion/CanLib/CANTabOper.c ****         gCanTxRcvTable[id].timer.timeResend++;
+ 671:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 672:./Application/Funtion/CanLib/CANTabOper.c ****         //重发次数超时
+ 673:./Application/Funtion/CanLib/CANTabOper.c ****         if(gCanTxRcvTable[id].timer.timeResend >= times)
+ 674:./Application/Funtion/CanLib/CANTabOper.c ****         {
+ 675:./Application/Funtion/CanLib/CANTabOper.c ****             //清除收发通信表
+ 676:./Application/Funtion/CanLib/CANTabOper.c ****             CANClrTxRcvTabInfo(id);
+ 677:./Application/Funtion/CanLib/CANTabOper.c ****         }
+ 678:./Application/Funtion/CanLib/CANTabOper.c ****     }
+ 679:./Application/Funtion/CanLib/CANTabOper.c **** }
+ 680:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 681:./Application/Funtion/CanLib/CANTabOper.c **** /*=================================================================================================
+ 682:./Application/Funtion/CanLib/CANTabOper.c **** ** @Name      : void CANReadTxRcvTabData(u8 id, u8 readlen, u8 *pdata)
+ 683:./Application/Funtion/CanLib/CANTabOper.c **** ** @Input     : id:CAN收发通信表序号 readlen:读数据长度 *pdata:读到的数据
+ 684:./Application/Funtion/CanLib/CANTabOper.c **** ** @Output    : void
+ 685:./Application/Funtion/CanLib/CANTabOper.c **** ** @Function  : 读取CAN收发通信表中缓存区的数据
+ 686:./Application/Funtion/CanLib/CANTabOper.c **** ** @The notes : 确保读取长度必须有效
+ 687:./Application/Funtion/CanLib/CANTabOper.c **** **===============================================================================================*/
+ 688:./Application/Funtion/CanLib/CANTabOper.c **** void CANReadTxRcvTabData(u8 id, u8 readlen, u8 *pdata)
+ 689:./Application/Funtion/CanLib/CANTabOper.c **** {
+ 690:./Application/Funtion/CanLib/CANTabOper.c ****     u8 i = 0;
+ 691:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 692:./Application/Funtion/CanLib/CANTabOper.c ****     /*通信收发表序号越界*/
+ 693:./Application/Funtion/CanLib/CANTabOper.c ****     if(id >= gCANBaseDef_3[eCANRBas3_TRTabNum])
+ 694:./Application/Funtion/CanLib/CANTabOper.c ****     {
+ 695:./Application/Funtion/CanLib/CANTabOper.c ****         return;
+ARM GAS  /tmp/ccYAzQ9X.s 			page 15
+
+
+ 696:./Application/Funtion/CanLib/CANTabOper.c ****     }
+ 697:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 698:./Application/Funtion/CanLib/CANTabOper.c ****     //读通讯缓存中数据
+ 699:./Application/Funtion/CanLib/CANTabOper.c ****     if(gCanTxRcvTable[id].pdata != NULL)
+ 700:./Application/Funtion/CanLib/CANTabOper.c ****     {
+ 701:./Application/Funtion/CanLib/CANTabOper.c ****         switch(gCanTxRcvTable[id].dataType)
+ 702:./Application/Funtion/CanLib/CANTabOper.c ****         {
+ 703:./Application/Funtion/CanLib/CANTabOper.c ****             case 1:
+ 704:./Application/Funtion/CanLib/CANTabOper.c ****                 for(i = 0; i < readlen; i++)
+ 705:./Application/Funtion/CanLib/CANTabOper.c ****                 {
+ 706:./Application/Funtion/CanLib/CANTabOper.c ****                     *(pdata + i) = *((u8*)gCanTxRcvTable[id].pdata + gCanTxRcvTable[id].sIndex + i)
+ 707:./Application/Funtion/CanLib/CANTabOper.c ****                 }
+ 708:./Application/Funtion/CanLib/CANTabOper.c ****                 break;
+ 709:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 710:./Application/Funtion/CanLib/CANTabOper.c ****             case 2:
+ 711:./Application/Funtion/CanLib/CANTabOper.c ****                 for(i = 0; i < readlen; i++)
+ 712:./Application/Funtion/CanLib/CANTabOper.c ****                 {
+ 713:./Application/Funtion/CanLib/CANTabOper.c ****                     *(pdata + 2 * i) = (u8)(*((u16*)gCanTxRcvTable[id].pdata + gCanTxRcvTable[id].s
+ 714:./Application/Funtion/CanLib/CANTabOper.c ****                     *(pdata + 2 * i + 1) = (u8)((*((u16*)gCanTxRcvTable[id].pdata + gCanTxRcvTable[
+ 715:./Application/Funtion/CanLib/CANTabOper.c ****                 }
+ 716:./Application/Funtion/CanLib/CANTabOper.c ****                 break;
+ 717:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 718:./Application/Funtion/CanLib/CANTabOper.c ****             case 4:
+ 719:./Application/Funtion/CanLib/CANTabOper.c ****                 for(i = 0; i < readlen; i++)
+ 720:./Application/Funtion/CanLib/CANTabOper.c ****                 {
+ 721:./Application/Funtion/CanLib/CANTabOper.c ****                     *(pdata + 4 * i) = (u8)(*((u32*)gCanTxRcvTable[id].pdata + gCanTxRcvTable[id].s
+ 722:./Application/Funtion/CanLib/CANTabOper.c ****                     *(pdata + 4 * i + 1) = (u8)((*((u32*)gCanTxRcvTable[id].pdata + gCanTxRcvTable[
+ 723:./Application/Funtion/CanLib/CANTabOper.c ****                     *(pdata + 4 * i + 2) = (u8)((*((u32*)gCanTxRcvTable[id].pdata + gCanTxRcvTable[
+ 724:./Application/Funtion/CanLib/CANTabOper.c ****                     *(pdata + 4 * i + 3) = (u8)((*((u32*)gCanTxRcvTable[id].pdata + gCanTxRcvTable[
+ 725:./Application/Funtion/CanLib/CANTabOper.c ****                 }
+ 726:./Application/Funtion/CanLib/CANTabOper.c ****                 break;
+ 727:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 728:./Application/Funtion/CanLib/CANTabOper.c ****             default:
+ 729:./Application/Funtion/CanLib/CANTabOper.c ****                 break;
+ 730:./Application/Funtion/CanLib/CANTabOper.c ****         }
+ 731:./Application/Funtion/CanLib/CANTabOper.c ****     }
+ 732:./Application/Funtion/CanLib/CANTabOper.c **** }
+ 733:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 734:./Application/Funtion/CanLib/CANTabOper.c **** /*=================================================================================================
+ 735:./Application/Funtion/CanLib/CANTabOper.c **** ** @Name      : u8 CANFindTxRcvTabMatching(u8 destAddr, e_CANFunCode funcode, u8 mindex, u8 sindex)
+ 736:./Application/Funtion/CanLib/CANTabOper.c **** ** @Input     : destAddr:源地址 funcode:功能码 mindex:主索引 sindex:子索引
+ 737:./Application/Funtion/CanLib/CANTabOper.c **** ** @Output    : void
+ 738:./Application/Funtion/CanLib/CANTabOper.c **** ** @Function  : 查找CAN收发通信表中与输入参数匹配的序号
+ 739:./Application/Funtion/CanLib/CANTabOper.c **** ** @The notes : 查找是否正处于收发状态
+ 740:./Application/Funtion/CanLib/CANTabOper.c **** **===============================================================================================*/
+ 741:./Application/Funtion/CanLib/CANTabOper.c **** u8 CANFindTxRcvTabMatching(u8 destAddr, e_CANFunCode funcode, u8 mindex, u8 sindex)
+ 742:./Application/Funtion/CanLib/CANTabOper.c **** {
+ 743:./Application/Funtion/CanLib/CANTabOper.c ****     u8 i = 0;
+ 744:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 745:./Application/Funtion/CanLib/CANTabOper.c ****     /*轮询所有CAN收发通信表*/
+ 746:./Application/Funtion/CanLib/CANTabOper.c ****     for(i = 0; i < gCANBaseDef_3[eCANRBas3_TRTabNum]; i++)
+ 747:./Application/Funtion/CanLib/CANTabOper.c ****     {
+ 748:./Application/Funtion/CanLib/CANTabOper.c ****         /*要查找的参数与该CAN收发通信表匹配*/
+ 749:./Application/Funtion/CanLib/CANTabOper.c ****         if((gCanTxRcvTable[i].daddr == destAddr) && (gCanTxRcvTable[i].funcode == funcode) && (gCan
+ 750:./Application/Funtion/CanLib/CANTabOper.c ****             && ((gCanTxRcvTable[i].sIndex == sindex) || (gCanTxRcvTable[i].nextsIndex == sindex)))
+ 751:./Application/Funtion/CanLib/CANTabOper.c ****         {
+ 752:./Application/Funtion/CanLib/CANTabOper.c ****             /*返回该CAN收发通信表序号*/
+ARM GAS  /tmp/ccYAzQ9X.s 			page 16
+
+
+ 753:./Application/Funtion/CanLib/CANTabOper.c ****             return(i);
+ 754:./Application/Funtion/CanLib/CANTabOper.c ****         }
+ 755:./Application/Funtion/CanLib/CANTabOper.c ****     }
+ 756:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 757:./Application/Funtion/CanLib/CANTabOper.c ****     return(0xff);
+ 758:./Application/Funtion/CanLib/CANTabOper.c **** }
+ 759:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 760:./Application/Funtion/CanLib/CANTabOper.c **** /*=================================================================================================
+ 761:./Application/Funtion/CanLib/CANTabOper.c **** ** @Name      : u8 CANComputeRequestCRC8(u16 ApplicationId, const u8* Crc_DataPtr, u16 Crc_Length)
+ 762:./Application/Funtion/CanLib/CANTabOper.c **** ** @Input     : ApplicationId:帧ID低16位 Crc_DataPtr:需要计算校验码的数组 Crc_Length:�
+ 763:./Application/Funtion/CanLib/CANTabOper.c **** ** @Output    : void
+ 764:./Application/Funtion/CanLib/CANTabOper.c **** ** @Function  : 按SAE J1850 方式计算CRC值
+ 765:./Application/Funtion/CanLib/CANTabOper.c **** ** @The notes : 请求修改命令帧长度不满8byte但发完8byte时使用
+ 766:./Application/Funtion/CanLib/CANTabOper.c **** **===============================================================================================*/
+ 767:./Application/Funtion/CanLib/CANTabOper.c **** u8 CANComputeRequestCRC8(u16 ApplicationId, const u8* Crc_DataPtr, u16 Crc_Length)
+ 768:./Application/Funtion/CanLib/CANTabOper.c **** {
+ 769:./Application/Funtion/CanLib/CANTabOper.c **** 	u16 count = 0; 		/* loop counter for CRC calculation */
+ 770:./Application/Funtion/CanLib/CANTabOper.c **** 	u8 crc_value = 0; 	/* CRC initial value */
+ 771:./Application/Funtion/CanLib/CANTabOper.c **** 	u8 XOR_out = 0; 	/* Value to XOR output */
+ 772:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 773:./Application/Funtion/CanLib/CANTabOper.c **** 	crc_value = 0xffu;
+ 774:./Application/Funtion/CanLib/CANTabOper.c **** 	XOR_out = 0xffu;
+ 775:./Application/Funtion/CanLib/CANTabOper.c **** 	crc_value = Crc8Table[crc_value ^ (u8)(ApplicationId & 0x00ffu)]; 	/* Calculate CRC of low byte of
+ 776:./Application/Funtion/CanLib/CANTabOper.c **** 	crc_value = Crc8Table[crc_value ^ (u8)(ApplicationId >> 8)]; 		/* Calculate CRC of high byte of Ap
+ 777:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 778:./Application/Funtion/CanLib/CANTabOper.c **** 	for (count = 0; count < (u16)Crc_Length; count++) 					/* Calculate CRC of data block */
+ 779:./Application/Funtion/CanLib/CANTabOper.c **** 	{
+ 780:./Application/Funtion/CanLib/CANTabOper.c **** 		crc_value = Crc8Table[crc_value ^ Crc_DataPtr[count]];
+ 781:./Application/Funtion/CanLib/CANTabOper.c **** 	}
+ 782:./Application/Funtion/CanLib/CANTabOper.c **** 	crc_value = crc_value ^ XOR_out;
+ 783:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 784:./Application/Funtion/CanLib/CANTabOper.c **** 	/* Calculate the official checksum.*/
+ 785:./Application/Funtion/CanLib/CANTabOper.c **** 	return(crc_value);
+ 786:./Application/Funtion/CanLib/CANTabOper.c **** }
+ 787:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 788:./Application/Funtion/CanLib/CANTabOper.c **** /*=================================================================================================
+ 789:./Application/Funtion/CanLib/CANTabOper.c **** ** @Static function definition
+ 790:./Application/Funtion/CanLib/CANTabOper.c **** **===============================================================================================*/
+ 791:./Application/Funtion/CanLib/CANTabOper.c **** /*=================================================================================================
+ 792:./Application/Funtion/CanLib/CANTabOper.c **** ** @Name      : static u8 CANFindDevTabMIndexDim(u8 findIndex, u8 mindexNum, const t_CANIndexTab *p
+ 793:./Application/Funtion/CanLib/CANTabOper.c **** ** @Input     : findIndex:查找的主索引号  mindexNum:主索引数目 *pindextable:所要查�
+ 794:./Application/Funtion/CanLib/CANTabOper.c **** ** @Output    : 对应主索引所在位置
+ 795:./Application/Funtion/CanLib/CANTabOper.c **** ** @Function  : 查找主索引所在设备表中偏移位置(第几个主索引)
+ 796:./Application/Funtion/CanLib/CANTabOper.c **** ** @The notes : 二分查找法
+ 797:./Application/Funtion/CanLib/CANTabOper.c **** **===============================================================================================*/
+ 798:./Application/Funtion/CanLib/CANTabOper.c **** static u8 CANFindDevTabMIndexDim(u8 findIndex, u8 mindexNum, const t_CANIndexTab *pindextable)
+ 799:./Application/Funtion/CanLib/CANTabOper.c **** {
+ 800:./Application/Funtion/CanLib/CANTabOper.c ****     u8 low = 0;
+ 801:./Application/Funtion/CanLib/CANTabOper.c ****     u8 high = mindexNum - 1;
+  97              		.loc 1 801 0
+  98 003e 541E     		subs	r4, r2, #1
+  99              	.LBE5:
+ 100              	.LBE4:
+ 116:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 101              		.loc 1 116 0
+ 102 0040 0293     		str	r3, [sp, #8]
+ 103              	.LVL9:
+ARM GAS  /tmp/ccYAzQ9X.s 			page 17
+
+
+ 104              	.LBB8:
+ 105              	.LBB6:
+ 802:./Application/Funtion/CanLib/CANTabOper.c ****     u8 mid = 0;
+ 803:./Application/Funtion/CanLib/CANTabOper.c ****     u8 i = 0;
+ 804:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 805:./Application/Funtion/CanLib/CANTabOper.c ****     for(i = 0; i < ((mindexNum / 2) + 1); i++)
+ 106              		.loc 1 805 0
+ 107 0042 5308     		lsrs	r3, r2, #1
+ 108              	.LVL10:
+ 109 0044 0022     		movs	r2, #0
+ 110              	.LVL11:
+ 800:./Application/Funtion/CanLib/CANTabOper.c ****     u8 high = mindexNum - 1;
+ 111              		.loc 1 800 0
+ 112 0046 1700     		movs	r7, r2
+ 801:./Application/Funtion/CanLib/CANTabOper.c ****     u8 mid = 0;
+ 113              		.loc 1 801 0
+ 114 0048 E4B2     		uxtb	r4, r4
+ 115              	.LVL12:
+ 116              		.loc 1 805 0
+ 117 004a 0493     		str	r3, [sp, #16]
+ 118              	.LVL13:
+ 119              	.L4:
+ 806:./Application/Funtion/CanLib/CANTabOper.c ****     {
+ 807:./Application/Funtion/CanLib/CANTabOper.c ****         if(low <= high)
+ 808:./Application/Funtion/CanLib/CANTabOper.c ****         {
+ 809:./Application/Funtion/CanLib/CANTabOper.c ****             mid = (u8)((low + high) / 2);
+ 810:./Application/Funtion/CanLib/CANTabOper.c ****             if((pindextable + mid)->mIndex == findIndex)
+ 120              		.loc 1 810 0
+ 121 004c 0C20     		movs	r0, #12
+ 809:./Application/Funtion/CanLib/CANTabOper.c ****             if((pindextable + mid)->mIndex == findIndex)
+ 122              		.loc 1 809 0
+ 123 004e 3E19     		adds	r6, r7, r4
+ 124 0050 7610     		asrs	r6, r6, #1
+ 125              		.loc 1 810 0
+ 126 0052 7043     		muls	r0, r6
+ 127 0054 029D     		ldr	r5, [sp, #8]
+ 809:./Application/Funtion/CanLib/CANTabOper.c ****             if((pindextable + mid)->mIndex == findIndex)
+ 128              		.loc 1 809 0
+ 129 0056 F3B2     		uxtb	r3, r6
+ 130              	.LVL14:
+ 131              		.loc 1 810 0
+ 132 0058 2818     		adds	r0, r5, r0
+ 133 005a 4578     		ldrb	r5, [r0, #1]
+ 134 005c A942     		cmp	r1, r5
+ 135 005e 1ED0     		beq	.L6
+ 811:./Application/Funtion/CanLib/CANTabOper.c ****             {
+ 812:./Application/Funtion/CanLib/CANTabOper.c ****                 return(mid);
+ 813:./Application/Funtion/CanLib/CANTabOper.c ****             }
+ 814:./Application/Funtion/CanLib/CANTabOper.c ****             else
+ 815:./Application/Funtion/CanLib/CANTabOper.c ****             {
+ 816:./Application/Funtion/CanLib/CANTabOper.c ****                 if((pindextable + mid)->mIndex < findIndex)
+ 136              		.loc 1 816 0
+ 137 0060 16D9     		bls	.L7
+ 817:./Application/Funtion/CanLib/CANTabOper.c ****                 {
+ 818:./Application/Funtion/CanLib/CANTabOper.c ****                     low = mid + 1;
+ 138              		.loc 1 818 0
+ 139 0062 0133     		adds	r3, r3, #1
+ARM GAS  /tmp/ccYAzQ9X.s 			page 18
+
+
+ 140              	.LVL15:
+ 141 0064 DFB2     		uxtb	r7, r3
+ 142              	.LVL16:
+ 143              	.L8:
+ 805:./Application/Funtion/CanLib/CANTabOper.c ****     {
+ 144              		.loc 1 805 0
+ 145 0066 0132     		adds	r2, r2, #1
+ 146              	.LVL17:
+ 147 0068 049B     		ldr	r3, [sp, #16]
+ 148 006a D2B2     		uxtb	r2, r2
+ 149              	.LVL18:
+ 150 006c 9A42     		cmp	r2, r3
+ 151 006e 01D8     		bhi	.L5
+ 807:./Application/Funtion/CanLib/CANTabOper.c ****         {
+ 152              		.loc 1 807 0
+ 153 0070 A742     		cmp	r7, r4
+ 154 0072 EBD9     		bls	.L4
+ 155              	.LVL19:
+ 156              	.L5:
+ 157              	.LBE6:
+ 158              	.LBE8:
+ 121:./Application/Funtion/CanLib/CANTabOper.c ****             }
+ 159              		.loc 1 121 0
+ 160 0074 0423     		movs	r3, #4
+ 161              	.LVL20:
+ 162              	.L20:
+ 137:./Application/Funtion/CanLib/CANTabOper.c ****                 }
+ 163              		.loc 1 137 0
+ 164 0076 0C9A     		ldr	r2, [sp, #48]
+ 165 0078 1370     		strb	r3, [r2]
+ 166              	.L11:
+ 144:./Application/Funtion/CanLib/CANTabOper.c ****     {
+ 167              		.loc 1 144 0
+ 168 007a 104B     		ldr	r3, .L21+4
+ 169 007c 039A     		ldr	r2, [sp, #12]
+ 170 007e 1B78     		ldrb	r3, [r3]
+ 151:./Application/Funtion/CanLib/CANTabOper.c **** }
+ 171              		.loc 1 151 0
+ 172 0080 0020     		movs	r0, #0
+ 144:./Application/Funtion/CanLib/CANTabOper.c ****     {
+ 173              		.loc 1 144 0
+ 174 0082 9342     		cmp	r3, r2
+ 175 0084 02D8     		bhi	.L1
+ 147:./Application/Funtion/CanLib/CANTabOper.c ****     }
+ 176              		.loc 1 147 0
+ 177 0086 0323     		movs	r3, #3
+ 178 0088 0C9A     		ldr	r2, [sp, #48]
+ 179 008a 1370     		strb	r3, [r2]
+ 180              	.L1:
+ 152:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 181              		.loc 1 152 0
+ 182 008c 07B0     		add	sp, sp, #28
+ 183              		@ sp needed
+ 184 008e F0BD     		pop	{r4, r5, r6, r7, pc}
+ 185              	.LVL21:
+ 186              	.L7:
+ 187              	.LBB9:
+ARM GAS  /tmp/ccYAzQ9X.s 			page 19
+
+
+ 188              	.LBB7:
+ 819:./Application/Funtion/CanLib/CANTabOper.c ****                 }
+ 820:./Application/Funtion/CanLib/CANTabOper.c ****                 else
+ 821:./Application/Funtion/CanLib/CANTabOper.c ****                 {
+ 822:./Application/Funtion/CanLib/CANTabOper.c ****                     if((pindextable + mid)->mIndex > findIndex)
+ 189              		.loc 1 822 0
+ 190 0090 A942     		cmp	r1, r5
+ 191 0092 E8D2     		bcs	.L8
+ 823:./Application/Funtion/CanLib/CANTabOper.c ****                     {
+ 824:./Application/Funtion/CanLib/CANTabOper.c ****                         if(mid == 0)
+ 192              		.loc 1 824 0
+ 193 0094 002E     		cmp	r6, #0
+ 194 0096 EDD0     		beq	.L5
+ 825:./Application/Funtion/CanLib/CANTabOper.c ****                         {
+ 826:./Application/Funtion/CanLib/CANTabOper.c ****                             return(0xff);
+ 827:./Application/Funtion/CanLib/CANTabOper.c ****                         }
+ 828:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 829:./Application/Funtion/CanLib/CANTabOper.c ****                         high = mid - 1;
+ 195              		.loc 1 829 0
+ 196 0098 013B     		subs	r3, r3, #1
+ 197              	.LVL22:
+ 198 009a DCB2     		uxtb	r4, r3
+ 199              	.LVL23:
+ 200 009c E3E7     		b	.L8
+ 201              	.LVL24:
+ 202              	.L6:
+ 203              	.LBE7:
+ 204              	.LBE9:
+ 119:./Application/Funtion/CanLib/CANTabOper.c ****             {
+ 205              		.loc 1 119 0
+ 206 009e FF2B     		cmp	r3, #255
+ 207 00a0 E8D0     		beq	.L5
+ 208              	.LVL25:
+ 129:./Application/Funtion/CanLib/CANTabOper.c ****                 {
+ 209              		.loc 1 129 0
+ 210 00a2 0199     		ldr	r1, [sp, #4]
+ 211              	.LVL26:
+ 212 00a4 059B     		ldr	r3, [sp, #20]
+ 213 00a6 8C46     		mov	ip, r1
+ 214 00a8 427A     		ldrb	r2, [r0, #9]
+ 215 00aa 6344     		add	r3, r3, ip
+ 216 00ac 9A42     		cmp	r2, r3
+ 217 00ae 01DB     		blt	.L12
+ 129:./Application/Funtion/CanLib/CANTabOper.c ****                 {
+ 218              		.loc 1 129 0 is_stmt 0 discriminator 1
+ 219 00b0 8A42     		cmp	r2, r1
+ 220 00b2 EBD8     		bhi	.L1
+ 221              	.L12:
+ 137:./Application/Funtion/CanLib/CANTabOper.c ****                 }
+ 222              		.loc 1 137 0 is_stmt 1
+ 223 00b4 0523     		movs	r3, #5
+ 224 00b6 DEE7     		b	.L20
+ 225              	.L22:
+ 226              		.align	2
+ 227              	.L21:
+ 228 00b8 00000000 		.word	gCanDevTable
+ 229 00bc 00000000 		.word	gCANBaseDef_3
+ARM GAS  /tmp/ccYAzQ9X.s 			page 20
+
+
+ 230 00c0 00000000 		.word	SystemInfo_1
+ 231              		.cfi_endproc
+ 232              	.LFE493:
+ 234              		.section	.text.CANReadCanIndexData,"ax",%progbits
+ 235              		.align	1
+ 236              		.global	CANReadCanIndexData
+ 237              		.syntax unified
+ 238              		.code	16
+ 239              		.thumb_func
+ 240              		.fpu softvfp
+ 242              	CANReadCanIndexData:
+ 243              	.LFB494:
+ 162:./Application/Funtion/CanLib/CANTabOper.c ****     u8 i = 0;
+ 244              		.loc 1 162 0
+ 245              		.cfi_startproc
+ 246              		@ args = 0, pretend = 0, frame = 8
+ 247              		@ frame_needed = 0, uses_anonymous_args = 0
+ 248              	.LVL27:
+ 249 0000 F7B5     		push	{r0, r1, r2, r4, r5, r6, r7, lr}
+ 250              	.LCFI2:
+ 251              		.cfi_def_cfa_offset 32
+ 252              		.cfi_offset 0, -32
+ 253              		.cfi_offset 1, -28
+ 254              		.cfi_offset 2, -24
+ 255              		.cfi_offset 4, -20
+ 256              		.cfi_offset 5, -16
+ 257              		.cfi_offset 6, -12
+ 258              		.cfi_offset 7, -8
+ 259              		.cfi_offset 14, -4
+ 176:./Application/Funtion/CanLib/CANTabOper.c ****     {
+ 260              		.loc 1 176 0
+ 261 0002 4468     		ldr	r4, [r0, #4]
+ 162:./Application/Funtion/CanLib/CANTabOper.c ****     u8 i = 0;
+ 262              		.loc 1 162 0
+ 263 0004 0192     		str	r2, [sp, #4]
+ 176:./Application/Funtion/CanLib/CANTabOper.c ****     {
+ 264              		.loc 1 176 0
+ 265 0006 002C     		cmp	r4, #0
+ 266 0008 05D0     		beq	.L23
+ 173:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 267              		.loc 1 173 0
+ 268 000a 0024     		movs	r4, #0
+ 269 000c 077A     		ldrb	r7, [r0, #8]
+ 270              	.LVL28:
+ 271              	.L25:
+ 179:./Application/Funtion/CanLib/CANTabOper.c ****         {
+ 272              		.loc 1 179 0 discriminator 1
+ 273 000e 019A     		ldr	r2, [sp, #4]
+ 274 0010 E5B2     		uxtb	r5, r4
+ 275 0012 AA42     		cmp	r2, r5
+ 276 0014 00D8     		bhi	.L29
+ 277              	.LVL29:
+ 278              	.L23:
+ 207:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 279              		.loc 1 207 0
+ 280              		@ sp needed
+ 281 0016 F7BD     		pop	{r0, r1, r2, r4, r5, r6, r7, pc}
+ARM GAS  /tmp/ccYAzQ9X.s 			page 21
+
+
+ 282              	.LVL30:
+ 283              	.L29:
+ 182:./Application/Funtion/CanLib/CANTabOper.c ****             {
+ 284              		.loc 1 182 0
+ 285 0018 012F     		cmp	r7, #1
+ 286 001a 05D1     		bne	.L26
+ 287              	.LVL31:
+ 185:./Application/Funtion/CanLib/CANTabOper.c ****             }
+ 288              		.loc 1 185 0
+ 289 001c 4568     		ldr	r5, [r0, #4]
+ 290 001e 2D19     		adds	r5, r5, r4
+ 291 0020 6D5C     		ldrb	r5, [r5, r1]
+ 292 0022 1D55     		strb	r5, [r3, r4]
+ 293              	.LVL32:
+ 294              	.L27:
+ 295 0024 0134     		adds	r4, r4, #1
+ 296              	.LVL33:
+ 297 0026 F2E7     		b	.L25
+ 298              	.LVL34:
+ 299              	.L26:
+ 188:./Application/Funtion/CanLib/CANTabOper.c ****             {
+ 300              		.loc 1 188 0
+ 301 0028 022F     		cmp	r7, #2
+ 302 002a 09D1     		bne	.L28
+ 303              	.LVL35:
+ 191:./Application/Funtion/CanLib/CANTabOper.c ****                 *(Data + 2 * i) = (u8)(Datatemp & 0x00FF);
+ 304              		.loc 1 191 0
+ 305 002c 4668     		ldr	r6, [r0, #4]
+ 190:./Application/Funtion/CanLib/CANTabOper.c ****                 Datatemp = *((u16*)pObject);;
+ 306              		.loc 1 190 0
+ 307 002e 0D19     		adds	r5, r1, r4
+ 191:./Application/Funtion/CanLib/CANTabOper.c ****                 *(Data + 2 * i) = (u8)(Datatemp & 0x00FF);
+ 308              		.loc 1 191 0
+ 309 0030 6D00     		lsls	r5, r5, #1
+ 310 0032 AE5B     		ldrh	r6, [r5, r6]
+ 311              	.LVL36:
+ 312 0034 6500     		lsls	r5, r4, #1
+ 192:./Application/Funtion/CanLib/CANTabOper.c ****                 *(Data + 2 * i + 1) = (u8)((Datatemp & 0xFF00) >> 8);
+ 313              		.loc 1 192 0
+ 314 0036 5E55     		strb	r6, [r3, r5]
+ 315              	.LVL37:
+ 193:./Application/Funtion/CanLib/CANTabOper.c ****             }
+ 316              		.loc 1 193 0
+ 317 0038 5D19     		adds	r5, r3, r5
+ 318 003a 360A     		lsrs	r6, r6, #8
+ 319              	.LVL38:
+ 320 003c 6E70     		strb	r6, [r5, #1]
+ 321 003e F1E7     		b	.L27
+ 322              	.L28:
+ 196:./Application/Funtion/CanLib/CANTabOper.c ****             {
+ 323              		.loc 1 196 0
+ 324 0040 042F     		cmp	r7, #4
+ 325 0042 EFD1     		bne	.L27
+ 326              	.LVL39:
+ 199:./Application/Funtion/CanLib/CANTabOper.c ****                 *(Data + 4 * i) = (u8)(Datatemp1 & 0x000000FF);
+ 327              		.loc 1 199 0
+ 328 0044 4668     		ldr	r6, [r0, #4]
+ARM GAS  /tmp/ccYAzQ9X.s 			page 22
+
+
+ 198:./Application/Funtion/CanLib/CANTabOper.c ****                 Datatemp1 = *((u32*)pObject);
+ 329              		.loc 1 198 0
+ 330 0046 0D19     		adds	r5, r1, r4
+ 199:./Application/Funtion/CanLib/CANTabOper.c ****                 *(Data + 4 * i) = (u8)(Datatemp1 & 0x000000FF);
+ 331              		.loc 1 199 0
+ 332 0048 AD00     		lsls	r5, r5, #2
+ 333 004a AE59     		ldr	r6, [r5, r6]
+ 334              	.LVL40:
+ 335 004c A500     		lsls	r5, r4, #2
+ 200:./Application/Funtion/CanLib/CANTabOper.c ****                 *(Data + 4 * i + 1) = (u8)((Datatemp1 & 0x0000FF00) >> 8);
+ 336              		.loc 1 200 0
+ 337 004e 5E55     		strb	r6, [r3, r5]
+ 338              	.LVL41:
+ 201:./Application/Funtion/CanLib/CANTabOper.c ****                 *(Data + 4 * i + 2) = (u8)((Datatemp1 & 0x00FF0000) >> 16);
+ 339              		.loc 1 201 0
+ 340 0050 320A     		lsrs	r2, r6, #8
+ 341 0052 5D19     		adds	r5, r3, r5
+ 342 0054 6A70     		strb	r2, [r5, #1]
+ 202:./Application/Funtion/CanLib/CANTabOper.c ****                 *(Data + 4 * i + 3) = (u8)((Datatemp1 & 0xFF000000) >> 24);
+ 343              		.loc 1 202 0
+ 344 0056 320C     		lsrs	r2, r6, #16
+ 203:./Application/Funtion/CanLib/CANTabOper.c ****             }
+ 345              		.loc 1 203 0
+ 346 0058 360E     		lsrs	r6, r6, #24
+ 347              	.LVL42:
+ 202:./Application/Funtion/CanLib/CANTabOper.c ****                 *(Data + 4 * i + 3) = (u8)((Datatemp1 & 0xFF000000) >> 24);
+ 348              		.loc 1 202 0
+ 349 005a AA70     		strb	r2, [r5, #2]
+ 203:./Application/Funtion/CanLib/CANTabOper.c ****             }
+ 350              		.loc 1 203 0
+ 351 005c EE70     		strb	r6, [r5, #3]
+ 352 005e E1E7     		b	.L27
+ 353              		.cfi_endproc
+ 354              	.LFE494:
+ 356              		.section	.text.CANWriteCanIndexData,"ax",%progbits
+ 357              		.align	1
+ 358              		.global	CANWriteCanIndexData
+ 359              		.syntax unified
+ 360              		.code	16
+ 361              		.thumb_func
+ 362              		.fpu softvfp
+ 364              	CANWriteCanIndexData:
+ 365              	.LFB495:
+ 217:./Application/Funtion/CanLib/CANTabOper.c ****     u8 i = 0;
+ 366              		.loc 1 217 0
+ 367              		.cfi_startproc
+ 368              		@ args = 4, pretend = 0, frame = 8
+ 369              		@ frame_needed = 0, uses_anonymous_args = 0
+ 370              	.LVL43:
+ 371 0000 F7B5     		push	{r0, r1, r2, r4, r5, r6, r7, lr}
+ 372              	.LCFI3:
+ 373              		.cfi_def_cfa_offset 32
+ 374              		.cfi_offset 0, -32
+ 375              		.cfi_offset 1, -28
+ 376              		.cfi_offset 2, -24
+ 377              		.cfi_offset 4, -20
+ 378              		.cfi_offset 5, -16
+ARM GAS  /tmp/ccYAzQ9X.s 			page 23
+
+
+ 379              		.cfi_offset 6, -12
+ 380              		.cfi_offset 7, -8
+ 381              		.cfi_offset 14, -4
+ 217:./Application/Funtion/CanLib/CANTabOper.c ****     u8 i = 0;
+ 382              		.loc 1 217 0
+ 383 0002 0192     		str	r2, [sp, #4]
+ 384 0004 08AA     		add	r2, sp, #32
+ 385              	.LVL44:
+ 386 0006 1478     		ldrb	r4, [r2]
+ 231:./Application/Funtion/CanLib/CANTabOper.c ****     {
+ 387              		.loc 1 231 0
+ 388 0008 0278     		ldrb	r2, [r0]
+ 389              	.LVL45:
+ 390 000a 2241     		asrs	r2, r2, r4
+ 233:./Application/Funtion/CanLib/CANTabOper.c ****     }
+ 391              		.loc 1 233 0
+ 392 000c 0824     		movs	r4, #8
+ 231:./Application/Funtion/CanLib/CANTabOper.c ****     {
+ 393              		.loc 1 231 0
+ 394 000e D207     		lsls	r2, r2, #31
+ 395 0010 03D5     		bpl	.L32
+ 236:./Application/Funtion/CanLib/CANTabOper.c ****     {
+ 396              		.loc 1 236 0
+ 397 0012 4268     		ldr	r2, [r0, #4]
+ 398 0014 002A     		cmp	r2, #0
+ 399 0016 02D1     		bne	.L33
+ 400              	.LVL46:
+ 401              	.L39:
+ 266:./Application/Funtion/CanLib/CANTabOper.c **** }
+ 402              		.loc 1 266 0
+ 403 0018 0024     		movs	r4, #0
+ 404              	.L32:
+ 267:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 405              		.loc 1 267 0
+ 406 001a 2000     		movs	r0, r4
+ 407              	.LVL47:
+ 408              		@ sp needed
+ 409 001c FEBD     		pop	{r1, r2, r3, r4, r5, r6, r7, pc}
+ 410              	.LVL48:
+ 411              	.L33:
+ 228:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 412              		.loc 1 228 0
+ 413 001e 0022     		movs	r2, #0
+ 414 0020 057A     		ldrb	r5, [r0, #8]
+ 415              	.LVL49:
+ 416              	.L34:
+ 239:./Application/Funtion/CanLib/CANTabOper.c ****         {
+ 417              		.loc 1 239 0 discriminator 1
+ 418 0022 019E     		ldr	r6, [sp, #4]
+ 419 0024 D4B2     		uxtb	r4, r2
+ 420 0026 A642     		cmp	r6, r4
+ 421 0028 F6D9     		bls	.L39
+ 242:./Application/Funtion/CanLib/CANTabOper.c ****             {
+ 422              		.loc 1 242 0
+ 423 002a 012D     		cmp	r5, #1
+ 424 002c 05D1     		bne	.L35
+ 425              	.LVL50:
+ARM GAS  /tmp/ccYAzQ9X.s 			page 24
+
+
+ 245:./Application/Funtion/CanLib/CANTabOper.c ****             }
+ 426              		.loc 1 245 0
+ 427 002e 4468     		ldr	r4, [r0, #4]
+ 428 0030 9E5C     		ldrb	r6, [r3, r2]
+ 429 0032 A418     		adds	r4, r4, r2
+ 430 0034 6654     		strb	r6, [r4, r1]
+ 431              	.LVL51:
+ 432              	.L36:
+ 433 0036 0132     		adds	r2, r2, #1
+ 434              	.LVL52:
+ 435 0038 F3E7     		b	.L34
+ 436              	.LVL53:
+ 437              	.L35:
+ 247:./Application/Funtion/CanLib/CANTabOper.c ****             {
+ 438              		.loc 1 247 0
+ 439 003a 022D     		cmp	r5, #2
+ 440 003c 0AD1     		bne	.L37
+ 441 003e 5600     		lsls	r6, r2, #1
+ 442              	.LVL54:
+ 249:./Application/Funtion/CanLib/CANTabOper.c ****                 Datatemp = (Datatemp << 8) | *(Data + 2 * i);
+ 443              		.loc 1 249 0
+ 444 0040 9F19     		adds	r7, r3, r6
+ 250:./Application/Funtion/CanLib/CANTabOper.c ****                 pObject = (u16*)(ptrTable->pObject) + (subIndex + i);
+ 445              		.loc 1 250 0
+ 446 0042 7F78     		ldrb	r7, [r7, #1]
+ 447 0044 9E5D     		ldrb	r6, [r3, r6]
+ 448 0046 3F02     		lsls	r7, r7, #8
+ 449 0048 3E43     		orrs	r6, r7
+ 251:./Application/Funtion/CanLib/CANTabOper.c ****                 *((u16*)pObject) = Datatemp;
+ 450              		.loc 1 251 0
+ 451 004a 8C18     		adds	r4, r1, r2
+ 252:./Application/Funtion/CanLib/CANTabOper.c ****             }
+ 452              		.loc 1 252 0
+ 453 004c 4768     		ldr	r7, [r0, #4]
+ 454 004e 6400     		lsls	r4, r4, #1
+ 455 0050 E653     		strh	r6, [r4, r7]
+ 456 0052 F0E7     		b	.L36
+ 457              	.LVL55:
+ 458              	.L37:
+ 254:./Application/Funtion/CanLib/CANTabOper.c ****             {
+ 459              		.loc 1 254 0
+ 460 0054 042D     		cmp	r5, #4
+ 461 0056 EED1     		bne	.L36
+ 462 0058 9400     		lsls	r4, r2, #2
+ 463 005a A446     		mov	ip, r4
+ 464 005c 1E19     		adds	r6, r3, r4
+ 465              	.LVL56:
+ 256:./Application/Funtion/CanLib/CANTabOper.c ****                 Datatemp1 = (Datatemp1 << 8) | *(Data + 4 * i + 2);
+ 466              		.loc 1 256 0
+ 467 005e F778     		ldrb	r7, [r6, #3]
+ 468              	.LVL57:
+ 257:./Application/Funtion/CanLib/CANTabOper.c ****                 Datatemp1 = (Datatemp1 << 8) | *(Data + 4 * i + 1);
+ 469              		.loc 1 257 0
+ 470 0060 B478     		ldrb	r4, [r6, #2]
+ 471 0062 3F02     		lsls	r7, r7, #8
+ 472              	.LVL58:
+ 473 0064 3C43     		orrs	r4, r7
+ARM GAS  /tmp/ccYAzQ9X.s 			page 25
+
+
+ 474              	.LVL59:
+ 258:./Application/Funtion/CanLib/CANTabOper.c ****                 Datatemp1 = (Datatemp1 << 8) | *(Data + 4 * i);
+ 475              		.loc 1 258 0
+ 476 0066 7778     		ldrb	r7, [r6, #1]
+ 477 0068 2402     		lsls	r4, r4, #8
+ 478              	.LVL60:
+ 479 006a 3C43     		orrs	r4, r7
+ 480              	.LVL61:
+ 259:./Application/Funtion/CanLib/CANTabOper.c ****                 pObject = (u32*)(ptrTable->pObject) + (subIndex + i);
+ 481              		.loc 1 259 0
+ 482 006c 6746     		mov	r7, ip
+ 483 006e DF5D     		ldrb	r7, [r3, r7]
+ 484 0070 2402     		lsls	r4, r4, #8
+ 485              	.LVL62:
+ 486 0072 3C43     		orrs	r4, r7
+ 487              	.LVL63:
+ 260:./Application/Funtion/CanLib/CANTabOper.c ****                 *((u32*)pObject) = Datatemp1;
+ 488              		.loc 1 260 0
+ 489 0074 8E18     		adds	r6, r1, r2
+ 261:./Application/Funtion/CanLib/CANTabOper.c ****             }
+ 490              		.loc 1 261 0
+ 491 0076 4768     		ldr	r7, [r0, #4]
+ 492 0078 B600     		lsls	r6, r6, #2
+ 493 007a F451     		str	r4, [r6, r7]
+ 494 007c DBE7     		b	.L36
+ 495              		.cfi_endproc
+ 496              	.LFE495:
+ 498              		.section	.text.CANClrTxRcvTabInfo,"ax",%progbits
+ 499              		.align	1
+ 500              		.global	CANClrTxRcvTabInfo
+ 501              		.syntax unified
+ 502              		.code	16
+ 503              		.thumb_func
+ 504              		.fpu softvfp
+ 506              	CANClrTxRcvTabInfo:
+ 507              	.LFB498:
+ 545:./Application/Funtion/CanLib/CANTabOper.c ****     /*通信收发表序号越界*/
+ 508              		.loc 1 545 0
+ 509              		.cfi_startproc
+ 510              		@ args = 0, pretend = 0, frame = 0
+ 511              		@ frame_needed = 0, uses_anonymous_args = 0
+ 512              	.LVL64:
+ 513 0000 10B5     		push	{r4, lr}
+ 514              	.LCFI4:
+ 515              		.cfi_def_cfa_offset 8
+ 516              		.cfi_offset 4, -8
+ 517              		.cfi_offset 14, -4
+ 547:./Application/Funtion/CanLib/CANTabOper.c ****     {
+ 518              		.loc 1 547 0
+ 519 0002 0D4B     		ldr	r3, .L43
+ 520 0004 9B78     		ldrb	r3, [r3, #2]
+ 521 0006 8342     		cmp	r3, r0
+ 522 0008 15D9     		bls	.L41
+ 523              	.LVL65:
+ 524              	.LBB12:
+ 525              	.LBB13:
+ 552:./Application/Funtion/CanLib/CANTabOper.c **** 
+ARM GAS  /tmp/ccYAzQ9X.s 			page 26
+
+
+ 526              		.loc 1 552 0
+ 527 000a 1823     		movs	r3, #24
+ 528 000c 5843     		muls	r0, r3
+ 529              	.LVL66:
+ 530 000e 0100     		movs	r1, r0
+ 531 0010 0023     		movs	r3, #0
+ 532 0012 0A4C     		ldr	r4, .L43+4
+ 533 0014 0831     		adds	r1, r1, #8
+ 554:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 534              		.loc 1 554 0
+ 535 0016 2218     		adds	r2, r4, r0
+ 536 0018 0919     		adds	r1, r1, r4
+ 552:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 537              		.loc 1 552 0
+ 538 001a 0355     		strb	r3, [r0, r4]
+ 554:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 539              		.loc 1 554 0
+ 540 001c 5360     		str	r3, [r2, #4]
+ 556:./Application/Funtion/CanLib/CANTabOper.c **** 	gCanTxRcvTable[id].beginIndex = 0;
+ 541              		.loc 1 556 0
+ 542 001e 5370     		strb	r3, [r2, #1]
+ 557:./Application/Funtion/CanLib/CANTabOper.c **** 	gCanTxRcvTable[id].sIndex = 0;
+ 543              		.loc 1 557 0
+ 544 0020 4B80     		strh	r3, [r1, #2]
+ 558:./Application/Funtion/CanLib/CANTabOper.c **** 	gCanTxRcvTable[id].nextsIndex = 0;
+ 545              		.loc 1 558 0
+ 546 0022 8B80     		strh	r3, [r1, #4]
+ 564:./Application/Funtion/CanLib/CANTabOper.c **** 	gCanTxRcvTable[id].cannum = 0;
+ 547              		.loc 1 564 0
+ 548 0024 0649     		ldr	r1, .L43+8
+ 561:./Application/Funtion/CanLib/CANTabOper.c **** 	gCanTxRcvTable[id].cmd.Byte = 0;
+ 549              		.loc 1 561 0
+ 550 0026 D373     		strb	r3, [r2, #15]
+ 564:./Application/Funtion/CanLib/CANTabOper.c **** 	gCanTxRcvTable[id].cannum = 0;
+ 551              		.loc 1 564 0
+ 552 0028 4118     		adds	r1, r0, r1
+ 562:./Application/Funtion/CanLib/CANTabOper.c **** 	gCanTxRcvTable[id].mIndex = 0;
+ 553              		.loc 1 562 0
+ 554 002a 9374     		strb	r3, [r2, #18]
+ 564:./Application/Funtion/CanLib/CANTabOper.c **** 	gCanTxRcvTable[id].cannum = 0;
+ 555              		.loc 1 564 0
+ 556 002c 0B80     		strh	r3, [r1]
+ 565:./Application/Funtion/CanLib/CANTabOper.c **** 	gCanTxRcvTable[id].timer.timeResend = 0;
+ 557              		.loc 1 565 0
+ 558 002e 1374     		strb	r3, [r2, #16]
+ 566:./Application/Funtion/CanLib/CANTabOper.c **** 	gCanTxRcvTable[id].timer.timeElasped = 0;
+ 559              		.loc 1 566 0
+ 560 0030 044A     		ldr	r2, .L43+12
+ 561 0032 8018     		adds	r0, r0, r2
+ 562 0034 4360     		str	r3, [r0, #4]
+ 563              	.LVL67:
+ 564              	.L41:
+ 565              	.LBE13:
+ 566              	.LBE12:
+ 568:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 567              		.loc 1 568 0
+ 568              		@ sp needed
+ARM GAS  /tmp/ccYAzQ9X.s 			page 27
+
+
+ 569 0036 10BD     		pop	{r4, pc}
+ 570              	.L44:
+ 571              		.align	2
+ 572              	.L43:
+ 573 0038 00000000 		.word	gCANBaseDef_3
+ 574 003c 00000000 		.word	gCanTxRcvTable
+ 575 0040 08000000 		.word	gCanTxRcvTable+8
+ 576 0044 10000000 		.word	gCanTxRcvTable+16
+ 577              		.cfi_endproc
+ 578              	.LFE498:
+ 580              		.section	.text.CANClrTxRcvTabTimer,"ax",%progbits
+ 581              		.align	1
+ 582              		.global	CANClrTxRcvTabTimer
+ 583              		.syntax unified
+ 584              		.code	16
+ 585              		.thumb_func
+ 586              		.fpu softvfp
+ 588              	CANClrTxRcvTabTimer:
+ 589              	.LFB499:
+ 578:./Application/Funtion/CanLib/CANTabOper.c ****     /*通信收发表序号越界*/
+ 590              		.loc 1 578 0
+ 591              		.cfi_startproc
+ 592              		@ args = 0, pretend = 0, frame = 0
+ 593              		@ frame_needed = 0, uses_anonymous_args = 0
+ 594              		@ link register save eliminated.
+ 595              	.LVL68:
+ 580:./Application/Funtion/CanLib/CANTabOper.c ****     {
+ 596              		.loc 1 580 0
+ 597 0000 054B     		ldr	r3, .L47
+ 598 0002 9B78     		ldrb	r3, [r3, #2]
+ 599 0004 8342     		cmp	r3, r0
+ 600 0006 05D9     		bls	.L45
+ 585:./Application/Funtion/CanLib/CANTabOper.c **** 	gCanTxRcvTable[id].timer.timeElasped = 0;
+ 601              		.loc 1 585 0
+ 602 0008 1823     		movs	r3, #24
+ 603 000a 5843     		muls	r0, r3
+ 604              	.LVL69:
+ 605 000c 034B     		ldr	r3, .L47+4
+ 606 000e C018     		adds	r0, r0, r3
+ 607 0010 0023     		movs	r3, #0
+ 608 0012 4360     		str	r3, [r0, #4]
+ 609              	.L45:
+ 587:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 610              		.loc 1 587 0
+ 611              		@ sp needed
+ 612 0014 7047     		bx	lr
+ 613              	.L48:
+ 614 0016 C046     		.align	2
+ 615              	.L47:
+ 616 0018 00000000 		.word	gCANBaseDef_3
+ 617 001c 10000000 		.word	gCanTxRcvTable+16
+ 618              		.cfi_endproc
+ 619              	.LFE499:
+ 621              		.section	.text.CANReadTxRcvTabData,"ax",%progbits
+ 622              		.align	1
+ 623              		.global	CANReadTxRcvTabData
+ 624              		.syntax unified
+ARM GAS  /tmp/ccYAzQ9X.s 			page 28
+
+
+ 625              		.code	16
+ 626              		.thumb_func
+ 627              		.fpu softvfp
+ 629              	CANReadTxRcvTabData:
+ 630              	.LFB502:
+ 689:./Application/Funtion/CanLib/CANTabOper.c ****     u8 i = 0;
+ 631              		.loc 1 689 0
+ 632              		.cfi_startproc
+ 633              		@ args = 0, pretend = 0, frame = 0
+ 634              		@ frame_needed = 0, uses_anonymous_args = 0
+ 635              	.LVL70:
+ 636 0000 70B5     		push	{r4, r5, r6, lr}
+ 637              	.LCFI5:
+ 638              		.cfi_def_cfa_offset 16
+ 639              		.cfi_offset 4, -16
+ 640              		.cfi_offset 5, -12
+ 641              		.cfi_offset 6, -8
+ 642              		.cfi_offset 14, -4
+ 693:./Application/Funtion/CanLib/CANTabOper.c ****     {
+ 643              		.loc 1 693 0
+ 644 0002 2D4B     		ldr	r3, .L65
+ 645 0004 9B78     		ldrb	r3, [r3, #2]
+ 646 0006 8342     		cmp	r3, r0
+ 647 0008 54D9     		bls	.L49
+ 648              	.LVL71:
+ 649              	.LBB16:
+ 650              	.LBB17:
+ 699:./Application/Funtion/CanLib/CANTabOper.c ****     {
+ 651              		.loc 1 699 0
+ 652 000a 1823     		movs	r3, #24
+ 653 000c 4343     		muls	r3, r0
+ 654 000e 2B48     		ldr	r0, .L65+4
+ 655              	.LVL72:
+ 656 0010 C018     		adds	r0, r0, r3
+ 657 0012 4368     		ldr	r3, [r0, #4]
+ 658 0014 002B     		cmp	r3, #0
+ 659 0016 4DD0     		beq	.L49
+ 701:./Application/Funtion/CanLib/CANTabOper.c ****         {
+ 660              		.loc 1 701 0
+ 661 0018 037A     		ldrb	r3, [r0, #8]
+ 662 001a 022B     		cmp	r3, #2
+ 663 001c 2BD0     		beq	.L53
+ 664 001e 042B     		cmp	r3, #4
+ 665 0020 05D0     		beq	.L54
+ 666 0022 012B     		cmp	r3, #1
+ 667 0024 46D1     		bne	.L49
+ 706:./Application/Funtion/CanLib/CANTabOper.c ****                 }
+ 668              		.loc 1 706 0
+ 669 0026 0500     		movs	r5, r0
+ 701:./Application/Funtion/CanLib/CANTabOper.c ****         {
+ 670              		.loc 1 701 0
+ 671 0028 0023     		movs	r3, #0
+ 706:./Application/Funtion/CanLib/CANTabOper.c ****                 }
+ 672              		.loc 1 706 0
+ 673 002a 0B35     		adds	r5, r5, #11
+ 674 002c 3FE0     		b	.L55
+ 675              	.L54:
+ARM GAS  /tmp/ccYAzQ9X.s 			page 29
+
+
+ 721:./Application/Funtion/CanLib/CANTabOper.c ****                     *(pdata + 4 * i + 1) = (u8)((*((u32*)gCanTxRcvTable[id].pdata + gCanTxRcvTable[
+ 676              		.loc 1 721 0
+ 677 002e 0500     		movs	r5, r0
+ 701:./Application/Funtion/CanLib/CANTabOper.c ****         {
+ 678              		.loc 1 701 0
+ 679 0030 0023     		movs	r3, #0
+ 721:./Application/Funtion/CanLib/CANTabOper.c ****                     *(pdata + 4 * i + 1) = (u8)((*((u32*)gCanTxRcvTable[id].pdata + gCanTxRcvTable[
+ 680              		.loc 1 721 0
+ 681 0032 0B35     		adds	r5, r5, #11
+ 682              	.LVL73:
+ 683              	.L56:
+ 719:./Application/Funtion/CanLib/CANTabOper.c ****                 {
+ 684              		.loc 1 719 0
+ 685 0034 DCB2     		uxtb	r4, r3
+ 686 0036 A142     		cmp	r1, r4
+ 687 0038 3CD9     		bls	.L49
+ 721:./Application/Funtion/CanLib/CANTabOper.c ****                     *(pdata + 4 * i + 1) = (u8)((*((u32*)gCanTxRcvTable[id].pdata + gCanTxRcvTable[
+ 688              		.loc 1 721 0
+ 689 003a 2C78     		ldrb	r4, [r5]
+ 690 003c 4668     		ldr	r6, [r0, #4]
+ 691 003e E418     		adds	r4, r4, r3
+ 692 0040 A400     		lsls	r4, r4, #2
+ 693 0042 A459     		ldr	r4, [r4, r6]
+ 694 0044 1470     		strb	r4, [r2]
+ 722:./Application/Funtion/CanLib/CANTabOper.c ****                     *(pdata + 4 * i + 2) = (u8)((*((u32*)gCanTxRcvTable[id].pdata + gCanTxRcvTable[
+ 695              		.loc 1 722 0
+ 696 0046 2C78     		ldrb	r4, [r5]
+ 697 0048 4668     		ldr	r6, [r0, #4]
+ 698 004a E418     		adds	r4, r4, r3
+ 699 004c A400     		lsls	r4, r4, #2
+ 700 004e A459     		ldr	r4, [r4, r6]
+ 701 0050 240A     		lsrs	r4, r4, #8
+ 702 0052 5470     		strb	r4, [r2, #1]
+ 723:./Application/Funtion/CanLib/CANTabOper.c ****                     *(pdata + 4 * i + 3) = (u8)((*((u32*)gCanTxRcvTable[id].pdata + gCanTxRcvTable[
+ 703              		.loc 1 723 0
+ 704 0054 2C78     		ldrb	r4, [r5]
+ 705 0056 4668     		ldr	r6, [r0, #4]
+ 706 0058 E418     		adds	r4, r4, r3
+ 707 005a A400     		lsls	r4, r4, #2
+ 708 005c A459     		ldr	r4, [r4, r6]
+ 709 005e 240C     		lsrs	r4, r4, #16
+ 710 0060 9470     		strb	r4, [r2, #2]
+ 724:./Application/Funtion/CanLib/CANTabOper.c ****                 }
+ 711              		.loc 1 724 0
+ 712 0062 2C78     		ldrb	r4, [r5]
+ 713 0064 4668     		ldr	r6, [r0, #4]
+ 714 0066 E418     		adds	r4, r4, r3
+ 715 0068 A400     		lsls	r4, r4, #2
+ 716 006a A459     		ldr	r4, [r4, r6]
+ 717 006c 0133     		adds	r3, r3, #1
+ 718              	.LVL74:
+ 719 006e 240E     		lsrs	r4, r4, #24
+ 720 0070 D470     		strb	r4, [r2, #3]
+ 721 0072 0432     		adds	r2, r2, #4
+ 722 0074 DEE7     		b	.L56
+ 723              	.LVL75:
+ 724              	.L53:
+ARM GAS  /tmp/ccYAzQ9X.s 			page 30
+
+
+ 713:./Application/Funtion/CanLib/CANTabOper.c ****                     *(pdata + 2 * i + 1) = (u8)((*((u16*)gCanTxRcvTable[id].pdata + gCanTxRcvTable[
+ 725              		.loc 1 713 0
+ 726 0076 0500     		movs	r5, r0
+ 701:./Application/Funtion/CanLib/CANTabOper.c ****         {
+ 727              		.loc 1 701 0
+ 728 0078 0023     		movs	r3, #0
+ 713:./Application/Funtion/CanLib/CANTabOper.c ****                     *(pdata + 2 * i + 1) = (u8)((*((u16*)gCanTxRcvTable[id].pdata + gCanTxRcvTable[
+ 729              		.loc 1 713 0
+ 730 007a 0B35     		adds	r5, r5, #11
+ 731              	.LVL76:
+ 732              	.L57:
+ 711:./Application/Funtion/CanLib/CANTabOper.c ****                 {
+ 733              		.loc 1 711 0
+ 734 007c DCB2     		uxtb	r4, r3
+ 735 007e A142     		cmp	r1, r4
+ 736 0080 18D9     		bls	.L49
+ 713:./Application/Funtion/CanLib/CANTabOper.c ****                     *(pdata + 2 * i + 1) = (u8)((*((u16*)gCanTxRcvTable[id].pdata + gCanTxRcvTable[
+ 737              		.loc 1 713 0
+ 738 0082 2C78     		ldrb	r4, [r5]
+ 739 0084 4668     		ldr	r6, [r0, #4]
+ 740 0086 E418     		adds	r4, r4, r3
+ 741 0088 6400     		lsls	r4, r4, #1
+ 742 008a A45B     		ldrh	r4, [r4, r6]
+ 743 008c 1470     		strb	r4, [r2]
+ 714:./Application/Funtion/CanLib/CANTabOper.c ****                 }
+ 744              		.loc 1 714 0
+ 745 008e 2C78     		ldrb	r4, [r5]
+ 746 0090 4668     		ldr	r6, [r0, #4]
+ 747 0092 E418     		adds	r4, r4, r3
+ 748 0094 6400     		lsls	r4, r4, #1
+ 749 0096 A45B     		ldrh	r4, [r4, r6]
+ 750 0098 0133     		adds	r3, r3, #1
+ 751              	.LVL77:
+ 752 009a 240A     		lsrs	r4, r4, #8
+ 753 009c 5470     		strb	r4, [r2, #1]
+ 754 009e 0232     		adds	r2, r2, #2
+ 755 00a0 ECE7     		b	.L57
+ 756              	.LVL78:
+ 757              	.L58:
+ 706:./Application/Funtion/CanLib/CANTabOper.c ****                 }
+ 758              		.loc 1 706 0
+ 759 00a2 4468     		ldr	r4, [r0, #4]
+ 760 00a4 2E78     		ldrb	r6, [r5]
+ 761 00a6 E418     		adds	r4, r4, r3
+ 762 00a8 A45D     		ldrb	r4, [r4, r6]
+ 763 00aa D454     		strb	r4, [r2, r3]
+ 764              	.LVL79:
+ 765 00ac 0133     		adds	r3, r3, #1
+ 766              	.LVL80:
+ 767              	.L55:
+ 704:./Application/Funtion/CanLib/CANTabOper.c ****                 {
+ 768              		.loc 1 704 0
+ 769 00ae DCB2     		uxtb	r4, r3
+ 770 00b0 8C42     		cmp	r4, r1
+ 771 00b2 F6D3     		bcc	.L58
+ 772              	.LVL81:
+ 773              	.L49:
+ARM GAS  /tmp/ccYAzQ9X.s 			page 31
+
+
+ 774              	.LBE17:
+ 775              	.LBE16:
+ 732:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 776              		.loc 1 732 0
+ 777              		@ sp needed
+ 778 00b4 70BD     		pop	{r4, r5, r6, pc}
+ 779              	.L66:
+ 780 00b6 C046     		.align	2
+ 781              	.L65:
+ 782 00b8 00000000 		.word	gCANBaseDef_3
+ 783 00bc 00000000 		.word	gCanTxRcvTable
+ 784              		.cfi_endproc
+ 785              	.LFE502:
+ 787              		.section	.text.CANFindTxRcvTabMatching,"ax",%progbits
+ 788              		.align	1
+ 789              		.global	CANFindTxRcvTabMatching
+ 790              		.syntax unified
+ 791              		.code	16
+ 792              		.thumb_func
+ 793              		.fpu softvfp
+ 795              	CANFindTxRcvTabMatching:
+ 796              	.LFB503:
+ 742:./Application/Funtion/CanLib/CANTabOper.c ****     u8 i = 0;
+ 797              		.loc 1 742 0
+ 798              		.cfi_startproc
+ 799              		@ args = 0, pretend = 0, frame = 8
+ 800              		@ frame_needed = 0, uses_anonymous_args = 0
+ 801              	.LVL82:
+ 802 0000 F7B5     		push	{r0, r1, r2, r4, r5, r6, r7, lr}
+ 803              	.LCFI6:
+ 804              		.cfi_def_cfa_offset 32
+ 805              		.cfi_offset 0, -32
+ 806              		.cfi_offset 1, -28
+ 807              		.cfi_offset 2, -24
+ 808              		.cfi_offset 4, -20
+ 809              		.cfi_offset 5, -16
+ 810              		.cfi_offset 6, -12
+ 811              		.cfi_offset 7, -8
+ 812              		.cfi_offset 14, -4
+ 746:./Application/Funtion/CanLib/CANTabOper.c ****     {
+ 813              		.loc 1 746 0
+ 814 0002 0025     		movs	r5, #0
+ 742:./Application/Funtion/CanLib/CANTabOper.c ****     u8 i = 0;
+ 815              		.loc 1 742 0
+ 816 0004 0600     		movs	r6, r0
+ 746:./Application/Funtion/CanLib/CANTabOper.c ****     {
+ 817              		.loc 1 746 0
+ 818 0006 0F48     		ldr	r0, .L72
+ 819              	.LVL83:
+ 820 0008 8078     		ldrb	r0, [r0, #2]
+ 821 000a 0190     		str	r0, [sp, #4]
+ 822              	.LVL84:
+ 823              	.L68:
+ 746:./Application/Funtion/CanLib/CANTabOper.c ****     {
+ 824              		.loc 1 746 0 is_stmt 0 discriminator 1
+ 825 000c 019C     		ldr	r4, [sp, #4]
+ 826 000e E8B2     		uxtb	r0, r5
+ARM GAS  /tmp/ccYAzQ9X.s 			page 32
+
+
+ 827              	.LVL85:
+ 828 0010 8442     		cmp	r4, r0
+ 829 0012 01D8     		bhi	.L71
+ 757:./Application/Funtion/CanLib/CANTabOper.c **** }
+ 830              		.loc 1 757 0 is_stmt 1
+ 831 0014 FF20     		movs	r0, #255
+ 832              	.LVL86:
+ 833              	.L70:
+ 758:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 834              		.loc 1 758 0
+ 835              		@ sp needed
+ 836              	.LVL87:
+ 837 0016 FEBD     		pop	{r1, r2, r3, r4, r5, r6, r7, pc}
+ 838              	.LVL88:
+ 839              	.L71:
+ 840 0018 1824     		movs	r4, #24
+ 841 001a 6C43     		muls	r4, r5
+ 842 001c 0A4F     		ldr	r7, .L72+4
+ 843 001e E419     		adds	r4, r4, r7
+ 749:./Application/Funtion/CanLib/CANTabOper.c ****             && ((gCanTxRcvTable[i].sIndex == sindex) || (gCanTxRcvTable[i].nextsIndex == sindex)))
+ 844              		.loc 1 749 0
+ 845 0020 E77B     		ldrb	r7, [r4, #15]
+ 846 0022 B742     		cmp	r7, r6
+ 847 0024 0BD1     		bne	.L69
+ 749:./Application/Funtion/CanLib/CANTabOper.c ****             && ((gCanTxRcvTable[i].sIndex == sindex) || (gCanTxRcvTable[i].nextsIndex == sindex)))
+ 848              		.loc 1 749 0 is_stmt 0 discriminator 1
+ 849 0026 6778     		ldrb	r7, [r4, #1]
+ 850 0028 8F42     		cmp	r7, r1
+ 851 002a 08D1     		bne	.L69
+ 749:./Application/Funtion/CanLib/CANTabOper.c ****             && ((gCanTxRcvTable[i].sIndex == sindex) || (gCanTxRcvTable[i].nextsIndex == sindex)))
+ 852              		.loc 1 749 0 discriminator 2
+ 853 002c 677A     		ldrb	r7, [r4, #9]
+ 854 002e 9742     		cmp	r7, r2
+ 855 0030 05D1     		bne	.L69
+ 750:./Application/Funtion/CanLib/CANTabOper.c ****         {
+ 856              		.loc 1 750 0 is_stmt 1
+ 857 0032 E77A     		ldrb	r7, [r4, #11]
+ 858 0034 9F42     		cmp	r7, r3
+ 859 0036 EED0     		beq	.L70
+ 750:./Application/Funtion/CanLib/CANTabOper.c ****         {
+ 860              		.loc 1 750 0 is_stmt 0 discriminator 1
+ 861 0038 247B     		ldrb	r4, [r4, #12]
+ 862 003a 9C42     		cmp	r4, r3
+ 863 003c EBD0     		beq	.L70
+ 864              	.L69:
+ 865              	.LVL89:
+ 866 003e 0135     		adds	r5, r5, #1
+ 867              	.LVL90:
+ 868 0040 E4E7     		b	.L68
+ 869              	.L73:
+ 870 0042 C046     		.align	2
+ 871              	.L72:
+ 872 0044 00000000 		.word	gCANBaseDef_3
+ 873 0048 00000000 		.word	gCanTxRcvTable
+ 874              		.cfi_endproc
+ 875              	.LFE503:
+ 877              		.section	.text.CANComputeRequestCRC8,"ax",%progbits
+ARM GAS  /tmp/ccYAzQ9X.s 			page 33
+
+
+ 878              		.align	1
+ 879              		.global	CANComputeRequestCRC8
+ 880              		.syntax unified
+ 881              		.code	16
+ 882              		.thumb_func
+ 883              		.fpu softvfp
+ 885              	CANComputeRequestCRC8:
+ 886              	.LFB504:
+ 768:./Application/Funtion/CanLib/CANTabOper.c **** 	u16 count = 0; 		/* loop counter for CRC calculation */
+ 887              		.loc 1 768 0 is_stmt 1
+ 888              		.cfi_startproc
+ 889              		@ args = 0, pretend = 0, frame = 0
+ 890              		@ frame_needed = 0, uses_anonymous_args = 0
+ 891              	.LVL91:
+ 775:./Application/Funtion/CanLib/CANTabOper.c **** 	crc_value = Crc8Table[crc_value ^ (u8)(ApplicationId >> 8)]; 		/* Calculate CRC of high byte of Ap
+ 892              		.loc 1 775 0
+ 893 0000 C343     		mvns	r3, r0
+ 768:./Application/Funtion/CanLib/CANTabOper.c **** 	u16 count = 0; 		/* loop counter for CRC calculation */
+ 894              		.loc 1 768 0
+ 895 0002 30B5     		push	{r4, r5, lr}
+ 896              	.LCFI7:
+ 897              		.cfi_def_cfa_offset 12
+ 898              		.cfi_offset 4, -12
+ 899              		.cfi_offset 5, -8
+ 900              		.cfi_offset 14, -4
+ 775:./Application/Funtion/CanLib/CANTabOper.c **** 	crc_value = Crc8Table[crc_value ^ (u8)(ApplicationId >> 8)]; 		/* Calculate CRC of high byte of Ap
+ 901              		.loc 1 775 0
+ 902 0004 084C     		ldr	r4, .L77
+ 903 0006 DBB2     		uxtb	r3, r3
+ 776:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 904              		.loc 1 776 0
+ 905 0008 E35C     		ldrb	r3, [r4, r3]
+ 906 000a 000A     		lsrs	r0, r0, #8
+ 907              	.LVL92:
+ 908 000c 5840     		eors	r0, r3
+ 778:./Application/Funtion/CanLib/CANTabOper.c **** 	{
+ 909              		.loc 1 778 0
+ 910 000e 0023     		movs	r3, #0
+ 776:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 911              		.loc 1 776 0
+ 912 0010 205C     		ldrb	r0, [r4, r0]
+ 913              	.LVL93:
+ 914              	.L75:
+ 778:./Application/Funtion/CanLib/CANTabOper.c **** 	{
+ 915              		.loc 1 778 0 discriminator 1
+ 916 0012 9DB2     		uxth	r5, r3
+ 917 0014 AA42     		cmp	r2, r5
+ 918 0016 02D8     		bhi	.L76
+ 919              	.LVL94:
+ 782:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 920              		.loc 1 782 0
+ 921 0018 C043     		mvns	r0, r0
+ 922              	.LVL95:
+ 786:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 923              		.loc 1 786 0
+ 924              		@ sp needed
+ 785:./Application/Funtion/CanLib/CANTabOper.c **** }
+ARM GAS  /tmp/ccYAzQ9X.s 			page 34
+
+
+ 925              		.loc 1 785 0
+ 926 001a C0B2     		uxtb	r0, r0
+ 786:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 927              		.loc 1 786 0
+ 928 001c 30BD     		pop	{r4, r5, pc}
+ 929              	.LVL96:
+ 930              	.L76:
+ 780:./Application/Funtion/CanLib/CANTabOper.c **** 	}
+ 931              		.loc 1 780 0 discriminator 3
+ 932 001e CD5C     		ldrb	r5, [r1, r3]
+ 933 0020 0133     		adds	r3, r3, #1
+ 934              	.LVL97:
+ 935 0022 6840     		eors	r0, r5
+ 936              	.LVL98:
+ 937 0024 205C     		ldrb	r0, [r4, r0]
+ 938              	.LVL99:
+ 939 0026 F4E7     		b	.L75
+ 940              	.L78:
+ 941              		.align	2
+ 942              	.L77:
+ 943 0028 00000000 		.word	Crc8Table
+ 944              		.cfi_endproc
+ 945              	.LFE504:
+ 947              		.global	__aeabi_uidiv
+ 948              		.global	__aeabi_idiv
+ 949              		.section	.text.CANSendTxRcvTabMsgPack,"ax",%progbits
+ 950              		.align	1
+ 951              		.global	CANSendTxRcvTabMsgPack
+ 952              		.syntax unified
+ 953              		.code	16
+ 954              		.thumb_func
+ 955              		.fpu softvfp
+ 957              	CANSendTxRcvTabMsgPack:
+ 958              	.LFB497:
+ 336:./Application/Funtion/CanLib/CANTabOper.c ****     u8 i = 0;
+ 959              		.loc 1 336 0
+ 960              		.cfi_startproc
+ 961              		@ args = 0, pretend = 0, frame = 72
+ 962              		@ frame_needed = 0, uses_anonymous_args = 0
+ 963              	.LVL100:
+ 964 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+ 965              	.LCFI8:
+ 966              		.cfi_def_cfa_offset 20
+ 967              		.cfi_offset 4, -20
+ 968              		.cfi_offset 5, -16
+ 969              		.cfi_offset 6, -12
+ 970              		.cfi_offset 7, -8
+ 971              		.cfi_offset 14, -4
+ 972 0002 93B0     		sub	sp, sp, #76
+ 973              	.LCFI9:
+ 974              		.cfi_def_cfa_offset 96
+ 336:./Application/Funtion/CanLib/CANTabOper.c ****     u8 i = 0;
+ 975              		.loc 1 336 0
+ 976 0004 0400     		movs	r4, r0
+ 340:./Application/Funtion/CanLib/CANTabOper.c ****     u8 errcode = eCANERR_SUCCESSFUL;
+ 977              		.loc 1 340 0
+ 978 0006 4022     		movs	r2, #64
+ARM GAS  /tmp/ccYAzQ9X.s 			page 35
+
+
+ 979 0008 0021     		movs	r1, #0
+ 980 000a 02A8     		add	r0, sp, #8
+ 981              	.LVL101:
+ 982 000c FFF7FEFF 		bl	memset
+ 983              	.LVL102:
+ 344:./Application/Funtion/CanLib/CANTabOper.c ****     {
+ 984              		.loc 1 344 0
+ 985 0010 A84B     		ldr	r3, .L139
+ 346:./Application/Funtion/CanLib/CANTabOper.c ****     }
+ 986              		.loc 1 346 0
+ 987 0012 0625     		movs	r5, #6
+ 344:./Application/Funtion/CanLib/CANTabOper.c ****     {
+ 988              		.loc 1 344 0
+ 989 0014 9B78     		ldrb	r3, [r3, #2]
+ 990 0016 A342     		cmp	r3, r4
+ 991 0018 26D9     		bls	.L80
+ 350:./Application/Funtion/CanLib/CANTabOper.c ****     {
+ 992              		.loc 1 350 0
+ 993 001a 1823     		movs	r3, #24
+ 994 001c 1D00     		movs	r5, r3
+ 995 001e 6543     		muls	r5, r4
+ 996 0020 A54E     		ldr	r6, .L139+4
+ 997 0022 7519     		adds	r5, r6, r5
+ 998 0024 6878     		ldrb	r0, [r5, #1]
+ 999 0026 0A28     		cmp	r0, #10
+ 1000 0028 01D0     		beq	.L81
+ 350:./Application/Funtion/CanLib/CANTabOper.c ****     {
+ 1001              		.loc 1 350 0 is_stmt 0 discriminator 1
+ 1002 002a 0128     		cmp	r0, #1
+ 1003 002c 1FD8     		bhi	.L82
+ 1004              	.L81:
+ 353:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 1005              		.loc 1 353 0 is_stmt 1
+ 1006 002e 6343     		muls	r3, r4
+ 1007 0030 F618     		adds	r6, r6, r3
+ 1008 0032 777B     		ldrb	r7, [r6, #13]
+ 1009 0034 327A     		ldrb	r2, [r6, #8]
+ 371:./Application/Funtion/CanLib/CANTabOper.c ****     	}
+ 1010              		.loc 1 371 0
+ 1011 0036 0525     		movs	r5, #5
+ 353:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 1012              		.loc 1 353 0
+ 1013 0038 5743     		muls	r7, r2
+ 1014              	.LVL103:
+ 356:./Application/Funtion/CanLib/CANTabOper.c ****         {
+ 1015              		.loc 1 356 0
+ 1016 003a 402F     		cmp	r7, #64
+ 1017 003c 11D8     		bhi	.L83
+ 359:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 1018              		.loc 1 359 0
+ 1019 003e B378     		ldrb	r3, [r6, #2]
+ 1020 0040 F27B     		ldrb	r2, [r6, #15]
+ 1021 0042 717A     		ldrb	r1, [r6, #9]
+ 1022 0044 FFF7FEFF 		bl	CANBuildMsgID_API
+ 1023              	.LVL104:
+ 1024 0048 0500     		movs	r5, r0
+ 1025              	.LVL105:
+ARM GAS  /tmp/ccYAzQ9X.s 			page 36
+
+
+ 362:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 1026              		.loc 1 362 0
+ 1027 004a 717B     		ldrb	r1, [r6, #13]
+ 1028 004c 02AA     		add	r2, sp, #8
+ 1029 004e 2000     		movs	r0, r4
+ 1030              	.LVL106:
+ 1031 0050 FFF7FEFF 		bl	CANReadTxRcvTabData
+ 1032              	.LVL107:
+ 365:./Application/Funtion/CanLib/CANTabOper.c ****         }
+ 1033              		.loc 1 365 0
+ 1034 0054 2800     		movs	r0, r5
+ 1035 0056 337C     		ldrb	r3, [r6, #16]
+ 1036 0058 FAB2     		uxtb	r2, r7
+ 1037 005a 02A9     		add	r1, sp, #8
+ 1038 005c FFF7FEFF 		bl	CANSendMsgUser_Hook
+ 1039              	.LVL108:
+ 341:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 1040              		.loc 1 341 0
+ 1041 0060 0025     		movs	r5, #0
+ 1042              	.LVL109:
+ 1043              	.L83:
+ 375:./Application/Funtion/CanLib/CANTabOper.c ****     }
+ 1044              		.loc 1 375 0
+ 1045 0062 2000     		movs	r0, r4
+ 1046 0064 FFF7FEFF 		bl	CANClrTxRcvTabInfo
+ 1047              	.LVL110:
+ 1048              	.L80:
+ 535:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 1049              		.loc 1 535 0
+ 1050 0068 2800     		movs	r0, r5
+ 1051 006a 13B0     		add	sp, sp, #76
+ 1052              		@ sp needed
+ 1053 006c F0BD     		pop	{r4, r5, r6, r7, pc}
+ 1054              	.LVL111:
+ 1055              	.L82:
+ 378:./Application/Funtion/CanLib/CANTabOper.c ****     {
+ 1056              		.loc 1 378 0
+ 1057 006e 0300     		movs	r3, r0
+ 1058 0070 0B3B     		subs	r3, r3, #11
+ 1059 0072 012B     		cmp	r3, #1
+ 1060 0074 5FD8     		bhi	.L84
+ 381:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 1061              		.loc 1 381 0
+ 1062 0076 AB78     		ldrb	r3, [r5, #2]
+ 1063 0078 697A     		ldrb	r1, [r5, #9]
+ 1064 007a EA7B     		ldrb	r2, [r5, #15]
+ 1065 007c FFF7FEFF 		bl	CANBuildMsgID_API
+ 1066              	.LVL112:
+ 384:./Application/Funtion/CanLib/CANTabOper.c ****         {
+ 1067              		.loc 1 384 0
+ 1068 0080 297B     		ldrb	r1, [r5, #12]
+ 1069 0082 AB7A     		ldrb	r3, [r5, #10]
+ 381:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 1070              		.loc 1 381 0
+ 1071 0084 0190     		str	r0, [sp, #4]
+ 1072              	.LVL113:
+ 384:./Application/Funtion/CanLib/CANTabOper.c ****         {
+ARM GAS  /tmp/ccYAzQ9X.s 			page 37
+
+
+ 1073              		.loc 1 384 0
+ 1074 0086 8B42     		cmp	r3, r1
+ 1075 0088 0DD1     		bne	.L85
+ 1076              	.LBB26:
+ 1077              	.LBB27:
+ 830:./Application/Funtion/CanLib/CANTabOper.c ****                     }
+ 831:./Application/Funtion/CanLib/CANTabOper.c ****                 }
+ 832:./Application/Funtion/CanLib/CANTabOper.c ****             }
+ 833:./Application/Funtion/CanLib/CANTabOper.c ****         }
+ 834:./Application/Funtion/CanLib/CANTabOper.c ****         else
+ 835:./Application/Funtion/CanLib/CANTabOper.c ****         {
+ 836:./Application/Funtion/CanLib/CANTabOper.c ****             return(0xff);
+ 837:./Application/Funtion/CanLib/CANTabOper.c ****         }
+ 838:./Application/Funtion/CanLib/CANTabOper.c ****     }
+ 839:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 840:./Application/Funtion/CanLib/CANTabOper.c ****     return(0xff);
+ 841:./Application/Funtion/CanLib/CANTabOper.c **** }
+ 842:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 843:./Application/Funtion/CanLib/CANTabOper.c **** /*=================================================================================================
+ 844:./Application/Funtion/CanLib/CANTabOper.c **** ** @Name      : static u8 CANCalcRemainFrameNum(u8 framSort, u8 dataType, u8 sIndexNum)
+ 845:./Application/Funtion/CanLib/CANTabOper.c **** ** @Input     : framSort:帧类型[0长帧 1单帧] dataType:主索引数据类型 sIndexNum:子索
+ 846:./Application/Funtion/CanLib/CANTabOper.c **** ** @Output    : 剩余帧数
+ 847:./Application/Funtion/CanLib/CANTabOper.c **** ** @Function  : 计算剩余帧数
+ 848:./Application/Funtion/CanLib/CANTabOper.c **** ** @The notes : 根据数据类型和子索引数目计算
+ 849:./Application/Funtion/CanLib/CANTabOper.c **** **===============================================================================================*/
+ 850:./Application/Funtion/CanLib/CANTabOper.c **** static u8 CANCalcRemainFrameNum(u8 framSort, u8 dataType, u8 sIndexNum)
+ 851:./Application/Funtion/CanLib/CANTabOper.c **** {
+ 852:./Application/Funtion/CanLib/CANTabOper.c ****     u8 remFrame = 0;
+ 853:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 854:./Application/Funtion/CanLib/CANTabOper.c ****     switch(dataType)
+ 1078              		.loc 1 854 0
+ 1079 008a 2A7A     		ldrb	r2, [r5, #8]
+ 1080              	.LBE27:
+ 1081              	.LBE26:
+ 386:./Application/Funtion/CanLib/CANTabOper.c ****         }
+ 1082              		.loc 1 386 0
+ 1083 008c 6B7B     		ldrb	r3, [r5, #13]
+ 1084              	.LVL114:
+ 1085              	.LBB32:
+ 1086              	.LBB30:
+ 1087              		.loc 1 854 0
+ 1088 008e 022A     		cmp	r2, #2
+ 1089 0090 3BD0     		beq	.L87
+ 1090 0092 042A     		cmp	r2, #4
+ 1091 0094 3CD0     		beq	.L88
+ 1092 0096 012A     		cmp	r2, #1
+ 1093 0098 3DD1     		bne	.L133
+ 1094              	.LVL115:
+ 1095              	.LBB28:
+ 1096              	.LBB29:
+ 855:./Application/Funtion/CanLib/CANTabOper.c ****     {
+ 856:./Application/Funtion/CanLib/CANTabOper.c ****         /*U8/S8类型*/
+ 857:./Application/Funtion/CanLib/CANTabOper.c ****         case 1:
+ 858:./Application/Funtion/CanLib/CANTabOper.c ****         	/*长帧每帧发60个数据*/
+ 859:./Application/Funtion/CanLib/CANTabOper.c ****             if(0 == framSort)
+ 860:./Application/Funtion/CanLib/CANTabOper.c ****             {
+ 861:./Application/Funtion/CanLib/CANTabOper.c ****             	/*不够整数帧必须多1帧*/
+ARM GAS  /tmp/ccYAzQ9X.s 			page 38
+
+
+ 862:./Application/Funtion/CanLib/CANTabOper.c ****             	remFrame = (sIndexNum + 59) / 60;
+ 863:./Application/Funtion/CanLib/CANTabOper.c ****             }
+ 864:./Application/Funtion/CanLib/CANTabOper.c ****         	/*单帧每帧发64个数据*/
+ 865:./Application/Funtion/CanLib/CANTabOper.c ****             else
+ 866:./Application/Funtion/CanLib/CANTabOper.c ****             {
+ 867:./Application/Funtion/CanLib/CANTabOper.c ****             	/*不够整数帧必须多1帧*/
+ 868:./Application/Funtion/CanLib/CANTabOper.c ****                 remFrame = (sIndexNum + 64) / 64;
+ 1097              		.loc 1 868 0
+ 1098 009a 4033     		adds	r3, r3, #64
+ 1099              	.LVL116:
+ 1100 009c 9B09     		lsrs	r3, r3, #6
+ 1101              	.LVL117:
+ 1102              	.L86:
+ 1103              	.LBE29:
+ 1104              	.LBE28:
+ 1105              	.LBE30:
+ 1106              	.LBE32:
+ 386:./Application/Funtion/CanLib/CANTabOper.c ****         }
+ 1107              		.loc 1 386 0
+ 1108 009e 1822     		movs	r2, #24
+ 1109 00a0 6243     		muls	r2, r4
+ 1110 00a2 B218     		adds	r2, r6, r2
+ 1111 00a4 9373     		strb	r3, [r2, #14]
+ 1112              	.L85:
+ 390:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 1113              		.loc 1 390 0
+ 1114 00a6 1822     		movs	r2, #24
+ 1115 00a8 6243     		muls	r2, r4
+ 1116 00aa B618     		adds	r6, r6, r2
+ 1117 00ac F172     		strb	r1, [r6, #11]
+ 393:./Application/Funtion/CanLib/CANTabOper.c ****         {
+ 1118              		.loc 1 393 0
+ 1119 00ae 707B     		ldrb	r0, [r6, #13]
+ 1120              	.LVL118:
+ 339:./Application/Funtion/CanLib/CANTabOper.c ****     u8 data[64] = {0};
+ 1121              		.loc 1 339 0
+ 1122 00b0 0026     		movs	r6, #0
+ 393:./Application/Funtion/CanLib/CANTabOper.c ****         {
+ 1123              		.loc 1 393 0
+ 1124 00b2 3300     		movs	r3, r6
+ 396:./Application/Funtion/CanLib/CANTabOper.c ****             {
+ 1125              		.loc 1 396 0
+ 1126 00b4 804D     		ldr	r5, .L139+4
+ 1127 00b6 AD18     		adds	r5, r5, r2
+ 1128              	.LVL119:
+ 1129              	.L90:
+ 393:./Application/Funtion/CanLib/CANTabOper.c ****         {
+ 1130              		.loc 1 393 0 discriminator 1
+ 1131 00b8 9842     		cmp	r0, r3
+ 1132 00ba 2ED1     		bne	.L92
+ 1133              	.L91:
+ 404:./Application/Funtion/CanLib/CANTabOper.c ****         gCanTxRcvTable[id].nextsIndex = gCanTxRcvTable[id].sIndex + i;
+ 1134              		.loc 1 404 0
+ 1135 00bc 1825     		movs	r5, #24
+ 1136 00be 6543     		muls	r5, r4
+ 1137 00c0 7D4F     		ldr	r7, .L139+4
+ 1138 00c2 C01A     		subs	r0, r0, r3
+ARM GAS  /tmp/ccYAzQ9X.s 			page 39
+
+
+ 1139 00c4 7D19     		adds	r5, r7, r5
+ 405:./Application/Funtion/CanLib/CANTabOper.c ****         gCanTxRcvTable[id].mIndex++;
+ 1140              		.loc 1 405 0
+ 1141 00c6 C918     		adds	r1, r1, r3
+ 406:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 1142              		.loc 1 406 0
+ 1143 00c8 6B7A     		ldrb	r3, [r5, #9]
+ 1144              	.LVL120:
+ 404:./Application/Funtion/CanLib/CANTabOper.c ****         gCanTxRcvTable[id].nextsIndex = gCanTxRcvTable[id].sIndex + i;
+ 1145              		.loc 1 404 0
+ 1146 00ca 6873     		strb	r0, [r5, #13]
+ 406:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 1147              		.loc 1 406 0
+ 1148 00cc 0133     		adds	r3, r3, #1
+ 1149 00ce 6B72     		strb	r3, [r5, #9]
+ 405:./Application/Funtion/CanLib/CANTabOper.c ****         gCanTxRcvTable[id].mIndex++;
+ 1150              		.loc 1 405 0
+ 1151 00d0 2973     		strb	r1, [r5, #12]
+ 409:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 1152              		.loc 1 409 0
+ 1153 00d2 3000     		movs	r0, r6
+ 1154 00d4 297A     		ldrb	r1, [r5, #8]
+ 1155 00d6 FFF7FEFF 		bl	__aeabi_idiv
+ 1156              	.LVL121:
+ 1157 00da 02AA     		add	r2, sp, #8
+ 1158 00dc C1B2     		uxtb	r1, r0
+ 1159 00de 2000     		movs	r0, r4
+ 1160 00e0 FFF7FEFF 		bl	CANReadTxRcvTabData
+ 1161              	.LVL122:
+ 412:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 1162              		.loc 1 412 0
+ 1163 00e4 2B7C     		ldrb	r3, [r5, #16]
+ 1164 00e6 F2B2     		uxtb	r2, r6
+ 1165 00e8 02A9     		add	r1, sp, #8
+ 1166 00ea 0198     		ldr	r0, [sp, #4]
+ 1167 00ec FFF7FEFF 		bl	CANSendMsgUser_Hook
+ 1168              	.LVL123:
+ 415:./Application/Funtion/CanLib/CANTabOper.c ****         {
+ 1169              		.loc 1 415 0
+ 1170 00f0 AA7B     		ldrb	r2, [r5, #14]
+ 1171 00f2 1823     		movs	r3, #24
+ 1172 00f4 002A     		cmp	r2, #0
+ 1173 00f6 01D0     		beq	.L93
+ 417:./Application/Funtion/CanLib/CANTabOper.c ****         }
+ 1174              		.loc 1 417 0
+ 1175 00f8 013A     		subs	r2, r2, #1
+ 1176 00fa AA73     		strb	r2, [r5, #14]
+ 1177              	.L93:
+ 421:./Application/Funtion/CanLib/CANTabOper.c ****         {
+ 1178              		.loc 1 421 0
+ 1179 00fc 6343     		muls	r3, r4
+ 1180 00fe FB18     		adds	r3, r7, r3
+ 1181 0100 9B7B     		ldrb	r3, [r3, #14]
+ 1182              	.LVL124:
+ 1183              	.L136:
+ 1184 0102 002B     		cmp	r3, #0
+ 1185 0104 13D0     		beq	.L94
+ARM GAS  /tmp/ccYAzQ9X.s 			page 40
+
+
+ 1186              	.L138:
+ 341:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 1187              		.loc 1 341 0
+ 1188 0106 0025     		movs	r5, #0
+ 1189 0108 AEE7     		b	.L80
+ 1190              	.LVL125:
+ 1191              	.L87:
+ 1192              	.LBB33:
+ 1193              	.LBB31:
+ 869:./Application/Funtion/CanLib/CANTabOper.c ****             }
+ 870:./Application/Funtion/CanLib/CANTabOper.c ****             break;
+ 871:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 872:./Application/Funtion/CanLib/CANTabOper.c ****         /*U16/S16类型*/
+ 873:./Application/Funtion/CanLib/CANTabOper.c ****         case 2:
+ 874:./Application/Funtion/CanLib/CANTabOper.c ****         	/*长帧每帧发30个数据*/
+ 875:./Application/Funtion/CanLib/CANTabOper.c ****             if(0 == framSort)
+ 876:./Application/Funtion/CanLib/CANTabOper.c ****             {
+ 877:./Application/Funtion/CanLib/CANTabOper.c ****             	/*不够整数帧必须多1帧*/
+ 878:./Application/Funtion/CanLib/CANTabOper.c ****             	remFrame = (sIndexNum + 29) / 30;
+ 879:./Application/Funtion/CanLib/CANTabOper.c ****             }
+ 880:./Application/Funtion/CanLib/CANTabOper.c ****         	/*单帧每帧发32个数据*/
+ 881:./Application/Funtion/CanLib/CANTabOper.c ****             else
+ 882:./Application/Funtion/CanLib/CANTabOper.c ****             {
+ 883:./Application/Funtion/CanLib/CANTabOper.c ****             	/*不够整数帧必须多1帧*/
+ 884:./Application/Funtion/CanLib/CANTabOper.c ****                 remFrame = (sIndexNum + 31) / 32;
+ 1194              		.loc 1 884 0
+ 1195 010a 1F33     		adds	r3, r3, #31
+ 1196              	.LVL126:
+ 1197 010c 5B09     		lsrs	r3, r3, #5
+ 1198              	.LVL127:
+ 1199 010e C6E7     		b	.L86
+ 1200              	.LVL128:
+ 1201              	.L88:
+ 885:./Application/Funtion/CanLib/CANTabOper.c ****             }
+ 886:./Application/Funtion/CanLib/CANTabOper.c ****             break;
+ 887:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 888:./Application/Funtion/CanLib/CANTabOper.c ****         /*U32/S32类型*/
+ 889:./Application/Funtion/CanLib/CANTabOper.c ****         case 4:
+ 890:./Application/Funtion/CanLib/CANTabOper.c ****         	/*长帧每帧发15个数据*/
+ 891:./Application/Funtion/CanLib/CANTabOper.c ****             if(0 == framSort)
+ 892:./Application/Funtion/CanLib/CANTabOper.c ****             {
+ 893:./Application/Funtion/CanLib/CANTabOper.c ****             	/*一帧一个数据*/
+ 894:./Application/Funtion/CanLib/CANTabOper.c ****             	remFrame = (sIndexNum + 14)/15;
+ 895:./Application/Funtion/CanLib/CANTabOper.c ****             }
+ 896:./Application/Funtion/CanLib/CANTabOper.c ****         	/*单帧每帧发2个数据*/
+ 897:./Application/Funtion/CanLib/CANTabOper.c ****             else
+ 898:./Application/Funtion/CanLib/CANTabOper.c ****             {
+ 899:./Application/Funtion/CanLib/CANTabOper.c ****             	/*不够整数帧必须多1帧*/
+ 900:./Application/Funtion/CanLib/CANTabOper.c ****                 remFrame = (sIndexNum + 15) / 16;
+ 1202              		.loc 1 900 0
+ 1203 0110 0F33     		adds	r3, r3, #15
+ 1204              	.LVL129:
+ 1205 0112 1B09     		lsrs	r3, r3, #4
+ 1206              	.LVL130:
+ 1207 0114 C3E7     		b	.L86
+ 1208              	.LVL131:
+ 1209              	.L133:
+ARM GAS  /tmp/ccYAzQ9X.s 			page 41
+
+
+ 901:./Application/Funtion/CanLib/CANTabOper.c ****             }
+ 902:./Application/Funtion/CanLib/CANTabOper.c ****             break;
+ 903:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 904:./Application/Funtion/CanLib/CANTabOper.c ****         default:
+ 905:./Application/Funtion/CanLib/CANTabOper.c ****             remFrame = 0;
+ 1210              		.loc 1 905 0
+ 1211 0116 0023     		movs	r3, #0
+ 1212              	.LVL132:
+ 1213 0118 C1E7     		b	.L86
+ 1214              	.LVL133:
+ 1215              	.L92:
+ 1216              	.LBE31:
+ 1217              	.LBE33:
+ 396:./Application/Funtion/CanLib/CANTabOper.c ****             {
+ 1218              		.loc 1 396 0
+ 1219 011a 4027     		movs	r7, #64
+ 1220 011c 2A7A     		ldrb	r2, [r5, #8]
+ 1221 011e BF1B     		subs	r7, r7, r6
+ 1222 0120 BA42     		cmp	r2, r7
+ 1223 0122 CBDC     		bgt	.L91
+ 400:./Application/Funtion/CanLib/CANTabOper.c ****         }
+ 1224              		.loc 1 400 0 discriminator 2
+ 1225 0124 B618     		adds	r6, r6, r2
+ 1226              	.LVL134:
+ 393:./Application/Funtion/CanLib/CANTabOper.c ****         {
+ 1227              		.loc 1 393 0 discriminator 2
+ 1228 0126 0133     		adds	r3, r3, #1
+ 1229              	.LVL135:
+ 400:./Application/Funtion/CanLib/CANTabOper.c ****         }
+ 1230              		.loc 1 400 0 discriminator 2
+ 1231 0128 B6B2     		uxth	r6, r6
+ 1232              	.LVL136:
+ 393:./Application/Funtion/CanLib/CANTabOper.c ****         {
+ 1233              		.loc 1 393 0 discriminator 2
+ 1234 012a DBB2     		uxtb	r3, r3
+ 1235              	.LVL137:
+ 1236 012c C4E7     		b	.L90
+ 1237              	.LVL138:
+ 1238              	.L94:
+ 423:./Application/Funtion/CanLib/CANTabOper.c ****         }
+ 1239              		.loc 1 423 0
+ 1240 012e 2000     		movs	r0, r4
+ 1241 0130 FFF7FEFF 		bl	CANClrTxRcvTabInfo
+ 1242              	.LVL139:
+ 1243 0134 E7E7     		b	.L138
+ 1244              	.LVL140:
+ 1245              	.L84:
+ 427:./Application/Funtion/CanLib/CANTabOper.c ****     {
+ 1246              		.loc 1 427 0
+ 1247 0136 0528     		cmp	r0, #5
+ 1248 0138 14D1     		bne	.L95
+ 430:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 1249              		.loc 1 430 0
+ 1250 013a AB78     		ldrb	r3, [r5, #2]
+ 1251 013c EA7B     		ldrb	r2, [r5, #15]
+ 1252 013e 697A     		ldrb	r1, [r5, #9]
+ 1253 0140 FFF7FEFF 		bl	CANBuildMsgID_API
+ARM GAS  /tmp/ccYAzQ9X.s 			page 42
+
+
+ 1254              	.LVL141:
+ 434:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 1255              		.loc 1 434 0
+ 1256 0144 F321     		movs	r1, #243
+ 433:./Application/Funtion/CanLib/CANTabOper.c ****         gCanTxRcvTable[id].cmd.Bits.FIN = 0;
+ 1257              		.loc 1 433 0
+ 1258 0146 AB7C     		ldrb	r3, [r5, #18]
+ 436:./Application/Funtion/CanLib/CANTabOper.c ****         data[1] = gCanTxRcvTable[id].beginIndex;
+ 1259              		.loc 1 436 0
+ 1260 0148 02AA     		add	r2, sp, #8
+ 434:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 1261              		.loc 1 434 0
+ 1262 014a 0B40     		ands	r3, r1
+ 1263 014c AB74     		strb	r3, [r5, #18]
+ 436:./Application/Funtion/CanLib/CANTabOper.c ****         data[1] = gCanTxRcvTable[id].beginIndex;
+ 1264              		.loc 1 436 0
+ 1265 014e 1370     		strb	r3, [r2]
+ 437:./Application/Funtion/CanLib/CANTabOper.c ****         data[2] = gCanTxRcvTable[id].sIndexNum;
+ 1266              		.loc 1 437 0
+ 1267 0150 AB7A     		ldrb	r3, [r5, #10]
+ 441:./Application/Funtion/CanLib/CANTabOper.c ****     }
+ 1268              		.loc 1 441 0
+ 1269 0152 02A9     		add	r1, sp, #8
+ 437:./Application/Funtion/CanLib/CANTabOper.c ****         data[2] = gCanTxRcvTable[id].sIndexNum;
+ 1270              		.loc 1 437 0
+ 1271 0154 5370     		strb	r3, [r2, #1]
+ 438:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 1272              		.loc 1 438 0
+ 1273 0156 6B7B     		ldrb	r3, [r5, #13]
+ 1274 0158 9370     		strb	r3, [r2, #2]
+ 441:./Application/Funtion/CanLib/CANTabOper.c ****     }
+ 1275              		.loc 1 441 0
+ 1276 015a 2B7C     		ldrb	r3, [r5, #16]
+ 1277 015c 0322     		movs	r2, #3
+ 1278 015e FFF7FEFF 		bl	CANSendMsgUser_Hook
+ 1279              	.LVL142:
+ 1280 0162 D0E7     		b	.L138
+ 1281              	.LVL143:
+ 1282              	.L95:
+ 444:./Application/Funtion/CanLib/CANTabOper.c ****     {
+ 1283              		.loc 1 444 0
+ 1284 0164 831E     		subs	r3, r0, #2
+ 1285 0166 062B     		cmp	r3, #6
+ 1286 0168 00D9     		bls	.LCB1356
+ 1287 016a 9EE0     		b	.L96	@long jump
+ 1288              	.LCB1356:
+ 447:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 1289              		.loc 1 447 0
+ 1290 016c AB78     		ldrb	r3, [r5, #2]
+ 1291 016e EA7B     		ldrb	r2, [r5, #15]
+ 1292 0170 697A     		ldrb	r1, [r5, #9]
+ 1293 0172 FFF7FEFF 		bl	CANBuildMsgID_API
+ 1294              	.LVL144:
+ 450:./Application/Funtion/CanLib/CANTabOper.c ****         gCanTxRcvTable[id].cmd.Bits.FIN = 0;
+ 1295              		.loc 1 450 0
+ 1296 0176 0422     		movs	r2, #4
+ 447:./Application/Funtion/CanLib/CANTabOper.c **** 
+ARM GAS  /tmp/ccYAzQ9X.s 			page 43
+
+
+ 1297              		.loc 1 447 0
+ 1298 0178 0190     		str	r0, [sp, #4]
+ 1299              	.LVL145:
+ 451:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 1300              		.loc 1 451 0
+ 1301 017a 0820     		movs	r0, #8
+ 1302              	.LVL146:
+ 450:./Application/Funtion/CanLib/CANTabOper.c ****         gCanTxRcvTable[id].cmd.Bits.FIN = 0;
+ 1303              		.loc 1 450 0
+ 1304 017c 2900     		movs	r1, r5
+ 1305 017e AB7C     		ldrb	r3, [r5, #18]
+ 1306 0180 1031     		adds	r1, r1, #16
+ 451:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 1307              		.loc 1 451 0
+ 1308 0182 9343     		bics	r3, r2
+ 1309 0184 8343     		bics	r3, r0
+ 1310 0186 AB74     		strb	r3, [r5, #18]
+ 454:./Application/Funtion/CanLib/CANTabOper.c ****         {
+ 1311              		.loc 1 454 0
+ 1312 0188 1809     		lsrs	r0, r3, #4
+ 1313 018a 12D1     		bne	.L97
+ 456:./Application/Funtion/CanLib/CANTabOper.c ****         	gCanTxRcvTable[id].remframe = CANCalcRemainFrameNum(0, gCanTxRcvTable[id].dataType, gCanTx
+ 1314              		.loc 1 456 0
+ 1315 018c 1343     		orrs	r3, r2
+ 1316 018e 8B70     		strb	r3, [r1, #2]
+ 1317              	.LBB34:
+ 1318              	.LBB35:
+ 854:./Application/Funtion/CanLib/CANTabOper.c ****     {
+ 1319              		.loc 1 854 0
+ 1320 0190 2B7A     		ldrb	r3, [r5, #8]
+ 1321              	.LBE35:
+ 1322              	.LBE34:
+ 457:./Application/Funtion/CanLib/CANTabOper.c ****         }
+ 1323              		.loc 1 457 0
+ 1324 0192 687B     		ldrb	r0, [r5, #13]
+ 1325              	.LVL147:
+ 1326              	.LBB40:
+ 1327              	.LBB38:
+ 854:./Application/Funtion/CanLib/CANTabOper.c ****     {
+ 1328              		.loc 1 854 0
+ 1329 0194 022B     		cmp	r3, #2
+ 1330 0196 76D0     		beq	.L99
+ 1331 0198 9342     		cmp	r3, r2
+ 1332 019a 77D0     		beq	.L100
+ 1333 019c 012B     		cmp	r3, #1
+ 1334 019e 78D1     		bne	.L134
+ 1335              	.LVL148:
+ 1336              	.LBB36:
+ 1337              	.LBB37:
+ 862:./Application/Funtion/CanLib/CANTabOper.c ****             }
+ 1338              		.loc 1 862 0
+ 1339 01a0 3C21     		movs	r1, #60
+ 1340 01a2 3B30     		adds	r0, r0, #59
+ 1341              	.LVL149:
+ 1342              	.L137:
+ 1343              	.LBE37:
+ 1344              	.LBE36:
+ARM GAS  /tmp/ccYAzQ9X.s 			page 44
+
+
+ 894:./Application/Funtion/CanLib/CANTabOper.c ****             }
+ 1345              		.loc 1 894 0
+ 1346 01a4 FFF7FEFF 		bl	__aeabi_idiv
+ 1347              	.LVL150:
+ 1348 01a8 C0B2     		uxtb	r0, r0
+ 1349              	.LVL151:
+ 1350              	.L98:
+ 1351              	.LBE38:
+ 1352              	.LBE40:
+ 457:./Application/Funtion/CanLib/CANTabOper.c ****         }
+ 1353              		.loc 1 457 0
+ 1354 01aa 1823     		movs	r3, #24
+ 1355 01ac 6343     		muls	r3, r4
+ 1356 01ae F318     		adds	r3, r6, r3
+ 1357 01b0 9873     		strb	r0, [r3, #14]
+ 1358              	.LVL152:
+ 1359              	.L97:
+ 461:./Application/Funtion/CanLib/CANTabOper.c ****         {
+ 1360              		.loc 1 461 0
+ 1361 01b2 1823     		movs	r3, #24
+ 1362 01b4 6343     		muls	r3, r4
+ 1363 01b6 F318     		adds	r3, r6, r3
+ 1364 01b8 9A7B     		ldrb	r2, [r3, #14]
+ 1365 01ba 012A     		cmp	r2, #1
+ 1366 01bc 03D1     		bne	.L102
+ 463:./Application/Funtion/CanLib/CANTabOper.c ****         }
+ 1367              		.loc 1 463 0
+ 1368 01be 997C     		ldrb	r1, [r3, #18]
+ 1369 01c0 0732     		adds	r2, r2, #7
+ 1370 01c2 0A43     		orrs	r2, r1
+ 1371 01c4 9A74     		strb	r2, [r3, #18]
+ 1372              	.L102:
+ 339:./Application/Funtion/CanLib/CANTabOper.c ****     u8 data[64] = {0};
+ 1373              		.loc 1 339 0
+ 1374 01c6 0025     		movs	r5, #0
+ 467:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 1375              		.loc 1 467 0
+ 1376 01c8 1822     		movs	r2, #24
+ 470:./Application/Funtion/CanLib/CANTabOper.c ****         {
+ 1377              		.loc 1 470 0
+ 1378 01ca 2B00     		movs	r3, r5
+ 467:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 1379              		.loc 1 467 0
+ 1380 01cc 6243     		muls	r2, r4
+ 1381 01ce B618     		adds	r6, r6, r2
+ 1382 01d0 307B     		ldrb	r0, [r6, #12]
+ 470:./Application/Funtion/CanLib/CANTabOper.c ****         {
+ 1383              		.loc 1 470 0
+ 1384 01d2 717B     		ldrb	r1, [r6, #13]
+ 467:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 1385              		.loc 1 467 0
+ 1386 01d4 F072     		strb	r0, [r6, #11]
+ 473:./Application/Funtion/CanLib/CANTabOper.c ****             {
+ 1387              		.loc 1 473 0
+ 1388 01d6 384E     		ldr	r6, .L139+4
+ 1389 01d8 B618     		adds	r6, r6, r2
+ 1390              	.LVL153:
+ARM GAS  /tmp/ccYAzQ9X.s 			page 45
+
+
+ 1391              	.L103:
+ 470:./Application/Funtion/CanLib/CANTabOper.c ****         {
+ 1392              		.loc 1 470 0 discriminator 1
+ 1393 01da 9942     		cmp	r1, r3
+ 1394 01dc 5BD1     		bne	.L105
+ 1395              	.L104:
+ 481:./Application/Funtion/CanLib/CANTabOper.c ****         gCanTxRcvTable[id].nextsIndex = gCanTxRcvTable[id].sIndex + i;
+ 1396              		.loc 1 481 0
+ 1397 01de 1826     		movs	r6, #24
+ 1398 01e0 6643     		muls	r6, r4
+ 1399 01e2 354F     		ldr	r7, .L139+4
+ 482:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 1400              		.loc 1 482 0
+ 1401 01e4 C218     		adds	r2, r0, r3
+ 481:./Application/Funtion/CanLib/CANTabOper.c ****         gCanTxRcvTable[id].nextsIndex = gCanTxRcvTable[id].sIndex + i;
+ 1402              		.loc 1 481 0
+ 1403 01e6 BE19     		adds	r6, r7, r6
+ 482:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 1404              		.loc 1 482 0
+ 1405 01e8 3273     		strb	r2, [r6, #12]
+ 481:./Application/Funtion/CanLib/CANTabOper.c ****         gCanTxRcvTable[id].nextsIndex = gCanTxRcvTable[id].sIndex + i;
+ 1406              		.loc 1 481 0
+ 1407 01ea C91A     		subs	r1, r1, r3
+ 485:./Application/Funtion/CanLib/CANTabOper.c ****         data[0] = gCanTxRcvTable[id].cmd.Byte;
+ 1408              		.loc 1 485 0
+ 1409 01ec 02AA     		add	r2, sp, #8
+ 481:./Application/Funtion/CanLib/CANTabOper.c ****         gCanTxRcvTable[id].nextsIndex = gCanTxRcvTable[id].sIndex + i;
+ 1410              		.loc 1 481 0
+ 1411 01ee 7173     		strb	r1, [r6, #13]
+ 485:./Application/Funtion/CanLib/CANTabOper.c ****         data[0] = gCanTxRcvTable[id].cmd.Byte;
+ 1412              		.loc 1 485 0
+ 1413 01f0 5370     		strb	r3, [r2, #1]
+ 486:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 1414              		.loc 1 486 0
+ 1415 01f2 B37C     		ldrb	r3, [r6, #18]
+ 1416              	.LVL154:
+ 489:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 1417              		.loc 1 489 0
+ 1418 01f4 9070     		strb	r0, [r2, #2]
+ 486:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 1419              		.loc 1 486 0
+ 1420 01f6 1370     		strb	r3, [r2]
+ 492:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 1421              		.loc 1 492 0
+ 1422 01f8 317A     		ldrb	r1, [r6, #8]
+ 1423 01fa 2800     		movs	r0, r5
+ 1424 01fc FFF7FEFF 		bl	__aeabi_idiv
+ 1425              	.LVL155:
+ 1426 0200 03AA     		add	r2, sp, #12
+ 1427 0202 C1B2     		uxtb	r1, r0
+ 1428 0204 2000     		movs	r0, r4
+ 1429 0206 FFF7FEFF 		bl	CANReadTxRcvTabData
+ 1430              	.LVL156:
+ 495:./Application/Funtion/CanLib/CANTabOper.c ****         {
+ 1431              		.loc 1 495 0
+ 1432 020a 7378     		ldrb	r3, [r6, #1]
+ 1433 020c 022B     		cmp	r3, #2
+ARM GAS  /tmp/ccYAzQ9X.s 			page 46
+
+
+ 1434 020e 1AD1     		bne	.L106
+ 495:./Application/Funtion/CanLib/CANTabOper.c ****         {
+ 1435              		.loc 1 495 0 is_stmt 0 discriminator 1
+ 1436 0210 3B2D     		cmp	r5, #59
+ 1437 0212 18D8     		bhi	.L106
+ 1438 0214 2B1D     		adds	r3, r5, #4
+ 1439 0216 02AA     		add	r2, sp, #8
+ 1440 0218 9B18     		adds	r3, r3, r2
+ 1441 021a 0532     		adds	r2, r2, #5
+ 1442 021c 5119     		adds	r1, r2, r5
+ 1443 021e 3B22     		movs	r2, #59
+ 1444 0220 551B     		subs	r5, r2, r5
+ 500:./Application/Funtion/CanLib/CANTabOper.c ****         	}
+ 1445              		.loc 1 500 0 is_stmt 1
+ 1446 0222 0022     		movs	r2, #0
+ 1447 0224 EDB2     		uxtb	r5, r5
+ 1448 0226 4D19     		adds	r5, r1, r5
+ 1449              	.L107:
+ 500:./Application/Funtion/CanLib/CANTabOper.c ****         	}
+ 1450              		.loc 1 500 0 is_stmt 0 discriminator 3
+ 1451 0228 1A70     		strb	r2, [r3]
+ 1452 022a 0133     		adds	r3, r3, #1
+ 498:./Application/Funtion/CanLib/CANTabOper.c ****         	{
+ 1453              		.loc 1 498 0 is_stmt 1 discriminator 3
+ 1454 022c 9D42     		cmp	r5, r3
+ 1455 022e FBD1     		bne	.L107
+ 504:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 1456              		.loc 1 504 0
+ 1457 0230 6B46     		mov	r3, sp
+ 1458 0232 3F22     		movs	r2, #63
+ 1459 0234 9888     		ldrh	r0, [r3, #4]
+ 1460 0236 02A9     		add	r1, sp, #8
+ 1461 0238 FFF7FEFF 		bl	CANComputeRequestCRC8
+ 1462              	.LVL157:
+ 1463 023c 3F23     		movs	r3, #63
+ 507:./Application/Funtion/CanLib/CANTabOper.c ****         }
+ 1464              		.loc 1 507 0
+ 1465 023e 3C25     		movs	r5, #60
+ 504:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 1466              		.loc 1 504 0
+ 1467 0240 02AA     		add	r2, sp, #8
+ 1468 0242 9B18     		adds	r3, r3, r2
+ 1469 0244 1870     		strb	r0, [r3]
+ 1470              	.LVL158:
+ 1471              	.L106:
+ 511:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 1472              		.loc 1 511 0
+ 1473 0246 1826     		movs	r6, #24
+ 1474 0248 6643     		muls	r6, r4
+ 1475 024a 2A1D     		adds	r2, r5, #4
+ 1476 024c BE19     		adds	r6, r7, r6
+ 1477 024e 337C     		ldrb	r3, [r6, #16]
+ 1478 0250 D2B2     		uxtb	r2, r2
+ 1479 0252 02A9     		add	r1, sp, #8
+ 1480 0254 0198     		ldr	r0, [sp, #4]
+ 1481 0256 FFF7FEFF 		bl	CANSendMsgUser_Hook
+ 1482              	.LVL159:
+ARM GAS  /tmp/ccYAzQ9X.s 			page 47
+
+
+ 514:./Application/Funtion/CanLib/CANTabOper.c ****         {
+ 1483              		.loc 1 514 0
+ 1484 025a B27B     		ldrb	r2, [r6, #14]
+ 1485 025c 1823     		movs	r3, #24
+ 1486 025e 002A     		cmp	r2, #0
+ 1487 0260 01D0     		beq	.L108
+ 516:./Application/Funtion/CanLib/CANTabOper.c ****         }
+ 1488              		.loc 1 516 0
+ 1489 0262 013A     		subs	r2, r2, #1
+ 1490 0264 B273     		strb	r2, [r6, #14]
+ 1491              	.L108:
+ 520:./Application/Funtion/CanLib/CANTabOper.c ****         {
+ 1492              		.loc 1 520 0
+ 1493 0266 6343     		muls	r3, r4
+ 1494 0268 FB18     		adds	r3, r7, r3
+ 1495 026a 9A7B     		ldrb	r2, [r3, #14]
+ 1496 026c 002A     		cmp	r2, #0
+ 1497 026e 00D0     		beq	.LCB1563
+ 1498 0270 49E7     		b	.L138	@long jump
+ 1499              	.LCB1563:
+ 520:./Application/Funtion/CanLib/CANTabOper.c ****         {
+ 1500              		.loc 1 520 0 is_stmt 0 discriminator 1
+ 1501 0272 5A78     		ldrb	r2, [r3, #1]
+ 1502 0274 082A     		cmp	r2, #8
+ 1503 0276 00D1     		bne	.LCB1566
+ 1504 0278 59E7     		b	.L94	@long jump
+ 1505              	.LCB1566:
+ 520:./Application/Funtion/CanLib/CANTabOper.c ****         {
+ 1506              		.loc 1 520 0 discriminator 2
+ 1507 027a 062A     		cmp	r2, #6
+ 1508 027c 00D0     		beq	.LCB1568
+ 1509 027e 42E7     		b	.L138	@long jump
+ 1510              	.LCB1568:
+ 520:./Application/Funtion/CanLib/CANTabOper.c ****         {
+ 1511              		.loc 1 520 0 discriminator 3
+ 1512 0280 9B7C     		ldrb	r3, [r3, #18]
+ 1513 0282 9B07     		lsls	r3, r3, #30
+ 1514 0284 3DE7     		b	.L136
+ 1515              	.LVL160:
+ 1516              	.L99:
+ 1517              	.LBB41:
+ 1518              	.LBB39:
+ 878:./Application/Funtion/CanLib/CANTabOper.c ****             }
+ 1519              		.loc 1 878 0 is_stmt 1
+ 1520 0286 1D30     		adds	r0, r0, #29
+ 1521              	.LVL161:
+ 1522 0288 1E21     		movs	r1, #30
+ 1523 028a 8BE7     		b	.L137
+ 1524              	.LVL162:
+ 1525              	.L100:
+ 894:./Application/Funtion/CanLib/CANTabOper.c ****             }
+ 1526              		.loc 1 894 0
+ 1527 028c 0E30     		adds	r0, r0, #14
+ 1528              	.LVL163:
+ 1529 028e 0F21     		movs	r1, #15
+ 1530 0290 88E7     		b	.L137
+ 1531              	.LVL164:
+ARM GAS  /tmp/ccYAzQ9X.s 			page 48
+
+
+ 1532              	.L134:
+ 1533              		.loc 1 905 0
+ 1534 0292 0020     		movs	r0, #0
+ 1535              	.LVL165:
+ 1536 0294 89E7     		b	.L98
+ 1537              	.LVL166:
+ 1538              	.L105:
+ 1539              	.LBE39:
+ 1540              	.LBE41:
+ 473:./Application/Funtion/CanLib/CANTabOper.c ****             {
+ 1541              		.loc 1 473 0
+ 1542 0296 3C27     		movs	r7, #60
+ 1543 0298 327A     		ldrb	r2, [r6, #8]
+ 1544 029a 7F1B     		subs	r7, r7, r5
+ 1545 029c BA42     		cmp	r2, r7
+ 1546 029e 9EDC     		bgt	.L104
+ 477:./Application/Funtion/CanLib/CANTabOper.c ****         }
+ 1547              		.loc 1 477 0 discriminator 2
+ 1548 02a0 AD18     		adds	r5, r5, r2
+ 1549              	.LVL167:
+ 470:./Application/Funtion/CanLib/CANTabOper.c ****         {
+ 1550              		.loc 1 470 0 discriminator 2
+ 1551 02a2 0133     		adds	r3, r3, #1
+ 1552              	.LVL168:
+ 477:./Application/Funtion/CanLib/CANTabOper.c ****         }
+ 1553              		.loc 1 477 0 discriminator 2
+ 1554 02a4 ADB2     		uxth	r5, r5
+ 470:./Application/Funtion/CanLib/CANTabOper.c ****         {
+ 1555              		.loc 1 470 0 discriminator 2
+ 1556 02a6 DBB2     		uxtb	r3, r3
+ 1557              	.LVL169:
+ 1558 02a8 97E7     		b	.L103
+ 1559              	.LVL170:
+ 1560              	.L96:
+ 529:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 1561              		.loc 1 529 0
+ 1562 02aa 2000     		movs	r0, r4
+ 1563 02ac FFF7FEFF 		bl	CANClrTxRcvTabInfo
+ 1564              	.LVL171:
+ 531:./Application/Funtion/CanLib/CANTabOper.c ****     }
+ 1565              		.loc 1 531 0
+ 1566 02b0 0225     		movs	r5, #2
+ 1567 02b2 D9E6     		b	.L80
+ 1568              	.L140:
+ 1569              		.align	2
+ 1570              	.L139:
+ 1571 02b4 00000000 		.word	gCANBaseDef_3
+ 1572 02b8 00000000 		.word	gCanTxRcvTable
+ 1573              		.cfi_endproc
+ 1574              	.LFE497:
+ 1576              		.section	.text.CANReqIdleTxRcvTab,"ax",%progbits
+ 1577              		.align	1
+ 1578              		.global	CANReqIdleTxRcvTab
+ 1579              		.syntax unified
+ 1580              		.code	16
+ 1581              		.thumb_func
+ 1582              		.fpu softvfp
+ARM GAS  /tmp/ccYAzQ9X.s 			page 49
+
+
+ 1584              	CANReqIdleTxRcvTab:
+ 1585              	.LFB496:
+ 277:./Application/Funtion/CanLib/CANTabOper.c ****     u8 i = 0;
+ 1586              		.loc 1 277 0
+ 1587              		.cfi_startproc
+ 1588              		@ args = 24, pretend = 0, frame = 32
+ 1589              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1590              	.LVL172:
+ 1591 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+ 1592              	.LCFI10:
+ 1593              		.cfi_def_cfa_offset 20
+ 1594              		.cfi_offset 4, -20
+ 1595              		.cfi_offset 5, -16
+ 1596              		.cfi_offset 6, -12
+ 1597              		.cfi_offset 7, -8
+ 1598              		.cfi_offset 14, -4
+ 1599 0002 89B0     		sub	sp, sp, #36
+ 1600              	.LCFI11:
+ 1601              		.cfi_def_cfa_offset 56
+ 277:./Application/Funtion/CanLib/CANTabOper.c ****     u8 i = 0;
+ 1602              		.loc 1 277 0
+ 1603 0004 0393     		str	r3, [sp, #12]
+ 1604 0006 0EAB     		add	r3, sp, #56
+ 1605              	.LVL173:
+ 1606 0008 1B78     		ldrb	r3, [r3]
+ 1607              	.LVL174:
+ 1608 000a 0191     		str	r1, [sp, #4]
+ 1609 000c 0493     		str	r3, [sp, #16]
+ 1610 000e 0FAB     		add	r3, sp, #60
+ 1611              	.LVL175:
+ 1612 0010 1D78     		ldrb	r5, [r3]
+ 1613 0012 10AB     		add	r3, sp, #64
+ 1614              	.LVL176:
+ 1615 0014 1B78     		ldrb	r3, [r3]
+ 1616              	.LVL177:
+ 1617 0016 0292     		str	r2, [sp, #8]
+ 1618 0018 0593     		str	r3, [sp, #20]
+ 1619 001a 11AB     		add	r3, sp, #68
+ 1620              	.LVL178:
+ 1621 001c 1B78     		ldrb	r3, [r3]
+ 1622              	.LVL179:
+ 1623 001e 0400     		movs	r4, r0
+ 1624 0020 0093     		str	r3, [sp]
+ 1625 0022 12AB     		add	r3, sp, #72
+ 1626              	.LVL180:
+ 1627 0024 1B78     		ldrb	r3, [r3]
+ 1628              	.LVL181:
+ 1629 0026 0693     		str	r3, [sp, #24]
+ 1630 0028 13AB     		add	r3, sp, #76
+ 1631              	.LVL182:
+ 1632 002a 1B78     		ldrb	r3, [r3]
+ 1633              	.LVL183:
+ 1634 002c 0793     		str	r3, [sp, #28]
+ 282:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 1635              		.loc 1 282 0
+ 1636 002e FFF7FEFF 		bl	BSP_DISABLE_IRQ
+ 1637              	.LVL184:
+ARM GAS  /tmp/ccYAzQ9X.s 			page 50
+
+
+ 285:./Application/Funtion/CanLib/CANTabOper.c ****     {
+ 1638              		.loc 1 285 0
+ 1639 0032 244B     		ldr	r3, .L149
+ 1640 0034 0022     		movs	r2, #0
+ 1641 0036 9B78     		ldrb	r3, [r3, #2]
+ 288:./Application/Funtion/CanLib/CANTabOper.c ****         {
+ 1642              		.loc 1 288 0
+ 1643 0038 2349     		ldr	r1, .L149+4
+ 285:./Application/Funtion/CanLib/CANTabOper.c ****     {
+ 1644              		.loc 1 285 0
+ 1645 003a 9C46     		mov	ip, r3
+ 288:./Application/Funtion/CanLib/CANTabOper.c ****         {
+ 1646              		.loc 1 288 0
+ 1647 003c 1823     		movs	r3, #24
+ 1648              	.LVL185:
+ 1649              	.L142:
+ 1650 003e D0B2     		uxtb	r0, r2
+ 1651              	.LVL186:
+ 285:./Application/Funtion/CanLib/CANTabOper.c ****     {
+ 1652              		.loc 1 285 0 discriminator 1
+ 1653 0040 8445     		cmp	ip, r0
+ 1654 0042 01D8     		bhi	.L146
+ 279:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 1655              		.loc 1 279 0
+ 1656 0044 0724     		movs	r4, #7
+ 1657 0046 2CE0     		b	.L145
+ 1658              	.L146:
+ 288:./Application/Funtion/CanLib/CANTabOper.c ****         {
+ 1659              		.loc 1 288 0
+ 1660 0048 1F00     		movs	r7, r3
+ 1661 004a 1600     		movs	r6, r2
+ 1662 004c 0132     		adds	r2, r2, #1
+ 1663 004e 5743     		muls	r7, r2
+ 1664 0050 183F     		subs	r7, r7, #24
+ 1665 0052 CF5D     		ldrb	r7, [r1, r7]
+ 1666 0054 002F     		cmp	r7, #0
+ 1667 0056 F2D1     		bne	.L142
+ 290:./Application/Funtion/CanLib/CANTabOper.c ****             gCanTxRcvTable[i].attrib = attrib;
+ 1668              		.loc 1 290 0
+ 1669 0058 7343     		muls	r3, r6
+ 291:./Application/Funtion/CanLib/CANTabOper.c ****             gCanTxRcvTable[i].pdata = pdata;
+ 1670              		.loc 1 291 0
+ 1671 005a 019A     		ldr	r2, [sp, #4]
+ 290:./Application/Funtion/CanLib/CANTabOper.c ****             gCanTxRcvTable[i].attrib = attrib;
+ 1672              		.loc 1 290 0
+ 1673 005c CB18     		adds	r3, r1, r3
+ 291:./Application/Funtion/CanLib/CANTabOper.c ****             gCanTxRcvTable[i].pdata = pdata;
+ 1674              		.loc 1 291 0
+ 1675 005e 5A80     		strh	r2, [r3, #2]
+ 1676              	.LVL187:
+ 292:./Application/Funtion/CanLib/CANTabOper.c ****             gCanTxRcvTable[i].dataType = dataType;
+ 1677              		.loc 1 292 0
+ 1678 0060 029A     		ldr	r2, [sp, #8]
+ 290:./Application/Funtion/CanLib/CANTabOper.c ****             gCanTxRcvTable[i].attrib = attrib;
+ 1679              		.loc 1 290 0
+ 1680 0062 5C70     		strb	r4, [r3, #1]
+ 292:./Application/Funtion/CanLib/CANTabOper.c ****             gCanTxRcvTable[i].dataType = dataType;
+ARM GAS  /tmp/ccYAzQ9X.s 			page 51
+
+
+ 1681              		.loc 1 292 0
+ 1682 0064 5A60     		str	r2, [r3, #4]
+ 293:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 1683              		.loc 1 293 0
+ 1684 0066 039A     		ldr	r2, [sp, #12]
+ 296:./Application/Funtion/CanLib/CANTabOper.c ****             {
+ 1685              		.loc 1 296 0
+ 1686 0068 0B3C     		subs	r4, r4, #11
+ 293:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 1687              		.loc 1 293 0
+ 1688 006a 1A72     		strb	r2, [r3, #8]
+ 1689              	.LVL188:
+ 1690 006c 1A00     		movs	r2, r3
+ 1691 006e 1032     		adds	r2, r2, #16
+ 296:./Application/Funtion/CanLib/CANTabOper.c ****             {
+ 1692              		.loc 1 296 0
+ 1693 0070 012C     		cmp	r4, #1
+ 1694 0072 1BD8     		bhi	.L143
+ 298:./Application/Funtion/CanLib/CANTabOper.c ****                 gCanTxRcvTable[i].cmd.Bits.CON = 0;
+ 1695              		.loc 1 298 0
+ 1696 0074 009C     		ldr	r4, [sp]
+ 1697 0076 5C72     		strb	r4, [r3, #9]
+ 299:./Application/Funtion/CanLib/CANTabOper.c ****             }
+ 1698              		.loc 1 299 0
+ 1699 0078 0324     		movs	r4, #3
+ 1700 007a 9378     		ldrb	r3, [r2, #2]
+ 1701 007c A343     		bics	r3, r4
+ 1702              	.L148:
+ 305:./Application/Funtion/CanLib/CANTabOper.c ****             }
+ 1703              		.loc 1 305 0
+ 1704 007e 9370     		strb	r3, [r2, #2]
+ 308:./Application/Funtion/CanLib/CANTabOper.c ****             gCanTxRcvTable[i].sIndex = sIndex;
+ 1705              		.loc 1 308 0
+ 1706 0080 1823     		movs	r3, #24
+ 1707 0082 5E43     		muls	r6, r3
+ 1708 0084 8B19     		adds	r3, r1, r6
+ 1709 0086 9D72     		strb	r5, [r3, #10]
+ 309:./Application/Funtion/CanLib/CANTabOper.c ****             gCanTxRcvTable[i].nextsIndex = sIndex;
+ 1710              		.loc 1 309 0
+ 1711 0088 DD72     		strb	r5, [r3, #11]
+ 310:./Application/Funtion/CanLib/CANTabOper.c ****             gCanTxRcvTable[i].sIndexNum = sIndexNum;
+ 1712              		.loc 1 310 0
+ 1713 008a 1D73     		strb	r5, [r3, #12]
+ 311:./Application/Funtion/CanLib/CANTabOper.c ****             gCanTxRcvTable[i].daddr = daddr;
+ 1714              		.loc 1 311 0
+ 1715 008c 059A     		ldr	r2, [sp, #20]
+ 1716 008e 5A73     		strb	r2, [r3, #13]
+ 312:./Application/Funtion/CanLib/CANTabOper.c ****             gCanTxRcvTable[i].cannum = cannum;
+ 1717              		.loc 1 312 0
+ 1718 0090 069A     		ldr	r2, [sp, #24]
+ 1719 0092 DA73     		strb	r2, [r3, #15]
+ 313:./Application/Funtion/CanLib/CANTabOper.c ****             gCanTxRcvTable[i].ready = eCANTAB_WAIT;
+ 1720              		.loc 1 313 0
+ 1721 0094 079A     		ldr	r2, [sp, #28]
+ 1722 0096 1A74     		strb	r2, [r3, #16]
+ 314:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 1723              		.loc 1 314 0
+ARM GAS  /tmp/ccYAzQ9X.s 			page 52
+
+
+ 1724 0098 0223     		movs	r3, #2
+ 1725 009a 8B55     		strb	r3, [r1, r6]
+ 317:./Application/Funtion/CanLib/CANTabOper.c ****             break;
+ 1726              		.loc 1 317 0
+ 1727 009c FFF7FEFF 		bl	CANSendTxRcvTabMsgPack
+ 1728              	.LVL189:
+ 1729 00a0 0400     		movs	r4, r0
+ 1730              	.LVL190:
+ 1731              	.L145:
+ 323:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 1732              		.loc 1 323 0
+ 1733 00a2 FFF7FEFF 		bl	BSP_ENABLE_IRQ
+ 1734              	.LVL191:
+ 326:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 1735              		.loc 1 326 0
+ 1736 00a6 2000     		movs	r0, r4
+ 1737 00a8 09B0     		add	sp, sp, #36
+ 1738              		@ sp needed
+ 1739              	.LVL192:
+ 1740 00aa F0BD     		pop	{r4, r5, r6, r7, pc}
+ 1741              	.LVL193:
+ 1742              	.L143:
+ 304:./Application/Funtion/CanLib/CANTabOper.c ****                 gCanTxRcvTable[i].cmd.Bits.CON = conflag & 0x01;
+ 1743              		.loc 1 304 0
+ 1744 00ac 049C     		ldr	r4, [sp, #16]
+ 305:./Application/Funtion/CanLib/CANTabOper.c ****             }
+ 1745              		.loc 1 305 0
+ 1746 00ae 0327     		movs	r7, #3
+ 304:./Application/Funtion/CanLib/CANTabOper.c ****                 gCanTxRcvTable[i].cmd.Bits.CON = conflag & 0x01;
+ 1747              		.loc 1 304 0
+ 1748 00b0 5C72     		strb	r4, [r3, #9]
+ 305:./Application/Funtion/CanLib/CANTabOper.c ****             }
+ 1749              		.loc 1 305 0
+ 1750 00b2 0124     		movs	r4, #1
+ 1751 00b4 009B     		ldr	r3, [sp]
+ 1752 00b6 2340     		ands	r3, r4
+ 1753 00b8 1C00     		movs	r4, r3
+ 1754 00ba 9378     		ldrb	r3, [r2, #2]
+ 1755 00bc BB43     		bics	r3, r7
+ 1756 00be 2343     		orrs	r3, r4
+ 1757 00c0 DDE7     		b	.L148
+ 1758              	.L150:
+ 1759 00c2 C046     		.align	2
+ 1760              	.L149:
+ 1761 00c4 00000000 		.word	gCANBaseDef_3
+ 1762 00c8 00000000 		.word	gCanTxRcvTable
+ 1763              		.cfi_endproc
+ 1764              	.LFE496:
+ 1766              		.section	.text.CANMulFramTxTimerCheck,"ax",%progbits
+ 1767              		.align	1
+ 1768              		.global	CANMulFramTxTimerCheck
+ 1769              		.syntax unified
+ 1770              		.code	16
+ 1771              		.thumb_func
+ 1772              		.fpu softvfp
+ 1774              	CANMulFramTxTimerCheck:
+ 1775              	.LFB500:
+ARM GAS  /tmp/ccYAzQ9X.s 			page 53
+
+
+ 597:./Application/Funtion/CanLib/CANTabOper.c ****     /*通信收发表序号越界*/
+ 1776              		.loc 1 597 0
+ 1777              		.cfi_startproc
+ 1778              		@ args = 0, pretend = 0, frame = 0
+ 1779              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1780              	.LVL194:
+ 1781 0000 70B5     		push	{r4, r5, r6, lr}
+ 1782              	.LCFI12:
+ 1783              		.cfi_def_cfa_offset 16
+ 1784              		.cfi_offset 4, -16
+ 1785              		.cfi_offset 5, -12
+ 1786              		.cfi_offset 6, -8
+ 1787              		.cfi_offset 14, -4
+ 599:./Application/Funtion/CanLib/CANTabOper.c ****     {
+ 1788              		.loc 1 599 0
+ 1789 0002 0E4B     		ldr	r3, .L156
+ 597:./Application/Funtion/CanLib/CANTabOper.c ****     /*通信收发表序号越界*/
+ 1790              		.loc 1 597 0
+ 1791 0004 0400     		movs	r4, r0
+ 599:./Application/Funtion/CanLib/CANTabOper.c ****     {
+ 1792              		.loc 1 599 0
+ 1793 0006 9B78     		ldrb	r3, [r3, #2]
+ 1794 0008 8342     		cmp	r3, r0
+ 1795 000a 10D9     		bls	.L151
+ 605:./Application/Funtion/CanLib/CANTabOper.c ****     {
+ 1796              		.loc 1 605 0
+ 1797 000c 1823     		movs	r3, #24
+ 1798 000e 4343     		muls	r3, r0
+ 1799 0010 0B4D     		ldr	r5, .L156+4
+ 1800 0012 EB18     		adds	r3, r5, r3
+ 1801 0014 DA8A     		ldrh	r2, [r3, #22]
+ 1802 0016 8A42     		cmp	r2, r1
+ 1803 0018 0DD3     		bcc	.L153
+ 608:./Application/Funtion/CanLib/CANTabOper.c ****         {
+ 1804              		.loc 1 608 0
+ 1805 001a 9B7B     		ldrb	r3, [r3, #14]
+ 1806 001c 002B     		cmp	r3, #0
+ 1807 001e 07D1     		bne	.L154
+ 610:./Application/Funtion/CanLib/CANTabOper.c ****         }
+ 1808              		.loc 1 610 0
+ 1809 0020 FFF7FEFF 		bl	CANClrTxRcvTabInfo
+ 1810              	.LVL195:
+ 1811              	.L155:
+ 619:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 1812              		.loc 1 619 0
+ 1813 0024 1823     		movs	r3, #24
+ 1814 0026 5C43     		muls	r4, r3
+ 1815 0028 0023     		movs	r3, #0
+ 1816 002a 2D19     		adds	r5, r5, r4
+ 1817 002c EB82     		strh	r3, [r5, #22]
+ 1818              	.L151:
+ 628:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 1819              		.loc 1 628 0
+ 1820              		@ sp needed
+ 1821 002e 70BD     		pop	{r4, r5, r6, pc}
+ 1822              	.LVL196:
+ 1823              	.L154:
+ARM GAS  /tmp/ccYAzQ9X.s 			page 54
+
+
+ 615:./Application/Funtion/CanLib/CANTabOper.c ****         }
+ 1824              		.loc 1 615 0
+ 1825 0030 FFF7FEFF 		bl	CANSendTxRcvTabMsgPack
+ 1826              	.LVL197:
+ 1827 0034 F6E7     		b	.L155
+ 1828              	.LVL198:
+ 1829              	.L153:
+ 626:./Application/Funtion/CanLib/CANTabOper.c ****     }
+ 1830              		.loc 1 626 0
+ 1831 0036 0132     		adds	r2, r2, #1
+ 1832 0038 DA82     		strh	r2, [r3, #22]
+ 1833 003a F8E7     		b	.L151
+ 1834              	.L157:
+ 1835              		.align	2
+ 1836              	.L156:
+ 1837 003c 00000000 		.word	gCANBaseDef_3
+ 1838 0040 00000000 		.word	gCanTxRcvTable
+ 1839              		.cfi_endproc
+ 1840              	.LFE500:
+ 1842              		.section	.text.CANWaitAnsFramTimerCheck,"ax",%progbits
+ 1843              		.align	1
+ 1844              		.global	CANWaitAnsFramTimerCheck
+ 1845              		.syntax unified
+ 1846              		.code	16
+ 1847              		.thumb_func
+ 1848              		.fpu softvfp
+ 1850              	CANWaitAnsFramTimerCheck:
+ 1851              	.LFB501:
+ 638:./Application/Funtion/CanLib/CANTabOper.c ****     /*通信收发表序号越界*/
+ 1852              		.loc 1 638 0
+ 1853              		.cfi_startproc
+ 1854              		@ args = 0, pretend = 0, frame = 0
+ 1855              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1856              	.LVL199:
+ 1857 0000 70B5     		push	{r4, r5, r6, lr}
+ 1858              	.LCFI13:
+ 1859              		.cfi_def_cfa_offset 16
+ 1860              		.cfi_offset 4, -16
+ 1861              		.cfi_offset 5, -12
+ 1862              		.cfi_offset 6, -8
+ 1863              		.cfi_offset 14, -4
+ 640:./Application/Funtion/CanLib/CANTabOper.c ****     {
+ 1864              		.loc 1 640 0
+ 1865 0002 1A4B     		ldr	r3, .L163
+ 638:./Application/Funtion/CanLib/CANTabOper.c ****     /*通信收发表序号越界*/
+ 1866              		.loc 1 638 0
+ 1867 0004 0500     		movs	r5, r0
+ 640:./Application/Funtion/CanLib/CANTabOper.c ****     {
+ 1868              		.loc 1 640 0
+ 1869 0006 9B78     		ldrb	r3, [r3, #2]
+ 638:./Application/Funtion/CanLib/CANTabOper.c ****     /*通信收发表序号越界*/
+ 1870              		.loc 1 638 0
+ 1871 0008 1600     		movs	r6, r2
+ 640:./Application/Funtion/CanLib/CANTabOper.c ****     {
+ 1872              		.loc 1 640 0
+ 1873 000a 8342     		cmp	r3, r0
+ 1874 000c 2CD9     		bls	.L158
+ARM GAS  /tmp/ccYAzQ9X.s 			page 55
+
+
+ 645:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 1875              		.loc 1 645 0
+ 1876 000e 1823     		movs	r3, #24
+ 1877 0010 4343     		muls	r3, r0
+ 1878 0012 174C     		ldr	r4, .L163+4
+ 1879 0014 E318     		adds	r3, r4, r3
+ 1880 0016 DA8A     		ldrh	r2, [r3, #22]
+ 1881              	.LVL200:
+ 1882 0018 0132     		adds	r2, r2, #1
+ 1883 001a 92B2     		uxth	r2, r2
+ 1884 001c DA82     		strh	r2, [r3, #22]
+ 648:./Application/Funtion/CanLib/CANTabOper.c ****     {
+ 1885              		.loc 1 648 0
+ 1886 001e 8A42     		cmp	r2, r1
+ 1887 0020 22D3     		bcc	.L158
+ 651:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 1888              		.loc 1 651 0
+ 1889 0022 1A00     		movs	r2, r3
+ 1890 0024 987C     		ldrb	r0, [r3, #18]
+ 1891              	.LVL201:
+ 1892 0026 597B     		ldrb	r1, [r3, #13]
+ 1893              	.LVL202:
+ 1894 0028 0009     		lsrs	r0, r0, #4
+ 1895 002a 0918     		adds	r1, r1, r0
+ 1896 002c 5973     		strb	r1, [r3, #13]
+ 654:./Application/Funtion/CanLib/CANTabOper.c ****         {
+ 1897              		.loc 1 654 0
+ 1898 002e 9B7C     		ldrb	r3, [r3, #18]
+ 651:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 1899              		.loc 1 651 0
+ 1900 0030 1032     		adds	r2, r2, #16
+ 654:./Application/Funtion/CanLib/CANTabOper.c ****         {
+ 1901              		.loc 1 654 0
+ 1902 0032 5907     		lsls	r1, r3, #29
+ 1903 0034 02D5     		bpl	.L162
+ 656:./Application/Funtion/CanLib/CANTabOper.c ****         }
+ 1904              		.loc 1 656 0
+ 1905 0036 0F21     		movs	r1, #15
+ 1906 0038 0B40     		ands	r3, r1
+ 1907 003a 9370     		strb	r3, [r2, #2]
+ 1908              	.L162:
+ 660:./Application/Funtion/CanLib/CANTabOper.c ****         gCanTxRcvTable[id].nextsIndex = gCanTxRcvTable[id].sIndex;
+ 1909              		.loc 1 660 0
+ 1910 003c 1823     		movs	r3, #24
+ 1911 003e 6B43     		muls	r3, r5
+ 1912 0040 E418     		adds	r4, r4, r3
+ 1913 0042 A37B     		ldrb	r3, [r4, #14]
+ 664:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 1914              		.loc 1 664 0
+ 1915 0044 2800     		movs	r0, r5
+ 660:./Application/Funtion/CanLib/CANTabOper.c ****         gCanTxRcvTable[id].nextsIndex = gCanTxRcvTable[id].sIndex;
+ 1916              		.loc 1 660 0
+ 1917 0046 0133     		adds	r3, r3, #1
+ 1918 0048 A373     		strb	r3, [r4, #14]
+ 661:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 1919              		.loc 1 661 0
+ 1920 004a E37A     		ldrb	r3, [r4, #11]
+ARM GAS  /tmp/ccYAzQ9X.s 			page 56
+
+
+ 1921 004c 2373     		strb	r3, [r4, #12]
+ 664:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 1922              		.loc 1 664 0
+ 1923 004e FFF7FEFF 		bl	CANSendTxRcvTabMsgPack
+ 1924              	.LVL203:
+ 667:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 1925              		.loc 1 667 0
+ 1926 0052 0023     		movs	r3, #0
+ 1927 0054 E382     		strh	r3, [r4, #22]
+ 670:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 1928              		.loc 1 670 0
+ 1929 0056 A38A     		ldrh	r3, [r4, #20]
+ 1930 0058 0133     		adds	r3, r3, #1
+ 1931 005a 9BB2     		uxth	r3, r3
+ 1932 005c A382     		strh	r3, [r4, #20]
+ 673:./Application/Funtion/CanLib/CANTabOper.c ****         {
+ 1933              		.loc 1 673 0
+ 1934 005e B342     		cmp	r3, r6
+ 1935 0060 02D3     		bcc	.L158
+ 676:./Application/Funtion/CanLib/CANTabOper.c ****         }
+ 1936              		.loc 1 676 0
+ 1937 0062 2800     		movs	r0, r5
+ 1938 0064 FFF7FEFF 		bl	CANClrTxRcvTabInfo
+ 1939              	.LVL204:
+ 1940              	.L158:
+ 679:./Application/Funtion/CanLib/CANTabOper.c **** 
+ 1941              		.loc 1 679 0
+ 1942              		@ sp needed
+ 1943 0068 70BD     		pop	{r4, r5, r6, pc}
+ 1944              	.L164:
+ 1945 006a C046     		.align	2
+ 1946              	.L163:
+ 1947 006c 00000000 		.word	gCANBaseDef_3
+ 1948 0070 00000000 		.word	gCanTxRcvTable
+ 1949              		.cfi_endproc
+ 1950              	.LFE501:
+ 1952              		.section	.rodata.Crc8Table,"a",%progbits
+ 1955              	Crc8Table:
+ 1956 0000 00       		.byte	0
+ 1957 0001 1D       		.byte	29
+ 1958 0002 3A       		.byte	58
+ 1959 0003 27       		.byte	39
+ 1960 0004 74       		.byte	116
+ 1961 0005 69       		.byte	105
+ 1962 0006 4E       		.byte	78
+ 1963 0007 53       		.byte	83
+ 1964 0008 E8       		.byte	-24
+ 1965 0009 F5       		.byte	-11
+ 1966 000a D2       		.byte	-46
+ 1967 000b CF       		.byte	-49
+ 1968 000c 9C       		.byte	-100
+ 1969 000d 81       		.byte	-127
+ 1970 000e A6       		.byte	-90
+ 1971 000f BB       		.byte	-69
+ 1972 0010 CD       		.byte	-51
+ 1973 0011 D0       		.byte	-48
+ 1974 0012 F7       		.byte	-9
+ARM GAS  /tmp/ccYAzQ9X.s 			page 57
+
+
+ 1975 0013 EA       		.byte	-22
+ 1976 0014 B9       		.byte	-71
+ 1977 0015 A4       		.byte	-92
+ 1978 0016 83       		.byte	-125
+ 1979 0017 9E       		.byte	-98
+ 1980 0018 25       		.byte	37
+ 1981 0019 38       		.byte	56
+ 1982 001a 1F       		.byte	31
+ 1983 001b 02       		.byte	2
+ 1984 001c 51       		.byte	81
+ 1985 001d 4C       		.byte	76
+ 1986 001e 6B       		.byte	107
+ 1987 001f 76       		.byte	118
+ 1988 0020 87       		.byte	-121
+ 1989 0021 9A       		.byte	-102
+ 1990 0022 BD       		.byte	-67
+ 1991 0023 A0       		.byte	-96
+ 1992 0024 F3       		.byte	-13
+ 1993 0025 EE       		.byte	-18
+ 1994 0026 C9       		.byte	-55
+ 1995 0027 D4       		.byte	-44
+ 1996 0028 6F       		.byte	111
+ 1997 0029 72       		.byte	114
+ 1998 002a 55       		.byte	85
+ 1999 002b 48       		.byte	72
+ 2000 002c 1B       		.byte	27
+ 2001 002d 06       		.byte	6
+ 2002 002e 21       		.byte	33
+ 2003 002f 3C       		.byte	60
+ 2004 0030 4A       		.byte	74
+ 2005 0031 57       		.byte	87
+ 2006 0032 70       		.byte	112
+ 2007 0033 6D       		.byte	109
+ 2008 0034 3E       		.byte	62
+ 2009 0035 23       		.byte	35
+ 2010 0036 04       		.byte	4
+ 2011 0037 19       		.byte	25
+ 2012 0038 A2       		.byte	-94
+ 2013 0039 BF       		.byte	-65
+ 2014 003a 98       		.byte	-104
+ 2015 003b 85       		.byte	-123
+ 2016 003c D6       		.byte	-42
+ 2017 003d CB       		.byte	-53
+ 2018 003e EC       		.byte	-20
+ 2019 003f F1       		.byte	-15
+ 2020 0040 13       		.byte	19
+ 2021 0041 0E       		.byte	14
+ 2022 0042 29       		.byte	41
+ 2023 0043 34       		.byte	52
+ 2024 0044 67       		.byte	103
+ 2025 0045 7A       		.byte	122
+ 2026 0046 5D       		.byte	93
+ 2027 0047 40       		.byte	64
+ 2028 0048 FB       		.byte	-5
+ 2029 0049 E6       		.byte	-26
+ 2030 004a C1       		.byte	-63
+ 2031 004b DC       		.byte	-36
+ARM GAS  /tmp/ccYAzQ9X.s 			page 58
+
+
+ 2032 004c 8F       		.byte	-113
+ 2033 004d 92       		.byte	-110
+ 2034 004e B5       		.byte	-75
+ 2035 004f A8       		.byte	-88
+ 2036 0050 DE       		.byte	-34
+ 2037 0051 C3       		.byte	-61
+ 2038 0052 E4       		.byte	-28
+ 2039 0053 F9       		.byte	-7
+ 2040 0054 AA       		.byte	-86
+ 2041 0055 B7       		.byte	-73
+ 2042 0056 90       		.byte	-112
+ 2043 0057 8D       		.byte	-115
+ 2044 0058 36       		.byte	54
+ 2045 0059 2B       		.byte	43
+ 2046 005a 0C       		.byte	12
+ 2047 005b 11       		.byte	17
+ 2048 005c 42       		.byte	66
+ 2049 005d 5F       		.byte	95
+ 2050 005e 78       		.byte	120
+ 2051 005f 65       		.byte	101
+ 2052 0060 94       		.byte	-108
+ 2053 0061 89       		.byte	-119
+ 2054 0062 AE       		.byte	-82
+ 2055 0063 B3       		.byte	-77
+ 2056 0064 E0       		.byte	-32
+ 2057 0065 FD       		.byte	-3
+ 2058 0066 DA       		.byte	-38
+ 2059 0067 C7       		.byte	-57
+ 2060 0068 7C       		.byte	124
+ 2061 0069 61       		.byte	97
+ 2062 006a 46       		.byte	70
+ 2063 006b 5B       		.byte	91
+ 2064 006c 08       		.byte	8
+ 2065 006d 15       		.byte	21
+ 2066 006e 32       		.byte	50
+ 2067 006f 2F       		.byte	47
+ 2068 0070 59       		.byte	89
+ 2069 0071 44       		.byte	68
+ 2070 0072 63       		.byte	99
+ 2071 0073 7E       		.byte	126
+ 2072 0074 2D       		.byte	45
+ 2073 0075 30       		.byte	48
+ 2074 0076 17       		.byte	23
+ 2075 0077 0A       		.byte	10
+ 2076 0078 B1       		.byte	-79
+ 2077 0079 AC       		.byte	-84
+ 2078 007a 8B       		.byte	-117
+ 2079 007b 96       		.byte	-106
+ 2080 007c C5       		.byte	-59
+ 2081 007d D8       		.byte	-40
+ 2082 007e FF       		.byte	-1
+ 2083 007f E2       		.byte	-30
+ 2084 0080 26       		.byte	38
+ 2085 0081 3B       		.byte	59
+ 2086 0082 1C       		.byte	28
+ 2087 0083 01       		.byte	1
+ 2088 0084 52       		.byte	82
+ARM GAS  /tmp/ccYAzQ9X.s 			page 59
+
+
+ 2089 0085 4F       		.byte	79
+ 2090 0086 68       		.byte	104
+ 2091 0087 75       		.byte	117
+ 2092 0088 CE       		.byte	-50
+ 2093 0089 D3       		.byte	-45
+ 2094 008a F4       		.byte	-12
+ 2095 008b E9       		.byte	-23
+ 2096 008c BA       		.byte	-70
+ 2097 008d A7       		.byte	-89
+ 2098 008e 80       		.byte	-128
+ 2099 008f 9D       		.byte	-99
+ 2100 0090 EB       		.byte	-21
+ 2101 0091 F6       		.byte	-10
+ 2102 0092 D1       		.byte	-47
+ 2103 0093 CC       		.byte	-52
+ 2104 0094 9F       		.byte	-97
+ 2105 0095 82       		.byte	-126
+ 2106 0096 A5       		.byte	-91
+ 2107 0097 B8       		.byte	-72
+ 2108 0098 03       		.byte	3
+ 2109 0099 1E       		.byte	30
+ 2110 009a 39       		.byte	57
+ 2111 009b 24       		.byte	36
+ 2112 009c 77       		.byte	119
+ 2113 009d 6A       		.byte	106
+ 2114 009e 4D       		.byte	77
+ 2115 009f 50       		.byte	80
+ 2116 00a0 A1       		.byte	-95
+ 2117 00a1 BC       		.byte	-68
+ 2118 00a2 9B       		.byte	-101
+ 2119 00a3 86       		.byte	-122
+ 2120 00a4 D5       		.byte	-43
+ 2121 00a5 C8       		.byte	-56
+ 2122 00a6 EF       		.byte	-17
+ 2123 00a7 F2       		.byte	-14
+ 2124 00a8 49       		.byte	73
+ 2125 00a9 54       		.byte	84
+ 2126 00aa 73       		.byte	115
+ 2127 00ab 6E       		.byte	110
+ 2128 00ac 3D       		.byte	61
+ 2129 00ad 20       		.byte	32
+ 2130 00ae 07       		.byte	7
+ 2131 00af 1A       		.byte	26
+ 2132 00b0 6C       		.byte	108
+ 2133 00b1 71       		.byte	113
+ 2134 00b2 56       		.byte	86
+ 2135 00b3 4B       		.byte	75
+ 2136 00b4 18       		.byte	24
+ 2137 00b5 05       		.byte	5
+ 2138 00b6 22       		.byte	34
+ 2139 00b7 3F       		.byte	63
+ 2140 00b8 84       		.byte	-124
+ 2141 00b9 99       		.byte	-103
+ 2142 00ba BE       		.byte	-66
+ 2143 00bb A3       		.byte	-93
+ 2144 00bc F0       		.byte	-16
+ 2145 00bd ED       		.byte	-19
+ARM GAS  /tmp/ccYAzQ9X.s 			page 60
+
+
+ 2146 00be CA       		.byte	-54
+ 2147 00bf D7       		.byte	-41
+ 2148 00c0 35       		.byte	53
+ 2149 00c1 28       		.byte	40
+ 2150 00c2 0F       		.byte	15
+ 2151 00c3 12       		.byte	18
+ 2152 00c4 41       		.byte	65
+ 2153 00c5 5C       		.byte	92
+ 2154 00c6 7B       		.byte	123
+ 2155 00c7 66       		.byte	102
+ 2156 00c8 DD       		.byte	-35
+ 2157 00c9 C0       		.byte	-64
+ 2158 00ca E7       		.byte	-25
+ 2159 00cb FA       		.byte	-6
+ 2160 00cc A9       		.byte	-87
+ 2161 00cd B4       		.byte	-76
+ 2162 00ce 93       		.byte	-109
+ 2163 00cf 8E       		.byte	-114
+ 2164 00d0 F8       		.byte	-8
+ 2165 00d1 E5       		.byte	-27
+ 2166 00d2 C2       		.byte	-62
+ 2167 00d3 DF       		.byte	-33
+ 2168 00d4 8C       		.byte	-116
+ 2169 00d5 91       		.byte	-111
+ 2170 00d6 B6       		.byte	-74
+ 2171 00d7 AB       		.byte	-85
+ 2172 00d8 10       		.byte	16
+ 2173 00d9 0D       		.byte	13
+ 2174 00da 2A       		.byte	42
+ 2175 00db 37       		.byte	55
+ 2176 00dc 64       		.byte	100
+ 2177 00dd 79       		.byte	121
+ 2178 00de 5E       		.byte	94
+ 2179 00df 43       		.byte	67
+ 2180 00e0 B2       		.byte	-78
+ 2181 00e1 AF       		.byte	-81
+ 2182 00e2 88       		.byte	-120
+ 2183 00e3 95       		.byte	-107
+ 2184 00e4 C6       		.byte	-58
+ 2185 00e5 DB       		.byte	-37
+ 2186 00e6 FC       		.byte	-4
+ 2187 00e7 E1       		.byte	-31
+ 2188 00e8 5A       		.byte	90
+ 2189 00e9 47       		.byte	71
+ 2190 00ea 60       		.byte	96
+ 2191 00eb 7D       		.byte	125
+ 2192 00ec 2E       		.byte	46
+ 2193 00ed 33       		.byte	51
+ 2194 00ee 14       		.byte	20
+ 2195 00ef 09       		.byte	9
+ 2196 00f0 7F       		.byte	127
+ 2197 00f1 62       		.byte	98
+ 2198 00f2 45       		.byte	69
+ 2199 00f3 58       		.byte	88
+ 2200 00f4 0B       		.byte	11
+ 2201 00f5 16       		.byte	22
+ 2202 00f6 31       		.byte	49
+ARM GAS  /tmp/ccYAzQ9X.s 			page 61
+
+
+ 2203 00f7 2C       		.byte	44
+ 2204 00f8 97       		.byte	-105
+ 2205 00f9 8A       		.byte	-118
+ 2206 00fa AD       		.byte	-83
+ 2207 00fb B0       		.byte	-80
+ 2208 00fc E3       		.byte	-29
+ 2209 00fd FE       		.byte	-2
+ 2210 00fe D9       		.byte	-39
+ 2211 00ff C4       		.byte	-60
+ 2212              		.text
+ 2213              	.Letext0:
+ 2214              		.file 2 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/machine/_default_types.h"
+ 2215              		.file 3 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/lock.h"
+ 2216              		.file 4 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_types.h"
+ 2217              		.file 5 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/lib/gcc/arm-none-eabi/7.3.1/include/stddef.h"
+ 2218              		.file 6 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/reent.h"
+ 2219              		.file 7 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/stdlib.h"
+ 2220              		.file 8 "Application/BSPSys/Util/BSPTypeDef.h"
+ 2221              		.file 9 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_stdint.h"
+ 2222              		.file 10 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/system_stm32g0xx.h"
+ 2223              		.file 11 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/stm32g0b1xx.h"
+ 2224              		.file 12 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/stm32g0xx.h"
+ 2225              		.file 13 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_def.h"
+ 2226              		.file 14 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_flash.h"
+ 2227              		.file 15 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_fdcan.h"
+ 2228              		.file 16 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_uart.h"
+ 2229              		.file 17 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal.h"
+ 2230              		.file 18 "Core/Inc/main.h"
+ 2231              		.file 19 "Core/Inc/fdcan.h"
+ 2232              		.file 20 "./Application/Funtion/CanLib/CANInterface.h"
+ 2233              		.file 21 "./Application/Funtion/CanLib/CANUser.h"
+ 2234              		.file 22 "Application/Funtion/SystemInfo/SystemInfo.h"
+ 2235              		.file 23 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_ll_dma.h"
+ 2236              		.file 24 "./Application/Funtion/CanLib/CANHandle.h"
+ 2237              		.file 25 "Application/BSPSys/BSPDriver/BSPIRQ.h"
+ 2238              		.file 26 "<built-in>"
+ARM GAS  /tmp/ccYAzQ9X.s 			page 62
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 CANTabOper.c
+     /tmp/ccYAzQ9X.s:16     .text.CanScanIndexTabInfo:0000000000000000 $t
+     /tmp/ccYAzQ9X.s:23     .text.CanScanIndexTabInfo:0000000000000000 CanScanIndexTabInfo
+     /tmp/ccYAzQ9X.s:228    .text.CanScanIndexTabInfo:00000000000000b8 $d
+     /tmp/ccYAzQ9X.s:235    .text.CANReadCanIndexData:0000000000000000 $t
+     /tmp/ccYAzQ9X.s:242    .text.CANReadCanIndexData:0000000000000000 CANReadCanIndexData
+     /tmp/ccYAzQ9X.s:357    .text.CANWriteCanIndexData:0000000000000000 $t
+     /tmp/ccYAzQ9X.s:364    .text.CANWriteCanIndexData:0000000000000000 CANWriteCanIndexData
+     /tmp/ccYAzQ9X.s:499    .text.CANClrTxRcvTabInfo:0000000000000000 $t
+     /tmp/ccYAzQ9X.s:506    .text.CANClrTxRcvTabInfo:0000000000000000 CANClrTxRcvTabInfo
+     /tmp/ccYAzQ9X.s:573    .text.CANClrTxRcvTabInfo:0000000000000038 $d
+     /tmp/ccYAzQ9X.s:581    .text.CANClrTxRcvTabTimer:0000000000000000 $t
+     /tmp/ccYAzQ9X.s:588    .text.CANClrTxRcvTabTimer:0000000000000000 CANClrTxRcvTabTimer
+     /tmp/ccYAzQ9X.s:616    .text.CANClrTxRcvTabTimer:0000000000000018 $d
+     /tmp/ccYAzQ9X.s:622    .text.CANReadTxRcvTabData:0000000000000000 $t
+     /tmp/ccYAzQ9X.s:629    .text.CANReadTxRcvTabData:0000000000000000 CANReadTxRcvTabData
+     /tmp/ccYAzQ9X.s:782    .text.CANReadTxRcvTabData:00000000000000b8 $d
+     /tmp/ccYAzQ9X.s:788    .text.CANFindTxRcvTabMatching:0000000000000000 $t
+     /tmp/ccYAzQ9X.s:795    .text.CANFindTxRcvTabMatching:0000000000000000 CANFindTxRcvTabMatching
+     /tmp/ccYAzQ9X.s:872    .text.CANFindTxRcvTabMatching:0000000000000044 $d
+     /tmp/ccYAzQ9X.s:878    .text.CANComputeRequestCRC8:0000000000000000 $t
+     /tmp/ccYAzQ9X.s:885    .text.CANComputeRequestCRC8:0000000000000000 CANComputeRequestCRC8
+     /tmp/ccYAzQ9X.s:943    .text.CANComputeRequestCRC8:0000000000000028 $d
+     /tmp/ccYAzQ9X.s:1955   .rodata.Crc8Table:0000000000000000 Crc8Table
+     /tmp/ccYAzQ9X.s:950    .text.CANSendTxRcvTabMsgPack:0000000000000000 $t
+     /tmp/ccYAzQ9X.s:957    .text.CANSendTxRcvTabMsgPack:0000000000000000 CANSendTxRcvTabMsgPack
+     /tmp/ccYAzQ9X.s:1571   .text.CANSendTxRcvTabMsgPack:00000000000002b4 $d
+     /tmp/ccYAzQ9X.s:1577   .text.CANReqIdleTxRcvTab:0000000000000000 $t
+     /tmp/ccYAzQ9X.s:1584   .text.CANReqIdleTxRcvTab:0000000000000000 CANReqIdleTxRcvTab
+     /tmp/ccYAzQ9X.s:1761   .text.CANReqIdleTxRcvTab:00000000000000c4 $d
+     /tmp/ccYAzQ9X.s:1767   .text.CANMulFramTxTimerCheck:0000000000000000 $t
+     /tmp/ccYAzQ9X.s:1774   .text.CANMulFramTxTimerCheck:0000000000000000 CANMulFramTxTimerCheck
+     /tmp/ccYAzQ9X.s:1837   .text.CANMulFramTxTimerCheck:000000000000003c $d
+     /tmp/ccYAzQ9X.s:1843   .text.CANWaitAnsFramTimerCheck:0000000000000000 $t
+     /tmp/ccYAzQ9X.s:1850   .text.CANWaitAnsFramTimerCheck:0000000000000000 CANWaitAnsFramTimerCheck
+     /tmp/ccYAzQ9X.s:1947   .text.CANWaitAnsFramTimerCheck:000000000000006c $d
+
+UNDEFINED SYMBOLS
+gCanDevTable
+gCANBaseDef_3
+SystemInfo_1
+gCanTxRcvTable
+__aeabi_uidiv
+__aeabi_idiv
+memset
+CANBuildMsgID_API
+CANSendMsgUser_Hook
+BSP_DISABLE_IRQ
+BSP_ENABLE_IRQ

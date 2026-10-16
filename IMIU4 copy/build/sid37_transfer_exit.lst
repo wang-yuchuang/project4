@@ -1,0 +1,139 @@
+ARM GAS  /tmp/cc72gVs6.s 			page 1
+
+
+   1              		.cpu cortex-m0plus
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 4
+   9              		.eabi_attribute 34, 0
+  10              		.eabi_attribute 18, 4
+  11              		.file	"sid37_transfer_exit.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.sid37_transfer_exit_solve,"ax",%progbits
+  16              		.align	1
+  17              		.global	sid37_transfer_exit_solve
+  18              		.syntax unified
+  19              		.code	16
+  20              		.thumb_func
+  21              		.fpu softvfp
+  23              	sid37_transfer_exit_solve:
+  24              	.LFB493:
+  25              		.file 1 "./Application/Addition/UDSCanfd/services_layer/device_role/sid37_transfer_exit.c"
+   1:./Application/Addition/UDSCanfd/services_layer/device_role/sid37_transfer_exit.c **** /* ******************* 
+   2:./Application/Addition/UDSCanfd/services_layer/device_role/sid37_transfer_exit.c ****  * can uds 37h服务的实现
+   3:./Application/Addition/UDSCanfd/services_layer/device_role/sid37_transfer_exit.c ****  **********************/
+   4:./Application/Addition/UDSCanfd/services_layer/device_role/sid37_transfer_exit.c **** #include <string.h>
+   5:./Application/Addition/UDSCanfd/services_layer/device_role/sid37_transfer_exit.c **** #include "network_layer/can_uds_network_layer.h"
+   6:./Application/Addition/UDSCanfd/services_layer/device_role/sid37_transfer_exit.c **** #include "services_layer/device_role/sid_internal_header.h"
+   7:./Application/Addition/UDSCanfd/services_layer/device_role/sid37_transfer_exit.c **** #include "services_layer/device_role/can_uds_services_layer.h"
+   8:./Application/Addition/UDSCanfd/services_layer/device_role/sid37_transfer_exit.c **** 
+   9:./Application/Addition/UDSCanfd/services_layer/device_role/sid37_transfer_exit.c **** void sid37_transfer_exit_solve(unsigned char *msg_buff,unsigned short msg_len)
+  10:./Application/Addition/UDSCanfd/services_layer/device_role/sid37_transfer_exit.c **** {
+  26              		.loc 1 10 0
+  27              		.cfi_startproc
+  28              		@ args = 0, pretend = 0, frame = 0
+  29              		@ frame_needed = 0, uses_anonymous_args = 0
+  30              	.LVL0:
+  11:./Application/Addition/UDSCanfd/services_layer/device_role/sid37_transfer_exit.c ****     unsigned char rsp_msg[2] = {0};
+  12:./Application/Addition/UDSCanfd/services_layer/device_role/sid37_transfer_exit.c **** 
+  13:./Application/Addition/UDSCanfd/services_layer/device_role/sid37_transfer_exit.c ****     rsp_msg[0] = ds_request_transferexit | UDS_SRV_RET_ID_OFFSET;
+  14:./Application/Addition/UDSCanfd/services_layer/device_role/sid37_transfer_exit.c **** 
+  15:./Application/Addition/UDSCanfd/services_layer/device_role/sid37_transfer_exit.c ****     cur_transfer_ctrl.block_counter = rsp_msg[1];
+  31              		.loc 1 15 0
+  32 0000 0022     		movs	r2, #0
+  33 0002 064B     		ldr	r3, .L5
+  10:./Application/Addition/UDSCanfd/services_layer/device_role/sid37_transfer_exit.c ****     unsigned char rsp_msg[2] = {0};
+  34              		.loc 1 10 0
+  35 0004 10B5     		push	{r4, lr}
+  36              	.LCFI0:
+  37              		.cfi_def_cfa_offset 8
+  38              		.cfi_offset 4, -8
+  39              		.cfi_offset 14, -4
+  40              		.loc 1 15 0
+  41 0006 9A70     		strb	r2, [r3, #2]
+  16:./Application/Addition/UDSCanfd/services_layer/device_role/sid37_transfer_exit.c **** 
+ARM GAS  /tmp/cc72gVs6.s 			page 2
+
+
+  17:./Application/Addition/UDSCanfd/services_layer/device_role/sid37_transfer_exit.c ****     if ((cur_transfer_ctrl.direction != TRANSFER_DOWNLOAD) && 
+  42              		.loc 1 17 0
+  43 0008 1B78     		ldrb	r3, [r3]
+  18:./Application/Addition/UDSCanfd/services_layer/device_role/sid37_transfer_exit.c ****         (cur_transfer_ctrl.direction != TRANSFER_UPLOAD)){
+  19:./Application/Addition/UDSCanfd/services_layer/device_role/sid37_transfer_exit.c ****         uds_ack_refuse(ds_request_transferexit, nrc_request_sequence_error);
+  44              		.loc 1 19 0
+  45 000a 2421     		movs	r1, #36
+  46              	.LVL1:
+  17:./Application/Addition/UDSCanfd/services_layer/device_role/sid37_transfer_exit.c ****         (cur_transfer_ctrl.direction != TRANSFER_UPLOAD)){
+  47              		.loc 1 17 0
+  48 000c 012B     		cmp	r3, #1
+  49 000e 00D8     		bhi	.L4
+  20:./Application/Addition/UDSCanfd/services_layer/device_role/sid37_transfer_exit.c ****     }else if(cur_transfer_ctrl.block_counter == (cur_transfer_ctrl.last_block_counter+1)){//如果b
+  21:./Application/Addition/UDSCanfd/services_layer/device_role/sid37_transfer_exit.c ****         uds_ack_accept(rsp_msg,1);
+  22:./Application/Addition/UDSCanfd/services_layer/device_role/sid37_transfer_exit.c ****     }else {//否则，说明block_counter的序号是错的，给出否定响应
+  23:./Application/Addition/UDSCanfd/services_layer/device_role/sid37_transfer_exit.c ****         uds_ack_refuse(ds_request_transferexit, nrc_wrong_block_sequence_counter);
+  50              		.loc 1 23 0
+  51 0010 7321     		movs	r1, #115
+  52              	.L4:
+  53 0012 3720     		movs	r0, #55
+  54              	.LVL2:
+  55 0014 FFF7FEFF 		bl	uds_ack_refuse
+  56              	.LVL3:
+  24:./Application/Addition/UDSCanfd/services_layer/device_role/sid37_transfer_exit.c ****     }
+  25:./Application/Addition/UDSCanfd/services_layer/device_role/sid37_transfer_exit.c **** }...
+  57              		.loc 1 25 0
+  58              		@ sp needed
+  59 0018 10BD     		pop	{r4, pc}
+  60              	.L6:
+  61 001a C046     		.align	2
+  62              	.L5:
+  63 001c 00000000 		.word	cur_transfer_ctrl
+  64              		.cfi_endproc
+  65              	.LFE493:
+  67              		.text
+  68              	.Letext0:
+  69              		.file 2 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/machine/_default_types.h"
+  70              		.file 3 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/lock.h"
+  71              		.file 4 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_types.h"
+  72              		.file 5 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/lib/gcc/arm-none-eabi/7.3.1/include/stddef.h"
+  73              		.file 6 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/reent.h"
+  74              		.file 7 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/stdlib.h"
+  75              		.file 8 "Application/BSPSys/Util/BSPTypeDef.h"
+  76              		.file 9 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_stdint.h"
+  77              		.file 10 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/system_stm32g0xx.h"
+  78              		.file 11 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/stm32g0b1xx.h"
+  79              		.file 12 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_def.h"
+  80              		.file 13 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_dma.h"
+  81              		.file 14 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_flash.h"
+  82              		.file 15 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_spi.h"
+  83              		.file 16 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_uart.h"
+  84              		.file 17 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal.h"
+  85              		.file 18 "Core/Inc/main.h"
+  86              		.file 19 "Core/Inc/spi.h"
+  87              		.file 20 "Application/BSPSys/BSPDevice/gd25q32e/BSPGD25Q32E.h"
+  88              		.file 21 "Application/Addition/UDSCanfd/can_uds_arch.h"
+  89              		.file 22 "Application/Addition/UDSCanfd/network_layer/can_uds_network_layer.h"
+ARM GAS  /tmp/cc72gVs6.s 			page 3
+
+
+  90              		.file 23 "Application/Addition/RTT/SEGGER_RTT.h"
+  91              		.file 24 "Application/Addition/UDSCanfd/services_layer/device_role/sid_internal_header.h"
+  92              		.file 25 "Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.h"
+  93              		.file 26 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_ll_dma.h"
+ARM GAS  /tmp/cc72gVs6.s 			page 4
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 sid37_transfer_exit.c
+     /tmp/cc72gVs6.s:16     .text.sid37_transfer_exit_solve:0000000000000000 $t
+     /tmp/cc72gVs6.s:23     .text.sid37_transfer_exit_solve:0000000000000000 sid37_transfer_exit_solve
+     /tmp/cc72gVs6.s:63     .text.sid37_transfer_exit_solve:000000000000001c $d
+
+UNDEFINED SYMBOLS
+uds_ack_refuse
+cur_transfer_ctrl

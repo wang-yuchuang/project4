@@ -1,0 +1,2188 @@
+ARM GAS  /tmp/ccrwYaqM.s 			page 1
+
+
+   1              		.cpu cortex-m0plus
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 4
+   9              		.eabi_attribute 34, 0
+  10              		.eabi_attribute 18, 4
+  11              		.file	"Modbus.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.ModbusCrc,"ax",%progbits
+  16              		.align	1
+  17              		.syntax unified
+  18              		.code	16
+  19              		.thumb_func
+  20              		.fpu softvfp
+  22              	ModbusCrc:
+  23              	.LFB7:
+  24              		.file 1 "./Application/Addition/Modbus/Modbus.c"
+   1:./Application/Addition/Modbus/Modbus.c **** /*==========================================Copyright(c)=======================================
+   2:./Application/Addition/Modbus/Modbus.c **** **                                  Shenzhen Infypower Co., Ltd.
+   3:./Application/Addition/Modbus/Modbus.c **** **                                  Power conversion Department
+   4:./Application/Addition/Modbus/Modbus.c **** **                                       BMS Product Line
+   5:./Application/Addition/Modbus/Modbus.c **** **
+   6:./Application/Addition/Modbus/Modbus.c **** **---------------------------------------File Information--------------------------------------
+   7:./Application/Addition/Modbus/Modbus.c **** ** @File Name    : Modbus.c
+   8:./Application/Addition/Modbus/Modbus.c **** ** @Founder      : WYP40505
+   9:./Application/Addition/Modbus/Modbus.c **** ** @Date         : 20260228
+  10:./Application/Addition/Modbus/Modbus.c **** ** @Function     : MODBUS
+  11:./Application/Addition/Modbus/Modbus.c **** ** @Instructions :
+  12:./Application/Addition/Modbus/Modbus.c **** **===========================================================================================*/
+  13:./Application/Addition/Modbus/Modbus.c **** 
+  14:./Application/Addition/Modbus/Modbus.c **** /*=============================================================================================
+  15:./Application/Addition/Modbus/Modbus.c **** ** @Header file definition
+  16:./Application/Addition/Modbus/Modbus.c **** **===========================================================================================*/
+  17:./Application/Addition/Modbus/Modbus.c **** #include "Modbus.h"
+  18:./Application/Addition/Modbus/Modbus.c **** #include "BSPUSART.h"
+  19:./Application/Addition/Modbus/Modbus.c **** /*=============================================================================================
+  20:./Application/Addition/Modbus/Modbus.c **** ** @Macro definition
+  21:./Application/Addition/Modbus/Modbus.c **** **===========================================================================================*/
+  22:./Application/Addition/Modbus/Modbus.c **** 
+  23:./Application/Addition/Modbus/Modbus.c **** /*=============================================================================================
+  24:./Application/Addition/Modbus/Modbus.c **** ** @Data type definition
+  25:./Application/Addition/Modbus/Modbus.c **** **===========================================================================================*/
+  26:./Application/Addition/Modbus/Modbus.c **** stc_modbus  pstcModbus;
+  27:./Application/Addition/Modbus/Modbus.c **** u8 ModbusReg[MAX_HOLDING_REGS][2];
+  28:./Application/Addition/Modbus/Modbus.c **** /*=============================================================================================
+  29:./Application/Addition/Modbus/Modbus.c **** ** @Static function declaration
+  30:./Application/Addition/Modbus/Modbus.c **** **===========================================================================================*/
+  31:./Application/Addition/Modbus/Modbus.c **** /*=============================================================================================
+  32:./Application/Addition/Modbus/Modbus.c **** ** @Name      :static u8 Modbus_BuildResponse(stc_modbus *p_modbus, u8 *tx_buf)
+  33:./Application/Addition/Modbus/Modbus.c **** ** @Input     : 
+  34:./Application/Addition/Modbus/Modbus.c **** ** @Output    : 
+ARM GAS  /tmp/ccrwYaqM.s 			page 2
+
+
+  35:./Application/Addition/Modbus/Modbus.c **** ** @Function  :
+  36:./Application/Addition/Modbus/Modbus.c **** ** @The notes : 
+  37:./Application/Addition/Modbus/Modbus.c **** **===========================================================================================*/
+  38:./Application/Addition/Modbus/Modbus.c **** static u8* Modbus_ErrorResponse(stc_modbus *p_modbus, u8 *tx_buf);
+  39:./Application/Addition/Modbus/Modbus.c **** 
+  40:./Application/Addition/Modbus/Modbus.c **** /*=============================================================================================
+  41:./Application/Addition/Modbus/Modbus.c **** ** @Name      :static u8 Modbus_BuildResponse(stc_modbus *p_modbus, u8 *tx_buf)
+  42:./Application/Addition/Modbus/Modbus.c **** ** @Input     : 
+  43:./Application/Addition/Modbus/Modbus.c **** ** @Output    : 
+  44:./Application/Addition/Modbus/Modbus.c **** ** @Function  :输出请求和要返回的数据，输出缓存区
+  45:./Application/Addition/Modbus/Modbus.c **** ** @The notes : 
+  46:./Application/Addition/Modbus/Modbus.c **** **===========================================================================================*/
+  47:./Application/Addition/Modbus/Modbus.c **** static u8 Modbus_BuildResponse(stc_modbus *p_modbus, u8 *tx_buf);
+  48:./Application/Addition/Modbus/Modbus.c **** 
+  49:./Application/Addition/Modbus/Modbus.c **** /*=============================================================================================
+  50:./Application/Addition/Modbus/Modbus.c **** ** @Name      : static u8 Modbus_ExecuteOperation(stc_modbus *p_modbus)
+  51:./Application/Addition/Modbus/Modbus.c **** ** @Input     : 
+  52:./Application/Addition/Modbus/Modbus.c **** ** @Output    : 
+  53:./Application/Addition/Modbus/Modbus.c **** ** @Function  : 执行操作,根据解析后得到的modbus请求，执行相应的寄存器读写�
+  54:./Application/Addition/Modbus/Modbus.c **** ** @The notes : 
+  55:./Application/Addition/Modbus/Modbus.c **** **===========================================================================================*/
+  56:./Application/Addition/Modbus/Modbus.c **** static u8 Modbus_ExecuteOperation(stc_modbus *p_modbus);
+  57:./Application/Addition/Modbus/Modbus.c **** 
+  58:./Application/Addition/Modbus/Modbus.c **** /*=============================================================================================
+  59:./Application/Addition/Modbus/Modbus.c **** ** @Name      : static u8 Modbus_ParsingFrame(u8 *rx_buf, u8 rx_len, stc_modbus *p_modbus)
+  60:./Application/Addition/Modbus/Modbus.c **** ** @Input     : 
+  61:./Application/Addition/Modbus/Modbus.c **** ** @Output    : 
+  62:./Application/Addition/Modbus/Modbus.c **** ** @Function  : modbus功能码解析 
+  63:./Application/Addition/Modbus/Modbus.c **** ** @The notes : 
+  64:./Application/Addition/Modbus/Modbus.c **** **===========================================================================================*/
+  65:./Application/Addition/Modbus/Modbus.c **** static u8 Modbus_ParsingFrame(u8 *rx_buf, u8 rx_len, stc_modbus *p_modbus);
+  66:./Application/Addition/Modbus/Modbus.c **** 
+  67:./Application/Addition/Modbus/Modbus.c **** /*=============================================================================================
+  68:./Application/Addition/Modbus/Modbus.c **** ** @Name      : static u8 Modbus_RTUProcess(u8 *rx_buf, stc_modbus *p_modbus);
+  69:./Application/Addition/Modbus/Modbus.c **** ** @Input     : void
+  70:./Application/Addition/Modbus/Modbus.c **** ** @Output    :   
+  71:./Application/Addition/Modbus/Modbus.c **** ** @Function  : modbus基础数据解析
+  72:./Application/Addition/Modbus/Modbus.c **** ** @The notes : 
+  73:./Application/Addition/Modbus/Modbus.c **** **===========================================================================================*/
+  74:./Application/Addition/Modbus/Modbus.c **** static u8 Modbus_RTUProcess(u8 *rx_buf, stc_modbus *p_modbus);
+  75:./Application/Addition/Modbus/Modbus.c **** 
+  76:./Application/Addition/Modbus/Modbus.c **** /*=============================================================================================
+  77:./Application/Addition/Modbus/Modbus.c **** ** @Name      : static u16 ModbusCrc(u8 *from, u8 *to);
+  78:./Application/Addition/Modbus/Modbus.c **** ** @Input     : *from:crc校验数据开始 *to:crc校验数据结束 
+  79:./Application/Addition/Modbus/Modbus.c **** ** @Output    : crc计算后的数值
+  80:./Application/Addition/Modbus/Modbus.c **** ** @Function  : USART的crc校验
+  81:./Application/Addition/Modbus/Modbus.c **** ** @The notes : 用户调用
+  82:./Application/Addition/Modbus/Modbus.c **** **===========================================================================================*/
+  83:./Application/Addition/Modbus/Modbus.c **** static u16 ModbusCrc(u8 *data, u8 size);
+  84:./Application/Addition/Modbus/Modbus.c **** 
+  85:./Application/Addition/Modbus/Modbus.c **** 
+  86:./Application/Addition/Modbus/Modbus.c **** 
+  87:./Application/Addition/Modbus/Modbus.c **** /*=============================================================================================
+  88:./Application/Addition/Modbus/Modbus.c **** ** @Interface function declaration
+  89:./Application/Addition/Modbus/Modbus.c **** **===========================================================================================*/
+  90:./Application/Addition/Modbus/Modbus.c **** /*=============================================================================================
+  91:./Application/Addition/Modbus/Modbus.c **** ** @Name      : void Modbus_ToolingInterface(t_USARTMSG *pmsgData)
+ARM GAS  /tmp/ccrwYaqM.s 			page 3
+
+
+  92:./Application/Addition/Modbus/Modbus.c **** ** @Input     : 串口接收数据
+  93:./Application/Addition/Modbus/Modbus.c **** ** @Output    : void
+  94:./Application/Addition/Modbus/Modbus.c **** ** @Function  : 上位机通信主函数，解析报文并返回回复上位机的报文
+  95:./Application/Addition/Modbus/Modbus.c **** ** @The notes : 
+  96:./Application/Addition/Modbus/Modbus.c **** **===========================================================================================*/
+  97:./Application/Addition/Modbus/Modbus.c **** void Modbus_ToolingInterface(t_USARTMSG *pmsgData)
+  98:./Application/Addition/Modbus/Modbus.c **** {
+  99:./Application/Addition/Modbus/Modbus.c **** 	if (pmsgData == NULL || pmsgData->len == 0) 
+ 100:./Application/Addition/Modbus/Modbus.c **** 	{
+ 101:./Application/Addition/Modbus/Modbus.c ****         return;
+ 102:./Application/Addition/Modbus/Modbus.c ****     }
+ 103:./Application/Addition/Modbus/Modbus.c **** 	//1. 解析数据
+ 104:./Application/Addition/Modbus/Modbus.c **** 	u8 status = Modbus_RTUProcess(pmsgData->data,&pstcModbus);
+ 105:./Application/Addition/Modbus/Modbus.c **** 
+ 106:./Application/Addition/Modbus/Modbus.c **** 	//根据解析结果进行读写操作 并 生成回复报文
+ 107:./Application/Addition/Modbus/Modbus.c **** 	if (status == MODBUS_OK)
+ 108:./Application/Addition/Modbus/Modbus.c **** 	{
+ 109:./Application/Addition/Modbus/Modbus.c **** 		//2. 读写操作
+ 110:./Application/Addition/Modbus/Modbus.c **** 		Modbus_ExecuteOperation(&pstcModbus);
+ 111:./Application/Addition/Modbus/Modbus.c **** 	}
+ 112:./Application/Addition/Modbus/Modbus.c **** 
+ 113:./Application/Addition/Modbus/Modbus.c **** 	// 3.生成回复报文
+ 114:./Application/Addition/Modbus/Modbus.c **** 	u8 bufReply[300];
+ 115:./Application/Addition/Modbus/Modbus.c ****     u8 lenReply = 0;
+ 116:./Application/Addition/Modbus/Modbus.c **** 	if (status == MODBUS_OK)
+ 117:./Application/Addition/Modbus/Modbus.c **** 	{
+ 118:./Application/Addition/Modbus/Modbus.c ****          lenReply = Modbus_BuildResponse(&pstcModbus, bufReply);
+ 119:./Application/Addition/Modbus/Modbus.c **** 	}
+ 120:./Application/Addition/Modbus/Modbus.c **** 	//错误回复报文
+ 121:./Application/Addition/Modbus/Modbus.c **** 	else 
+ 122:./Application/Addition/Modbus/Modbus.c **** 	{// 构建错误响应
+ 123:./Application/Addition/Modbus/Modbus.c ****         u8 *errorReply = Modbus_ErrorResponse(&pstcModbus, pmsgData->data);
+ 124:./Application/Addition/Modbus/Modbus.c ****         if (errorReply != NULL) 
+ 125:./Application/Addition/Modbus/Modbus.c **** 		{
+ 126:./Application/Addition/Modbus/Modbus.c ****             memcpy(bufReply, errorReply, 5);
+ 127:./Application/Addition/Modbus/Modbus.c ****             lenReply = 5;
+ 128:./Application/Addition/Modbus/Modbus.c **** 		}
+ 129:./Application/Addition/Modbus/Modbus.c **** 	}
+ 130:./Application/Addition/Modbus/Modbus.c **** 
+ 131:./Application/Addition/Modbus/Modbus.c **** 	if (lenReply > 0)
+ 132:./Application/Addition/Modbus/Modbus.c **** 	{
+ 133:./Application/Addition/Modbus/Modbus.c **** 		BSPUSARTSendQin(eUSART6, bufReply, lenReply); 
+ 134:./Application/Addition/Modbus/Modbus.c **** 	}
+ 135:./Application/Addition/Modbus/Modbus.c **** }
+ 136:./Application/Addition/Modbus/Modbus.c **** 
+ 137:./Application/Addition/Modbus/Modbus.c **** 
+ 138:./Application/Addition/Modbus/Modbus.c **** /*=============================================================================================
+ 139:./Application/Addition/Modbus/Modbus.c **** ** @Name      : u8 Test_LengthRecData(u8*pData)	
+ 140:./Application/Addition/Modbus/Modbus.c **** ** @Input     : 报文数据
+ 141:./Application/Addition/Modbus/Modbus.c **** ** @Output    : 报文长度
+ 142:./Application/Addition/Modbus/Modbus.c **** ** @Function  : modbus报文数据长度解析
+ 143:./Application/Addition/Modbus/Modbus.c **** ** @The notes : 
+ 144:./Application/Addition/Modbus/Modbus.c **** **===========================================================================================*/
+ 145:./Application/Addition/Modbus/Modbus.c **** u8 Test_LengthRecData(u8*pData)		
+ 146:./Application/Addition/Modbus/Modbus.c **** {
+ 147:./Application/Addition/Modbus/Modbus.c **** 	if(pData[1] == MODBUS_READ_HOLD_REG)		//读报文长度
+ 148:./Application/Addition/Modbus/Modbus.c **** 		{
+ARM GAS  /tmp/ccrwYaqM.s 			page 4
+
+
+ 149:./Application/Addition/Modbus/Modbus.c **** 			return 8;					
+ 150:./Application/Addition/Modbus/Modbus.c **** 		}
+ 151:./Application/Addition/Modbus/Modbus.c **** 	if (pData[1] == MODBUS_WRITE_SIN_HOLD_REG) 
+ 152:./Application/Addition/Modbus/Modbus.c **** 		{
+ 153:./Application/Addition/Modbus/Modbus.c **** 			return 8;		
+ 154:./Application/Addition/Modbus/Modbus.c **** 		}
+ 155:./Application/Addition/Modbus/Modbus.c **** 		
+ 156:./Application/Addition/Modbus/Modbus.c **** 	if(pData[1] == MODBUS_WRITE_MULT_HOLD_REG)    //写报文长度
+ 157:./Application/Addition/Modbus/Modbus.c **** 		{
+ 158:./Application/Addition/Modbus/Modbus.c **** 			return (pData[4]<<8|pData[5])*2+9;
+ 159:./Application/Addition/Modbus/Modbus.c **** 		}	
+ 160:./Application/Addition/Modbus/Modbus.c ****         return false;
+ 161:./Application/Addition/Modbus/Modbus.c **** }
+ 162:./Application/Addition/Modbus/Modbus.c **** 
+ 163:./Application/Addition/Modbus/Modbus.c **** /*=============================================================================================
+ 164:./Application/Addition/Modbus/Modbus.c **** ** @Name      : static u8 Modbus_RTUProcess(void)
+ 165:./Application/Addition/Modbus/Modbus.c **** ** @Input     : void
+ 166:./Application/Addition/Modbus/Modbus.c **** ** @Output    : Modbus状态  
+ 167:./Application/Addition/Modbus/Modbus.c **** ** @Function  : modbus基础数据解析
+ 168:./Application/Addition/Modbus/Modbus.c **** ** @The notes : 
+ 169:./Application/Addition/Modbus/Modbus.c **** **===========================================================================================*/
+ 170:./Application/Addition/Modbus/Modbus.c **** static u8 Modbus_RTUProcess(u8 *rx_buf, stc_modbus *p_modbus)
+ 171:./Application/Addition/Modbus/Modbus.c **** {
+ 172:./Application/Addition/Modbus/Modbus.c **** 	memset(p_modbus, 0, sizeof(stc_modbus));
+ 173:./Application/Addition/Modbus/Modbus.c **** 	//获取报文完整长度
+ 174:./Application/Addition/Modbus/Modbus.c **** 	u8 rx_len;
+ 175:./Application/Addition/Modbus/Modbus.c **** 	rx_len = Test_LengthRecData(rx_buf);
+ 176:./Application/Addition/Modbus/Modbus.c **** 	
+ 177:./Application/Addition/Modbus/Modbus.c **** 	//1.基本报文长度检查
+ 178:./Application/Addition/Modbus/Modbus.c **** 	if (rx_len < 4)//地址+功能码+CRC最小长度
+ 179:./Application/Addition/Modbus/Modbus.c **** 	{
+ 180:./Application/Addition/Modbus/Modbus.c **** 		p_modbus->error_code = MODBUS_ERR_DATA;
+ 181:./Application/Addition/Modbus/Modbus.c **** 		return MODBUS_ERR_DATA;
+ 182:./Application/Addition/Modbus/Modbus.c **** 	}
+ 183:./Application/Addition/Modbus/Modbus.c **** 	
+ 184:./Application/Addition/Modbus/Modbus.c **** 	//2. 解析报文
+ 185:./Application/Addition/Modbus/Modbus.c **** 	p_modbus->address = rx_buf[0];
+ 186:./Application/Addition/Modbus/Modbus.c **** 	p_modbus->functionCode = rx_buf[1];
+ 187:./Application/Addition/Modbus/Modbus.c **** 	p_modbus->reg_addr = (rx_buf[2] << 8) | rx_buf[3];
+ 188:./Application/Addition/Modbus/Modbus.c **** 	p_modbus->data_len = rx_len;
+ 189:./Application/Addition/Modbus/Modbus.c **** 	p_modbus->crc = (rx_buf[rx_len - 2] << 8) | rx_buf[rx_len - 1];
+ 190:./Application/Addition/Modbus/Modbus.c **** 
+ 191:./Application/Addition/Modbus/Modbus.c **** 	//3. 地址是否正确
+ 192:./Application/Addition/Modbus/Modbus.c **** 	if ((p_modbus->address != Slave1_Address))
+ 193:./Application/Addition/Modbus/Modbus.c **** 	{
+ 194:./Application/Addition/Modbus/Modbus.c **** 		p_modbus->error_code = MODBUS_ERR_ADDRESS;
+ 195:./Application/Addition/Modbus/Modbus.c **** 		return MODBUS_ERR_ADDRESS;
+ 196:./Application/Addition/Modbus/Modbus.c **** 	}
+ 197:./Application/Addition/Modbus/Modbus.c **** 
+ 198:./Application/Addition/Modbus/Modbus.c **** 	//4. 检测寄存器地址是否正确
+ 199:./Application/Addition/Modbus/Modbus.c **** 	if (p_modbus->reg_addr >= MAX_HOLDING_REGS)
+ 200:./Application/Addition/Modbus/Modbus.c **** 	{
+ 201:./Application/Addition/Modbus/Modbus.c **** 		p_modbus->error_code = MODBUS_ERR_REG_ADDR;
+ 202:./Application/Addition/Modbus/Modbus.c **** 		return MODBUS_ERR_REG_ADDR;
+ 203:./Application/Addition/Modbus/Modbus.c **** 	}
+ 204:./Application/Addition/Modbus/Modbus.c **** 	
+ 205:./Application/Addition/Modbus/Modbus.c **** 	//5. CRC校验是否正确
+ARM GAS  /tmp/ccrwYaqM.s 			page 5
+
+
+ 206:./Application/Addition/Modbus/Modbus.c **** 	u16 calc_crc  =  ModbusCrc(rx_buf, rx_len - 2);
+ 207:./Application/Addition/Modbus/Modbus.c **** 	if (calc_crc != p_modbus->crc)
+ 208:./Application/Addition/Modbus/Modbus.c **** 	{
+ 209:./Application/Addition/Modbus/Modbus.c **** 		p_modbus->error_code = MODBUS_ERR_CRC;
+ 210:./Application/Addition/Modbus/Modbus.c **** 		return MODBUS_ERR_CRC;
+ 211:./Application/Addition/Modbus/Modbus.c **** 	}
+ 212:./Application/Addition/Modbus/Modbus.c **** 
+ 213:./Application/Addition/Modbus/Modbus.c **** 	//根据功能码解析数据域
+ 214:./Application/Addition/Modbus/Modbus.c **** 	return Modbus_ParsingFrame(rx_buf,rx_len,p_modbus);
+ 215:./Application/Addition/Modbus/Modbus.c **** 
+ 216:./Application/Addition/Modbus/Modbus.c **** }
+ 217:./Application/Addition/Modbus/Modbus.c **** 
+ 218:./Application/Addition/Modbus/Modbus.c **** /*=============================================================================================
+ 219:./Application/Addition/Modbus/Modbus.c **** ** @Name      : static u8 Modbus_ParsingFrame(u8 *rx_buf, u8 rx_len, stc_modbus *p_modbus)
+ 220:./Application/Addition/Modbus/Modbus.c **** ** @Input     : 报文数据 报文数据长度 modbus结构体
+ 221:./Application/Addition/Modbus/Modbus.c **** ** @Output    : Modbus状态  
+ 222:./Application/Addition/Modbus/Modbus.c **** ** @Function  : modbus功能码解析 
+ 223:./Application/Addition/Modbus/Modbus.c **** ** @The notes : 
+ 224:./Application/Addition/Modbus/Modbus.c **** **===========================================================================================*/
+ 225:./Application/Addition/Modbus/Modbus.c **** static u8 Modbus_ParsingFrame(u8 *rx_buf, u8 rx_len, stc_modbus *p_modbus)
+ 226:./Application/Addition/Modbus/Modbus.c **** {
+ 227:./Application/Addition/Modbus/Modbus.c **** 	u8 func_code = p_modbus->functionCode;
+ 228:./Application/Addition/Modbus/Modbus.c **** 
+ 229:./Application/Addition/Modbus/Modbus.c **** 	switch (func_code)
+ 230:./Application/Addition/Modbus/Modbus.c **** 	{
+ 231:./Application/Addition/Modbus/Modbus.c **** 	//0x03
+ 232:./Application/Addition/Modbus/Modbus.c **** 	case MODBUS_READ_HOLD_REG: 
+ 233:./Application/Addition/Modbus/Modbus.c **** 		if (rx_len != 8) // 固定长度：地址+功能码+起始地址(2)+数量(2)+CRC(2)
+ 234:./Application/Addition/Modbus/Modbus.c **** 		{
+ 235:./Application/Addition/Modbus/Modbus.c **** 			p_modbus->error_code = MODBUS_ERR_DATA;
+ 236:./Application/Addition/Modbus/Modbus.c **** 			return MODBUS_ERR_DATA;
+ 237:./Application/Addition/Modbus/Modbus.c **** 		}
+ 238:./Application/Addition/Modbus/Modbus.c **** 		p_modbus->reg_addr = (rx_buf[2] << 8) | rx_buf[3];
+ 239:./Application/Addition/Modbus/Modbus.c **** 		p_modbus->reg_num  = (rx_buf[4] << 8) | rx_buf[5];
+ 240:./Application/Addition/Modbus/Modbus.c **** 		p_modbus->data_len = 0;  // 请求无数据
+ 241:./Application/Addition/Modbus/Modbus.c **** 		//对读取地址添加边界检查
+ 242:./Application/Addition/Modbus/Modbus.c **** 		if (p_modbus->reg_addr > MAX_HOLDING_REGS)
+ 243:./Application/Addition/Modbus/Modbus.c **** 		{
+ 244:./Application/Addition/Modbus/Modbus.c **** 			p_modbus->error_code = MODBUS_ERR_REG_ADDR;
+ 245:./Application/Addition/Modbus/Modbus.c **** 			return MODBUS_ERR_REG_ADDR;
+ 246:./Application/Addition/Modbus/Modbus.c **** 		}
+ 247:./Application/Addition/Modbus/Modbus.c **** 		//对读取数量添加边界检查
+ 248:./Application/Addition/Modbus/Modbus.c **** 		if((p_modbus->reg_num == 0) || (p_modbus->reg_num > MAX_HOLDING_REGS))
+ 249:./Application/Addition/Modbus/Modbus.c **** 		{
+ 250:./Application/Addition/Modbus/Modbus.c **** 			p_modbus->error_code = MODBUS_ERR_REG_NUM;
+ 251:./Application/Addition/Modbus/Modbus.c **** 			return MODBUS_ERR_REG_NUM;
+ 252:./Application/Addition/Modbus/Modbus.c **** 		}
+ 253:./Application/Addition/Modbus/Modbus.c **** 		break;
+ 254:./Application/Addition/Modbus/Modbus.c **** 
+ 255:./Application/Addition/Modbus/Modbus.c **** 	//0x06
+ 256:./Application/Addition/Modbus/Modbus.c **** 	case MODBUS_WRITE_SIN_HOLD_REG:
+ 257:./Application/Addition/Modbus/Modbus.c **** 		 if (rx_len != 8) {
+ 258:./Application/Addition/Modbus/Modbus.c **** 			p_modbus->error_code = MODBUS_ERR_DATA;
+ 259:./Application/Addition/Modbus/Modbus.c ****                 return MODBUS_ERR_DATA;
+ 260:./Application/Addition/Modbus/Modbus.c ****             }
+ 261:./Application/Addition/Modbus/Modbus.c ****             p_modbus->reg_addr = (rx_buf[2] << 8) | rx_buf[3];
+ 262:./Application/Addition/Modbus/Modbus.c ****             p_modbus->reg_num = 1;
+ARM GAS  /tmp/ccrwYaqM.s 			page 6
+
+
+ 263:./Application/Addition/Modbus/Modbus.c ****             // 存储要写入的数据
+ 264:./Application/Addition/Modbus/Modbus.c ****             p_modbus->registers[0][0] = rx_buf[4];  // 存储到临时缓冲区索引0
+ 265:./Application/Addition/Modbus/Modbus.c **** 			p_modbus->registers[0][1] = rx_buf[5];
+ 266:./Application/Addition/Modbus/Modbus.c ****             p_modbus->data_len = 2;
+ 267:./Application/Addition/Modbus/Modbus.c ****             break;
+ 268:./Application/Addition/Modbus/Modbus.c **** 	//0x10 
+ 269:./Application/Addition/Modbus/Modbus.c **** 	case MODBUS_WRITE_MULT_HOLD_REG://写多个保持寄存器
+ 270:./Application/Addition/Modbus/Modbus.c **** 			p_modbus->reg_addr = (rx_buf[2] << 8) | rx_buf[3];
+ 271:./Application/Addition/Modbus/Modbus.c **** 			p_modbus->reg_num = (rx_buf[4] << 8) | rx_buf[5];
+ 272:./Application/Addition/Modbus/Modbus.c **** 			p_modbus->data_len = rx_buf[6];  // 字节数
+ 273:./Application/Addition/Modbus/Modbus.c **** 	
+ 274:./Application/Addition/Modbus/Modbus.c **** 	// 检查数据长度是否匹配
+ 275:./Application/Addition/Modbus/Modbus.c **** 	if (rx_len != (9 + p_modbus->data_len)) {
+ 276:./Application/Addition/Modbus/Modbus.c **** 		p_modbus->error_code = MODBUS_ERR_DATA;
+ 277:./Application/Addition/Modbus/Modbus.c **** 		return MODBUS_ERR_DATA;
+ 278:./Application/Addition/Modbus/Modbus.c **** 	}
+ 279:./Application/Addition/Modbus/Modbus.c **** 	for (u16 j = 0; j < p_modbus->reg_num; j++) {
+ 280:./Application/Addition/Modbus/Modbus.c **** 		p_modbus->registers[j][0] = rx_buf[7 + j * 2];  // 第j个寄存器的高字节
+ 281:./Application/Addition/Modbus/Modbus.c **** 		p_modbus->registers[j][1] = rx_buf[8 + j * 2];  // 第j个寄存器的低字节
+ 282:./Application/Addition/Modbus/Modbus.c **** 	}
+ 283:./Application/Addition/Modbus/Modbus.c **** 	break;
+ 284:./Application/Addition/Modbus/Modbus.c **** 
+ 285:./Application/Addition/Modbus/Modbus.c **** 	default:
+ 286:./Application/Addition/Modbus/Modbus.c **** 	p_modbus->error_code = MODBUS_ERR_FUNC_CODE;
+ 287:./Application/Addition/Modbus/Modbus.c **** 	return MODBUS_ERR_FUNC_CODE;
+ 288:./Application/Addition/Modbus/Modbus.c **** 	}
+ 289:./Application/Addition/Modbus/Modbus.c **** 
+ 290:./Application/Addition/Modbus/Modbus.c **** 	return MODBUS_OK;
+ 291:./Application/Addition/Modbus/Modbus.c **** 
+ 292:./Application/Addition/Modbus/Modbus.c **** }
+ 293:./Application/Addition/Modbus/Modbus.c **** /*=============================================================================================
+ 294:./Application/Addition/Modbus/Modbus.c **** ** @Name      : static u8 Modbus_ExecuteOperation(stc_modbus *p_modbus)
+ 295:./Application/Addition/Modbus/Modbus.c **** ** @Input     : modbus结构体
+ 296:./Application/Addition/Modbus/Modbus.c **** ** @Output    : modbus状态
+ 297:./Application/Addition/Modbus/Modbus.c **** ** @Function  : 执行操作,根据解析后得到的modbus请求，执行相应的寄存器读写�
+ 298:./Application/Addition/Modbus/Modbus.c **** ** @The notes : 
+ 299:./Application/Addition/Modbus/Modbus.c **** **===========================================================================================*/
+ 300:./Application/Addition/Modbus/Modbus.c **** static u8 Modbus_ExecuteOperation(stc_modbus *p_modbus)
+ 301:./Application/Addition/Modbus/Modbus.c **** {
+ 302:./Application/Addition/Modbus/Modbus.c **** 	u8 func_code = p_modbus->functionCode;
+ 303:./Application/Addition/Modbus/Modbus.c **** 	u16 reg_addr  = p_modbus->reg_addr;
+ 304:./Application/Addition/Modbus/Modbus.c **** 	u16 reg_num   = p_modbus->reg_num;
+ 305:./Application/Addition/Modbus/Modbus.c **** 
+ 306:./Application/Addition/Modbus/Modbus.c **** 	if (p_modbus->error_code != MODBUS_OK)
+ 307:./Application/Addition/Modbus/Modbus.c **** 	{
+ 308:./Application/Addition/Modbus/Modbus.c **** 		return p_modbus->error_code;
+ 309:./Application/Addition/Modbus/Modbus.c **** 	}
+ 310:./Application/Addition/Modbus/Modbus.c **** 
+ 311:./Application/Addition/Modbus/Modbus.c **** 	switch (func_code)
+ 312:./Application/Addition/Modbus/Modbus.c **** 	{
+ 313:./Application/Addition/Modbus/Modbus.c **** 		//读保持寄存器03
+ 314:./Application/Addition/Modbus/Modbus.c **** 	case MODBUS_READ_HOLD_REG:
+ 315:./Application/Addition/Modbus/Modbus.c **** 		for (u16 i = 0; i < reg_num; i++) {
+ 316:./Application/Addition/Modbus/Modbus.c **** 			u16 actual_reg_addr = reg_addr + i;
+ 317:./Application/Addition/Modbus/Modbus.c **** 			if (actual_reg_addr < MAX_HOLDING_REGS) {  
+ 318:./Application/Addition/Modbus/Modbus.c **** 				p_modbus->registers[i][0] = ModbusReg[actual_reg_addr][0];
+ 319:./Application/Addition/Modbus/Modbus.c **** 				p_modbus->registers[i][1] = ModbusReg[actual_reg_addr][1];
+ARM GAS  /tmp/ccrwYaqM.s 			page 7
+
+
+ 320:./Application/Addition/Modbus/Modbus.c **** 			} else {
+ 321:./Application/Addition/Modbus/Modbus.c **** 				// 寄存器地址无效
+ 322:./Application/Addition/Modbus/Modbus.c **** 				p_modbus->registers[i][0] = 0;
+ 323:./Application/Addition/Modbus/Modbus.c **** 				p_modbus->registers[i][1] = 0;
+ 324:./Application/Addition/Modbus/Modbus.c **** 			}
+ 325:./Application/Addition/Modbus/Modbus.c **** 		}
+ 326:./Application/Addition/Modbus/Modbus.c **** 		p_modbus->data_len = reg_num * 2;
+ 327:./Application/Addition/Modbus/Modbus.c **** 	break;
+ 328:./Application/Addition/Modbus/Modbus.c **** 		
+ 329:./Application/Addition/Modbus/Modbus.c **** 	case MODBUS_WRITE_SIN_HOLD_REG:
+ 330:./Application/Addition/Modbus/Modbus.c **** 		// 写入单个保持寄存器06
+ 331:./Application/Addition/Modbus/Modbus.c **** 		ModbusReg[reg_addr][0] = p_modbus->registers[0][0];
+ 332:./Application/Addition/Modbus/Modbus.c **** 		ModbusReg[reg_addr][1] = p_modbus->registers[0][1];
+ 333:./Application/Addition/Modbus/Modbus.c **** 		
+ 334:./Application/Addition/Modbus/Modbus.c **** 		// 更新寄存器值到p_modbus->registers（用于响应）
+ 335:./Application/Addition/Modbus/Modbus.c **** 		p_modbus->registers[0][0] = ModbusReg[reg_addr][0];
+ 336:./Application/Addition/Modbus/Modbus.c **** 		p_modbus->registers[0][1] = ModbusReg[reg_addr][1];
+ 337:./Application/Addition/Modbus/Modbus.c **** 		p_modbus->data_len = 2;
+ 338:./Application/Addition/Modbus/Modbus.c **** 		break;
+ 339:./Application/Addition/Modbus/Modbus.c **** 		
+ 340:./Application/Addition/Modbus/Modbus.c **** 	case MODBUS_WRITE_MULT_HOLD_REG:
+ 341:./Application/Addition/Modbus/Modbus.c **** 		// 写入连续保持寄存器10
+ 342:./Application/Addition/Modbus/Modbus.c **** 		for (u16 i = 0; i < reg_num; i++) {
+ 343:./Application/Addition/Modbus/Modbus.c **** 			u16 actual_reg_addr = reg_addr + i;
+ 344:./Application/Addition/Modbus/Modbus.c **** 			ModbusReg[actual_reg_addr][0] = p_modbus->registers[i][0];
+ 345:./Application/Addition/Modbus/Modbus.c **** 			ModbusReg[actual_reg_addr][1] = p_modbus->registers[i][1];
+ 346:./Application/Addition/Modbus/Modbus.c **** 		}
+ 347:./Application/Addition/Modbus/Modbus.c **** 		// 对于0x10功能码，响应中不需要寄存器数据
+ 348:./Application/Addition/Modbus/Modbus.c **** 		p_modbus->data_len = 0;
+ 349:./Application/Addition/Modbus/Modbus.c **** 		break;
+ 350:./Application/Addition/Modbus/Modbus.c **** 	
+ 351:./Application/Addition/Modbus/Modbus.c **** 	default:
+ 352:./Application/Addition/Modbus/Modbus.c **** 		p_modbus->error_code = MODBUS_ERR_FUNC_CODE;
+ 353:./Application/Addition/Modbus/Modbus.c **** 		return MODBUS_ERR_FUNC_CODE;
+ 354:./Application/Addition/Modbus/Modbus.c **** 	}
+ 355:./Application/Addition/Modbus/Modbus.c **** 	return p_modbus->error_code;
+ 356:./Application/Addition/Modbus/Modbus.c **** }
+ 357:./Application/Addition/Modbus/Modbus.c **** 
+ 358:./Application/Addition/Modbus/Modbus.c **** /*=============================================================================================
+ 359:./Application/Addition/Modbus/Modbus.c **** ** @Name      : static u8 Modbus_BuildResponse(stc_modbus *p_modbus, u8 *bufReply)
+ 360:./Application/Addition/Modbus/Modbus.c **** ** @Input     : modbus结构体 
+ 361:./Application/Addition/Modbus/Modbus.c **** ** @Output    : 回复报文长度pos
+ 362:./Application/Addition/Modbus/Modbus.c **** ** @Function  : 输出请求和要返回的数据，输出缓存区
+ 363:./Application/Addition/Modbus/Modbus.c **** ** @The notes : 
+ 364:./Application/Addition/Modbus/Modbus.c **** **===========================================================================================*/
+ 365:./Application/Addition/Modbus/Modbus.c **** static u8 Modbus_BuildResponse(stc_modbus *p_modbus, u8 *bufReply)
+ 366:./Application/Addition/Modbus/Modbus.c **** {
+ 367:./Application/Addition/Modbus/Modbus.c ****     u8 pos = 0;
+ 368:./Application/Addition/Modbus/Modbus.c ****     
+ 369:./Application/Addition/Modbus/Modbus.c ****     // 1. 地址和功能码
+ 370:./Application/Addition/Modbus/Modbus.c ****     bufReply[pos++] = p_modbus->address;
+ 371:./Application/Addition/Modbus/Modbus.c ****     
+ 372:./Application/Addition/Modbus/Modbus.c ****     // 检查是否有错误
+ 373:./Application/Addition/Modbus/Modbus.c ****     if (p_modbus->error_code != MODBUS_OK) {
+ 374:./Application/Addition/Modbus/Modbus.c ****         bufReply[pos++] = p_modbus->functionCode | 0x80;  // 异常响应
+ 375:./Application/Addition/Modbus/Modbus.c ****         bufReply[pos++] = p_modbus->error_code;
+ 376:./Application/Addition/Modbus/Modbus.c ****     } else {
+ARM GAS  /tmp/ccrwYaqM.s 			page 8
+
+
+ 377:./Application/Addition/Modbus/Modbus.c ****         bufReply[pos++] = p_modbus->functionCode;
+ 378:./Application/Addition/Modbus/Modbus.c ****         
+ 379:./Application/Addition/Modbus/Modbus.c ****         // 2. 根据功能码填充数据
+ 380:./Application/Addition/Modbus/Modbus.c ****         switch (p_modbus->functionCode) {
+ 381:./Application/Addition/Modbus/Modbus.c ****             case MODBUS_READ_HOLD_REG:  // 读保持寄存器响应
+ 382:./Application/Addition/Modbus/Modbus.c **** 					bufReply[pos++] = p_modbus->data_len;  // 字节数
+ 383:./Application/Addition/Modbus/Modbus.c ****                 // 复制寄存器数据
+ 384:./Application/Addition/Modbus/Modbus.c ****                 for (u16 i = 0; i < p_modbus->reg_num; i++) {
+ 385:./Application/Addition/Modbus/Modbus.c ****                     bufReply[pos++] = p_modbus->registers[i][0];  // 高字节
+ 386:./Application/Addition/Modbus/Modbus.c ****                     bufReply[pos++] = p_modbus->registers[i][1];  // 低字节
+ 387:./Application/Addition/Modbus/Modbus.c ****                 }
+ 388:./Application/Addition/Modbus/Modbus.c ****                 break;
+ 389:./Application/Addition/Modbus/Modbus.c ****                 
+ 390:./Application/Addition/Modbus/Modbus.c ****             case MODBUS_WRITE_SIN_HOLD_REG:  // 写单个寄存器响应
+ 391:./Application/Addition/Modbus/Modbus.c **** 				bufReply[pos++] = (u8)(p_modbus->reg_addr >> 8);
+ 392:./Application/Addition/Modbus/Modbus.c **** 				bufReply[pos++] = (u8)(p_modbus->reg_addr & 0xFF);
+ 393:./Application/Addition/Modbus/Modbus.c **** 				bufReply[pos++] = p_modbus->registers[0][0];  // 高字节
+ 394:./Application/Addition/Modbus/Modbus.c **** 				bufReply[pos++] = p_modbus->registers[0][1];  // 低字节
+ 395:./Application/Addition/Modbus/Modbus.c ****                 break;
+ 396:./Application/Addition/Modbus/Modbus.c ****                 
+ 397:./Application/Addition/Modbus/Modbus.c ****             case MODBUS_WRITE_MULT_HOLD_REG:  // 写多个寄存器响应
+ 398:./Application/Addition/Modbus/Modbus.c **** 				bufReply[pos++] = (u8)(p_modbus->reg_addr >> 8);
+ 399:./Application/Addition/Modbus/Modbus.c **** 				bufReply[pos++] = (u8)(p_modbus->reg_addr & 0xFF);
+ 400:./Application/Addition/Modbus/Modbus.c **** 				bufReply[pos++] = (u8)(p_modbus->reg_num >> 8);
+ 401:./Application/Addition/Modbus/Modbus.c **** 				bufReply[pos++] = (u8)(p_modbus->reg_num & 0xFF);
+ 402:./Application/Addition/Modbus/Modbus.c ****                 break;
+ 403:./Application/Addition/Modbus/Modbus.c ****         }
+ 404:./Application/Addition/Modbus/Modbus.c ****     }
+ 405:./Application/Addition/Modbus/Modbus.c ****     
+ 406:./Application/Addition/Modbus/Modbus.c ****     // 3. 计算CRC
+ 407:./Application/Addition/Modbus/Modbus.c ****     u16 crc = ModbusCrc(bufReply, pos);
+ 408:./Application/Addition/Modbus/Modbus.c ****     bufReply[pos++] = (u8)((crc >> 8)& 0xFF);
+ 409:./Application/Addition/Modbus/Modbus.c ****     bufReply[pos++] = (u8)(crc)& 0xFF;
+ 410:./Application/Addition/Modbus/Modbus.c ****     
+ 411:./Application/Addition/Modbus/Modbus.c ****     return pos;  // 返回帧长度
+ 412:./Application/Addition/Modbus/Modbus.c **** }
+ 413:./Application/Addition/Modbus/Modbus.c **** 
+ 414:./Application/Addition/Modbus/Modbus.c **** /*=============================================================================================
+ 415:./Application/Addition/Modbus/Modbus.c **** ** @Name      :static u8 Modbus_BuildResponse(stc_modbus *p_modbus, u8 *tx_buf)
+ 416:./Application/Addition/Modbus/Modbus.c **** ** @Input     : modbus结构体 报文数据
+ 417:./Application/Addition/Modbus/Modbus.c **** ** @Output    : 部分错误状态回复数据
+ 418:./Application/Addition/Modbus/Modbus.c **** ** @Function  : 错误回应
+ 419:./Application/Addition/Modbus/Modbus.c **** ** @The notes : 
+ 420:./Application/Addition/Modbus/Modbus.c **** **===========================================================================================*/
+ 421:./Application/Addition/Modbus/Modbus.c **** static u8* Modbus_ErrorResponse(stc_modbus *p_modbus, u8 *tx_buf)
+ 422:./Application/Addition/Modbus/Modbus.c **** {
+ 423:./Application/Addition/Modbus/Modbus.c **** 	static u8 reply[5];
+ 424:./Application/Addition/Modbus/Modbus.c **** 	u16 crc;
+ 425:./Application/Addition/Modbus/Modbus.c **** 	switch (p_modbus->error_code)
+ 426:./Application/Addition/Modbus/Modbus.c **** 	{
+ 427:./Application/Addition/Modbus/Modbus.c **** 	case MODBUS_ERR_FUNC_CODE:
+ 428:./Application/Addition/Modbus/Modbus.c **** 		reply[0] = p_modbus->address;
+ 429:./Application/Addition/Modbus/Modbus.c **** 		reply[1] = p_modbus->functionCode | 0x80;		//最高位置一
+ 430:./Application/Addition/Modbus/Modbus.c **** 		reply[2] = p_modbus->error_code;
+ 431:./Application/Addition/Modbus/Modbus.c **** 		crc = ModbusCrc(reply, 3);	
+ 432:./Application/Addition/Modbus/Modbus.c **** 		reply[3] =  (crc >> 8) & 0xFF;
+ 433:./Application/Addition/Modbus/Modbus.c **** 		reply[4] =	crc & 0xFF;
+ARM GAS  /tmp/ccrwYaqM.s 			page 9
+
+
+ 434:./Application/Addition/Modbus/Modbus.c **** 		return reply;
+ 435:./Application/Addition/Modbus/Modbus.c **** 		
+ 436:./Application/Addition/Modbus/Modbus.c **** 	case MODBUS_ERR_REG_ADDR:
+ 437:./Application/Addition/Modbus/Modbus.c **** 		reply[0] = p_modbus->address;
+ 438:./Application/Addition/Modbus/Modbus.c **** 		reply[1] = p_modbus->functionCode | 0x80;		//最高位置一
+ 439:./Application/Addition/Modbus/Modbus.c **** 		reply[2] = p_modbus->error_code;
+ 440:./Application/Addition/Modbus/Modbus.c **** 		crc = ModbusCrc(reply, 3);	
+ 441:./Application/Addition/Modbus/Modbus.c **** 		reply[3] =  (crc >> 8) & 0xFF;
+ 442:./Application/Addition/Modbus/Modbus.c **** 		reply[4] =	crc & 0xFF;
+ 443:./Application/Addition/Modbus/Modbus.c **** 		return reply;	
+ 444:./Application/Addition/Modbus/Modbus.c **** 		
+ 445:./Application/Addition/Modbus/Modbus.c **** 	case MODBUS_ERR_CRC:
+ 446:./Application/Addition/Modbus/Modbus.c **** 		reply[0] = p_modbus->address;
+ 447:./Application/Addition/Modbus/Modbus.c **** 		reply[1] = p_modbus->functionCode | 0x80;		//最高位置一
+ 448:./Application/Addition/Modbus/Modbus.c **** 		reply[2] = p_modbus->error_code;
+ 449:./Application/Addition/Modbus/Modbus.c **** 		crc = ModbusCrc(reply, 3);	
+ 450:./Application/Addition/Modbus/Modbus.c **** 		reply[3] =  (crc >> 8) & 0xFF;
+ 451:./Application/Addition/Modbus/Modbus.c **** 		reply[4] =	crc & 0xFF;
+ 452:./Application/Addition/Modbus/Modbus.c **** 		return reply;	
+ 453:./Application/Addition/Modbus/Modbus.c **** 		
+ 454:./Application/Addition/Modbus/Modbus.c **** 	default:
+ 455:./Application/Addition/Modbus/Modbus.c **** 	reply[0] = 0;
+ 456:./Application/Addition/Modbus/Modbus.c **** 		return reply;
+ 457:./Application/Addition/Modbus/Modbus.c **** 	}
+ 458:./Application/Addition/Modbus/Modbus.c **** }
+ 459:./Application/Addition/Modbus/Modbus.c **** 
+ 460:./Application/Addition/Modbus/Modbus.c **** /*=============================================================================================
+ 461:./Application/Addition/Modbus/Modbus.c **** ** @Name      : static u16 ModbusCrc(u8 *from, u8 *to);
+ 462:./Application/Addition/Modbus/Modbus.c **** ** @Input     : *from:crc校验数据开始 *to:crc校验数据结束 
+ 463:./Application/Addition/Modbus/Modbus.c **** ** @Output    : crc计算后的数值
+ 464:./Application/Addition/Modbus/Modbus.c **** ** @Function  : USART的crc校验
+ 465:./Application/Addition/Modbus/Modbus.c **** ** @The notes : 用户调用
+ 466:./Application/Addition/Modbus/Modbus.c **** **===========================================================================================*/
+ 467:./Application/Addition/Modbus/Modbus.c **** static u16 ModbusCrc(u8 *data, u8 size)
+ 468:./Application/Addition/Modbus/Modbus.c **** {
+  25              		.loc 1 468 0
+  26              		.cfi_startproc
+  27              		@ args = 0, pretend = 0, frame = 0
+  28              		@ frame_needed = 0, uses_anonymous_args = 0
+  29              	.LVL0:
+ 469:./Application/Addition/Modbus/Modbus.c ****     u8 uchCRCHi = 0xFF;  	
+ 470:./Application/Addition/Modbus/Modbus.c ****     u8 uchCRCLo = 0xFF; 	
+  30              		.loc 1 470 0
+  31 0000 FF22     		movs	r2, #255
+ 469:./Application/Addition/Modbus/Modbus.c ****     u8 uchCRCHi = 0xFF;  	
+  32              		.loc 1 469 0
+  33 0002 1300     		movs	r3, r2
+ 468:./Application/Addition/Modbus/Modbus.c ****     u8 uchCRCHi = 0xFF;  	
+  34              		.loc 1 468 0
+  35 0004 70B5     		push	{r4, r5, r6, lr}
+  36              	.LCFI0:
+  37              		.cfi_def_cfa_offset 16
+  38              		.cfi_offset 4, -16
+  39              		.cfi_offset 5, -12
+  40              		.cfi_offset 6, -8
+  41              		.cfi_offset 14, -4
+ 471:./Application/Addition/Modbus/Modbus.c ****     u8 uIndex; 	
+ARM GAS  /tmp/ccrwYaqM.s 			page 10
+
+
+ 472:./Application/Addition/Modbus/Modbus.c **** 
+ 473:./Application/Addition/Modbus/Modbus.c **** 	
+ 474:./Application/Addition/Modbus/Modbus.c ****     while (size--) 				 
+ 475:./Application/Addition/Modbus/Modbus.c ****     {
+ 476:./Application/Addition/Modbus/Modbus.c ****         uIndex = uchCRCHi ^ *data++; 	
+ 477:./Application/Addition/Modbus/Modbus.c ****         uchCRCHi = uchCRCLo ^ modbus_crc_hi_[uIndex]; 
+  42              		.loc 1 477 0
+  43 0006 084D     		ldr	r5, .L4
+ 478:./Application/Addition/Modbus/Modbus.c ****         uchCRCLo = modbus_crc_lo_[uIndex]; 
+  44              		.loc 1 478 0
+  45 0008 084E     		ldr	r6, .L4+4
+  46 000a 4118     		adds	r1, r0, r1
+  47              	.LVL1:
+  48              	.L2:
+ 474:./Application/Addition/Modbus/Modbus.c ****     {
+  49              		.loc 1 474 0
+  50 000c 8842     		cmp	r0, r1
+  51 000e 03D1     		bne	.L3
+ 479:./Application/Addition/Modbus/Modbus.c ****     }
+ 480:./Application/Addition/Modbus/Modbus.c ****     return (((u16)uchCRCHi << 8) | uchCRCLo);
+  52              		.loc 1 480 0
+  53 0010 1B02     		lsls	r3, r3, #8
+  54              	.LVL2:
+  55 0012 1343     		orrs	r3, r2
+  56 0014 1800     		movs	r0, r3
+  57              	.LVL3:
+ 481:./Application/Addition/Modbus/Modbus.c **** 	
+ 482:./Application/Addition/Modbus/Modbus.c **** }
+  58              		.loc 1 482 0
+  59              		@ sp needed
+  60 0016 70BD     		pop	{r4, r5, r6, pc}
+  61              	.LVL4:
+  62              	.L3:
+ 476:./Application/Addition/Modbus/Modbus.c ****         uchCRCHi = uchCRCLo ^ modbus_crc_hi_[uIndex]; 
+  63              		.loc 1 476 0
+  64 0018 0478     		ldrb	r4, [r0]
+  65 001a 0130     		adds	r0, r0, #1
+  66              	.LVL5:
+ 477:./Application/Addition/Modbus/Modbus.c ****         uchCRCLo = modbus_crc_lo_[uIndex]; 
+  67              		.loc 1 477 0
+  68 001c 5C40     		eors	r4, r3
+  69 001e 2B5D     		ldrb	r3, [r5, r4]
+  70              	.LVL6:
+  71 0020 5340     		eors	r3, r2
+  72              	.LVL7:
+ 478:./Application/Addition/Modbus/Modbus.c ****     }
+  73              		.loc 1 478 0
+  74 0022 325D     		ldrb	r2, [r6, r4]
+  75              	.LVL8:
+  76 0024 F2E7     		b	.L2
+  77              	.L5:
+  78 0026 C046     		.align	2
+  79              	.L4:
+  80 0028 00000000 		.word	modbus_crc_hi_
+  81 002c 00000000 		.word	modbus_crc_lo_
+  82              		.cfi_endproc
+  83              	.LFE7:
+ARM GAS  /tmp/ccrwYaqM.s 			page 11
+
+
+  85              		.section	.text.Test_LengthRecData,"ax",%progbits
+  86              		.align	1
+  87              		.global	Test_LengthRecData
+  88              		.syntax unified
+  89              		.code	16
+  90              		.thumb_func
+  91              		.fpu softvfp
+  93              	Test_LengthRecData:
+  94              	.LFB1:
+ 146:./Application/Addition/Modbus/Modbus.c **** 	if(pData[1] == MODBUS_READ_HOLD_REG)		//读报文长度
+  95              		.loc 1 146 0
+  96              		.cfi_startproc
+  97              		@ args = 0, pretend = 0, frame = 0
+  98              		@ frame_needed = 0, uses_anonymous_args = 0
+  99              		@ link register save eliminated.
+ 100              	.LVL9:
+ 147:./Application/Addition/Modbus/Modbus.c **** 		{
+ 101              		.loc 1 147 0
+ 102 0000 4278     		ldrb	r2, [r0, #1]
+ 149:./Application/Addition/Modbus/Modbus.c **** 		}
+ 103              		.loc 1 149 0
+ 104 0002 0823     		movs	r3, #8
+ 147:./Application/Addition/Modbus/Modbus.c **** 		{
+ 105              		.loc 1 147 0
+ 106 0004 032A     		cmp	r2, #3
+ 107 0006 0CD0     		beq	.L7
+ 151:./Application/Addition/Modbus/Modbus.c **** 		{
+ 108              		.loc 1 151 0
+ 109 0008 062A     		cmp	r2, #6
+ 110 000a 0AD0     		beq	.L7
+ 160:./Application/Addition/Modbus/Modbus.c **** }
+ 111              		.loc 1 160 0
+ 112 000c 0023     		movs	r3, #0
+ 156:./Application/Addition/Modbus/Modbus.c **** 		{
+ 113              		.loc 1 156 0
+ 114 000e 102A     		cmp	r2, #16
+ 115 0010 07D1     		bne	.L7
+ 116              	.LVL10:
+ 117              	.LBB10:
+ 118              	.LBB11:
+ 158:./Application/Addition/Modbus/Modbus.c **** 		}	
+ 119              		.loc 1 158 0
+ 120 0012 4379     		ldrb	r3, [r0, #5]
+ 121 0014 0279     		ldrb	r2, [r0, #4]
+ 122 0016 1B02     		lsls	r3, r3, #8
+ 123 0018 1343     		orrs	r3, r2
+ 124 001a 5BBA     		rev16	r3, r3
+ 125 001c 5B00     		lsls	r3, r3, #1
+ 126 001e 0933     		adds	r3, r3, #9
+ 127 0020 DBB2     		uxtb	r3, r3
+ 128              	.LVL11:
+ 129              	.L7:
+ 130              	.LBE11:
+ 131              	.LBE10:
+ 161:./Application/Addition/Modbus/Modbus.c **** 
+ 132              		.loc 1 161 0
+ 133 0022 1800     		movs	r0, r3
+ARM GAS  /tmp/ccrwYaqM.s 			page 12
+
+
+ 134              	.LVL12:
+ 135              		@ sp needed
+ 136 0024 7047     		bx	lr
+ 137              		.cfi_endproc
+ 138              	.LFE1:
+ 140              		.section	.text.Modbus_ToolingInterface,"ax",%progbits
+ 141              		.align	1
+ 142              		.global	Modbus_ToolingInterface
+ 143              		.syntax unified
+ 144              		.code	16
+ 145              		.thumb_func
+ 146              		.fpu softvfp
+ 148              	Modbus_ToolingInterface:
+ 149              	.LFB0:
+  98:./Application/Addition/Modbus/Modbus.c **** 	if (pmsgData == NULL || pmsgData->len == 0) 
+ 150              		.loc 1 98 0
+ 151              		.cfi_startproc
+ 152              		@ args = 0, pretend = 0, frame = 312
+ 153              		@ frame_needed = 0, uses_anonymous_args = 0
+ 154              	.LVL13:
+ 155 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+ 156              	.LCFI1:
+ 157              		.cfi_def_cfa_offset 20
+ 158              		.cfi_offset 4, -20
+ 159              		.cfi_offset 5, -16
+ 160              		.cfi_offset 6, -12
+ 161              		.cfi_offset 7, -8
+ 162              		.cfi_offset 14, -4
+ 163 0002 0500     		movs	r5, r0
+ 164 0004 CFB0     		sub	sp, sp, #316
+ 165              	.LCFI2:
+ 166              		.cfi_def_cfa_offset 336
+  99:./Application/Addition/Modbus/Modbus.c **** 	{
+ 167              		.loc 1 99 0
+ 168 0006 0028     		cmp	r0, #0
+ 169 0008 00D1     		bne	.LCB141
+ 170 000a B7E0     		b	.L11	@long jump
+ 171              	.LCB141:
+  99:./Application/Addition/Modbus/Modbus.c **** 	{
+ 172              		.loc 1 99 0 is_stmt 0 discriminator 1
+ 173 000c 0300     		movs	r3, r0
+ 174 000e C833     		adds	r3, r3, #200
+ 175 0010 1B78     		ldrb	r3, [r3]
+ 176 0012 002B     		cmp	r3, #0
+ 177 0014 00D1     		bne	.LCB146
+ 178 0016 B1E0     		b	.L11	@long jump
+ 179              	.LCB146:
+ 180              	.LVL14:
+ 181              	.LBB29:
+ 182              	.LBB30:
+ 172:./Application/Addition/Modbus/Modbus.c **** 	//获取报文完整长度
+ 183              		.loc 1 172 0 is_stmt 1
+ 184 0018 E222     		movs	r2, #226
+ 185 001a A84C     		ldr	r4, .L63
+ 186 001c 5200     		lsls	r2, r2, #1
+ 187 001e 0021     		movs	r1, #0
+ 188 0020 2000     		movs	r0, r4
+ARM GAS  /tmp/ccrwYaqM.s 			page 13
+
+
+ 189              	.LVL15:
+ 190 0022 FFF7FEFF 		bl	memset
+ 191              	.LVL16:
+ 175:./Application/Addition/Modbus/Modbus.c **** 	
+ 192              		.loc 1 175 0
+ 193 0026 2800     		movs	r0, r5
+ 194 0028 FFF7FEFF 		bl	Test_LengthRecData
+ 195              	.LVL17:
+ 196 002c 0600     		movs	r6, r0
+ 197              	.LVL18:
+ 178:./Application/Addition/Modbus/Modbus.c **** 	{
+ 198              		.loc 1 178 0
+ 199 002e 0328     		cmp	r0, #3
+ 200 0030 1AD8     		bhi	.L13
+ 201              	.LVL19:
+ 202              	.L22:
+ 180:./Application/Addition/Modbus/Modbus.c **** 		return MODBUS_ERR_DATA;
+ 203              		.loc 1 180 0
+ 204 0032 C023     		movs	r3, #192
+ 205 0034 0622     		movs	r2, #6
+ 206 0036 FF33     		adds	r3, r3, #255
+ 207              	.L62:
+ 194:./Application/Addition/Modbus/Modbus.c **** 		return MODBUS_ERR_ADDRESS;
+ 208              		.loc 1 194 0
+ 209 0038 E254     		strb	r2, [r4, r3]
+ 210              	.LVL20:
+ 211              	.L14:
+ 212              	.LBE30:
+ 213              	.LBE29:
+ 214              	.LBB48:
+ 123:./Application/Addition/Modbus/Modbus.c ****         if (errorReply != NULL) 
+ 215              		.loc 1 123 0
+ 216 003a C023     		movs	r3, #192
+ 217 003c FF33     		adds	r3, r3, #255
+ 218              	.LBB49:
+ 219              	.LBB50:
+ 425:./Application/Addition/Modbus/Modbus.c **** 	{
+ 220              		.loc 1 425 0
+ 221 003e E35C     		ldrb	r3, [r4, r3]
+ 222              	.LBE50:
+ 223              	.LBE49:
+ 123:./Application/Addition/Modbus/Modbus.c ****         if (errorReply != NULL) 
+ 224              		.loc 1 123 0
+ 225 0040 2278     		ldrb	r2, [r4]
+ 226              	.LBB55:
+ 227              	.LBB51:
+ 425:./Application/Addition/Modbus/Modbus.c **** 	{
+ 228              		.loc 1 425 0
+ 229 0042 D9B2     		uxtb	r1, r3
+ 230              	.LBE51:
+ 231              	.LBE55:
+ 123:./Application/Addition/Modbus/Modbus.c ****         if (errorReply != NULL) 
+ 232              		.loc 1 123 0
+ 233 0044 6078     		ldrb	r0, [r4, #1]
+ 234              	.LVL21:
+ 235 0046 9E4C     		ldr	r4, .L63+4
+ 236              	.LBB56:
+ARM GAS  /tmp/ccrwYaqM.s 			page 14
+
+
+ 237              	.LBB52:
+ 425:./Application/Addition/Modbus/Modbus.c **** 	{
+ 238              		.loc 1 425 0
+ 239 0048 0329     		cmp	r1, #3
+ 240 004a 00D1     		bne	.LCB206
+ 241 004c 13E1     		b	.L40	@long jump
+ 242              	.LCB206:
+ 243 004e 0429     		cmp	r1, #4
+ 244 0050 02D0     		beq	.L42
+ 245 0052 0229     		cmp	r1, #2
+ 246 0054 00D0     		beq	.LCB210
+ 247 0056 25E1     		b	.L58	@long jump
+ 248              	.LCB210:
+ 249              	.L42:
+ 437:./Application/Addition/Modbus/Modbus.c **** 		reply[1] = p_modbus->functionCode | 0x80;		//最高位置一
+ 250              		.loc 1 437 0
+ 251 0058 2270     		strb	r2, [r4]
+ 438:./Application/Addition/Modbus/Modbus.c **** 		reply[2] = p_modbus->error_code;
+ 252              		.loc 1 438 0
+ 253 005a 8022     		movs	r2, #128
+ 254 005c 5242     		rsbs	r2, r2, #0
+ 255 005e 1043     		orrs	r0, r2
+ 256 0060 6070     		strb	r0, [r4, #1]
+ 439:./Application/Addition/Modbus/Modbus.c **** 		crc = ModbusCrc(reply, 3);	
+ 257              		.loc 1 439 0
+ 258 0062 A370     		strb	r3, [r4, #2]
+ 440:./Application/Addition/Modbus/Modbus.c **** 		reply[3] =  (crc >> 8) & 0xFF;
+ 259              		.loc 1 440 0
+ 260 0064 0321     		movs	r1, #3
+ 261 0066 0CE1     		b	.L61
+ 262              	.LVL22:
+ 263              	.L13:
+ 264              	.LBE52:
+ 265              	.LBE56:
+ 266              	.LBE48:
+ 267              	.LBB59:
+ 268              	.LBB43:
+ 186:./Application/Addition/Modbus/Modbus.c **** 	p_modbus->reg_addr = (rx_buf[2] << 8) | rx_buf[3];
+ 269              		.loc 1 186 0
+ 270 0068 6B78     		ldrb	r3, [r5, #1]
+ 185:./Application/Addition/Modbus/Modbus.c **** 	p_modbus->functionCode = rx_buf[1];
+ 271              		.loc 1 185 0
+ 272 006a 2F78     		ldrb	r7, [r5]
+ 186:./Application/Addition/Modbus/Modbus.c **** 	p_modbus->reg_addr = (rx_buf[2] << 8) | rx_buf[3];
+ 273              		.loc 1 186 0
+ 274 006c 0093     		str	r3, [sp]
+ 275 006e 6370     		strb	r3, [r4, #1]
+ 187:./Application/Addition/Modbus/Modbus.c **** 	p_modbus->data_len = rx_len;
+ 276              		.loc 1 187 0
+ 277 0070 AB78     		ldrb	r3, [r5, #2]
+ 278 0072 EA78     		ldrb	r2, [r5, #3]
+ 279 0074 1B02     		lsls	r3, r3, #8
+ 280 0076 1343     		orrs	r3, r2
+ 189:./Application/Addition/Modbus/Modbus.c **** 
+ 281              		.loc 1 189 0
+ 282 0078 2A18     		adds	r2, r5, r0
+ 185:./Application/Addition/Modbus/Modbus.c **** 	p_modbus->functionCode = rx_buf[1];
+ARM GAS  /tmp/ccrwYaqM.s 			page 15
+
+
+ 283              		.loc 1 185 0
+ 284 007a 2770     		strb	r7, [r4]
+ 187:./Application/Addition/Modbus/Modbus.c **** 	p_modbus->data_len = rx_len;
+ 285              		.loc 1 187 0
+ 286 007c 6380     		strh	r3, [r4, #2]
+ 188:./Application/Addition/Modbus/Modbus.c **** 	p_modbus->crc = (rx_buf[rx_len - 2] << 8) | rx_buf[rx_len - 1];
+ 287              		.loc 1 188 0
+ 288 007e A071     		strb	r0, [r4, #6]
+ 189:./Application/Addition/Modbus/Modbus.c **** 
+ 289              		.loc 1 189 0
+ 290 0080 911E     		subs	r1, r2, #2
+ 291 0082 0978     		ldrb	r1, [r1]
+ 292 0084 013A     		subs	r2, r2, #1
+ 293 0086 1278     		ldrb	r2, [r2]
+ 294 0088 0902     		lsls	r1, r1, #8
+ 295 008a 0A43     		orrs	r2, r1
+ 296 008c 0192     		str	r2, [sp, #4]
+ 297 008e E022     		movs	r2, #224
+ 298 0090 0199     		ldr	r1, [sp, #4]
+ 299 0092 5200     		lsls	r2, r2, #1
+ 300 0094 A152     		strh	r1, [r4, r2]
+ 192:./Application/Addition/Modbus/Modbus.c **** 	{
+ 301              		.loc 1 192 0
+ 302 0096 022F     		cmp	r7, #2
+ 303 0098 04D0     		beq	.L15
+ 194:./Application/Addition/Modbus/Modbus.c **** 		return MODBUS_ERR_ADDRESS;
+ 304              		.loc 1 194 0
+ 305 009a C023     		movs	r3, #192
+ 306 009c C03A     		subs	r2, r2, #192
+ 307 009e FF33     		adds	r3, r3, #255
+ 308 00a0 FF3A     		subs	r2, r2, #255
+ 309 00a2 C9E7     		b	.L62
+ 310              	.L15:
+ 199:./Application/Addition/Modbus/Modbus.c **** 	{
+ 311              		.loc 1 199 0
+ 312 00a4 DB2B     		cmp	r3, #219
+ 313 00a6 03D9     		bls	.L16
+ 314              	.LVL23:
+ 315              	.L23:
+ 201:./Application/Addition/Modbus/Modbus.c **** 		return MODBUS_ERR_REG_ADDR;
+ 316              		.loc 1 201 0
+ 317 00a8 C023     		movs	r3, #192
+ 318 00aa 0422     		movs	r2, #4
+ 319 00ac FF33     		adds	r3, r3, #255
+ 320 00ae C3E7     		b	.L62
+ 321              	.LVL24:
+ 322              	.L16:
+ 206:./Application/Addition/Modbus/Modbus.c **** 	if (calc_crc != p_modbus->crc)
+ 323              		.loc 1 206 0
+ 324 00b0 811E     		subs	r1, r0, #2
+ 325 00b2 C9B2     		uxtb	r1, r1
+ 326 00b4 2800     		movs	r0, r5
+ 327              	.LVL25:
+ 328 00b6 FFF7FEFF 		bl	ModbusCrc
+ 329              	.LVL26:
+ 207:./Application/Addition/Modbus/Modbus.c **** 	{
+ 330              		.loc 1 207 0
+ARM GAS  /tmp/ccrwYaqM.s 			page 16
+
+
+ 331 00ba 019B     		ldr	r3, [sp, #4]
+ 332 00bc 8342     		cmp	r3, r0
+ 333 00be 03D0     		beq	.L17
+ 209:./Application/Addition/Modbus/Modbus.c **** 		return MODBUS_ERR_CRC;
+ 334              		.loc 1 209 0
+ 335 00c0 C023     		movs	r3, #192
+ 336 00c2 FF33     		adds	r3, r3, #255
+ 337 00c4 E754     		strb	r7, [r4, r3]
+ 338              	.LVL27:
+ 339 00c6 B8E7     		b	.L14
+ 340              	.LVL28:
+ 341              	.L17:
+ 342              	.LBB31:
+ 343              	.LBB32:
+ 229:./Application/Addition/Modbus/Modbus.c **** 	{
+ 344              		.loc 1 229 0
+ 345 00c8 009B     		ldr	r3, [sp]
+ 346 00ca 062B     		cmp	r3, #6
+ 347 00cc 1CD0     		beq	.L19
+ 348 00ce 102B     		cmp	r3, #16
+ 349 00d0 56D0     		beq	.L20
+ 350 00d2 032B     		cmp	r3, #3
+ 351 00d4 00D0     		beq	.LCB331
+ 352 00d6 77E0     		b	.L56	@long jump
+ 353              	.LCB331:
+ 233:./Application/Addition/Modbus/Modbus.c **** 		{
+ 354              		.loc 1 233 0
+ 355 00d8 082E     		cmp	r6, #8
+ 356 00da AAD1     		bne	.L22
+ 238:./Application/Addition/Modbus/Modbus.c **** 		p_modbus->reg_num  = (rx_buf[4] << 8) | rx_buf[5];
+ 357              		.loc 1 238 0
+ 358 00dc AB78     		ldrb	r3, [r5, #2]
+ 359 00de EA78     		ldrb	r2, [r5, #3]
+ 239:./Application/Addition/Modbus/Modbus.c **** 		p_modbus->data_len = 0;  // 请求无数据
+ 360              		.loc 1 239 0
+ 361 00e0 2979     		ldrb	r1, [r5, #4]
+ 238:./Application/Addition/Modbus/Modbus.c **** 		p_modbus->reg_num  = (rx_buf[4] << 8) | rx_buf[5];
+ 362              		.loc 1 238 0
+ 363 00e2 1B02     		lsls	r3, r3, #8
+ 364 00e4 1A43     		orrs	r2, r3
+ 239:./Application/Addition/Modbus/Modbus.c **** 		p_modbus->data_len = 0;  // 请求无数据
+ 365              		.loc 1 239 0
+ 366 00e6 6B79     		ldrb	r3, [r5, #5]
+ 367 00e8 0902     		lsls	r1, r1, #8
+ 368 00ea 0B43     		orrs	r3, r1
+ 240:./Application/Addition/Modbus/Modbus.c **** 		//对读取地址添加边界检查
+ 369              		.loc 1 240 0
+ 370 00ec 0021     		movs	r1, #0
+ 238:./Application/Addition/Modbus/Modbus.c **** 		p_modbus->reg_num  = (rx_buf[4] << 8) | rx_buf[5];
+ 371              		.loc 1 238 0
+ 372 00ee 6280     		strh	r2, [r4, #2]
+ 239:./Application/Addition/Modbus/Modbus.c **** 		p_modbus->data_len = 0;  // 请求无数据
+ 373              		.loc 1 239 0
+ 374 00f0 A380     		strh	r3, [r4, #4]
+ 240:./Application/Addition/Modbus/Modbus.c **** 		//对读取地址添加边界检查
+ 375              		.loc 1 240 0
+ 376 00f2 A171     		strb	r1, [r4, #6]
+ARM GAS  /tmp/ccrwYaqM.s 			page 17
+
+
+ 242:./Application/Addition/Modbus/Modbus.c **** 		{
+ 377              		.loc 1 242 0
+ 378 00f4 DC2A     		cmp	r2, #220
+ 379 00f6 D7D8     		bhi	.L23
+ 248:./Application/Addition/Modbus/Modbus.c **** 		{
+ 380              		.loc 1 248 0
+ 381 00f8 013B     		subs	r3, r3, #1
+ 382 00fa DB2B     		cmp	r3, #219
+ 383 00fc 00D8     		bhi	.LCB353
+ 384 00fe D4E0     		b	.L24	@long jump
+ 385              	.LCB353:
+ 250:./Application/Addition/Modbus/Modbus.c **** 			return MODBUS_ERR_REG_NUM;
+ 386              		.loc 1 250 0
+ 387 0100 C023     		movs	r3, #192
+ 388 0102 0522     		movs	r2, #5
+ 389 0104 FF33     		adds	r3, r3, #255
+ 390 0106 97E7     		b	.L62
+ 391              	.L19:
+ 257:./Application/Addition/Modbus/Modbus.c **** 			p_modbus->error_code = MODBUS_ERR_DATA;
+ 392              		.loc 1 257 0
+ 393 0108 082E     		cmp	r6, #8
+ 394 010a 92D1     		bne	.L22
+ 261:./Application/Addition/Modbus/Modbus.c ****             p_modbus->reg_num = 1;
+ 395              		.loc 1 261 0
+ 396 010c AA78     		ldrb	r2, [r5, #2]
+ 397 010e EB78     		ldrb	r3, [r5, #3]
+ 398 0110 1202     		lsls	r2, r2, #8
+ 399 0112 1343     		orrs	r3, r2
+ 262:./Application/Addition/Modbus/Modbus.c ****             // 存储要写入的数据
+ 400              		.loc 1 262 0
+ 401 0114 0122     		movs	r2, #1
+ 402 0116 A280     		strh	r2, [r4, #4]
+ 264:./Application/Addition/Modbus/Modbus.c **** 			p_modbus->registers[0][1] = rx_buf[5];
+ 403              		.loc 1 264 0
+ 404 0118 2A79     		ldrb	r2, [r5, #4]
+ 261:./Application/Addition/Modbus/Modbus.c ****             p_modbus->reg_num = 1;
+ 405              		.loc 1 261 0
+ 406 011a 6380     		strh	r3, [r4, #2]
+ 264:./Application/Addition/Modbus/Modbus.c **** 			p_modbus->registers[0][1] = rx_buf[5];
+ 407              		.loc 1 264 0
+ 408 011c E271     		strb	r2, [r4, #7]
+ 409              	.LBE32:
+ 410              	.LBE31:
+ 411              	.LBE43:
+ 412              	.LBE59:
+ 413              	.LBB60:
+ 414              	.LBB61:
+ 331:./Application/Addition/Modbus/Modbus.c **** 		ModbusReg[reg_addr][1] = p_modbus->registers[0][1];
+ 415              		.loc 1 331 0
+ 416 011e E079     		ldrb	r0, [r4, #7]
+ 417              	.LVL29:
+ 418 0120 684A     		ldr	r2, .L63+8
+ 419              	.LBE61:
+ 420              	.LBE60:
+ 421              	.LBB77:
+ 422              	.LBB44:
+ 423              	.LBB39:
+ARM GAS  /tmp/ccrwYaqM.s 			page 18
+
+
+ 424              	.LBB35:
+ 265:./Application/Addition/Modbus/Modbus.c ****             p_modbus->data_len = 2;
+ 425              		.loc 1 265 0
+ 426 0122 6979     		ldrb	r1, [r5, #5]
+ 427              	.LBE35:
+ 428              	.LBE39:
+ 429              	.LBE44:
+ 430              	.LBE77:
+ 431              	.LBB78:
+ 432              	.LBB72:
+ 331:./Application/Addition/Modbus/Modbus.c **** 		ModbusReg[reg_addr][1] = p_modbus->registers[0][1];
+ 433              		.loc 1 331 0
+ 434 0124 5B00     		lsls	r3, r3, #1
+ 435 0126 9854     		strb	r0, [r3, r2]
+ 332:./Application/Addition/Modbus/Modbus.c **** 		
+ 436              		.loc 1 332 0
+ 437 0128 D018     		adds	r0, r2, r3
+ 438 012a 4170     		strb	r1, [r0, #1]
+ 335:./Application/Addition/Modbus/Modbus.c **** 		p_modbus->registers[0][1] = ModbusReg[reg_addr][1];
+ 439              		.loc 1 335 0
+ 440 012c 9B5C     		ldrb	r3, [r3, r2]
+ 441              	.LBE72:
+ 442              	.LBE78:
+ 443              	.LBB79:
+ 444              	.LBB45:
+ 445              	.LBB40:
+ 446              	.LBB36:
+ 265:./Application/Addition/Modbus/Modbus.c ****             p_modbus->data_len = 2;
+ 447              		.loc 1 265 0
+ 448 012e 2172     		strb	r1, [r4, #8]
+ 449              	.LVL30:
+ 450              	.LBE36:
+ 451              	.LBE40:
+ 452              	.LBE45:
+ 453              	.LBE79:
+ 454              	.LBB80:
+ 455              	.LBB73:
+ 335:./Application/Addition/Modbus/Modbus.c **** 		p_modbus->registers[0][1] = ModbusReg[reg_addr][1];
+ 456              		.loc 1 335 0
+ 457 0130 E371     		strb	r3, [r4, #7]
+ 337:./Application/Addition/Modbus/Modbus.c **** 		break;
+ 458              		.loc 1 337 0
+ 459 0132 A771     		strb	r7, [r4, #6]
+ 460              	.LVL31:
+ 461              	.L25:
+ 462              	.LBE73:
+ 463              	.LBE80:
+ 464              	.LBB81:
+ 465              	.LBB82:
+ 370:./Application/Addition/Modbus/Modbus.c ****     
+ 466              		.loc 1 370 0
+ 467 0134 2378     		ldrb	r3, [r4]
+ 468 0136 03A8     		add	r0, sp, #12
+ 469              	.LVL32:
+ 470 0138 0370     		strb	r3, [r0]
+ 373:./Application/Addition/Modbus/Modbus.c ****         bufReply[pos++] = p_modbus->functionCode | 0x80;  // 异常响应
+ 471              		.loc 1 373 0
+ARM GAS  /tmp/ccrwYaqM.s 			page 19
+
+
+ 472 013a C023     		movs	r3, #192
+ 473 013c FF33     		adds	r3, r3, #255
+ 474 013e E35C     		ldrb	r3, [r4, r3]
+ 475 0140 6278     		ldrb	r2, [r4, #1]
+ 476 0142 002B     		cmp	r3, #0
+ 477 0144 66D0     		beq	.L59
+ 478              	.LVL33:
+ 374:./Application/Addition/Modbus/Modbus.c ****         bufReply[pos++] = p_modbus->error_code;
+ 479              		.loc 1 374 0
+ 480 0146 8021     		movs	r1, #128
+ 375:./Application/Addition/Modbus/Modbus.c ****     } else {
+ 481              		.loc 1 375 0
+ 482 0148 0327     		movs	r7, #3
+ 374:./Application/Addition/Modbus/Modbus.c ****         bufReply[pos++] = p_modbus->error_code;
+ 483              		.loc 1 374 0
+ 484 014a 4942     		rsbs	r1, r1, #0
+ 485 014c 0A43     		orrs	r2, r1
+ 486 014e 4270     		strb	r2, [r0, #1]
+ 487              	.LVL34:
+ 375:./Application/Addition/Modbus/Modbus.c ****     } else {
+ 488              		.loc 1 375 0
+ 489 0150 8370     		strb	r3, [r0, #2]
+ 490              	.LVL35:
+ 491              	.L33:
+ 407:./Application/Addition/Modbus/Modbus.c ****     bufReply[pos++] = (u8)((crc >> 8)& 0xFF);
+ 492              		.loc 1 407 0
+ 493 0152 3900     		movs	r1, r7
+ 494 0154 FFF7FEFF 		bl	ModbusCrc
+ 495              	.LVL36:
+ 408:./Application/Addition/Modbus/Modbus.c ****     bufReply[pos++] = (u8)(crc)& 0xFF;
+ 496              		.loc 1 408 0
+ 497 0158 4EAB     		add	r3, sp, #312
+ 498 015a DB19     		adds	r3, r3, r7
+ 499 015c 2D3B     		subs	r3, r3, #45
+ 500 015e FF3B     		subs	r3, r3, #255
+ 501 0160 020A     		lsrs	r2, r0, #8
+ 502 0162 1A70     		strb	r2, [r3]
+ 409:./Application/Addition/Modbus/Modbus.c ****     
+ 503              		.loc 1 409 0
+ 504 0164 BA1C     		adds	r2, r7, #2
+ 408:./Application/Addition/Modbus/Modbus.c ****     bufReply[pos++] = (u8)(crc)& 0xFF;
+ 505              		.loc 1 408 0
+ 506 0166 0137     		adds	r7, r7, #1
+ 507              	.LVL37:
+ 409:./Application/Addition/Modbus/Modbus.c ****     
+ 508              		.loc 1 409 0
+ 509 0168 FBB2     		uxtb	r3, r7
+ 510 016a 4EA9     		add	r1, sp, #312
+ 511 016c CB18     		adds	r3, r1, r3
+ 512 016e 2D3B     		subs	r3, r3, #45
+ 513 0170 FF3B     		subs	r3, r3, #255
+ 514 0172 D2B2     		uxtb	r2, r2
+ 515              	.LVL38:
+ 516 0174 1870     		strb	r0, [r3]
+ 517              	.LVL39:
+ 518              	.LBE82:
+ 519              	.LBE81:
+ARM GAS  /tmp/ccrwYaqM.s 			page 20
+
+
+ 131:./Application/Addition/Modbus/Modbus.c **** 	{
+ 520              		.loc 1 131 0
+ 521 0176 002A     		cmp	r2, #0
+ 522 0178 00D0     		beq	.LCB501
+ 523 017a 8EE0     		b	.L39	@long jump
+ 524              	.LCB501:
+ 525              	.LVL40:
+ 526              	.L11:
+ 135:./Application/Addition/Modbus/Modbus.c **** 
+ 527              		.loc 1 135 0
+ 528 017c 4FB0     		add	sp, sp, #316
+ 529              		@ sp needed
+ 530 017e F0BD     		pop	{r4, r5, r6, r7, pc}
+ 531              	.LVL41:
+ 532              	.L20:
+ 533              	.LBB85:
+ 534              	.LBB46:
+ 535              	.LBB41:
+ 536              	.LBB37:
+ 270:./Application/Addition/Modbus/Modbus.c **** 			p_modbus->reg_num = (rx_buf[4] << 8) | rx_buf[5];
+ 537              		.loc 1 270 0
+ 538 0180 AA78     		ldrb	r2, [r5, #2]
+ 539 0182 EB78     		ldrb	r3, [r5, #3]
+ 540 0184 1202     		lsls	r2, r2, #8
+ 541 0186 1343     		orrs	r3, r2
+ 271:./Application/Addition/Modbus/Modbus.c **** 			p_modbus->data_len = rx_buf[6];  // 字节数
+ 542              		.loc 1 271 0
+ 543 0188 2A79     		ldrb	r2, [r5, #4]
+ 270:./Application/Addition/Modbus/Modbus.c **** 			p_modbus->reg_num = (rx_buf[4] << 8) | rx_buf[5];
+ 544              		.loc 1 270 0
+ 545 018a 6380     		strh	r3, [r4, #2]
+ 271:./Application/Addition/Modbus/Modbus.c **** 			p_modbus->data_len = rx_buf[6];  // 字节数
+ 546              		.loc 1 271 0
+ 547 018c 6B79     		ldrb	r3, [r5, #5]
+ 548 018e 1202     		lsls	r2, r2, #8
+ 549 0190 1343     		orrs	r3, r2
+ 272:./Application/Addition/Modbus/Modbus.c **** 	
+ 550              		.loc 1 272 0
+ 551 0192 AA79     		ldrb	r2, [r5, #6]
+ 271:./Application/Addition/Modbus/Modbus.c **** 			p_modbus->data_len = rx_buf[6];  // 字节数
+ 552              		.loc 1 271 0
+ 553 0194 A380     		strh	r3, [r4, #4]
+ 272:./Application/Addition/Modbus/Modbus.c **** 	
+ 554              		.loc 1 272 0
+ 555 0196 A271     		strb	r2, [r4, #6]
+ 275:./Application/Addition/Modbus/Modbus.c **** 		p_modbus->error_code = MODBUS_ERR_DATA;
+ 556              		.loc 1 275 0
+ 557 0198 0932     		adds	r2, r2, #9
+ 558 019a 9642     		cmp	r6, r2
+ 559 019c 00D0     		beq	.LCB552
+ 560 019e 48E7     		b	.L22	@long jump
+ 561              	.LCB552:
+ 562 01a0 494A     		ldr	r2, .L63+12
+ 563 01a2 0735     		adds	r5, r5, #7
+ 564              	.LVL42:
+ 565 01a4 1000     		movs	r0, r2
+ 566              	.LVL43:
+ARM GAS  /tmp/ccrwYaqM.s 			page 21
+
+
+ 567 01a6 5B00     		lsls	r3, r3, #1
+ 568 01a8 EB18     		adds	r3, r5, r3
+ 569              	.LVL44:
+ 570              	.L26:
+ 571              	.LBB33:
+ 279:./Application/Addition/Modbus/Modbus.c **** 		p_modbus->registers[j][0] = rx_buf[7 + j * 2];  // 第j个寄存器的高字节
+ 572              		.loc 1 279 0
+ 573 01aa 9D42     		cmp	r5, r3
+ 574 01ac 05D1     		bne	.L27
+ 575              	.LVL45:
+ 576              	.LBE33:
+ 577              	.LBE37:
+ 578              	.LBE41:
+ 579              	.LBE46:
+ 580              	.LBE85:
+ 581              	.LBB86:
+ 582              	.LBB74:
+ 303:./Application/Addition/Modbus/Modbus.c **** 	u16 reg_num   = p_modbus->reg_num;
+ 583              		.loc 1 303 0
+ 584 01ae 6188     		ldrh	r1, [r4, #2]
+ 585 01b0 A388     		ldrh	r3, [r4, #4]
+ 586              	.LBB62:
+ 587              	.LBB63:
+ 344:./Application/Addition/Modbus/Modbus.c **** 			ModbusReg[actual_reg_addr][1] = p_modbus->registers[i][1];
+ 588              		.loc 1 344 0
+ 589 01b2 444D     		ldr	r5, .L63+8
+ 590 01b4 CB18     		adds	r3, r1, r3
+ 591 01b6 9BB2     		uxth	r3, r3
+ 592 01b8 27E0     		b	.L48
+ 593              	.LVL46:
+ 594              	.L27:
+ 595              	.LBE63:
+ 596              	.LBE62:
+ 597              	.LBE74:
+ 598              	.LBE86:
+ 599              	.LBB87:
+ 600              	.LBB47:
+ 601              	.LBB42:
+ 602              	.LBB38:
+ 603              	.LBB34:
+ 280:./Application/Addition/Modbus/Modbus.c **** 		p_modbus->registers[j][1] = rx_buf[8 + j * 2];  // 第j个寄存器的低字节
+ 604              		.loc 1 280 0
+ 605 01ba 2978     		ldrb	r1, [r5]
+ 606 01bc 1170     		strb	r1, [r2]
+ 281:./Application/Addition/Modbus/Modbus.c **** 	}
+ 607              		.loc 1 281 0
+ 608 01be 6978     		ldrb	r1, [r5, #1]
+ 609 01c0 0235     		adds	r5, r5, #2
+ 610 01c2 5170     		strb	r1, [r2, #1]
+ 611 01c4 0232     		adds	r2, r2, #2
+ 612 01c6 F0E7     		b	.L26
+ 613              	.LVL47:
+ 614              	.L56:
+ 615              	.LBE34:
+ 286:./Application/Addition/Modbus/Modbus.c **** 	return MODBUS_ERR_FUNC_CODE;
+ 616              		.loc 1 286 0
+ 617 01c8 C023     		movs	r3, #192
+ARM GAS  /tmp/ccrwYaqM.s 			page 22
+
+
+ 618 01ca 0322     		movs	r2, #3
+ 619 01cc FF33     		adds	r3, r3, #255
+ 620 01ce 33E7     		b	.L62
+ 621              	.LVL48:
+ 622              	.L31:
+ 623              	.LBE38:
+ 624              	.LBE42:
+ 625              	.LBE47:
+ 626              	.LBE87:
+ 627              	.LBB88:
+ 628              	.LBB75:
+ 629              	.LBB65:
+ 630              	.LBB66:
+ 317:./Application/Addition/Modbus/Modbus.c **** 				p_modbus->registers[i][0] = ModbusReg[actual_reg_addr][0];
+ 631              		.loc 1 317 0
+ 632 01d0 DB2B     		cmp	r3, #219
+ 633 01d2 0DD8     		bhi	.L29
+ 318:./Application/Addition/Modbus/Modbus.c **** 				p_modbus->registers[i][1] = ModbusReg[actual_reg_addr][1];
+ 634              		.loc 1 318 0
+ 635 01d4 5D00     		lsls	r5, r3, #1
+ 636 01d6 A95D     		ldrb	r1, [r5, r6]
+ 319:./Application/Addition/Modbus/Modbus.c **** 			} else {
+ 637              		.loc 1 319 0
+ 638 01d8 7519     		adds	r5, r6, r5
+ 639 01da 6D78     		ldrb	r5, [r5, #1]
+ 318:./Application/Addition/Modbus/Modbus.c **** 				p_modbus->registers[i][1] = ModbusReg[actual_reg_addr][1];
+ 640              		.loc 1 318 0
+ 641 01dc 1170     		strb	r1, [r2]
+ 319:./Application/Addition/Modbus/Modbus.c **** 			} else {
+ 642              		.loc 1 319 0
+ 643 01de 5570     		strb	r5, [r2, #1]
+ 644              	.L30:
+ 645              	.LVL49:
+ 646 01e0 0133     		adds	r3, r3, #1
+ 647              	.LVL50:
+ 648 01e2 9BB2     		uxth	r3, r3
+ 649 01e4 0232     		adds	r2, r2, #2
+ 650              	.LVL51:
+ 651              	.L49:
+ 652              	.LBE66:
+ 315:./Application/Addition/Modbus/Modbus.c **** 			u16 actual_reg_addr = reg_addr + i;
+ 653              		.loc 1 315 0
+ 654 01e6 9C45     		cmp	ip, r3
+ 655 01e8 F2D1     		bne	.L31
+ 656              	.LBE65:
+ 326:./Application/Addition/Modbus/Modbus.c **** 	break;
+ 657              		.loc 1 326 0
+ 658 01ea 4000     		lsls	r0, r0, #1
+ 659 01ec A071     		strb	r0, [r4, #6]
+ 660 01ee A1E7     		b	.L25
+ 661              	.LVL52:
+ 662              	.L29:
+ 663              	.LBB69:
+ 664              	.LBB67:
+ 322:./Application/Addition/Modbus/Modbus.c **** 				p_modbus->registers[i][1] = 0;
+ 665              		.loc 1 322 0
+ 666 01f0 0099     		ldr	r1, [sp]
+ARM GAS  /tmp/ccrwYaqM.s 			page 23
+
+
+ 667 01f2 1170     		strb	r1, [r2]
+ 323:./Application/Addition/Modbus/Modbus.c **** 			}
+ 668              		.loc 1 323 0
+ 669 01f4 5170     		strb	r1, [r2, #1]
+ 670 01f6 F3E7     		b	.L30
+ 671              	.LVL53:
+ 672              	.L32:
+ 673              	.LBE67:
+ 674              	.LBE69:
+ 675              	.LBB70:
+ 676              	.LBB64:
+ 344:./Application/Addition/Modbus/Modbus.c **** 			ModbusReg[actual_reg_addr][1] = p_modbus->registers[i][1];
+ 677              		.loc 1 344 0
+ 678 01f8 0678     		ldrb	r6, [r0]
+ 679 01fa 4A00     		lsls	r2, r1, #1
+ 680 01fc 5655     		strb	r6, [r2, r5]
+ 345:./Application/Addition/Modbus/Modbus.c **** 		}
+ 681              		.loc 1 345 0
+ 682 01fe 4678     		ldrb	r6, [r0, #1]
+ 683 0200 AA18     		adds	r2, r5, r2
+ 684 0202 0131     		adds	r1, r1, #1
+ 685              	.LVL54:
+ 686 0204 5670     		strb	r6, [r2, #1]
+ 687              	.LVL55:
+ 688 0206 89B2     		uxth	r1, r1
+ 689 0208 0230     		adds	r0, r0, #2
+ 690              	.LVL56:
+ 691              	.L48:
+ 692              	.LBE64:
+ 342:./Application/Addition/Modbus/Modbus.c **** 			u16 actual_reg_addr = reg_addr + i;
+ 693              		.loc 1 342 0
+ 694 020a 8B42     		cmp	r3, r1
+ 695 020c F4D1     		bne	.L32
+ 696              	.LBE70:
+ 348:./Application/Addition/Modbus/Modbus.c **** 		break;
+ 697              		.loc 1 348 0
+ 698 020e 0023     		movs	r3, #0
+ 699 0210 A371     		strb	r3, [r4, #6]
+ 700 0212 8FE7     		b	.L25
+ 701              	.LVL57:
+ 702              	.L59:
+ 703              	.LBE75:
+ 704              	.LBE88:
+ 705              	.LBB89:
+ 706              	.LBB84:
+ 377:./Application/Addition/Modbus/Modbus.c ****         
+ 707              		.loc 1 377 0
+ 708 0214 4270     		strb	r2, [r0, #1]
+ 380:./Application/Addition/Modbus/Modbus.c ****             case MODBUS_READ_HOLD_REG:  // 读保持寄存器响应
+ 709              		.loc 1 380 0
+ 710 0216 062A     		cmp	r2, #6
+ 711 0218 1BD0     		beq	.L34
+ 712 021a 102A     		cmp	r2, #16
+ 713 021c 23D0     		beq	.L35
+ 714 021e 032A     		cmp	r2, #3
+ 715 0220 97D1     		bne	.L33
+ 716              	.LVL58:
+ARM GAS  /tmp/ccrwYaqM.s 			page 24
+
+
+ 382:./Application/Addition/Modbus/Modbus.c ****                 // 复制寄存器数据
+ 717              		.loc 1 382 0
+ 718 0222 A179     		ldrb	r1, [r4, #6]
+ 719 0224 8170     		strb	r1, [r0, #2]
+ 720              	.LVL59:
+ 721              	.LBB83:
+ 384:./Application/Addition/Modbus/Modbus.c ****                     bufReply[pos++] = p_modbus->registers[i][0];  // 高字节
+ 722              		.loc 1 384 0
+ 723 0226 A588     		ldrh	r5, [r4, #4]
+ 724 0228 274C     		ldr	r4, .L63+12
+ 725              	.LVL60:
+ 726              	.L37:
+ 727 022a 511C     		adds	r1, r2, #1
+ 728 022c C9B2     		uxtb	r1, r1
+ 729 022e 8618     		adds	r6, r0, r2
+ 730 0230 0232     		adds	r2, r2, #2
+ 731              	.LVL61:
+ 732 0232 D2B2     		uxtb	r2, r2
+ 733 0234 4118     		adds	r1, r0, r1
+ 734 0236 AB42     		cmp	r3, r5
+ 735 0238 03D1     		bne	.L38
+ 736 023a 5B00     		lsls	r3, r3, #1
+ 737              	.LVL62:
+ 738 023c 0333     		adds	r3, r3, #3
+ 739 023e DFB2     		uxtb	r7, r3
+ 740 0240 87E7     		b	.L33
+ 741              	.LVL63:
+ 742              	.L38:
+ 385:./Application/Addition/Modbus/Modbus.c ****                     bufReply[pos++] = p_modbus->registers[i][1];  // 低字节
+ 743              		.loc 1 385 0
+ 744 0242 2778     		ldrb	r7, [r4]
+ 384:./Application/Addition/Modbus/Modbus.c ****                     bufReply[pos++] = p_modbus->registers[i][0];  // 高字节
+ 745              		.loc 1 384 0
+ 746 0244 0133     		adds	r3, r3, #1
+ 747              	.LVL64:
+ 385:./Application/Addition/Modbus/Modbus.c ****                     bufReply[pos++] = p_modbus->registers[i][1];  // 低字节
+ 748              		.loc 1 385 0
+ 749 0246 3770     		strb	r7, [r6]
+ 750              	.LVL65:
+ 386:./Application/Addition/Modbus/Modbus.c ****                 }
+ 751              		.loc 1 386 0
+ 752 0248 6678     		ldrb	r6, [r4, #1]
+ 384:./Application/Addition/Modbus/Modbus.c ****                     bufReply[pos++] = p_modbus->registers[i][0];  // 高字节
+ 753              		.loc 1 384 0
+ 754 024a 9BB2     		uxth	r3, r3
+ 755              	.LVL66:
+ 386:./Application/Addition/Modbus/Modbus.c ****                 }
+ 756              		.loc 1 386 0
+ 757 024c 0E70     		strb	r6, [r1]
+ 758 024e 0234     		adds	r4, r4, #2
+ 759 0250 EBE7     		b	.L37
+ 760              	.LVL67:
+ 761              	.L34:
+ 762              	.LBE83:
+ 391:./Application/Addition/Modbus/Modbus.c **** 				bufReply[pos++] = (u8)(p_modbus->reg_addr & 0xFF);
+ 763              		.loc 1 391 0
+ 764 0252 6388     		ldrh	r3, [r4, #2]
+ARM GAS  /tmp/ccrwYaqM.s 			page 25
+
+
+ 765              	.LVL68:
+ 766 0254 190A     		lsrs	r1, r3, #8
+ 767 0256 8170     		strb	r1, [r0, #2]
+ 768              	.LVL69:
+ 392:./Application/Addition/Modbus/Modbus.c **** 				bufReply[pos++] = p_modbus->registers[0][0];  // 高字节
+ 769              		.loc 1 392 0
+ 770 0258 C370     		strb	r3, [r0, #3]
+ 771              	.LVL70:
+ 393:./Application/Addition/Modbus/Modbus.c **** 				bufReply[pos++] = p_modbus->registers[0][1];  // 低字节
+ 772              		.loc 1 393 0
+ 773 025a E379     		ldrb	r3, [r4, #7]
+ 774 025c 0371     		strb	r3, [r0, #4]
+ 775              	.LVL71:
+ 394:./Application/Addition/Modbus/Modbus.c ****                 break;
+ 776              		.loc 1 394 0
+ 777 025e 237A     		ldrb	r3, [r4, #8]
+ 778              	.LVL72:
+ 779              	.L60:
+ 401:./Application/Addition/Modbus/Modbus.c ****                 break;
+ 780              		.loc 1 401 0
+ 781 0260 4371     		strb	r3, [r0, #5]
+ 782 0262 0627     		movs	r7, #6
+ 783 0264 75E7     		b	.L33
+ 784              	.LVL73:
+ 785              	.L35:
+ 398:./Application/Addition/Modbus/Modbus.c **** 				bufReply[pos++] = (u8)(p_modbus->reg_addr & 0xFF);
+ 786              		.loc 1 398 0
+ 787 0266 6388     		ldrh	r3, [r4, #2]
+ 788              	.LVL74:
+ 789 0268 1A0A     		lsrs	r2, r3, #8
+ 790 026a 8270     		strb	r2, [r0, #2]
+ 791              	.LVL75:
+ 399:./Application/Addition/Modbus/Modbus.c **** 				bufReply[pos++] = (u8)(p_modbus->reg_num >> 8);
+ 792              		.loc 1 399 0
+ 793 026c C370     		strb	r3, [r0, #3]
+ 400:./Application/Addition/Modbus/Modbus.c **** 				bufReply[pos++] = (u8)(p_modbus->reg_num & 0xFF);
+ 794              		.loc 1 400 0
+ 795 026e A388     		ldrh	r3, [r4, #4]
+ 796              	.LVL76:
+ 797 0270 1A0A     		lsrs	r2, r3, #8
+ 798 0272 0271     		strb	r2, [r0, #4]
+ 799 0274 F4E7     		b	.L60
+ 800              	.LVL77:
+ 801              	.L40:
+ 802              	.LBE84:
+ 803              	.LBE89:
+ 804              	.LBB90:
+ 805              	.LBB57:
+ 806              	.LBB53:
+ 428:./Application/Addition/Modbus/Modbus.c **** 		reply[1] = p_modbus->functionCode | 0x80;		//最高位置一
+ 807              		.loc 1 428 0
+ 808 0276 2270     		strb	r2, [r4]
+ 429:./Application/Addition/Modbus/Modbus.c **** 		reply[2] = p_modbus->error_code;
+ 809              		.loc 1 429 0
+ 810 0278 8022     		movs	r2, #128
+ 811 027a 5242     		rsbs	r2, r2, #0
+ 812 027c 1043     		orrs	r0, r2
+ARM GAS  /tmp/ccrwYaqM.s 			page 26
+
+
+ 813 027e 6070     		strb	r0, [r4, #1]
+ 430:./Application/Addition/Modbus/Modbus.c **** 		crc = ModbusCrc(reply, 3);	
+ 814              		.loc 1 430 0
+ 815 0280 A370     		strb	r3, [r4, #2]
+ 816              	.L61:
+ 440:./Application/Addition/Modbus/Modbus.c **** 		reply[3] =  (crc >> 8) & 0xFF;
+ 817              		.loc 1 440 0
+ 818 0282 2000     		movs	r0, r4
+ 819 0284 FFF7FEFF 		bl	ModbusCrc
+ 820              	.LVL78:
+ 441:./Application/Addition/Modbus/Modbus.c **** 		reply[4] =	crc & 0xFF;
+ 821              		.loc 1 441 0
+ 822 0288 030A     		lsrs	r3, r0, #8
+ 823 028a E370     		strb	r3, [r4, #3]
+ 442:./Application/Addition/Modbus/Modbus.c **** 		return reply;	
+ 824              		.loc 1 442 0
+ 825 028c 2071     		strb	r0, [r4, #4]
+ 826              	.LVL79:
+ 827              	.L41:
+ 828              	.LBE53:
+ 829              	.LBE57:
+ 126:./Application/Addition/Modbus/Modbus.c ****             lenReply = 5;
+ 830              		.loc 1 126 0
+ 831 028e 0522     		movs	r2, #5
+ 832 0290 2100     		movs	r1, r4
+ 833 0292 03A8     		add	r0, sp, #12
+ 834 0294 FFF7FEFF 		bl	memcpy
+ 835              	.LVL80:
+ 127:./Application/Addition/Modbus/Modbus.c **** 		}
+ 836              		.loc 1 127 0
+ 837 0298 0522     		movs	r2, #5
+ 838              	.LVL81:
+ 839              	.L39:
+ 840              	.LBE90:
+ 133:./Application/Addition/Modbus/Modbus.c **** 	}
+ 841              		.loc 1 133 0
+ 842 029a 03A9     		add	r1, sp, #12
+ 843 029c 0020     		movs	r0, #0
+ 844 029e FFF7FEFF 		bl	BSPUSARTSendQin
+ 845              	.LVL82:
+ 846 02a2 6BE7     		b	.L11
+ 847              	.LVL83:
+ 848              	.L58:
+ 849              	.LBB91:
+ 850              	.LBB58:
+ 851              	.LBB54:
+ 455:./Application/Addition/Modbus/Modbus.c **** 		return reply;
+ 852              		.loc 1 455 0
+ 853 02a4 0023     		movs	r3, #0
+ 854 02a6 2370     		strb	r3, [r4]
+ 855 02a8 F1E7     		b	.L41
+ 856              	.LVL84:
+ 857              	.L24:
+ 858              	.LBE54:
+ 859              	.LBE58:
+ 860              	.LBE91:
+ 861              	.LBB92:
+ARM GAS  /tmp/ccrwYaqM.s 			page 27
+
+
+ 862              	.LBB76:
+ 303:./Application/Addition/Modbus/Modbus.c **** 	u16 reg_num   = p_modbus->reg_num;
+ 863              		.loc 1 303 0
+ 864 02aa 6388     		ldrh	r3, [r4, #2]
+ 304:./Application/Addition/Modbus/Modbus.c **** 
+ 865              		.loc 1 304 0
+ 866 02ac A088     		ldrh	r0, [r4, #4]
+ 867              	.LVL85:
+ 868 02ae 064A     		ldr	r2, .L63+12
+ 869 02b0 1D18     		adds	r5, r3, r0
+ 870              	.LVL86:
+ 871 02b2 ADB2     		uxth	r5, r5
+ 872 02b4 AC46     		mov	ip, r5
+ 873              	.LBB71:
+ 874              	.LBB68:
+ 322:./Application/Addition/Modbus/Modbus.c **** 				p_modbus->registers[i][1] = 0;
+ 875              		.loc 1 322 0
+ 876 02b6 0091     		str	r1, [sp]
+ 877              	.LVL87:
+ 318:./Application/Addition/Modbus/Modbus.c **** 				p_modbus->registers[i][1] = ModbusReg[actual_reg_addr][1];
+ 878              		.loc 1 318 0
+ 879 02b8 024E     		ldr	r6, .L63+8
+ 880              	.LVL88:
+ 881 02ba 94E7     		b	.L49
+ 882              	.L64:
+ 883              		.align	2
+ 884              	.L63:
+ 885 02bc 00000000 		.word	pstcModbus
+ 886 02c0 00000000 		.word	.LANCHOR0
+ 887 02c4 00000000 		.word	ModbusReg
+ 888 02c8 07000000 		.word	pstcModbus+7
+ 889              	.LBE68:
+ 890              	.LBE71:
+ 891              	.LBE76:
+ 892              	.LBE92:
+ 893              		.cfi_endproc
+ 894              	.LFE0:
+ 896              		.comm	ModbusReg,440,1
+ 897              		.comm	pstcModbus,452,2
+ 898              		.section	.bss.reply.5241,"aw",%nobits
+ 899              		.set	.LANCHOR0,. + 0
+ 902              	reply.5241:
+ 903 0000 00000000 		.space	5
+ 903      00
+ 904              		.section	.rodata.modbus_crc_hi_,"a",%progbits
+ 907              	modbus_crc_hi_:
+ 908 0000 00       		.byte	0
+ 909 0001 C1       		.byte	-63
+ 910 0002 81       		.byte	-127
+ 911 0003 40       		.byte	64
+ 912 0004 01       		.byte	1
+ 913 0005 C0       		.byte	-64
+ 914 0006 80       		.byte	-128
+ 915 0007 41       		.byte	65
+ 916 0008 01       		.byte	1
+ 917 0009 C0       		.byte	-64
+ 918 000a 80       		.byte	-128
+ARM GAS  /tmp/ccrwYaqM.s 			page 28
+
+
+ 919 000b 41       		.byte	65
+ 920 000c 00       		.byte	0
+ 921 000d C1       		.byte	-63
+ 922 000e 81       		.byte	-127
+ 923 000f 40       		.byte	64
+ 924 0010 01       		.byte	1
+ 925 0011 C0       		.byte	-64
+ 926 0012 80       		.byte	-128
+ 927 0013 41       		.byte	65
+ 928 0014 00       		.byte	0
+ 929 0015 C1       		.byte	-63
+ 930 0016 81       		.byte	-127
+ 931 0017 40       		.byte	64
+ 932 0018 00       		.byte	0
+ 933 0019 C1       		.byte	-63
+ 934 001a 81       		.byte	-127
+ 935 001b 40       		.byte	64
+ 936 001c 01       		.byte	1
+ 937 001d C0       		.byte	-64
+ 938 001e 80       		.byte	-128
+ 939 001f 41       		.byte	65
+ 940 0020 01       		.byte	1
+ 941 0021 C0       		.byte	-64
+ 942 0022 80       		.byte	-128
+ 943 0023 41       		.byte	65
+ 944 0024 00       		.byte	0
+ 945 0025 C1       		.byte	-63
+ 946 0026 81       		.byte	-127
+ 947 0027 40       		.byte	64
+ 948 0028 00       		.byte	0
+ 949 0029 C1       		.byte	-63
+ 950 002a 81       		.byte	-127
+ 951 002b 40       		.byte	64
+ 952 002c 01       		.byte	1
+ 953 002d C0       		.byte	-64
+ 954 002e 80       		.byte	-128
+ 955 002f 41       		.byte	65
+ 956 0030 00       		.byte	0
+ 957 0031 C1       		.byte	-63
+ 958 0032 81       		.byte	-127
+ 959 0033 40       		.byte	64
+ 960 0034 01       		.byte	1
+ 961 0035 C0       		.byte	-64
+ 962 0036 80       		.byte	-128
+ 963 0037 41       		.byte	65
+ 964 0038 01       		.byte	1
+ 965 0039 C0       		.byte	-64
+ 966 003a 80       		.byte	-128
+ 967 003b 41       		.byte	65
+ 968 003c 00       		.byte	0
+ 969 003d C1       		.byte	-63
+ 970 003e 81       		.byte	-127
+ 971 003f 40       		.byte	64
+ 972 0040 01       		.byte	1
+ 973 0041 C0       		.byte	-64
+ 974 0042 80       		.byte	-128
+ 975 0043 41       		.byte	65
+ARM GAS  /tmp/ccrwYaqM.s 			page 29
+
+
+ 976 0044 00       		.byte	0
+ 977 0045 C1       		.byte	-63
+ 978 0046 81       		.byte	-127
+ 979 0047 40       		.byte	64
+ 980 0048 00       		.byte	0
+ 981 0049 C1       		.byte	-63
+ 982 004a 81       		.byte	-127
+ 983 004b 40       		.byte	64
+ 984 004c 01       		.byte	1
+ 985 004d C0       		.byte	-64
+ 986 004e 80       		.byte	-128
+ 987 004f 41       		.byte	65
+ 988 0050 00       		.byte	0
+ 989 0051 C1       		.byte	-63
+ 990 0052 81       		.byte	-127
+ 991 0053 40       		.byte	64
+ 992 0054 01       		.byte	1
+ 993 0055 C0       		.byte	-64
+ 994 0056 80       		.byte	-128
+ 995 0057 41       		.byte	65
+ 996 0058 01       		.byte	1
+ 997 0059 C0       		.byte	-64
+ 998 005a 80       		.byte	-128
+ 999 005b 41       		.byte	65
+ 1000 005c 00       		.byte	0
+ 1001 005d C1       		.byte	-63
+ 1002 005e 81       		.byte	-127
+ 1003 005f 40       		.byte	64
+ 1004 0060 00       		.byte	0
+ 1005 0061 C1       		.byte	-63
+ 1006 0062 81       		.byte	-127
+ 1007 0063 40       		.byte	64
+ 1008 0064 01       		.byte	1
+ 1009 0065 C0       		.byte	-64
+ 1010 0066 80       		.byte	-128
+ 1011 0067 41       		.byte	65
+ 1012 0068 01       		.byte	1
+ 1013 0069 C0       		.byte	-64
+ 1014 006a 80       		.byte	-128
+ 1015 006b 41       		.byte	65
+ 1016 006c 00       		.byte	0
+ 1017 006d C1       		.byte	-63
+ 1018 006e 81       		.byte	-127
+ 1019 006f 40       		.byte	64
+ 1020 0070 01       		.byte	1
+ 1021 0071 C0       		.byte	-64
+ 1022 0072 80       		.byte	-128
+ 1023 0073 41       		.byte	65
+ 1024 0074 00       		.byte	0
+ 1025 0075 C1       		.byte	-63
+ 1026 0076 81       		.byte	-127
+ 1027 0077 40       		.byte	64
+ 1028 0078 00       		.byte	0
+ 1029 0079 C1       		.byte	-63
+ 1030 007a 81       		.byte	-127
+ 1031 007b 40       		.byte	64
+ 1032 007c 01       		.byte	1
+ARM GAS  /tmp/ccrwYaqM.s 			page 30
+
+
+ 1033 007d C0       		.byte	-64
+ 1034 007e 80       		.byte	-128
+ 1035 007f 41       		.byte	65
+ 1036 0080 01       		.byte	1
+ 1037 0081 C0       		.byte	-64
+ 1038 0082 80       		.byte	-128
+ 1039 0083 41       		.byte	65
+ 1040 0084 00       		.byte	0
+ 1041 0085 C1       		.byte	-63
+ 1042 0086 81       		.byte	-127
+ 1043 0087 40       		.byte	64
+ 1044 0088 00       		.byte	0
+ 1045 0089 C1       		.byte	-63
+ 1046 008a 81       		.byte	-127
+ 1047 008b 40       		.byte	64
+ 1048 008c 01       		.byte	1
+ 1049 008d C0       		.byte	-64
+ 1050 008e 80       		.byte	-128
+ 1051 008f 41       		.byte	65
+ 1052 0090 00       		.byte	0
+ 1053 0091 C1       		.byte	-63
+ 1054 0092 81       		.byte	-127
+ 1055 0093 40       		.byte	64
+ 1056 0094 01       		.byte	1
+ 1057 0095 C0       		.byte	-64
+ 1058 0096 80       		.byte	-128
+ 1059 0097 41       		.byte	65
+ 1060 0098 01       		.byte	1
+ 1061 0099 C0       		.byte	-64
+ 1062 009a 80       		.byte	-128
+ 1063 009b 41       		.byte	65
+ 1064 009c 00       		.byte	0
+ 1065 009d C1       		.byte	-63
+ 1066 009e 81       		.byte	-127
+ 1067 009f 40       		.byte	64
+ 1068 00a0 00       		.byte	0
+ 1069 00a1 C1       		.byte	-63
+ 1070 00a2 81       		.byte	-127
+ 1071 00a3 40       		.byte	64
+ 1072 00a4 01       		.byte	1
+ 1073 00a5 C0       		.byte	-64
+ 1074 00a6 80       		.byte	-128
+ 1075 00a7 41       		.byte	65
+ 1076 00a8 01       		.byte	1
+ 1077 00a9 C0       		.byte	-64
+ 1078 00aa 80       		.byte	-128
+ 1079 00ab 41       		.byte	65
+ 1080 00ac 00       		.byte	0
+ 1081 00ad C1       		.byte	-63
+ 1082 00ae 81       		.byte	-127
+ 1083 00af 40       		.byte	64
+ 1084 00b0 01       		.byte	1
+ 1085 00b1 C0       		.byte	-64
+ 1086 00b2 80       		.byte	-128
+ 1087 00b3 41       		.byte	65
+ 1088 00b4 00       		.byte	0
+ 1089 00b5 C1       		.byte	-63
+ARM GAS  /tmp/ccrwYaqM.s 			page 31
+
+
+ 1090 00b6 81       		.byte	-127
+ 1091 00b7 40       		.byte	64
+ 1092 00b8 00       		.byte	0
+ 1093 00b9 C1       		.byte	-63
+ 1094 00ba 81       		.byte	-127
+ 1095 00bb 40       		.byte	64
+ 1096 00bc 01       		.byte	1
+ 1097 00bd C0       		.byte	-64
+ 1098 00be 80       		.byte	-128
+ 1099 00bf 41       		.byte	65
+ 1100 00c0 00       		.byte	0
+ 1101 00c1 C1       		.byte	-63
+ 1102 00c2 81       		.byte	-127
+ 1103 00c3 40       		.byte	64
+ 1104 00c4 01       		.byte	1
+ 1105 00c5 C0       		.byte	-64
+ 1106 00c6 80       		.byte	-128
+ 1107 00c7 41       		.byte	65
+ 1108 00c8 01       		.byte	1
+ 1109 00c9 C0       		.byte	-64
+ 1110 00ca 80       		.byte	-128
+ 1111 00cb 41       		.byte	65
+ 1112 00cc 00       		.byte	0
+ 1113 00cd C1       		.byte	-63
+ 1114 00ce 81       		.byte	-127
+ 1115 00cf 40       		.byte	64
+ 1116 00d0 01       		.byte	1
+ 1117 00d1 C0       		.byte	-64
+ 1118 00d2 80       		.byte	-128
+ 1119 00d3 41       		.byte	65
+ 1120 00d4 00       		.byte	0
+ 1121 00d5 C1       		.byte	-63
+ 1122 00d6 81       		.byte	-127
+ 1123 00d7 40       		.byte	64
+ 1124 00d8 00       		.byte	0
+ 1125 00d9 C1       		.byte	-63
+ 1126 00da 81       		.byte	-127
+ 1127 00db 40       		.byte	64
+ 1128 00dc 01       		.byte	1
+ 1129 00dd C0       		.byte	-64
+ 1130 00de 80       		.byte	-128
+ 1131 00df 41       		.byte	65
+ 1132 00e0 01       		.byte	1
+ 1133 00e1 C0       		.byte	-64
+ 1134 00e2 80       		.byte	-128
+ 1135 00e3 41       		.byte	65
+ 1136 00e4 00       		.byte	0
+ 1137 00e5 C1       		.byte	-63
+ 1138 00e6 81       		.byte	-127
+ 1139 00e7 40       		.byte	64
+ 1140 00e8 00       		.byte	0
+ 1141 00e9 C1       		.byte	-63
+ 1142 00ea 81       		.byte	-127
+ 1143 00eb 40       		.byte	64
+ 1144 00ec 01       		.byte	1
+ 1145 00ed C0       		.byte	-64
+ 1146 00ee 80       		.byte	-128
+ARM GAS  /tmp/ccrwYaqM.s 			page 32
+
+
+ 1147 00ef 41       		.byte	65
+ 1148 00f0 00       		.byte	0
+ 1149 00f1 C1       		.byte	-63
+ 1150 00f2 81       		.byte	-127
+ 1151 00f3 40       		.byte	64
+ 1152 00f4 01       		.byte	1
+ 1153 00f5 C0       		.byte	-64
+ 1154 00f6 80       		.byte	-128
+ 1155 00f7 41       		.byte	65
+ 1156 00f8 01       		.byte	1
+ 1157 00f9 C0       		.byte	-64
+ 1158 00fa 80       		.byte	-128
+ 1159 00fb 41       		.byte	65
+ 1160 00fc 00       		.byte	0
+ 1161 00fd C1       		.byte	-63
+ 1162 00fe 81       		.byte	-127
+ 1163 00ff 40       		.byte	64
+ 1164              		.section	.rodata.modbus_crc_lo_,"a",%progbits
+ 1167              	modbus_crc_lo_:
+ 1168 0000 00       		.byte	0
+ 1169 0001 C0       		.byte	-64
+ 1170 0002 C1       		.byte	-63
+ 1171 0003 01       		.byte	1
+ 1172 0004 C3       		.byte	-61
+ 1173 0005 03       		.byte	3
+ 1174 0006 02       		.byte	2
+ 1175 0007 C2       		.byte	-62
+ 1176 0008 C6       		.byte	-58
+ 1177 0009 06       		.byte	6
+ 1178 000a 07       		.byte	7
+ 1179 000b C7       		.byte	-57
+ 1180 000c 05       		.byte	5
+ 1181 000d C5       		.byte	-59
+ 1182 000e C4       		.byte	-60
+ 1183 000f 04       		.byte	4
+ 1184 0010 CC       		.byte	-52
+ 1185 0011 0C       		.byte	12
+ 1186 0012 0D       		.byte	13
+ 1187 0013 CD       		.byte	-51
+ 1188 0014 0F       		.byte	15
+ 1189 0015 CF       		.byte	-49
+ 1190 0016 CE       		.byte	-50
+ 1191 0017 0E       		.byte	14
+ 1192 0018 0A       		.byte	10
+ 1193 0019 CA       		.byte	-54
+ 1194 001a CB       		.byte	-53
+ 1195 001b 0B       		.byte	11
+ 1196 001c C9       		.byte	-55
+ 1197 001d 09       		.byte	9
+ 1198 001e 08       		.byte	8
+ 1199 001f C8       		.byte	-56
+ 1200 0020 D8       		.byte	-40
+ 1201 0021 18       		.byte	24
+ 1202 0022 19       		.byte	25
+ 1203 0023 D9       		.byte	-39
+ 1204 0024 1B       		.byte	27
+ 1205 0025 DB       		.byte	-37
+ARM GAS  /tmp/ccrwYaqM.s 			page 33
+
+
+ 1206 0026 DA       		.byte	-38
+ 1207 0027 1A       		.byte	26
+ 1208 0028 1E       		.byte	30
+ 1209 0029 DE       		.byte	-34
+ 1210 002a DF       		.byte	-33
+ 1211 002b 1F       		.byte	31
+ 1212 002c DD       		.byte	-35
+ 1213 002d 1D       		.byte	29
+ 1214 002e 1C       		.byte	28
+ 1215 002f DC       		.byte	-36
+ 1216 0030 14       		.byte	20
+ 1217 0031 D4       		.byte	-44
+ 1218 0032 D5       		.byte	-43
+ 1219 0033 15       		.byte	21
+ 1220 0034 D7       		.byte	-41
+ 1221 0035 17       		.byte	23
+ 1222 0036 16       		.byte	22
+ 1223 0037 D6       		.byte	-42
+ 1224 0038 D2       		.byte	-46
+ 1225 0039 12       		.byte	18
+ 1226 003a 13       		.byte	19
+ 1227 003b D3       		.byte	-45
+ 1228 003c 11       		.byte	17
+ 1229 003d D1       		.byte	-47
+ 1230 003e D0       		.byte	-48
+ 1231 003f 10       		.byte	16
+ 1232 0040 F0       		.byte	-16
+ 1233 0041 30       		.byte	48
+ 1234 0042 31       		.byte	49
+ 1235 0043 F1       		.byte	-15
+ 1236 0044 33       		.byte	51
+ 1237 0045 F3       		.byte	-13
+ 1238 0046 F2       		.byte	-14
+ 1239 0047 32       		.byte	50
+ 1240 0048 36       		.byte	54
+ 1241 0049 F6       		.byte	-10
+ 1242 004a F7       		.byte	-9
+ 1243 004b 37       		.byte	55
+ 1244 004c F5       		.byte	-11
+ 1245 004d 35       		.byte	53
+ 1246 004e 34       		.byte	52
+ 1247 004f F4       		.byte	-12
+ 1248 0050 3C       		.byte	60
+ 1249 0051 FC       		.byte	-4
+ 1250 0052 FD       		.byte	-3
+ 1251 0053 3D       		.byte	61
+ 1252 0054 FF       		.byte	-1
+ 1253 0055 3F       		.byte	63
+ 1254 0056 3E       		.byte	62
+ 1255 0057 FE       		.byte	-2
+ 1256 0058 FA       		.byte	-6
+ 1257 0059 3A       		.byte	58
+ 1258 005a 3B       		.byte	59
+ 1259 005b FB       		.byte	-5
+ 1260 005c 39       		.byte	57
+ 1261 005d F9       		.byte	-7
+ 1262 005e F8       		.byte	-8
+ARM GAS  /tmp/ccrwYaqM.s 			page 34
+
+
+ 1263 005f 38       		.byte	56
+ 1264 0060 28       		.byte	40
+ 1265 0061 E8       		.byte	-24
+ 1266 0062 E9       		.byte	-23
+ 1267 0063 29       		.byte	41
+ 1268 0064 EB       		.byte	-21
+ 1269 0065 2B       		.byte	43
+ 1270 0066 2A       		.byte	42
+ 1271 0067 EA       		.byte	-22
+ 1272 0068 EE       		.byte	-18
+ 1273 0069 2E       		.byte	46
+ 1274 006a 2F       		.byte	47
+ 1275 006b EF       		.byte	-17
+ 1276 006c 2D       		.byte	45
+ 1277 006d ED       		.byte	-19
+ 1278 006e EC       		.byte	-20
+ 1279 006f 2C       		.byte	44
+ 1280 0070 E4       		.byte	-28
+ 1281 0071 24       		.byte	36
+ 1282 0072 25       		.byte	37
+ 1283 0073 E5       		.byte	-27
+ 1284 0074 27       		.byte	39
+ 1285 0075 E7       		.byte	-25
+ 1286 0076 E6       		.byte	-26
+ 1287 0077 26       		.byte	38
+ 1288 0078 22       		.byte	34
+ 1289 0079 E2       		.byte	-30
+ 1290 007a E3       		.byte	-29
+ 1291 007b 23       		.byte	35
+ 1292 007c E1       		.byte	-31
+ 1293 007d 21       		.byte	33
+ 1294 007e 20       		.byte	32
+ 1295 007f E0       		.byte	-32
+ 1296 0080 A0       		.byte	-96
+ 1297 0081 60       		.byte	96
+ 1298 0082 61       		.byte	97
+ 1299 0083 A1       		.byte	-95
+ 1300 0084 63       		.byte	99
+ 1301 0085 A3       		.byte	-93
+ 1302 0086 A2       		.byte	-94
+ 1303 0087 62       		.byte	98
+ 1304 0088 66       		.byte	102
+ 1305 0089 A6       		.byte	-90
+ 1306 008a A7       		.byte	-89
+ 1307 008b 67       		.byte	103
+ 1308 008c A5       		.byte	-91
+ 1309 008d 65       		.byte	101
+ 1310 008e 64       		.byte	100
+ 1311 008f A4       		.byte	-92
+ 1312 0090 6C       		.byte	108
+ 1313 0091 AC       		.byte	-84
+ 1314 0092 AD       		.byte	-83
+ 1315 0093 6D       		.byte	109
+ 1316 0094 AF       		.byte	-81
+ 1317 0095 6F       		.byte	111
+ 1318 0096 6E       		.byte	110
+ 1319 0097 AE       		.byte	-82
+ARM GAS  /tmp/ccrwYaqM.s 			page 35
+
+
+ 1320 0098 AA       		.byte	-86
+ 1321 0099 6A       		.byte	106
+ 1322 009a 6B       		.byte	107
+ 1323 009b AB       		.byte	-85
+ 1324 009c 69       		.byte	105
+ 1325 009d A9       		.byte	-87
+ 1326 009e A8       		.byte	-88
+ 1327 009f 68       		.byte	104
+ 1328 00a0 78       		.byte	120
+ 1329 00a1 B8       		.byte	-72
+ 1330 00a2 B9       		.byte	-71
+ 1331 00a3 79       		.byte	121
+ 1332 00a4 BB       		.byte	-69
+ 1333 00a5 7B       		.byte	123
+ 1334 00a6 7A       		.byte	122
+ 1335 00a7 BA       		.byte	-70
+ 1336 00a8 BE       		.byte	-66
+ 1337 00a9 7E       		.byte	126
+ 1338 00aa 7F       		.byte	127
+ 1339 00ab BF       		.byte	-65
+ 1340 00ac 7D       		.byte	125
+ 1341 00ad BD       		.byte	-67
+ 1342 00ae BC       		.byte	-68
+ 1343 00af 7C       		.byte	124
+ 1344 00b0 B4       		.byte	-76
+ 1345 00b1 74       		.byte	116
+ 1346 00b2 75       		.byte	117
+ 1347 00b3 B5       		.byte	-75
+ 1348 00b4 77       		.byte	119
+ 1349 00b5 B7       		.byte	-73
+ 1350 00b6 B6       		.byte	-74
+ 1351 00b7 76       		.byte	118
+ 1352 00b8 72       		.byte	114
+ 1353 00b9 B2       		.byte	-78
+ 1354 00ba B3       		.byte	-77
+ 1355 00bb 73       		.byte	115
+ 1356 00bc B1       		.byte	-79
+ 1357 00bd 71       		.byte	113
+ 1358 00be 70       		.byte	112
+ 1359 00bf B0       		.byte	-80
+ 1360 00c0 50       		.byte	80
+ 1361 00c1 90       		.byte	-112
+ 1362 00c2 91       		.byte	-111
+ 1363 00c3 51       		.byte	81
+ 1364 00c4 93       		.byte	-109
+ 1365 00c5 53       		.byte	83
+ 1366 00c6 52       		.byte	82
+ 1367 00c7 92       		.byte	-110
+ 1368 00c8 96       		.byte	-106
+ 1369 00c9 56       		.byte	86
+ 1370 00ca 57       		.byte	87
+ 1371 00cb 97       		.byte	-105
+ 1372 00cc 55       		.byte	85
+ 1373 00cd 95       		.byte	-107
+ 1374 00ce 94       		.byte	-108
+ 1375 00cf 54       		.byte	84
+ 1376 00d0 9C       		.byte	-100
+ARM GAS  /tmp/ccrwYaqM.s 			page 36
+
+
+ 1377 00d1 5C       		.byte	92
+ 1378 00d2 5D       		.byte	93
+ 1379 00d3 9D       		.byte	-99
+ 1380 00d4 5F       		.byte	95
+ 1381 00d5 9F       		.byte	-97
+ 1382 00d6 9E       		.byte	-98
+ 1383 00d7 5E       		.byte	94
+ 1384 00d8 5A       		.byte	90
+ 1385 00d9 9A       		.byte	-102
+ 1386 00da 9B       		.byte	-101
+ 1387 00db 5B       		.byte	91
+ 1388 00dc 99       		.byte	-103
+ 1389 00dd 59       		.byte	89
+ 1390 00de 58       		.byte	88
+ 1391 00df 98       		.byte	-104
+ 1392 00e0 88       		.byte	-120
+ 1393 00e1 48       		.byte	72
+ 1394 00e2 49       		.byte	73
+ 1395 00e3 89       		.byte	-119
+ 1396 00e4 4B       		.byte	75
+ 1397 00e5 8B       		.byte	-117
+ 1398 00e6 8A       		.byte	-118
+ 1399 00e7 4A       		.byte	74
+ 1400 00e8 4E       		.byte	78
+ 1401 00e9 8E       		.byte	-114
+ 1402 00ea 8F       		.byte	-113
+ 1403 00eb 4F       		.byte	79
+ 1404 00ec 8D       		.byte	-115
+ 1405 00ed 4D       		.byte	77
+ 1406 00ee 4C       		.byte	76
+ 1407 00ef 8C       		.byte	-116
+ 1408 00f0 44       		.byte	68
+ 1409 00f1 84       		.byte	-124
+ 1410 00f2 85       		.byte	-123
+ 1411 00f3 45       		.byte	69
+ 1412 00f4 87       		.byte	-121
+ 1413 00f5 47       		.byte	71
+ 1414 00f6 46       		.byte	70
+ 1415 00f7 86       		.byte	-122
+ 1416 00f8 82       		.byte	-126
+ 1417 00f9 42       		.byte	66
+ 1418 00fa 43       		.byte	67
+ 1419 00fb 83       		.byte	-125
+ 1420 00fc 41       		.byte	65
+ 1421 00fd 81       		.byte	-127
+ 1422 00fe 80       		.byte	-128
+ 1423 00ff 40       		.byte	64
+ 1424              		.text
+ 1425              	.Letext0:
+ 1426              		.file 2 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/lock.h"
+ 1427              		.file 3 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_types.h"
+ 1428              		.file 4 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/lib/gcc/arm-none-eabi/7.3.1/include/stddef.h"
+ 1429              		.file 5 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/reent.h"
+ 1430              		.file 6 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/stdlib.h"
+ 1431              		.file 7 "Application/BSPSys/Util/BSPTypeDef.h"
+ 1432              		.file 8 "Application/BSPSys/BSPDriver/BSPUSART.h"
+ 1433              		.file 9 "./Application/Addition/Modbus/Modbus.h"
+ARM GAS  /tmp/ccrwYaqM.s 			page 37
+
+
+ 1434              		.file 10 "<built-in>"
+ARM GAS  /tmp/ccrwYaqM.s 			page 38
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 Modbus.c
+     /tmp/ccrwYaqM.s:16     .text.ModbusCrc:0000000000000000 $t
+     /tmp/ccrwYaqM.s:22     .text.ModbusCrc:0000000000000000 ModbusCrc
+     /tmp/ccrwYaqM.s:80     .text.ModbusCrc:0000000000000028 $d
+     /tmp/ccrwYaqM.s:907    .rodata.modbus_crc_hi_:0000000000000000 modbus_crc_hi_
+     /tmp/ccrwYaqM.s:1167   .rodata.modbus_crc_lo_:0000000000000000 modbus_crc_lo_
+     /tmp/ccrwYaqM.s:86     .text.Test_LengthRecData:0000000000000000 $t
+     /tmp/ccrwYaqM.s:93     .text.Test_LengthRecData:0000000000000000 Test_LengthRecData
+     /tmp/ccrwYaqM.s:141    .text.Modbus_ToolingInterface:0000000000000000 $t
+     /tmp/ccrwYaqM.s:148    .text.Modbus_ToolingInterface:0000000000000000 Modbus_ToolingInterface
+     /tmp/ccrwYaqM.s:885    .text.Modbus_ToolingInterface:00000000000002bc $d
+                            *COM*:00000000000001c4 pstcModbus
+                            *COM*:00000000000001b8 ModbusReg
+     /tmp/ccrwYaqM.s:902    .bss.reply.5241:0000000000000000 reply.5241
+     /tmp/ccrwYaqM.s:903    .bss.reply.5241:0000000000000000 $d
+
+UNDEFINED SYMBOLS
+memset
+memcpy
+BSPUSARTSendQin

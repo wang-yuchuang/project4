@@ -1,0 +1,3395 @@
+ARM GAS  /tmp/ccYTzABM.s 			page 1
+
+
+   1              		.cpu cortex-m0plus
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 4
+   9              		.eabi_attribute 34, 0
+  10              		.eabi_attribute 18, 4
+  11              		.file	"drv_rn8209.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.Rn8209Write2ByteCmdProc,"ax",%progbits
+  16              		.align	1
+  17              		.syntax unified
+  18              		.code	16
+  19              		.thumb_func
+  20              		.fpu softvfp
+  22              	Rn8209Write2ByteCmdProc:
+  23              	.LFB494:
+  24              		.file 1 "./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c"
+   1:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** /**
+   2:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****  ******************************************************************************
+   3:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****  * Copyright(c) Infy Power 2023-2023
+   4:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****  * @file    drv_rn8209.c
+   5:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****  * @author  ZZC955
+   6:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****  * @version V1.0
+   7:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****  * @date    2023-9-9
+   8:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****  * @brief   rn8209读写操作
+   9:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****  * @history 2023-9-9 ZZC955 创建
+  10:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****  ******************************************************************************
+  11:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****  */
+  12:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+  13:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** /* 头文件 */
+  14:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** #include "BSPTypeDef.h"
+  15:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** #include "BSPKA84917_async.h"
+  16:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** #include "spi_async.h"  /* ucSPI_WaitAllDone */
+  17:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** #include "SEGGER_RTT.h"  /* RTT diagnostic */
+  18:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** // #include "BSPKA84917.h"
+  19:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** #include "drv_rn8209.h"
+  20:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** #include "drv_rn8209_type.h"
+  21:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** #include "drv_rn8209_interface.h"
+  22:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** #include "BSPTIM.h"
+  23:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** #include "BSPIRQ.h"
+  24:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** #include "SystemData.h"
+  25:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** #include "SystemDiag.h"
+  26:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** /* 全局变量定义 */
+  27:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** DRV_RN8209_STATIC uint8 g_u8Rn8209Init = 0;
+  28:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+  29:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** /* 内部函数声明 */
+  30:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** DRV_RN8209_STATIC uint8 Rn8209SpecialCmdProc(uint8 cmdData);
+  31:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** DRV_RN8209_STATIC uint8 Rn8209Write2ByteCmdProc(uint8 cmd, uint16 data);
+  32:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** DRV_RN8209_STATIC uint8 Rn8209Read3ByteCmdProc(uint8 cmd, uint32 *data);
+  33:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** DRV_RN8209_STATIC uint8 Rn8209Read2ByteCmdProc(uint8 cmd, uint16 *data);
+  34:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** // DRV_RN8209_STATIC uint8 Rn8209Read1ByteCmdProc(uint8 cmd, uint8 *data);
+ARM GAS  /tmp/ccYTzABM.s 			page 2
+
+
+  35:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** DRV_RN8209_STATIC uint8 Rn8209SoftReset(TickType_t xLastWakeTime);
+  36:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+  37:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** /* 内部函数定义 */
+  38:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** DRV_RN8209_STATIC uint8 Rn8209SpecialCmdProc(uint8 cmdData)
+  39:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** {
+  40:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     uint8 u8Temp;
+  41:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     uint8 u8RetVal = RN8209_STATUS_ACCESS_FAIL;
+  42:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+  43:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     RN8209_ENABLE();
+  44:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if (SPI2_Send_Byte(SPECIAL_CMD_RN8209, &u8Temp) == SPI_STATUS_OK) {
+  45:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         if (SPI2_Send_Byte(cmdData, &u8Temp) == SPI_STATUS_OK) {
+  46:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             u8RetVal = RN8209_STATUS_ACCESS_OK;
+  47:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         }
+  48:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     }
+  49:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     RN8209_DISABLE();
+  50:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     return u8RetVal;
+  51:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** }
+  52:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+  53:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** DRV_RN8209_STATIC uint8 Rn8209Write2ByteCmdProc(uint8 cmd, uint16 data)
+  54:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** {
+  25              		.loc 1 54 0
+  26              		.cfi_startproc
+  27              		@ args = 0, pretend = 0, frame = 8
+  28              		@ frame_needed = 0, uses_anonymous_args = 0
+  29              	.LVL0:
+  55:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     uint8 u8Temp;
+  56:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     uint8 u8RetVal = RN8209_STATUS_ACCESS_FAIL;
+  57:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+  58:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     RN8209_ENABLE();
+  30              		.loc 1 58 0
+  31 0000 A023     		movs	r3, #160
+  54:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     uint8 u8Temp;
+  32              		.loc 1 54 0
+  33 0002 37B5     		push	{r0, r1, r2, r4, r5, lr}
+  34              	.LCFI0:
+  35              		.cfi_def_cfa_offset 24
+  36              		.cfi_offset 0, -24
+  37              		.cfi_offset 1, -20
+  38              		.cfi_offset 2, -16
+  39              		.cfi_offset 4, -12
+  40              		.cfi_offset 5, -8
+  41              		.cfi_offset 14, -4
+  42              		.loc 1 58 0
+  43 0004 DB00     		lsls	r3, r3, #3
+  54:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     uint8 u8Temp;
+  44              		.loc 1 54 0
+  45 0006 0500     		movs	r5, r0
+  46              		.loc 1 58 0
+  47 0008 1A00     		movs	r2, r3
+  54:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     uint8 u8Temp;
+  48              		.loc 1 54 0
+  49 000a 0C00     		movs	r4, r1
+  50              		.loc 1 58 0
+  51 000c 0120     		movs	r0, #1
+  52              	.LVL1:
+  53 000e 3021     		movs	r1, #48
+  54              	.LVL2:
+ARM GAS  /tmp/ccYTzABM.s 			page 3
+
+
+  55 0010 FFF7FEFF 		bl	vSPI_2byte_write_Mask
+  56              	.LVL3:
+  59:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if (SPI2_Send_Byte((cmd | RN8209_WRITE_BIT7), &u8Temp) == SPI_STATUS_OK) {
+  57              		.loc 1 59 0
+  58 0014 8020     		movs	r0, #128
+  59 0016 6B46     		mov	r3, sp
+  60 0018 2843     		orrs	r0, r5
+  61 001a D91D     		adds	r1, r3, #7
+  62 001c FFF7FEFF 		bl	SPI2_Send_Byte
+  63              	.LVL4:
+  64 0020 0128     		cmp	r0, #1
+  65 0022 09D0     		beq	.L2
+  66              	.L4:
+  56:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+  67              		.loc 1 56 0
+  68 0024 0124     		movs	r4, #1
+  69              	.L3:
+  70              	.LVL5:
+  60:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         if (SPI2_Send_Byte(((uint8)(data >> 8U)), &u8Temp) == SPI_STATUS_OK) {
+  61:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             if (SPI2_Send_Byte(((uint8)(data & 0xFF)), &u8Temp) == SPI_STATUS_OK) {
+  62:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****                 u8RetVal = RN8209_STATUS_ACCESS_OK;
+  63:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             }
+  64:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         }
+  65:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     }
+  66:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     RN8209_DISABLE();
+  71              		.loc 1 66 0
+  72 0026 8023     		movs	r3, #128
+  73 0028 0022     		movs	r2, #0
+  74 002a DB00     		lsls	r3, r3, #3
+  75 002c 3021     		movs	r1, #48
+  76 002e 0120     		movs	r0, #1
+  77 0030 FFF7FEFF 		bl	vSPI_2byte_write_Mask
+  78              	.LVL6:
+  67:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     return u8RetVal;
+  68:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** }
+  79              		.loc 1 68 0
+  80              		@ sp needed
+  81 0034 2000     		movs	r0, r4
+  82              	.LVL7:
+  83 0036 3EBD     		pop	{r1, r2, r3, r4, r5, pc}
+  84              	.LVL8:
+  85              	.L2:
+  60:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         if (SPI2_Send_Byte(((uint8)(data >> 8U)), &u8Temp) == SPI_STATUS_OK) {
+  86              		.loc 1 60 0
+  87 0038 6B46     		mov	r3, sp
+  88 003a 200A     		lsrs	r0, r4, #8
+  89 003c D91D     		adds	r1, r3, #7
+  90 003e FFF7FEFF 		bl	SPI2_Send_Byte
+  91              	.LVL9:
+  92 0042 0128     		cmp	r0, #1
+  93 0044 EED1     		bne	.L4
+  61:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****                 u8RetVal = RN8209_STATUS_ACCESS_OK;
+  94              		.loc 1 61 0
+  95 0046 6B46     		mov	r3, sp
+  96 0048 E0B2     		uxtb	r0, r4
+  97 004a D91D     		adds	r1, r3, #7
+  98 004c FFF7FEFF 		bl	SPI2_Send_Byte
+ARM GAS  /tmp/ccYTzABM.s 			page 4
+
+
+  99              	.LVL10:
+ 100 0050 441E     		subs	r4, r0, #1
+ 101 0052 601E     		subs	r0, r4, #1
+ 102 0054 8441     		sbcs	r4, r4, r0
+  56:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 103              		.loc 1 56 0
+ 104 0056 E4B2     		uxtb	r4, r4
+ 105 0058 E5E7     		b	.L3
+ 106              		.cfi_endproc
+ 107              	.LFE494:
+ 109              		.section	.text.Rn8209Read2ByteCmdProc,"ax",%progbits
+ 110              		.align	1
+ 111              		.syntax unified
+ 112              		.code	16
+ 113              		.thumb_func
+ 114              		.fpu softvfp
+ 116              	Rn8209Read2ByteCmdProc:
+ 117              	.LFB496:
+  69:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+  70:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** DRV_RN8209_STATIC uint8 Rn8209Read3ByteCmdProc(uint8 cmd, uint32* data)
+  71:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** {
+  72:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     uint8 u8Temp, u8Temp1, u8Temp2;
+  73:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     uint8 u8RetVal = RN8209_STATUS_ACCESS_FAIL;
+  74:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+  75:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     RN8209_ENABLE();
+  76:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if (SPI2_Send_Byte(cmd, &u8Temp) == SPI_STATUS_OK) {
+  77:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         if (SPI2_Send_Byte(RN8209_DUMMY_BYTE, &u8Temp) == SPI_STATUS_OK) {
+  78:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             if (SPI2_Send_Byte(RN8209_DUMMY_BYTE, &u8Temp1) == SPI_STATUS_OK) {
+  79:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****                 if (SPI2_Send_Byte(RN8209_DUMMY_BYTE, &u8Temp2) == SPI_STATUS_OK) {
+  80:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****                     *data = ((uint32)u8Temp << 16) | ((uint32)u8Temp1 << 8) | u8Temp2;
+  81:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****                     u8RetVal = RN8209_STATUS_ACCESS_OK;
+  82:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****                 }
+  83:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             }
+  84:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         }
+  85:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     }
+  86:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     RN8209_DISABLE();
+  87:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     return u8RetVal;
+  88:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** }
+  89:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+  90:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** DRV_RN8209_STATIC uint8 Rn8209Read2ByteCmdProc(uint8 cmd, uint16* data)
+  91:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** {
+ 118              		.loc 1 91 0
+ 119              		.cfi_startproc
+ 120              		@ args = 0, pretend = 0, frame = 8
+ 121              		@ frame_needed = 0, uses_anonymous_args = 0
+ 122              	.LVL11:
+  92:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     uint8 u8Temp, u8Temp1;
+  93:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     uint8 u8RetVal = RN8209_STATUS_ACCESS_FAIL;
+  94:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+  95:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     RN8209_ENABLE();
+ 123              		.loc 1 95 0
+ 124 0000 A023     		movs	r3, #160
+  91:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     uint8 u8Temp, u8Temp1;
+ 125              		.loc 1 91 0
+ 126 0002 73B5     		push	{r0, r1, r4, r5, r6, lr}
+ 127              	.LCFI1:
+ 128              		.cfi_def_cfa_offset 24
+ARM GAS  /tmp/ccYTzABM.s 			page 5
+
+
+ 129              		.cfi_offset 0, -24
+ 130              		.cfi_offset 1, -20
+ 131              		.cfi_offset 4, -16
+ 132              		.cfi_offset 5, -12
+ 133              		.cfi_offset 6, -8
+ 134              		.cfi_offset 14, -4
+ 135              		.loc 1 95 0
+ 136 0004 DB00     		lsls	r3, r3, #3
+  91:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     uint8 u8Temp, u8Temp1;
+ 137              		.loc 1 91 0
+ 138 0006 0500     		movs	r5, r0
+ 139              		.loc 1 95 0
+ 140 0008 1A00     		movs	r2, r3
+  91:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     uint8 u8Temp, u8Temp1;
+ 141              		.loc 1 91 0
+ 142 000a 0C00     		movs	r4, r1
+ 143              		.loc 1 95 0
+ 144 000c 0120     		movs	r0, #1
+ 145              	.LVL12:
+ 146 000e 3021     		movs	r1, #48
+ 147              	.LVL13:
+ 148 0010 FFF7FEFF 		bl	vSPI_2byte_write_Mask
+ 149              	.LVL14:
+  96:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if (SPI2_Send_Byte(cmd, &u8Temp) == SPI_STATUS_OK) {
+ 150              		.loc 1 96 0
+ 151 0014 6B46     		mov	r3, sp
+ 152 0016 9E1D     		adds	r6, r3, #6
+ 153 0018 3100     		movs	r1, r6
+ 154 001a 2800     		movs	r0, r5
+ 155 001c FFF7FEFF 		bl	SPI2_Send_Byte
+ 156              	.LVL15:
+ 157 0020 0128     		cmp	r0, #1
+ 158 0022 09D0     		beq	.L6
+ 159              	.L8:
+  93:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 160              		.loc 1 93 0
+ 161 0024 0124     		movs	r4, #1
+ 162              	.LVL16:
+ 163              	.L7:
+  97:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         if (SPI2_Send_Byte(RN8209_DUMMY_BYTE, &u8Temp) == SPI_STATUS_OK) {
+  98:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             if (SPI2_Send_Byte(RN8209_DUMMY_BYTE, &u8Temp1) == SPI_STATUS_OK) {
+  99:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****                 *data = ((uint16)u8Temp << 8) | u8Temp1;
+ 100:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****                 u8RetVal = RN8209_STATUS_ACCESS_OK;
+ 101:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             }
+ 102:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         }
+ 103:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     }
+ 104:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     RN8209_DISABLE();
+ 164              		.loc 1 104 0
+ 165 0026 8023     		movs	r3, #128
+ 166 0028 0022     		movs	r2, #0
+ 167 002a DB00     		lsls	r3, r3, #3
+ 168 002c 3021     		movs	r1, #48
+ 169 002e 0120     		movs	r0, #1
+ 170 0030 FFF7FEFF 		bl	vSPI_2byte_write_Mask
+ 171              	.LVL17:
+ 105:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     return u8RetVal;
+ 106:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** }
+ARM GAS  /tmp/ccYTzABM.s 			page 6
+
+
+ 172              		.loc 1 106 0
+ 173              		@ sp needed
+ 174 0034 2000     		movs	r0, r4
+ 175              	.LVL18:
+ 176 0036 76BD     		pop	{r1, r2, r4, r5, r6, pc}
+ 177              	.LVL19:
+ 178              	.L6:
+  97:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         if (SPI2_Send_Byte(RN8209_DUMMY_BYTE, &u8Temp) == SPI_STATUS_OK) {
+ 179              		.loc 1 97 0
+ 180 0038 3100     		movs	r1, r6
+ 181 003a AA20     		movs	r0, #170
+ 182 003c FFF7FEFF 		bl	SPI2_Send_Byte
+ 183              	.LVL20:
+ 184 0040 0128     		cmp	r0, #1
+ 185 0042 EFD1     		bne	.L8
+  98:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****                 *data = ((uint16)u8Temp << 8) | u8Temp1;
+ 186              		.loc 1 98 0
+ 187 0044 6B46     		mov	r3, sp
+ 188 0046 DD1D     		adds	r5, r3, #7
+ 189 0048 2900     		movs	r1, r5
+ 190 004a A930     		adds	r0, r0, #169
+ 191 004c FFF7FEFF 		bl	SPI2_Send_Byte
+ 192              	.LVL21:
+ 193 0050 0128     		cmp	r0, #1
+ 194 0052 E7D1     		bne	.L8
+  99:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****                 u8RetVal = RN8209_STATUS_ACCESS_OK;
+ 195              		.loc 1 99 0
+ 196 0054 3278     		ldrb	r2, [r6]
+ 197 0056 2B78     		ldrb	r3, [r5]
+ 198 0058 1202     		lsls	r2, r2, #8
+ 199 005a 1343     		orrs	r3, r2
+ 200 005c 2380     		strh	r3, [r4]
+ 201              	.LVL22:
+ 100:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             }
+ 202              		.loc 1 100 0
+ 203 005e 0024     		movs	r4, #0
+ 204              	.LVL23:
+ 205 0060 E1E7     		b	.L7
+ 206              		.cfi_endproc
+ 207              	.LFE496:
+ 209              		.section	.text.Rn8209SpecialCmdProc,"ax",%progbits
+ 210              		.align	1
+ 211              		.syntax unified
+ 212              		.code	16
+ 213              		.thumb_func
+ 214              		.fpu softvfp
+ 216              	Rn8209SpecialCmdProc:
+ 217              	.LFB493:
+  39:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     uint8 u8Temp;
+ 218              		.loc 1 39 0
+ 219              		.cfi_startproc
+ 220              		@ args = 0, pretend = 0, frame = 8
+ 221              		@ frame_needed = 0, uses_anonymous_args = 0
+ 222              	.LVL24:
+  43:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if (SPI2_Send_Byte(SPECIAL_CMD_RN8209, &u8Temp) == SPI_STATUS_OK) {
+ 223              		.loc 1 43 0
+ 224 0000 A023     		movs	r3, #160
+ARM GAS  /tmp/ccYTzABM.s 			page 7
+
+
+  39:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     uint8 u8Temp;
+ 225              		.loc 1 39 0
+ 226 0002 37B5     		push	{r0, r1, r2, r4, r5, lr}
+ 227              	.LCFI2:
+ 228              		.cfi_def_cfa_offset 24
+ 229              		.cfi_offset 0, -24
+ 230              		.cfi_offset 1, -20
+ 231              		.cfi_offset 2, -16
+ 232              		.cfi_offset 4, -12
+ 233              		.cfi_offset 5, -8
+ 234              		.cfi_offset 14, -4
+  43:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if (SPI2_Send_Byte(SPECIAL_CMD_RN8209, &u8Temp) == SPI_STATUS_OK) {
+ 235              		.loc 1 43 0
+ 236 0004 DB00     		lsls	r3, r3, #3
+ 237 0006 1A00     		movs	r2, r3
+ 238 0008 3021     		movs	r1, #48
+  39:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     uint8 u8Temp;
+ 239              		.loc 1 39 0
+ 240 000a 0500     		movs	r5, r0
+  43:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if (SPI2_Send_Byte(SPECIAL_CMD_RN8209, &u8Temp) == SPI_STATUS_OK) {
+ 241              		.loc 1 43 0
+ 242 000c 0120     		movs	r0, #1
+ 243              	.LVL25:
+ 244 000e FFF7FEFF 		bl	vSPI_2byte_write_Mask
+ 245              	.LVL26:
+  44:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         if (SPI2_Send_Byte(cmdData, &u8Temp) == SPI_STATUS_OK) {
+ 246              		.loc 1 44 0
+ 247 0012 6B46     		mov	r3, sp
+ 248 0014 EA20     		movs	r0, #234
+ 249 0016 D91D     		adds	r1, r3, #7
+ 250 0018 FFF7FEFF 		bl	SPI2_Send_Byte
+ 251              	.LVL27:
+  41:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 252              		.loc 1 41 0
+ 253 001c 0124     		movs	r4, #1
+  44:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         if (SPI2_Send_Byte(cmdData, &u8Temp) == SPI_STATUS_OK) {
+ 254              		.loc 1 44 0
+ 255 001e A042     		cmp	r0, r4
+ 256 0020 08D1     		bne	.L10
+  45:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             u8RetVal = RN8209_STATUS_ACCESS_OK;
+ 257              		.loc 1 45 0
+ 258 0022 6B46     		mov	r3, sp
+ 259 0024 2800     		movs	r0, r5
+ 260 0026 D91D     		adds	r1, r3, #7
+ 261 0028 FFF7FEFF 		bl	SPI2_Send_Byte
+ 262              	.LVL28:
+ 263 002c 441E     		subs	r4, r0, #1
+ 264 002e 601E     		subs	r0, r4, #1
+ 265 0030 8441     		sbcs	r4, r4, r0
+  41:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 266              		.loc 1 41 0
+ 267 0032 E4B2     		uxtb	r4, r4
+ 268              	.L10:
+ 269              	.LVL29:
+  49:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     return u8RetVal;
+ 270              		.loc 1 49 0
+ 271 0034 8023     		movs	r3, #128
+ARM GAS  /tmp/ccYTzABM.s 			page 8
+
+
+ 272 0036 0022     		movs	r2, #0
+ 273 0038 DB00     		lsls	r3, r3, #3
+ 274 003a 3021     		movs	r1, #48
+ 275 003c 0120     		movs	r0, #1
+ 276 003e FFF7FEFF 		bl	vSPI_2byte_write_Mask
+ 277              	.LVL30:
+  51:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 278              		.loc 1 51 0
+ 279              		@ sp needed
+ 280 0042 2000     		movs	r0, r4
+ 281              	.LVL31:
+ 282 0044 3EBD     		pop	{r1, r2, r3, r4, r5, pc}
+ 283              		.cfi_endproc
+ 284              	.LFE493:
+ 286              		.section	.text.Rn8209Read3ByteCmdProc,"ax",%progbits
+ 287              		.align	1
+ 288              		.syntax unified
+ 289              		.code	16
+ 290              		.thumb_func
+ 291              		.fpu softvfp
+ 293              	Rn8209Read3ByteCmdProc:
+ 294              	.LFB495:
+  71:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     uint8 u8Temp, u8Temp1, u8Temp2;
+ 295              		.loc 1 71 0
+ 296              		.cfi_startproc
+ 297              		@ args = 0, pretend = 0, frame = 8
+ 298              		@ frame_needed = 0, uses_anonymous_args = 0
+ 299              	.LVL32:
+  75:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if (SPI2_Send_Byte(cmd, &u8Temp) == SPI_STATUS_OK) {
+ 300              		.loc 1 75 0
+ 301 0000 A023     		movs	r3, #160
+  71:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     uint8 u8Temp, u8Temp1, u8Temp2;
+ 302              		.loc 1 71 0
+ 303 0002 F7B5     		push	{r0, r1, r2, r4, r5, r6, r7, lr}
+ 304              	.LCFI3:
+ 305              		.cfi_def_cfa_offset 32
+ 306              		.cfi_offset 0, -32
+ 307              		.cfi_offset 1, -28
+ 308              		.cfi_offset 2, -24
+ 309              		.cfi_offset 4, -20
+ 310              		.cfi_offset 5, -16
+ 311              		.cfi_offset 6, -12
+ 312              		.cfi_offset 7, -8
+ 313              		.cfi_offset 14, -4
+  75:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if (SPI2_Send_Byte(cmd, &u8Temp) == SPI_STATUS_OK) {
+ 314              		.loc 1 75 0
+ 315 0004 DB00     		lsls	r3, r3, #3
+  71:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     uint8 u8Temp, u8Temp1, u8Temp2;
+ 316              		.loc 1 71 0
+ 317 0006 0500     		movs	r5, r0
+  75:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if (SPI2_Send_Byte(cmd, &u8Temp) == SPI_STATUS_OK) {
+ 318              		.loc 1 75 0
+ 319 0008 1A00     		movs	r2, r3
+  71:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     uint8 u8Temp, u8Temp1, u8Temp2;
+ 320              		.loc 1 71 0
+ 321 000a 0C00     		movs	r4, r1
+  75:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if (SPI2_Send_Byte(cmd, &u8Temp) == SPI_STATUS_OK) {
+ARM GAS  /tmp/ccYTzABM.s 			page 9
+
+
+ 322              		.loc 1 75 0
+ 323 000c 0120     		movs	r0, #1
+ 324              	.LVL33:
+ 325 000e 3021     		movs	r1, #48
+ 326              	.LVL34:
+ 327 0010 FFF7FEFF 		bl	vSPI_2byte_write_Mask
+ 328              	.LVL35:
+  76:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         if (SPI2_Send_Byte(RN8209_DUMMY_BYTE, &u8Temp) == SPI_STATUS_OK) {
+ 329              		.loc 1 76 0
+ 330 0014 6B46     		mov	r3, sp
+ 331 0016 5F1D     		adds	r7, r3, #5
+ 332 0018 3900     		movs	r1, r7
+ 333 001a 2800     		movs	r0, r5
+ 334 001c FFF7FEFF 		bl	SPI2_Send_Byte
+ 335              	.LVL36:
+ 336 0020 0128     		cmp	r0, #1
+ 337 0022 09D0     		beq	.L13
+ 338              	.L15:
+  73:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 339              		.loc 1 73 0
+ 340 0024 0124     		movs	r4, #1
+ 341              	.LVL37:
+ 342              	.L14:
+  86:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     return u8RetVal;
+ 343              		.loc 1 86 0
+ 344 0026 8023     		movs	r3, #128
+ 345 0028 0022     		movs	r2, #0
+ 346 002a DB00     		lsls	r3, r3, #3
+ 347 002c 3021     		movs	r1, #48
+ 348 002e 0120     		movs	r0, #1
+ 349 0030 FFF7FEFF 		bl	vSPI_2byte_write_Mask
+ 350              	.LVL38:
+  88:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 351              		.loc 1 88 0
+ 352              		@ sp needed
+ 353 0034 2000     		movs	r0, r4
+ 354              	.LVL39:
+ 355 0036 FEBD     		pop	{r1, r2, r3, r4, r5, r6, r7, pc}
+ 356              	.LVL40:
+ 357              	.L13:
+  77:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             if (SPI2_Send_Byte(RN8209_DUMMY_BYTE, &u8Temp1) == SPI_STATUS_OK) {
+ 358              		.loc 1 77 0
+ 359 0038 3900     		movs	r1, r7
+ 360 003a AA20     		movs	r0, #170
+ 361 003c FFF7FEFF 		bl	SPI2_Send_Byte
+ 362              	.LVL41:
+ 363 0040 0128     		cmp	r0, #1
+ 364 0042 EFD1     		bne	.L15
+  78:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****                 if (SPI2_Send_Byte(RN8209_DUMMY_BYTE, &u8Temp2) == SPI_STATUS_OK) {
+ 365              		.loc 1 78 0
+ 366 0044 6B46     		mov	r3, sp
+ 367 0046 9E1D     		adds	r6, r3, #6
+ 368 0048 3100     		movs	r1, r6
+ 369 004a A930     		adds	r0, r0, #169
+ 370 004c FFF7FEFF 		bl	SPI2_Send_Byte
+ 371              	.LVL42:
+ 372 0050 0128     		cmp	r0, #1
+ARM GAS  /tmp/ccYTzABM.s 			page 10
+
+
+ 373 0052 E7D1     		bne	.L15
+  79:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****                     *data = ((uint32)u8Temp << 16) | ((uint32)u8Temp1 << 8) | u8Temp2;
+ 374              		.loc 1 79 0
+ 375 0054 6B46     		mov	r3, sp
+ 376 0056 DD1D     		adds	r5, r3, #7
+ 377 0058 2900     		movs	r1, r5
+ 378 005a A930     		adds	r0, r0, #169
+ 379 005c FFF7FEFF 		bl	SPI2_Send_Byte
+ 380              	.LVL43:
+ 381 0060 0128     		cmp	r0, #1
+ 382 0062 DFD1     		bne	.L15
+  80:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****                     u8RetVal = RN8209_STATUS_ACCESS_OK;
+ 383              		.loc 1 80 0
+ 384 0064 3B78     		ldrb	r3, [r7]
+ 385 0066 3278     		ldrb	r2, [r6]
+ 386 0068 1B04     		lsls	r3, r3, #16
+ 387 006a 1202     		lsls	r2, r2, #8
+ 388 006c 1343     		orrs	r3, r2
+ 389 006e 2A78     		ldrb	r2, [r5]
+ 390 0070 1343     		orrs	r3, r2
+ 391 0072 2360     		str	r3, [r4]
+ 392              	.LVL44:
+  81:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****                 }
+ 393              		.loc 1 81 0
+ 394 0074 0024     		movs	r4, #0
+ 395              	.LVL45:
+ 396 0076 D6E7     		b	.L14
+ 397              		.cfi_endproc
+ 398              	.LFE495:
+ 400              		.section	.text.RN8209_DRV_Init,"ax",%progbits
+ 401              		.align	1
+ 402              		.global	RN8209_DRV_Init
+ 403              		.syntax unified
+ 404              		.code	16
+ 405              		.thumb_func
+ 406              		.fpu softvfp
+ 408              	RN8209_DRV_Init:
+ 409              	.LFB498:
+ 107:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 108:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** /* DRV_RN8209_STATIC uint8 Rn8209Read1ByteCmdProc(uint8 cmd, uint8* data)
+ 109:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** {
+ 110:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     uint8 u8Temp;
+ 111:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     uint8 u8RetVal = RN8209_STATUS_ACCESS_FAIL;
+ 112:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 113:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     RN8209_ENABLE();
+ 114:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if (SPI2_Send_Byte(cmd, &u8Temp) == SPI_STATUS_OK) {
+ 115:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         if (SPI2_Send_Byte(RN8209_DUMMY_BYTE, &u8Temp) == SPI_STATUS_OK) {
+ 116:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             *data = u8Temp;
+ 117:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             u8RetVal = RN8209_STATUS_ACCESS_OK;
+ 118:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         }
+ 119:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     }
+ 120:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     RN8209_DISABLE();
+ 121:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     return u8RetVal;
+ 122:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** } */
+ 123:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 124:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** DRV_RN8209_STATIC uint8 Rn8209SoftReset(TickType_t xLastWakeTime)
+ 125:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** {
+ARM GAS  /tmp/ccYTzABM.s 			page 11
+
+
+ 126:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if (Rn8209SpecialCmdProc(DATA_RN8209_WRITE_ENABLE) == RN8209_STATUS_ACCESS_OK) {
+ 127:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         if (Rn8209SpecialCmdProc(DATA_RN8209_RESRT) == RN8209_STATUS_ACCESS_OK) {
+ 128:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             // vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(5));
+ 129:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****            // delayms(1);
+ 130:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 131:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             return RN8209_STATUS_ACCESS_OK;
+ 132:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         }
+ 133:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     }
+ 134:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     return RN8209_STATUS_ACCESS_FAIL;
+ 135:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** }
+ 136:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 137:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** #if 1
+ 138:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** /* 外部函数定义 */
+ 139:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** u8 RN8209_DRV_Init(TickType_t xLastWakeTime)
+ 140:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** {
+ 410              		.loc 1 140 0
+ 411              		.cfi_startproc
+ 412              		@ args = 0, pretend = 0, frame = 8
+ 413              		@ frame_needed = 0, uses_anonymous_args = 0
+ 414              	.LVL46:
+ 141:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     /* 1. 定义所有局部变量 */
+ 142:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     uint8 u8Ret, u8Ret1;
+ 143:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     uint16 u16RdData, u16RdData1;
+ 144:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     uint16 u16Temp = (1U << 14U) | (1U << 5U) | (1U << 6U); // 14, 5, 6分别代表各通道高通�
+ 145:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 146:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     /* 2. 初始化结果 */
+ 147:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     g_u8Rn8209Init = 0;
+ 415              		.loc 1 147 0
+ 416 0000 0023     		movs	r3, #0
+ 140:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     /* 1. 定义所有局部变量 */
+ 417              		.loc 1 140 0
+ 418 0002 F7B5     		push	{r0, r1, r2, r4, r5, r6, r7, lr}
+ 419              	.LCFI4:
+ 420              		.cfi_def_cfa_offset 32
+ 421              		.cfi_offset 0, -32
+ 422              		.cfi_offset 1, -28
+ 423              		.cfi_offset 2, -24
+ 424              		.cfi_offset 4, -20
+ 425              		.cfi_offset 5, -16
+ 426              		.cfi_offset 6, -12
+ 427              		.cfi_offset 7, -8
+ 428              		.cfi_offset 14, -4
+ 429              		.loc 1 147 0
+ 430 0004 204D     		ldr	r5, .L23
+ 431              	.LBB4:
+ 432              	.LBB5:
+ 126:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         if (Rn8209SpecialCmdProc(DATA_RN8209_RESRT) == RN8209_STATUS_ACCESS_OK) {
+ 433              		.loc 1 126 0
+ 434 0006 E520     		movs	r0, #229
+ 435              	.LVL47:
+ 436              	.LBE5:
+ 437              	.LBE4:
+ 438              		.loc 1 147 0
+ 439 0008 2B70     		strb	r3, [r5]
+ 440              	.LVL48:
+ 441              	.LBB7:
+ 442              	.LBB6:
+ARM GAS  /tmp/ccYTzABM.s 			page 12
+
+
+ 126:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         if (Rn8209SpecialCmdProc(DATA_RN8209_RESRT) == RN8209_STATUS_ACCESS_OK) {
+ 443              		.loc 1 126 0
+ 444 000a FFF7FEFF 		bl	Rn8209SpecialCmdProc
+ 445              	.LVL49:
+ 446 000e 0028     		cmp	r0, #0
+ 447 0010 2CD1     		bne	.L18
+ 127:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             // vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(5));
+ 448              		.loc 1 127 0
+ 449 0012 FA30     		adds	r0, r0, #250
+ 450 0014 FFF7FEFF 		bl	Rn8209SpecialCmdProc
+ 451              	.LVL50:
+ 452 0018 0028     		cmp	r0, #0
+ 453 001a 27D1     		bne	.L18
+ 454              	.LBE6:
+ 455              	.LBE7:
+ 148:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 149:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     do
+ 150:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     {
+ 151:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         if(Rn8209SoftReset(xLastWakeTime) != RN8209_STATUS_ACCESS_OK){
+ 152:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             break;
+ 153:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         }
+ 154:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             if(Rn8209SpecialCmdProc(DATA_RN8209_WRITE_ENABLE) != RN8209_STATUS_ACCESS_OK) {
+ 456              		.loc 1 154 0
+ 457 001c E530     		adds	r0, r0, #229
+ 458 001e FFF7FEFF 		bl	Rn8209SpecialCmdProc
+ 459              	.LVL51:
+ 460 0022 0028     		cmp	r0, #0
+ 461 0024 22D1     		bne	.L18
+ 155:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****                 break;
+ 156:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             }
+ 157:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****                 if(Rn8209Write2ByteCmdProc(CMD_SYSCON, 0x0000) != RN8209_STATUS_ACCESS_OK) {
+ 462              		.loc 1 157 0
+ 463 0026 0100     		movs	r1, r0
+ 464 0028 FFF7FEFF 		bl	Rn8209Write2ByteCmdProc
+ 465              	.LVL52:
+ 466 002c 0028     		cmp	r0, #0
+ 467 002e 1DD1     		bne	.L18
+ 158:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****                     break;
+ 159:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****                 }
+ 160:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****                     if(Rn8209Write2ByteCmdProc(CMD_EMUCON, u16Temp) != RN8209_STATUS_ACCESS_OK) {
+ 468              		.loc 1 160 0
+ 469 0030 1649     		ldr	r1, .L23+4
+ 470 0032 0130     		adds	r0, r0, #1
+ 471 0034 FFF7FEFF 		bl	Rn8209Write2ByteCmdProc
+ 472              	.LVL53:
+ 473 0038 0028     		cmp	r0, #0
+ 474 003a 17D1     		bne	.L18
+ 161:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****                         break;
+ 162:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****                     }
+ 163:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****                         u8Ret = Rn8209Read2ByteCmdProc(CMD_SYSCON, &u16RdData);
+ 475              		.loc 1 163 0
+ 476 003c 01AF     		add	r7, sp, #4
+ 477 003e 3900     		movs	r1, r7
+ 478 0040 FFF7FEFF 		bl	Rn8209Read2ByteCmdProc
+ 479              	.LVL54:
+ 164:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****                         u8Ret1 = Rn8209Read2ByteCmdProc(CMD_EMUCON, &u16RdData1);
+ 480              		.loc 1 164 0
+ARM GAS  /tmp/ccYTzABM.s 			page 13
+
+
+ 481 0044 6B46     		mov	r3, sp
+ 482 0046 9E1D     		adds	r6, r3, #6
+ 163:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****                         u8Ret1 = Rn8209Read2ByteCmdProc(CMD_EMUCON, &u16RdData1);
+ 483              		.loc 1 163 0
+ 484 0048 0400     		movs	r4, r0
+ 485              	.LVL55:
+ 486              		.loc 1 164 0
+ 487 004a 3100     		movs	r1, r6
+ 488 004c 0120     		movs	r0, #1
+ 489 004e FFF7FEFF 		bl	Rn8209Read2ByteCmdProc
+ 490              	.LVL56:
+ 165:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     
+ 166:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****                         if ((u8Ret == RN8209_STATUS_ACCESS_OK) 
+ 167:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****                         && (u8Ret1 == RN8209_STATUS_ACCESS_OK) 
+ 491              		.loc 1 167 0
+ 492 0052 0443     		orrs	r4, r0
+ 493              	.LVL57:
+ 166:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****                         && (u8Ret1 == RN8209_STATUS_ACCESS_OK) 
+ 494              		.loc 1 166 0
+ 495 0054 E4B2     		uxtb	r4, r4
+ 496 0056 002C     		cmp	r4, #0
+ 497 0058 08D1     		bne	.L18
+ 168:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****                         &&(u16RdData == 0x0000) 
+ 498              		.loc 1 168 0
+ 499 005a 3B88     		ldrh	r3, [r7]
+ 500 005c 002B     		cmp	r3, #0
+ 501 005e 05D1     		bne	.L18
+ 169:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****                         && (u16RdData1 == u16Temp)) 
+ 502              		.loc 1 169 0
+ 503 0060 3388     		ldrh	r3, [r6]
+ 504 0062 0A4A     		ldr	r2, .L23+4
+ 505 0064 9342     		cmp	r3, r2
+ 506 0066 01D1     		bne	.L18
+ 170:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****                         {
+ 171:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****                             g_u8Rn8209Init = 1;
+ 507              		.loc 1 171 0
+ 508 0068 0123     		movs	r3, #1
+ 509 006a 2B70     		strb	r3, [r5]
+ 510              	.LVL58:
+ 511              	.L18:
+ 172:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****                         }
+ 173:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****                      
+ 174:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             
+ 175:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         
+ 176:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     } while (0);
+ 177:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     
+ 178:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     /* 3. 告警检测与上报 */
+ 179:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if(g_u8Rn8209Init == 1)//rn8209激活成功告警检测
+ 512              		.loc 1 179 0
+ 513 006c 2B78     		ldrb	r3, [r5]
+ 180:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     {
+ 181:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         DiagSetErrNowStateAPI(eERR_ID_820_COM,eErr_A);
+ 514              		.loc 1 181 0
+ 515 006e 0021     		movs	r1, #0
+ 179:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     {
+ 516              		.loc 1 179 0
+ 517 0070 012B     		cmp	r3, #1
+ARM GAS  /tmp/ccYTzABM.s 			page 14
+
+
+ 518 0072 00D0     		beq	.L22
+ 182:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     }else
+ 183:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     {
+ 184:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         DiagSetErrNowStateAPI(eERR_ID_820_COM,eErr_B);
+ 519              		.loc 1 184 0
+ 520 0074 0121     		movs	r1, #1
+ 521              	.L22:
+ 522 0076 0F20     		movs	r0, #15
+ 523 0078 FFF7FEFF 		bl	DiagSetErrNowStateAPI
+ 524              	.LVL59:
+ 185:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     }
+ 186:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 187:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     /* 4. 关闭写使能，保护寄存器 */
+ 188:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     (void)Rn8209SpecialCmdProc(DATA_RN8209_WRITE_PROTECT);
+ 525              		.loc 1 188 0
+ 526 007c DC20     		movs	r0, #220
+ 527 007e FFF7FEFF 		bl	Rn8209SpecialCmdProc
+ 528              	.LVL60:
+ 189:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 190:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     return g_u8Rn8209Init;
+ 191:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****   
+ 192:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** }
+ 529              		.loc 1 192 0
+ 530              		@ sp needed
+ 190:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****   
+ 531              		.loc 1 190 0
+ 532 0082 2878     		ldrb	r0, [r5]
+ 533              		.loc 1 192 0
+ 534 0084 FEBD     		pop	{r1, r2, r3, r4, r5, r6, r7, pc}
+ 535              	.L24:
+ 536 0086 C046     		.align	2
+ 537              	.L23:
+ 538 0088 00000000 		.word	.LANCHOR0
+ 539 008c 60400000 		.word	16480
+ 540              		.cfi_endproc
+ 541              	.LFE498:
+ 543              		.section	.text.DRV_RN8209_ReadAdcIA,"ax",%progbits
+ 544              		.align	1
+ 545              		.global	DRV_RN8209_ReadAdcIA
+ 546              		.syntax unified
+ 547              		.code	16
+ 548              		.thumb_func
+ 549              		.fpu softvfp
+ 551              	DRV_RN8209_ReadAdcIA:
+ 552              	.LFB499:
+ 193:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** #endif
+ 194:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 195:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** #if 0 
+ 196:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** /* 外部函数定义 */
+ 197:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** void DRV_RN8209_Init(void)
+ 198:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** {
+ 199:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     uint8 u8Ret, u8Ret1;
+ 200:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     uint16 u16RdData, u16RdData1;
+ 201:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if (Rn8209SoftReset() == RN8209_STATUS_ACCESS_OK) {
+ 202:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         if (Rn8209SpecialCmdProc(DATA_RN8209_WRITE_ENABLE) == RN8209_STATUS_ACCESS_OK) {
+ 203:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             if (Rn8209Write2ByteCmdProc(CMD_SYSCON, 0x0000) == RN8209_STATUS_ACCESS_OK) {
+ 204:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****                 uint16 u16Temp = (1U << 14U) | (1U << 5U) | (1U << 6U); // 14, 5, 6分别代表各�
+ARM GAS  /tmp/ccYTzABM.s 			page 15
+
+
+ 205:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****                 if (Rn8209Write2ByteCmdProc(CMD_EMUCON, u16Temp) == RN8209_STATUS_ACCESS_OK) {
+ 206:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****                     u8Ret = Rn8209Read2ByteCmdProc(CMD_SYSCON, &u16RdData);
+ 207:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****                     u8Ret1 = Rn8209Read2ByteCmdProc(CMD_EMUCON, &u16RdData1);
+ 208:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****                     if ((u8Ret == RN8209_STATUS_ACCESS_OK) && (u8Ret1 == RN8209_STATUS_ACCESS_OK) &
+ 209:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****                         (u16RdData == 0x0000) && (u16RdData1 == u16Temp)) {
+ 210:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****                         g_u8Rn8209Init = 1;
+ 211:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****                        
+ 212:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****                     }
+ 213:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****                     else
+ 214:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****                     {
+ 215:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****                         g_u8Rn8209Init = 0;
+ 216:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****                        
+ 217:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****                     }
+ 218:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****                     
+ 219:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****                 }
+ 220:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             }
+ 221:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         }
+ 222:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     }
+ 223:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     (void)Rn8209SpecialCmdProc(DATA_RN8209_WRITE_PROTECT);
+ 224:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** }
+ 225:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** #endif
+ 226:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** //读取负载端分流器电流
+ 227:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** uint8 DRV_RN8209_ReadAdcIA(uint32* data)
+ 228:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** {
+ 553              		.loc 1 228 0
+ 554              		.cfi_startproc
+ 555              		@ args = 0, pretend = 0, frame = 0
+ 556              		@ frame_needed = 0, uses_anonymous_args = 0
+ 557              	.LVL61:
+ 558 0000 0100     		movs	r1, r0
+ 559 0002 10B5     		push	{r4, lr}
+ 560              	.LCFI5:
+ 561              		.cfi_def_cfa_offset 8
+ 562              		.cfi_offset 4, -8
+ 563              		.cfi_offset 14, -4
+ 229:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if ((data == NULL_PTR) || (g_u8Rn8209Init == 0)) {
+ 230:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         return RN8209_STATUS_ACCESS_FAIL;
+ 564              		.loc 1 230 0
+ 565 0004 0120     		movs	r0, #1
+ 566              	.LVL62:
+ 229:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if ((data == NULL_PTR) || (g_u8Rn8209Init == 0)) {
+ 567              		.loc 1 229 0
+ 568 0006 0029     		cmp	r1, #0
+ 569 0008 06D0     		beq	.L26
+ 229:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if ((data == NULL_PTR) || (g_u8Rn8209Init == 0)) {
+ 570              		.loc 1 229 0 is_stmt 0 discriminator 1
+ 571 000a 044B     		ldr	r3, .L30
+ 572 000c 1B78     		ldrb	r3, [r3]
+ 573 000e 002B     		cmp	r3, #0
+ 574 0010 02D0     		beq	.L26
+ 231:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     }
+ 232:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     return Rn8209Read3ByteCmdProc(CMD_SPL_IA, data);
+ 575              		.loc 1 232 0 is_stmt 1
+ 576 0012 2F30     		adds	r0, r0, #47
+ 577 0014 FFF7FEFF 		bl	Rn8209Read3ByteCmdProc
+ 578              	.LVL63:
+ 579              	.L26:
+ARM GAS  /tmp/ccYTzABM.s 			page 16
+
+
+ 233:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** }
+ 580              		.loc 1 233 0
+ 581              		@ sp needed
+ 582 0018 10BD     		pop	{r4, pc}
+ 583              	.L31:
+ 584 001a C046     		.align	2
+ 585              	.L30:
+ 586 001c 00000000 		.word	.LANCHOR0
+ 587              		.cfi_endproc
+ 588              	.LFE499:
+ 590              		.section	.text.DRV_RN8209_ReadAdcIA_Fast,"ax",%progbits
+ 591              		.align	1
+ 592              		.global	DRV_RN8209_ReadAdcIA_Fast
+ 593              		.syntax unified
+ 594              		.code	16
+ 595              		.thumb_func
+ 596              		.fpu softvfp
+ 598              	DRV_RN8209_ReadAdcIA_Fast:
+ 599              	.LFB500:
+ 234:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 235:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 236:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 237:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** /*=============================================================================================
+ 238:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** ** 优化版RN8209 ADC读取 — 配置GPSPI一次, 保持CS使能, 连续发4字节后读3次RX
+ 239:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** ** 原版SPI2_Send_Byte每字节需5次菊花链SPI: write_Mask(CFG) + 2×read + write(DATA) + writ
+ 240:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** ** 优化后: 1×write_Mask(CFG) + 1×write_Mask(CS_EN) + 4×(write(DATA)+write_Mask(TALK)+read(RX)
+ 241:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** ** 从 ~22次菊花链SPI 减少到 ~14次
+ 242:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** **===========================================================================================*/
+ 243:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** uint8 DRV_RN8209_ReadAdcIA_Fast(uint32* data)
+ 244:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** {
+ 600              		.loc 1 244 0
+ 601              		.cfi_startproc
+ 602              		@ args = 0, pretend = 0, frame = 8
+ 603              		@ frame_needed = 0, uses_anonymous_args = 0
+ 604              	.LVL64:
+ 605 0000 F7B5     		push	{r0, r1, r2, r4, r5, r6, r7, lr}
+ 606              	.LCFI6:
+ 607              		.cfi_def_cfa_offset 32
+ 608              		.cfi_offset 0, -32
+ 609              		.cfi_offset 1, -28
+ 610              		.cfi_offset 2, -24
+ 611              		.cfi_offset 4, -20
+ 612              		.cfi_offset 5, -16
+ 613              		.cfi_offset 6, -12
+ 614              		.cfi_offset 7, -8
+ 615              		.cfi_offset 14, -4
+ 616              		.loc 1 244 0
+ 617 0002 061E     		subs	r6, r0, #0
+ 245:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     u8 u8Temp, u8Temp1, u8Temp2;
+ 246:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     u8 u8RetVal = RN8209_STATUS_ACCESS_FAIL;
+ 247:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 248:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if ((data == NULL_PTR) || (g_u8Rn8209Init == 0)) {
+ 618              		.loc 1 248 0
+ 619 0004 01D1     		bne	.L33
+ 620              	.LVL65:
+ 621              	.L41:
+ 249:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         return RN8209_STATUS_ACCESS_FAIL;
+ARM GAS  /tmp/ccYTzABM.s 			page 17
+
+
+ 250:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     }
+ 251:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 252:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     /* 1. 配置GPSPI: 8bit帧, CS1负极性, 1Mbps — 只做一次 */
+ 253:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if (TRUE != vSPI_2byte_write_Mask(BMIC_ADDRESS_917, CMIC_CNTADR_35,
+ 254:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             CMIC_BIT_LENGTH_1_7|CMIC_BIT_GPSPI_CS1_N|CMIC_BIT_GPSPI_RATE2, 0x7FF)) {
+ 255:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         return RN8209_STATUS_ACCESS_FAIL;
+ 256:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     }
+ 257:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 258:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     /* 2. 使能RN8209 CS — 保持使能直到所有字节发完 */
+ 259:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     RN8209_ENABLE();
+ 260:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 261:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     /* 3. 发送命令字节 + 读取(命令字节无有效返回, 但必须触发TALK) */
+ 262:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if (TRUE != vSPI_2byte_write(BMIC_ADDRESS_917, CMIC_TX3116_32, (u16)(CMD_SPL_IA << 8) | 0xAA)) 
+ 263:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         RN8209_DISABLE();
+ 264:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         return RN8209_STATUS_ACCESS_FAIL;
+ 622              		.loc 1 264 0
+ 623 0006 0120     		movs	r0, #1
+ 624              	.LVL66:
+ 625              	.L34:
+ 265:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     }
+ 266:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if (TRUE != vSPI_2byte_write_Mask(BMIC_ADDRESS_917, CMIC_CNTADR_30,
+ 267:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             CMIC_CSON_1_ON|CMIC_MAN_CS_ON|CMIC_TALK_GPSPI1ON,
+ 268:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             CMIC_CSON_1_ON|CMIC_MAN_CS_ON|CMIC_TALK_GPSPI1ON)) {
+ 269:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         RN8209_DISABLE();
+ 270:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         return RN8209_STATUS_ACCESS_FAIL;
+ 271:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     }
+ 272:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     // [优化] 跳过命令字节的回读 (原代码: vSPI_2byte_read(...) 结果被丢弃, 省~0
+ 273:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 274:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     /* 4. 发送3个dummy字节, 每次读回1字节有效数据 */
+ 275:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     /* Dummy 1 → 读回第1字节 */
+ 276:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if (TRUE != vSPI_2byte_write(BMIC_ADDRESS_917, CMIC_TX3116_32, (u16)(RN8209_DUMMY_BYTE << 8) | 
+ 277:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         RN8209_DISABLE();
+ 278:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         return RN8209_STATUS_ACCESS_FAIL;
+ 279:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     }
+ 280:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if (TRUE != vSPI_2byte_write_Mask(BMIC_ADDRESS_917, CMIC_CNTADR_30,
+ 281:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             CMIC_CSON_1_ON|CMIC_MAN_CS_ON|CMIC_TALK_GPSPI1ON,
+ 282:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             CMIC_CSON_1_ON|CMIC_MAN_CS_ON|CMIC_TALK_GPSPI1ON)) {
+ 283:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         RN8209_DISABLE();
+ 284:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         return RN8209_STATUS_ACCESS_FAIL;
+ 285:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     }
+ 286:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     vSPI_2byte_read(BMIC_ADDRESS_917, CMIC_RX1500_33);
+ 287:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     u8Temp = (u8)(usSPI_Reg_ReadData[KA84917_ARRAY_INDEX][CMIC_RX1500_33] & 0xFF);
+ 288:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 289:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     /* Dummy 2 → 读回第2字节 */
+ 290:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if (TRUE != vSPI_2byte_write(BMIC_ADDRESS_917, CMIC_TX3116_32, (u16)(RN8209_DUMMY_BYTE << 8) | 
+ 291:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         RN8209_DISABLE();
+ 292:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         return RN8209_STATUS_ACCESS_FAIL;
+ 293:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     }
+ 294:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if (TRUE != vSPI_2byte_write_Mask(BMIC_ADDRESS_917, CMIC_CNTADR_30,
+ 295:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             CMIC_CSON_1_ON|CMIC_MAN_CS_ON|CMIC_TALK_GPSPI1ON,
+ 296:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             CMIC_CSON_1_ON|CMIC_MAN_CS_ON|CMIC_TALK_GPSPI1ON)) {
+ 297:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         RN8209_DISABLE();
+ 298:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         return RN8209_STATUS_ACCESS_FAIL;
+ 299:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     }
+ 300:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     vSPI_2byte_read(BMIC_ADDRESS_917, CMIC_RX1500_33);
+ 301:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     u8Temp1 = (u8)(usSPI_Reg_ReadData[KA84917_ARRAY_INDEX][CMIC_RX1500_33] & 0xFF);
+ 302:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ARM GAS  /tmp/ccYTzABM.s 			page 18
+
+
+ 303:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     /* Dummy 3 → 读回第3字节 */
+ 304:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if (TRUE != vSPI_2byte_write(BMIC_ADDRESS_917, CMIC_TX3116_32, (u16)(RN8209_DUMMY_BYTE << 8) | 
+ 305:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         RN8209_DISABLE();
+ 306:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         return RN8209_STATUS_ACCESS_FAIL;
+ 307:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     }
+ 308:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if (TRUE != vSPI_2byte_write_Mask(BMIC_ADDRESS_917, CMIC_CNTADR_30,
+ 309:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             CMIC_CSON_1_ON|CMIC_MAN_CS_ON|CMIC_TALK_GPSPI1ON,
+ 310:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             CMIC_CSON_1_ON|CMIC_MAN_CS_ON|CMIC_TALK_GPSPI1ON)) {
+ 311:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         RN8209_DISABLE();
+ 312:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         return RN8209_STATUS_ACCESS_FAIL;
+ 313:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     }
+ 314:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     vSPI_2byte_read(BMIC_ADDRESS_917, CMIC_RX1500_33);
+ 315:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     u8Temp2 = (u8)(usSPI_Reg_ReadData[KA84917_ARRAY_INDEX][CMIC_RX1500_33] & 0xFF);
+ 316:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 317:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     /* 5. 禁用RN8209 CS */
+ 318:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     RN8209_DISABLE();
+ 319:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 320:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     *data = ((uint32)u8Temp << 16) | ((uint32)u8Temp1 << 8) | u8Temp2;
+ 321:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     u8RetVal = RN8209_STATUS_ACCESS_OK;
+ 322:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 323:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     return u8RetVal;
+ 324:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** }
+ 626              		.loc 1 324 0
+ 627              		@ sp needed
+ 628              	.LVL67:
+ 629 0008 FEBD     		pop	{r1, r2, r3, r4, r5, r6, r7, pc}
+ 630              	.LVL68:
+ 631              	.L33:
+ 248:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         return RN8209_STATUS_ACCESS_FAIL;
+ 632              		.loc 1 248 0 discriminator 1
+ 633 000a 3B4B     		ldr	r3, .L42
+ 634 000c 1B78     		ldrb	r3, [r3]
+ 635 000e 002B     		cmp	r3, #0
+ 636 0010 F9D0     		beq	.L41
+ 253:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             CMIC_BIT_LENGTH_1_7|CMIC_BIT_GPSPI_CS1_N|CMIC_BIT_GPSPI_RATE2, 0x7FF)) {
+ 637              		.loc 1 253 0
+ 638 0012 3A4B     		ldr	r3, .L42+4
+ 639 0014 3A4A     		ldr	r2, .L42+8
+ 640 0016 3521     		movs	r1, #53
+ 641 0018 0120     		movs	r0, #1
+ 642              	.LVL69:
+ 643 001a FFF7FEFF 		bl	vSPI_2byte_write_Mask
+ 644              	.LVL70:
+ 645 001e 0400     		movs	r4, r0
+ 646 0020 0128     		cmp	r0, #1
+ 647 0022 F0D1     		bne	.L41
+ 259:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 648              		.loc 1 259 0
+ 649 0024 A023     		movs	r3, #160
+ 650 0026 DB00     		lsls	r3, r3, #3
+ 651 0028 1A00     		movs	r2, r3
+ 652 002a 3021     		movs	r1, #48
+ 653 002c FFF7FEFF 		bl	vSPI_2byte_write_Mask
+ 654              	.LVL71:
+ 262:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         RN8209_DISABLE();
+ 655              		.loc 1 262 0
+ 656 0030 344A     		ldr	r2, .L42+12
+ARM GAS  /tmp/ccYTzABM.s 			page 19
+
+
+ 657 0032 3221     		movs	r1, #50
+ 658 0034 2000     		movs	r0, r4
+ 659 0036 FFF7FEFF 		bl	vSPI_2byte_write
+ 660              	.LVL72:
+ 661 003a 0128     		cmp	r0, #1
+ 662 003c 07D0     		beq	.L36
+ 663              	.L37:
+ 263:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         return RN8209_STATUS_ACCESS_FAIL;
+ 664              		.loc 1 263 0
+ 665 003e 8023     		movs	r3, #128
+ 666 0040 0022     		movs	r2, #0
+ 667 0042 DB00     		lsls	r3, r3, #3
+ 668 0044 3021     		movs	r1, #48
+ 669 0046 0120     		movs	r0, #1
+ 670 0048 FFF7FEFF 		bl	vSPI_2byte_write_Mask
+ 671              	.LVL73:
+ 672 004c DBE7     		b	.L41
+ 673              	.L36:
+ 266:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             CMIC_CSON_1_ON|CMIC_MAN_CS_ON|CMIC_TALK_GPSPI1ON,
+ 674              		.loc 1 266 0
+ 675 004e 2E4B     		ldr	r3, .L42+16
+ 676 0050 3021     		movs	r1, #48
+ 677 0052 1A00     		movs	r2, r3
+ 678 0054 FFF7FEFF 		bl	vSPI_2byte_write_Mask
+ 679              	.LVL74:
+ 680 0058 0128     		cmp	r0, #1
+ 681 005a F0D1     		bne	.L37
+ 276:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         RN8209_DISABLE();
+ 682              		.loc 1 276 0
+ 683 005c 2B4A     		ldr	r2, .L42+20
+ 684 005e 3221     		movs	r1, #50
+ 685 0060 FFF7FEFF 		bl	vSPI_2byte_write
+ 686              	.LVL75:
+ 687 0064 0128     		cmp	r0, #1
+ 688 0066 EAD1     		bne	.L37
+ 280:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             CMIC_CSON_1_ON|CMIC_MAN_CS_ON|CMIC_TALK_GPSPI1ON,
+ 689              		.loc 1 280 0
+ 690 0068 274B     		ldr	r3, .L42+16
+ 691 006a 3021     		movs	r1, #48
+ 692 006c 1A00     		movs	r2, r3
+ 693 006e FFF7FEFF 		bl	vSPI_2byte_write_Mask
+ 694              	.LVL76:
+ 695 0072 0500     		movs	r5, r0
+ 696 0074 0128     		cmp	r0, #1
+ 697 0076 E2D1     		bne	.L37
+ 286:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     u8Temp = (u8)(usSPI_Reg_ReadData[KA84917_ARRAY_INDEX][CMIC_RX1500_33] & 0xFF);
+ 698              		.loc 1 286 0
+ 699 0078 3321     		movs	r1, #51
+ 700 007a FFF7FEFF 		bl	vSPI_2byte_read
+ 701              	.LVL77:
+ 287:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 702              		.loc 1 287 0
+ 703 007e 244C     		ldr	r4, .L42+24
+ 290:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         RN8209_DISABLE();
+ 704              		.loc 1 290 0
+ 705 0080 224A     		ldr	r2, .L42+20
+ 287:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ARM GAS  /tmp/ccYTzABM.s 			page 20
+
+
+ 706              		.loc 1 287 0
+ 707 0082 2700     		movs	r7, r4
+ 708 0084 6637     		adds	r7, r7, #102
+ 709 0086 3B88     		ldrh	r3, [r7]
+ 290:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         RN8209_DISABLE();
+ 710              		.loc 1 290 0
+ 711 0088 3221     		movs	r1, #50
+ 712 008a 2800     		movs	r0, r5
+ 287:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 713              		.loc 1 287 0
+ 714 008c 0193     		str	r3, [sp, #4]
+ 715              	.LVL78:
+ 290:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         RN8209_DISABLE();
+ 716              		.loc 1 290 0
+ 717 008e FFF7FEFF 		bl	vSPI_2byte_write
+ 718              	.LVL79:
+ 719 0092 0128     		cmp	r0, #1
+ 720 0094 D3D1     		bne	.L37
+ 294:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             CMIC_CSON_1_ON|CMIC_MAN_CS_ON|CMIC_TALK_GPSPI1ON,
+ 721              		.loc 1 294 0
+ 722 0096 1C4B     		ldr	r3, .L42+16
+ 723 0098 3021     		movs	r1, #48
+ 724 009a 1A00     		movs	r2, r3
+ 725 009c FFF7FEFF 		bl	vSPI_2byte_write_Mask
+ 726              	.LVL80:
+ 727 00a0 0500     		movs	r5, r0
+ 728 00a2 0128     		cmp	r0, #1
+ 729 00a4 CBD1     		bne	.L37
+ 300:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     u8Temp1 = (u8)(usSPI_Reg_ReadData[KA84917_ARRAY_INDEX][CMIC_RX1500_33] & 0xFF);
+ 730              		.loc 1 300 0
+ 731 00a6 3321     		movs	r1, #51
+ 732 00a8 FFF7FEFF 		bl	vSPI_2byte_read
+ 733              	.LVL81:
+ 304:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         RN8209_DISABLE();
+ 734              		.loc 1 304 0
+ 735 00ac 174A     		ldr	r2, .L42+20
+ 736 00ae 3221     		movs	r1, #50
+ 737 00b0 2800     		movs	r0, r5
+ 301:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 738              		.loc 1 301 0
+ 739 00b2 3F88     		ldrh	r7, [r7]
+ 740              	.LVL82:
+ 304:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         RN8209_DISABLE();
+ 741              		.loc 1 304 0
+ 742 00b4 FFF7FEFF 		bl	vSPI_2byte_write
+ 743              	.LVL83:
+ 744 00b8 0128     		cmp	r0, #1
+ 745 00ba C0D1     		bne	.L37
+ 308:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             CMIC_CSON_1_ON|CMIC_MAN_CS_ON|CMIC_TALK_GPSPI1ON,
+ 746              		.loc 1 308 0
+ 747 00bc 124B     		ldr	r3, .L42+16
+ 748 00be 3021     		movs	r1, #48
+ 749 00c0 1A00     		movs	r2, r3
+ 750 00c2 FFF7FEFF 		bl	vSPI_2byte_write_Mask
+ 751              	.LVL84:
+ 752 00c6 0500     		movs	r5, r0
+ 753 00c8 0128     		cmp	r0, #1
+ARM GAS  /tmp/ccYTzABM.s 			page 21
+
+
+ 754 00ca B8D1     		bne	.L37
+ 314:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     u8Temp2 = (u8)(usSPI_Reg_ReadData[KA84917_ARRAY_INDEX][CMIC_RX1500_33] & 0xFF);
+ 755              		.loc 1 314 0
+ 756 00cc 3321     		movs	r1, #51
+ 757 00ce FFF7FEFF 		bl	vSPI_2byte_read
+ 758              	.LVL85:
+ 318:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 759              		.loc 1 318 0
+ 760 00d2 8023     		movs	r3, #128
+ 315:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 761              		.loc 1 315 0
+ 762 00d4 6634     		adds	r4, r4, #102
+ 318:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 763              		.loc 1 318 0
+ 764 00d6 DB00     		lsls	r3, r3, #3
+ 765 00d8 0022     		movs	r2, #0
+ 766 00da 3021     		movs	r1, #48
+ 767 00dc 2800     		movs	r0, r5
+ 315:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 768              		.loc 1 315 0
+ 769 00de 2478     		ldrb	r4, [r4]
+ 770              	.LVL86:
+ 318:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 771              		.loc 1 318 0
+ 772 00e0 FFF7FEFF 		bl	vSPI_2byte_write_Mask
+ 773              	.LVL87:
+ 320:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     u8RetVal = RN8209_STATUS_ACCESS_OK;
+ 774              		.loc 1 320 0
+ 775 00e4 6B46     		mov	r3, sp
+ 776 00e6 1B79     		ldrb	r3, [r3, #4]
+ 777 00e8 FFB2     		uxtb	r7, r7
+ 778 00ea 1B04     		lsls	r3, r3, #16
+ 779 00ec 3F02     		lsls	r7, r7, #8
+ 780              	.LVL88:
+ 781 00ee 1F43     		orrs	r7, r3
+ 782 00f0 3C43     		orrs	r4, r7
+ 783              	.LVL89:
+ 784 00f2 3460     		str	r4, [r6]
+ 785              	.LVL90:
+ 323:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** }
+ 786              		.loc 1 323 0
+ 787 00f4 0020     		movs	r0, #0
+ 788 00f6 87E7     		b	.L34
+ 789              	.L43:
+ 790              		.align	2
+ 791              	.L42:
+ 792 00f8 00000000 		.word	.LANCHOR0
+ 793 00fc FF070000 		.word	2047
+ 794 0100 47040000 		.word	1095
+ 795 0104 AA300000 		.word	12458
+ 796 0108 01050000 		.word	1281
+ 797 010c AAAA0000 		.word	43690
+ 798 0110 00000000 		.word	usSPI_Reg_ReadData
+ 799              		.cfi_endproc
+ 800              	.LFE500:
+ 802              		.section	.text.DRV_RN8209_ReadAdcU,"ax",%progbits
+ 803              		.align	1
+ARM GAS  /tmp/ccYTzABM.s 			page 22
+
+
+ 804              		.global	DRV_RN8209_ReadAdcU
+ 805              		.syntax unified
+ 806              		.code	16
+ 807              		.thumb_func
+ 808              		.fpu softvfp
+ 810              	DRV_RN8209_ReadAdcU:
+ 811              	.LFB501:
+ 325:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 326:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 327:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 328:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 329:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 330:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** //读取负载端电压 
+ 331:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** uint8 DRV_RN8209_ReadAdcU(uint32* data)
+ 332:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** {
+ 812              		.loc 1 332 0
+ 813              		.cfi_startproc
+ 814              		@ args = 0, pretend = 0, frame = 0
+ 815              		@ frame_needed = 0, uses_anonymous_args = 0
+ 816              	.LVL91:
+ 817 0000 0100     		movs	r1, r0
+ 818 0002 10B5     		push	{r4, lr}
+ 819              	.LCFI7:
+ 820              		.cfi_def_cfa_offset 8
+ 821              		.cfi_offset 4, -8
+ 822              		.cfi_offset 14, -4
+ 333:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if ((data == NULL_PTR) || (g_u8Rn8209Init == 0)) {
+ 334:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         return RN8209_STATUS_ACCESS_FAIL;
+ 823              		.loc 1 334 0
+ 824 0004 0120     		movs	r0, #1
+ 825              	.LVL92:
+ 333:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if ((data == NULL_PTR) || (g_u8Rn8209Init == 0)) {
+ 826              		.loc 1 333 0
+ 827 0006 0029     		cmp	r1, #0
+ 828 0008 06D0     		beq	.L45
+ 333:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if ((data == NULL_PTR) || (g_u8Rn8209Init == 0)) {
+ 829              		.loc 1 333 0 is_stmt 0 discriminator 1
+ 830 000a 044B     		ldr	r3, .L49
+ 831 000c 1B78     		ldrb	r3, [r3]
+ 832 000e 002B     		cmp	r3, #0
+ 833 0010 02D0     		beq	.L45
+ 335:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     }
+ 336:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     return Rn8209Read3ByteCmdProc(CMD_SPL_U, data);
+ 834              		.loc 1 336 0 is_stmt 1
+ 835 0012 3130     		adds	r0, r0, #49
+ 836 0014 FFF7FEFF 		bl	Rn8209Read3ByteCmdProc
+ 837              	.LVL93:
+ 838              	.L45:
+ 337:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** }
+ 839              		.loc 1 337 0
+ 840              		@ sp needed
+ 841 0018 10BD     		pop	{r4, pc}
+ 842              	.L50:
+ 843 001a C046     		.align	2
+ 844              	.L49:
+ 845 001c 00000000 		.word	.LANCHOR0
+ 846              		.cfi_endproc
+ARM GAS  /tmp/ccYTzABM.s 			page 23
+
+
+ 847              	.LFE501:
+ 849              		.section	.text.DRV_RN8209_ReadAdcU_Fast,"ax",%progbits
+ 850              		.align	1
+ 851              		.global	DRV_RN8209_ReadAdcU_Fast
+ 852              		.syntax unified
+ 853              		.code	16
+ 854              		.thumb_func
+ 855              		.fpu softvfp
+ 857              	DRV_RN8209_ReadAdcU_Fast:
+ 858              	.LFB502:
+ 338:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** //
+ 339:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** uint8 DRV_RN8209_ReadAdcU_Fast(uint32* data)
+ 340:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** {
+ 859              		.loc 1 340 0
+ 860              		.cfi_startproc
+ 861              		@ args = 0, pretend = 0, frame = 8
+ 862              		@ frame_needed = 0, uses_anonymous_args = 0
+ 863              	.LVL94:
+ 864 0000 F7B5     		push	{r0, r1, r2, r4, r5, r6, r7, lr}
+ 865              	.LCFI8:
+ 866              		.cfi_def_cfa_offset 32
+ 867              		.cfi_offset 0, -32
+ 868              		.cfi_offset 1, -28
+ 869              		.cfi_offset 2, -24
+ 870              		.cfi_offset 4, -20
+ 871              		.cfi_offset 5, -16
+ 872              		.cfi_offset 6, -12
+ 873              		.cfi_offset 7, -8
+ 874              		.cfi_offset 14, -4
+ 875              		.loc 1 340 0
+ 876 0002 061E     		subs	r6, r0, #0
+ 341:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     u8 u8Temp, u8Temp1, u8Temp2;
+ 342:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     u8 u8RetVal = RN8209_STATUS_ACCESS_FAIL;
+ 343:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 344:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if ((data == NULL_PTR) || (g_u8Rn8209Init == 0)) {
+ 877              		.loc 1 344 0
+ 878 0004 01D1     		bne	.L52
+ 879              	.LVL95:
+ 880              	.L60:
+ 345:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         return RN8209_STATUS_ACCESS_FAIL;
+ 346:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     }
+ 347:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 348:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     /* 配置GPSPI */
+ 349:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if (TRUE != vSPI_2byte_write_Mask(BMIC_ADDRESS_917, CMIC_CNTADR_35,
+ 350:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             CMIC_BIT_LENGTH_1_7|CMIC_BIT_GPSPI_CS1_N|CMIC_BIT_GPSPI_RATE2, 0x7FF)) {
+ 351:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         return RN8209_STATUS_ACCESS_FAIL;
+ 352:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     }
+ 353:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 354:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     RN8209_ENABLE();
+ 355:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 356:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     /* 发送CMD_SPL_U命令字节 */
+ 357:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if (TRUE != vSPI_2byte_write(BMIC_ADDRESS_917, CMIC_TX3116_32, (u16)(CMD_SPL_U << 8) | 0xAA)) {
+ 358:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         RN8209_DISABLE();
+ 359:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         return RN8209_STATUS_ACCESS_FAIL;
+ 881              		.loc 1 359 0
+ 882 0006 0120     		movs	r0, #1
+ 883              	.LVL96:
+ARM GAS  /tmp/ccYTzABM.s 			page 24
+
+
+ 884              	.L53:
+ 360:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     }
+ 361:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if (TRUE != vSPI_2byte_write_Mask(BMIC_ADDRESS_917, CMIC_CNTADR_30,
+ 362:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             CMIC_CSON_1_ON|CMIC_MAN_CS_ON|CMIC_TALK_GPSPI1ON,
+ 363:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             CMIC_CSON_1_ON|CMIC_MAN_CS_ON|CMIC_TALK_GPSPI1ON)) {
+ 364:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         RN8209_DISABLE();
+ 365:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         return RN8209_STATUS_ACCESS_FAIL;
+ 366:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     }
+ 367:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     vSPI_2byte_read(BMIC_ADDRESS_917, CMIC_RX1500_33);
+ 368:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 369:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     /* Dummy 1 */
+ 370:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if (TRUE != vSPI_2byte_write(BMIC_ADDRESS_917, CMIC_TX3116_32, (u16)(RN8209_DUMMY_BYTE << 8) | 
+ 371:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         RN8209_DISABLE();
+ 372:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         return RN8209_STATUS_ACCESS_FAIL;
+ 373:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     }
+ 374:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if (TRUE != vSPI_2byte_write_Mask(BMIC_ADDRESS_917, CMIC_CNTADR_30,
+ 375:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             CMIC_CSON_1_ON|CMIC_MAN_CS_ON|CMIC_TALK_GPSPI1ON,
+ 376:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             CMIC_CSON_1_ON|CMIC_MAN_CS_ON|CMIC_TALK_GPSPI1ON)) {
+ 377:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         RN8209_DISABLE();
+ 378:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         return RN8209_STATUS_ACCESS_FAIL;
+ 379:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     }
+ 380:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     vSPI_2byte_read(BMIC_ADDRESS_917, CMIC_RX1500_33);
+ 381:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     u8Temp = (u8)(usSPI_Reg_ReadData[KA84917_ARRAY_INDEX][CMIC_RX1500_33] & 0xFF);
+ 382:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 383:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     /* Dummy 2 */
+ 384:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if (TRUE != vSPI_2byte_write(BMIC_ADDRESS_917, CMIC_TX3116_32, (u16)(RN8209_DUMMY_BYTE << 8) | 
+ 385:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         RN8209_DISABLE();
+ 386:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         return RN8209_STATUS_ACCESS_FAIL;
+ 387:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     }
+ 388:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if (TRUE != vSPI_2byte_write_Mask(BMIC_ADDRESS_917, CMIC_CNTADR_30,
+ 389:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             CMIC_CSON_1_ON|CMIC_MAN_CS_ON|CMIC_TALK_GPSPI1ON,
+ 390:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             CMIC_CSON_1_ON|CMIC_MAN_CS_ON|CMIC_TALK_GPSPI1ON)) {
+ 391:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         RN8209_DISABLE();
+ 392:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         return RN8209_STATUS_ACCESS_FAIL;
+ 393:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     }
+ 394:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     vSPI_2byte_read(BMIC_ADDRESS_917, CMIC_RX1500_33);
+ 395:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     u8Temp1 = (u8)(usSPI_Reg_ReadData[KA84917_ARRAY_INDEX][CMIC_RX1500_33] & 0xFF);
+ 396:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 397:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     /* Dummy 3 */
+ 398:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if (TRUE != vSPI_2byte_write(BMIC_ADDRESS_917, CMIC_TX3116_32, (u16)(RN8209_DUMMY_BYTE << 8) | 
+ 399:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         RN8209_DISABLE();
+ 400:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         return RN8209_STATUS_ACCESS_FAIL;
+ 401:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     }
+ 402:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if (TRUE != vSPI_2byte_write_Mask(BMIC_ADDRESS_917, CMIC_CNTADR_30,
+ 403:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             CMIC_CSON_1_ON|CMIC_MAN_CS_ON|CMIC_TALK_GPSPI1ON,
+ 404:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             CMIC_CSON_1_ON|CMIC_MAN_CS_ON|CMIC_TALK_GPSPI1ON)) {
+ 405:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         RN8209_DISABLE();
+ 406:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         return RN8209_STATUS_ACCESS_FAIL;
+ 407:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     }
+ 408:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     vSPI_2byte_read(BMIC_ADDRESS_917, CMIC_RX1500_33);
+ 409:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     u8Temp2 = (u8)(usSPI_Reg_ReadData[KA84917_ARRAY_INDEX][CMIC_RX1500_33] & 0xFF);
+ 410:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 411:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     RN8209_DISABLE();
+ 412:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 413:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     *data = ((uint32)u8Temp << 16) | ((uint32)u8Temp1 << 8) | u8Temp2;
+ 414:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     u8RetVal = RN8209_STATUS_ACCESS_OK;
+ 415:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ARM GAS  /tmp/ccYTzABM.s 			page 25
+
+
+ 416:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     return u8RetVal;
+ 417:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** }
+ 885              		.loc 1 417 0
+ 886              		@ sp needed
+ 887              	.LVL97:
+ 888 0008 FEBD     		pop	{r1, r2, r3, r4, r5, r6, r7, pc}
+ 889              	.LVL98:
+ 890              	.L52:
+ 344:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         return RN8209_STATUS_ACCESS_FAIL;
+ 891              		.loc 1 344 0 discriminator 1
+ 892 000a 3E4B     		ldr	r3, .L61
+ 893 000c 1B78     		ldrb	r3, [r3]
+ 894 000e 002B     		cmp	r3, #0
+ 895 0010 F9D0     		beq	.L60
+ 349:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             CMIC_BIT_LENGTH_1_7|CMIC_BIT_GPSPI_CS1_N|CMIC_BIT_GPSPI_RATE2, 0x7FF)) {
+ 896              		.loc 1 349 0
+ 897 0012 3D4B     		ldr	r3, .L61+4
+ 898 0014 3D4A     		ldr	r2, .L61+8
+ 899 0016 3521     		movs	r1, #53
+ 900 0018 0120     		movs	r0, #1
+ 901              	.LVL99:
+ 902 001a FFF7FEFF 		bl	vSPI_2byte_write_Mask
+ 903              	.LVL100:
+ 904 001e 0400     		movs	r4, r0
+ 905 0020 0128     		cmp	r0, #1
+ 906 0022 F0D1     		bne	.L60
+ 354:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 907              		.loc 1 354 0
+ 908 0024 A023     		movs	r3, #160
+ 909 0026 DB00     		lsls	r3, r3, #3
+ 910 0028 1A00     		movs	r2, r3
+ 911 002a 3021     		movs	r1, #48
+ 912 002c FFF7FEFF 		bl	vSPI_2byte_write_Mask
+ 913              	.LVL101:
+ 357:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         RN8209_DISABLE();
+ 914              		.loc 1 357 0
+ 915 0030 374A     		ldr	r2, .L61+12
+ 916 0032 3221     		movs	r1, #50
+ 917 0034 2000     		movs	r0, r4
+ 918 0036 FFF7FEFF 		bl	vSPI_2byte_write
+ 919              	.LVL102:
+ 920 003a 0128     		cmp	r0, #1
+ 921 003c 07D0     		beq	.L55
+ 922              	.L56:
+ 358:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         return RN8209_STATUS_ACCESS_FAIL;
+ 923              		.loc 1 358 0
+ 924 003e 8023     		movs	r3, #128
+ 925 0040 0022     		movs	r2, #0
+ 926 0042 DB00     		lsls	r3, r3, #3
+ 927 0044 3021     		movs	r1, #48
+ 928 0046 0120     		movs	r0, #1
+ 929 0048 FFF7FEFF 		bl	vSPI_2byte_write_Mask
+ 930              	.LVL103:
+ 931 004c DBE7     		b	.L60
+ 932              	.L55:
+ 361:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             CMIC_CSON_1_ON|CMIC_MAN_CS_ON|CMIC_TALK_GPSPI1ON,
+ 933              		.loc 1 361 0
+ARM GAS  /tmp/ccYTzABM.s 			page 26
+
+
+ 934 004e 314B     		ldr	r3, .L61+16
+ 935 0050 3021     		movs	r1, #48
+ 936 0052 1A00     		movs	r2, r3
+ 937 0054 FFF7FEFF 		bl	vSPI_2byte_write_Mask
+ 938              	.LVL104:
+ 939 0058 0400     		movs	r4, r0
+ 940 005a 0128     		cmp	r0, #1
+ 941 005c EFD1     		bne	.L56
+ 367:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 942              		.loc 1 367 0
+ 943 005e 3321     		movs	r1, #51
+ 944 0060 FFF7FEFF 		bl	vSPI_2byte_read
+ 945              	.LVL105:
+ 370:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         RN8209_DISABLE();
+ 946              		.loc 1 370 0
+ 947 0064 2C4A     		ldr	r2, .L61+20
+ 948 0066 3221     		movs	r1, #50
+ 949 0068 2000     		movs	r0, r4
+ 950 006a FFF7FEFF 		bl	vSPI_2byte_write
+ 951              	.LVL106:
+ 952 006e 0128     		cmp	r0, #1
+ 953 0070 E5D1     		bne	.L56
+ 374:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             CMIC_CSON_1_ON|CMIC_MAN_CS_ON|CMIC_TALK_GPSPI1ON,
+ 954              		.loc 1 374 0
+ 955 0072 284B     		ldr	r3, .L61+16
+ 956 0074 3021     		movs	r1, #48
+ 957 0076 1A00     		movs	r2, r3
+ 958 0078 FFF7FEFF 		bl	vSPI_2byte_write_Mask
+ 959              	.LVL107:
+ 960 007c 0500     		movs	r5, r0
+ 961 007e 0128     		cmp	r0, #1
+ 962 0080 DDD1     		bne	.L56
+ 380:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     u8Temp = (u8)(usSPI_Reg_ReadData[KA84917_ARRAY_INDEX][CMIC_RX1500_33] & 0xFF);
+ 963              		.loc 1 380 0
+ 964 0082 3321     		movs	r1, #51
+ 965 0084 FFF7FEFF 		bl	vSPI_2byte_read
+ 966              	.LVL108:
+ 381:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 967              		.loc 1 381 0
+ 968 0088 244C     		ldr	r4, .L61+24
+ 384:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         RN8209_DISABLE();
+ 969              		.loc 1 384 0
+ 970 008a 234A     		ldr	r2, .L61+20
+ 381:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 971              		.loc 1 381 0
+ 972 008c 2700     		movs	r7, r4
+ 973 008e 6637     		adds	r7, r7, #102
+ 974 0090 3B88     		ldrh	r3, [r7]
+ 384:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         RN8209_DISABLE();
+ 975              		.loc 1 384 0
+ 976 0092 3221     		movs	r1, #50
+ 977 0094 2800     		movs	r0, r5
+ 381:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 978              		.loc 1 381 0
+ 979 0096 0193     		str	r3, [sp, #4]
+ 980              	.LVL109:
+ 384:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         RN8209_DISABLE();
+ARM GAS  /tmp/ccYTzABM.s 			page 27
+
+
+ 981              		.loc 1 384 0
+ 982 0098 FFF7FEFF 		bl	vSPI_2byte_write
+ 983              	.LVL110:
+ 984 009c 0128     		cmp	r0, #1
+ 985 009e CED1     		bne	.L56
+ 388:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             CMIC_CSON_1_ON|CMIC_MAN_CS_ON|CMIC_TALK_GPSPI1ON,
+ 986              		.loc 1 388 0
+ 987 00a0 1C4B     		ldr	r3, .L61+16
+ 988 00a2 3021     		movs	r1, #48
+ 989 00a4 1A00     		movs	r2, r3
+ 990 00a6 FFF7FEFF 		bl	vSPI_2byte_write_Mask
+ 991              	.LVL111:
+ 992 00aa 0500     		movs	r5, r0
+ 993 00ac 0128     		cmp	r0, #1
+ 994 00ae C6D1     		bne	.L56
+ 394:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     u8Temp1 = (u8)(usSPI_Reg_ReadData[KA84917_ARRAY_INDEX][CMIC_RX1500_33] & 0xFF);
+ 995              		.loc 1 394 0
+ 996 00b0 3321     		movs	r1, #51
+ 997 00b2 FFF7FEFF 		bl	vSPI_2byte_read
+ 998              	.LVL112:
+ 398:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         RN8209_DISABLE();
+ 999              		.loc 1 398 0
+ 1000 00b6 184A     		ldr	r2, .L61+20
+ 1001 00b8 3221     		movs	r1, #50
+ 1002 00ba 2800     		movs	r0, r5
+ 395:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 1003              		.loc 1 395 0
+ 1004 00bc 3F88     		ldrh	r7, [r7]
+ 1005              	.LVL113:
+ 398:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         RN8209_DISABLE();
+ 1006              		.loc 1 398 0
+ 1007 00be FFF7FEFF 		bl	vSPI_2byte_write
+ 1008              	.LVL114:
+ 1009 00c2 0128     		cmp	r0, #1
+ 1010 00c4 BBD1     		bne	.L56
+ 402:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             CMIC_CSON_1_ON|CMIC_MAN_CS_ON|CMIC_TALK_GPSPI1ON,
+ 1011              		.loc 1 402 0
+ 1012 00c6 134B     		ldr	r3, .L61+16
+ 1013 00c8 3021     		movs	r1, #48
+ 1014 00ca 1A00     		movs	r2, r3
+ 1015 00cc FFF7FEFF 		bl	vSPI_2byte_write_Mask
+ 1016              	.LVL115:
+ 1017 00d0 0500     		movs	r5, r0
+ 1018 00d2 0128     		cmp	r0, #1
+ 1019 00d4 B3D1     		bne	.L56
+ 408:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     u8Temp2 = (u8)(usSPI_Reg_ReadData[KA84917_ARRAY_INDEX][CMIC_RX1500_33] & 0xFF);
+ 1020              		.loc 1 408 0
+ 1021 00d6 3321     		movs	r1, #51
+ 1022 00d8 FFF7FEFF 		bl	vSPI_2byte_read
+ 1023              	.LVL116:
+ 411:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 1024              		.loc 1 411 0
+ 1025 00dc 8023     		movs	r3, #128
+ 409:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 1026              		.loc 1 409 0
+ 1027 00de 6634     		adds	r4, r4, #102
+ 411:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ARM GAS  /tmp/ccYTzABM.s 			page 28
+
+
+ 1028              		.loc 1 411 0
+ 1029 00e0 DB00     		lsls	r3, r3, #3
+ 1030 00e2 0022     		movs	r2, #0
+ 1031 00e4 3021     		movs	r1, #48
+ 1032 00e6 2800     		movs	r0, r5
+ 409:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 1033              		.loc 1 409 0
+ 1034 00e8 2478     		ldrb	r4, [r4]
+ 1035              	.LVL117:
+ 411:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 1036              		.loc 1 411 0
+ 1037 00ea FFF7FEFF 		bl	vSPI_2byte_write_Mask
+ 1038              	.LVL118:
+ 413:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     u8RetVal = RN8209_STATUS_ACCESS_OK;
+ 1039              		.loc 1 413 0
+ 1040 00ee 6B46     		mov	r3, sp
+ 1041 00f0 1B79     		ldrb	r3, [r3, #4]
+ 1042 00f2 FFB2     		uxtb	r7, r7
+ 1043 00f4 1B04     		lsls	r3, r3, #16
+ 1044 00f6 3F02     		lsls	r7, r7, #8
+ 1045              	.LVL119:
+ 1046 00f8 1F43     		orrs	r7, r3
+ 1047 00fa 3C43     		orrs	r4, r7
+ 1048              	.LVL120:
+ 1049 00fc 3460     		str	r4, [r6]
+ 1050              	.LVL121:
+ 416:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** }
+ 1051              		.loc 1 416 0
+ 1052 00fe 0020     		movs	r0, #0
+ 1053 0100 82E7     		b	.L53
+ 1054              	.L62:
+ 1055 0102 C046     		.align	2
+ 1056              	.L61:
+ 1057 0104 00000000 		.word	.LANCHOR0
+ 1058 0108 FF070000 		.word	2047
+ 1059 010c 47040000 		.word	1095
+ 1060 0110 AA320000 		.word	12970
+ 1061 0114 01050000 		.word	1281
+ 1062 0118 AAAA0000 		.word	43690
+ 1063 011c 00000000 		.word	usSPI_Reg_ReadData
+ 1064              		.cfi_endproc
+ 1065              	.LFE502:
+ 1067              		.section	.text.DRV_RN8209_ReadAdcIA_Fast_V2,"ax",%progbits
+ 1068              		.align	1
+ 1069              		.global	DRV_RN8209_ReadAdcIA_Fast_V2
+ 1070              		.syntax unified
+ 1071              		.code	16
+ 1072              		.thumb_func
+ 1073              		.fpu softvfp
+ 1075              	DRV_RN8209_ReadAdcIA_Fast_V2:
+ 1076              	.LFB503:
+ 418:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 419:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 420:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** /*=============================================================================================
+ 421:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** ** 优化版RN8209 IA ADC读取 — 32-bit GPSPI帧
+ 422:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** **   一次TALK触发完成CMD(8bit)+DATA(24bit)完整传输, 替代原逐字节Fast版
+ 423:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** **   GPSPI速率: 1Mbps (符合RN8209手册≤1.7MHz)
+ARM GAS  /tmp/ccYTzABM.s 			page 29
+
+
+ 424:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** **   Daisy操作数: ~8次 (vs 原Fast版~14次, 降43%)
+ 425:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** **===========================================================================================*/
+ 426:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** uint8 DRV_RN8209_ReadAdcIA_Fast_V2(uint32* data)
+ 427:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** {
+ 1077              		.loc 1 427 0
+ 1078              		.cfi_startproc
+ 1079              		@ args = 0, pretend = 0, frame = 0
+ 1080              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1081              	.LVL122:
+ 1082 0000 70B5     		push	{r4, r5, r6, lr}
+ 1083              	.LCFI9:
+ 1084              		.cfi_def_cfa_offset 16
+ 1085              		.cfi_offset 4, -16
+ 1086              		.cfi_offset 5, -12
+ 1087              		.cfi_offset 6, -8
+ 1088              		.cfi_offset 14, -4
+ 1089              		.loc 1 427 0
+ 1090 0002 061E     		subs	r6, r0, #0
+ 428:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     uint16 u16Rx34, u16Rx33;
+ 429:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     uint32 u32FullRx;
+ 430:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 431:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if ((data == NULL_PTR) || (g_u8Rn8209Init == 0)) {
+ 1091              		.loc 1 431 0
+ 1092 0004 01D1     		bne	.L64
+ 1093              	.LVL123:
+ 1094              	.L66:
+ 432:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         return RN8209_STATUS_ACCESS_FAIL;
+ 1095              		.loc 1 432 0
+ 1096 0006 0120     		movs	r0, #1
+ 1097              	.L65:
+ 433:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     }
+ 434:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 435:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     /* 1. 配置GPSPI: 32-bit帧, 1Mbps, CS负极性 */
+ 436:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if (TRUE != vSPI_2byte_write_Mask(BMIC_ADDRESS_917, CMIC_CNTADR_35,
+ 437:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             CMIC_BIT_LENGTH_1_32|CMIC_BIT_GPSPI_CS1_N|CMIC_BIT_GPSPI_RATE2, 0x7FF)) {
+ 438:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         return RN8209_STATUS_ACCESS_FAIL;
+ 439:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     }
+ 440:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 441:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     /* 2. 使能RN8209 CS */
+ 442:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     RN8209_ENABLE();
+ 443:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 444:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     /* 3. TX: CMD_SPL_IA(0x30) + 3字节dummy → 32-bit = 0x30AAAAAA */
+ 445:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     vSPI_2byte_write(BMIC_ADDRESS_917, CMIC_TX3116_32, 0x30AAu);
+ 446:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     vSPI_2byte_write(BMIC_ADDRESS_917, CMIC_TX1500_31, 0xAAAAu);
+ 447:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if (TRUE != vSPI_2byte_write_Mask(BMIC_ADDRESS_917, CMIC_CNTADR_30,
+ 448:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             CMIC_CSON_1_ON|CMIC_MAN_CS_ON|CMIC_TALK_GPSPI1ON,
+ 449:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             CMIC_CSON_1_ON|CMIC_MAN_CS_ON|CMIC_TALK_GPSPI1ON)) {
+ 450:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         RN8209_DISABLE();
+ 451:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         return RN8209_STATUS_ACCESS_FAIL;
+ 452:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     }
+ 453:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 454:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     /* 4. RX: 32-bit捕获 → 丢弃首字节(CMD阶段) → 保留后24-bit */
+ 455:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     vSPI_2byte_read(BMIC_ADDRESS_917, CMIC_RX3116_34);
+ 456:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     vSPI_2byte_read(BMIC_ADDRESS_917, CMIC_RX1500_33);
+ 457:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     u16Rx34 = usSPI_Reg_ReadData[KA84917_ARRAY_INDEX][CMIC_RX3116_34];
+ 458:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     u16Rx33 = usSPI_Reg_ReadData[KA84917_ARRAY_INDEX][CMIC_RX1500_33];
+ 459:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     u32FullRx = ((uint32)u16Rx34 << 16u) | (uint32)u16Rx33;
+ARM GAS  /tmp/ccYTzABM.s 			page 30
+
+
+ 460:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     /* RX移位方向: MSB先入→[31:24], 故 [31:24]=垃圾(CMD回显), [23:16]=MSB, [15:8]=MID,
+ 461:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     *data = u32FullRx & 0x00FFFFFFu;
+ 462:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 463:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     /* 5. 释放RN8209 CS */
+ 464:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     RN8209_DISABLE();
+ 465:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 466:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     return RN8209_STATUS_ACCESS_OK;
+ 467:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** }
+ 1098              		.loc 1 467 0
+ 1099              		@ sp needed
+ 1100              	.LVL124:
+ 1101 0008 70BD     		pop	{r4, r5, r6, pc}
+ 1102              	.LVL125:
+ 1103              	.L64:
+ 431:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         return RN8209_STATUS_ACCESS_FAIL;
+ 1104              		.loc 1 431 0 discriminator 1
+ 1105 000a 234B     		ldr	r3, .L71
+ 1106 000c 1B78     		ldrb	r3, [r3]
+ 1107 000e 002B     		cmp	r3, #0
+ 1108 0010 F9D0     		beq	.L66
+ 436:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             CMIC_BIT_LENGTH_1_32|CMIC_BIT_GPSPI_CS1_N|CMIC_BIT_GPSPI_RATE2, 0x7FF)) {
+ 1109              		.loc 1 436 0
+ 1110 0012 224B     		ldr	r3, .L71+4
+ 1111 0014 224A     		ldr	r2, .L71+8
+ 1112 0016 3521     		movs	r1, #53
+ 1113 0018 0120     		movs	r0, #1
+ 1114              	.LVL126:
+ 1115 001a FFF7FEFF 		bl	vSPI_2byte_write_Mask
+ 1116              	.LVL127:
+ 1117 001e 0400     		movs	r4, r0
+ 1118 0020 0128     		cmp	r0, #1
+ 1119 0022 F0D1     		bne	.L66
+ 442:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 1120              		.loc 1 442 0
+ 1121 0024 A023     		movs	r3, #160
+ 1122 0026 DB00     		lsls	r3, r3, #3
+ 1123 0028 1A00     		movs	r2, r3
+ 1124 002a 3021     		movs	r1, #48
+ 1125 002c FFF7FEFF 		bl	vSPI_2byte_write_Mask
+ 1126              	.LVL128:
+ 445:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     vSPI_2byte_write(BMIC_ADDRESS_917, CMIC_TX1500_31, 0xAAAAu);
+ 1127              		.loc 1 445 0
+ 1128 0030 1C4A     		ldr	r2, .L71+12
+ 1129 0032 3221     		movs	r1, #50
+ 1130 0034 2000     		movs	r0, r4
+ 1131 0036 FFF7FEFF 		bl	vSPI_2byte_write
+ 1132              	.LVL129:
+ 446:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if (TRUE != vSPI_2byte_write_Mask(BMIC_ADDRESS_917, CMIC_CNTADR_30,
+ 1133              		.loc 1 446 0
+ 1134 003a 1B4A     		ldr	r2, .L71+16
+ 1135 003c 3121     		movs	r1, #49
+ 1136 003e 2000     		movs	r0, r4
+ 1137 0040 FFF7FEFF 		bl	vSPI_2byte_write
+ 1138              	.LVL130:
+ 447:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             CMIC_CSON_1_ON|CMIC_MAN_CS_ON|CMIC_TALK_GPSPI1ON,
+ 1139              		.loc 1 447 0
+ 1140 0044 194B     		ldr	r3, .L71+20
+ARM GAS  /tmp/ccYTzABM.s 			page 31
+
+
+ 1141 0046 3021     		movs	r1, #48
+ 1142 0048 1A00     		movs	r2, r3
+ 1143 004a 2000     		movs	r0, r4
+ 1144 004c FFF7FEFF 		bl	vSPI_2byte_write_Mask
+ 1145              	.LVL131:
+ 1146 0050 0500     		movs	r5, r0
+ 1147 0052 0128     		cmp	r0, #1
+ 1148 0054 07D0     		beq	.L67
+ 450:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         return RN8209_STATUS_ACCESS_FAIL;
+ 1149              		.loc 1 450 0
+ 1150 0056 8023     		movs	r3, #128
+ 1151 0058 0022     		movs	r2, #0
+ 1152 005a DB00     		lsls	r3, r3, #3
+ 1153 005c 3021     		movs	r1, #48
+ 1154 005e 2000     		movs	r0, r4
+ 1155 0060 FFF7FEFF 		bl	vSPI_2byte_write_Mask
+ 1156              	.LVL132:
+ 1157 0064 CFE7     		b	.L66
+ 1158              	.L67:
+ 455:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     vSPI_2byte_read(BMIC_ADDRESS_917, CMIC_RX1500_33);
+ 1159              		.loc 1 455 0
+ 1160 0066 3421     		movs	r1, #52
+ 1161 0068 FFF7FEFF 		bl	vSPI_2byte_read
+ 1162              	.LVL133:
+ 456:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     u16Rx34 = usSPI_Reg_ReadData[KA84917_ARRAY_INDEX][CMIC_RX3116_34];
+ 1163              		.loc 1 456 0
+ 1164 006c 3321     		movs	r1, #51
+ 1165 006e 2800     		movs	r0, r5
+ 1166 0070 FFF7FEFF 		bl	vSPI_2byte_read
+ 1167              	.LVL134:
+ 459:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     /* RX移位方向: MSB先入→[31:24], 故 [31:24]=垃圾(CMD回显), [23:16]=MSB, [15:8]=MID,
+ 1168              		.loc 1 459 0
+ 1169 0074 0E4A     		ldr	r2, .L71+24
+ 464:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 1170              		.loc 1 464 0
+ 1171 0076 2800     		movs	r0, r5
+ 459:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     /* RX移位方向: MSB先入→[31:24], 故 [31:24]=垃圾(CMD回显), [23:16]=MSB, [15:8]=MID,
+ 1172              		.loc 1 459 0
+ 1173 0078 6632     		adds	r2, r2, #102
+ 1174 007a 5388     		ldrh	r3, [r2, #2]
+ 1175 007c 1188     		ldrh	r1, [r2]
+ 1176 007e 1B04     		lsls	r3, r3, #16
+ 1177 0080 0B43     		orrs	r3, r1
+ 461:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 1178              		.loc 1 461 0
+ 1179 0082 1B02     		lsls	r3, r3, #8
+ 1180 0084 1B0A     		lsrs	r3, r3, #8
+ 1181 0086 3360     		str	r3, [r6]
+ 464:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 1182              		.loc 1 464 0
+ 1183 0088 8023     		movs	r3, #128
+ 1184 008a 0022     		movs	r2, #0
+ 1185 008c DB00     		lsls	r3, r3, #3
+ 1186 008e 3021     		movs	r1, #48
+ 1187 0090 FFF7FEFF 		bl	vSPI_2byte_write_Mask
+ 1188              	.LVL135:
+ 466:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** }
+ARM GAS  /tmp/ccYTzABM.s 			page 32
+
+
+ 1189              		.loc 1 466 0
+ 1190 0094 0020     		movs	r0, #0
+ 1191 0096 B7E7     		b	.L65
+ 1192              	.L72:
+ 1193              		.align	2
+ 1194              	.L71:
+ 1195 0098 00000000 		.word	.LANCHOR0
+ 1196 009c FF070000 		.word	2047
+ 1197 00a0 5F040000 		.word	1119
+ 1198 00a4 AA300000 		.word	12458
+ 1199 00a8 AAAA0000 		.word	43690
+ 1200 00ac 01050000 		.word	1281
+ 1201 00b0 00000000 		.word	usSPI_Reg_ReadData
+ 1202              		.cfi_endproc
+ 1203              	.LFE503:
+ 1205              		.section	.text.DRV_RN8209_ReadAdcU_Fast_V2,"ax",%progbits
+ 1206              		.align	1
+ 1207              		.global	DRV_RN8209_ReadAdcU_Fast_V2
+ 1208              		.syntax unified
+ 1209              		.code	16
+ 1210              		.thumb_func
+ 1211              		.fpu softvfp
+ 1213              	DRV_RN8209_ReadAdcU_Fast_V2:
+ 1214              	.LFB504:
+ 468:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 469:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 470:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** /*=============================================================================================
+ 471:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** ** 优化版RN8209 U ADC读取 — 32-bit GPSPI帧
+ 472:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** **   一次TALK触发完成CMD(8bit)+DATA(24bit)完整传输, 替代原逐字节Fast版
+ 473:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** **   GPSPI速率: 1Mbps (符合RN8209手册≤1.7MHz)
+ 474:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** **   Daisy操作数: ~8次 (vs 原Fast版~14次, 降43%)
+ 475:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** **===========================================================================================*/
+ 476:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** uint8 DRV_RN8209_ReadAdcU_Fast_V2(uint32* data)
+ 477:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** {
+ 1215              		.loc 1 477 0
+ 1216              		.cfi_startproc
+ 1217              		@ args = 0, pretend = 0, frame = 0
+ 1218              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1219              	.LVL136:
+ 1220 0000 70B5     		push	{r4, r5, r6, lr}
+ 1221              	.LCFI10:
+ 1222              		.cfi_def_cfa_offset 16
+ 1223              		.cfi_offset 4, -16
+ 1224              		.cfi_offset 5, -12
+ 1225              		.cfi_offset 6, -8
+ 1226              		.cfi_offset 14, -4
+ 1227              		.loc 1 477 0
+ 1228 0002 061E     		subs	r6, r0, #0
+ 478:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     uint16 u16Rx34, u16Rx33;
+ 479:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     uint32 u32FullRx;
+ 480:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 481:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if ((data == NULL_PTR) || (g_u8Rn8209Init == 0)) {
+ 1229              		.loc 1 481 0
+ 1230 0004 01D1     		bne	.L74
+ 1231              	.LVL137:
+ 1232              	.L76:
+ 482:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         return RN8209_STATUS_ACCESS_FAIL;
+ARM GAS  /tmp/ccYTzABM.s 			page 33
+
+
+ 1233              		.loc 1 482 0
+ 1234 0006 0120     		movs	r0, #1
+ 1235              	.L75:
+ 483:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     }
+ 484:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 485:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     /* 1. 配置GPSPI: 32-bit帧, 1Mbps, CS负极性 */
+ 486:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if (TRUE != vSPI_2byte_write_Mask(BMIC_ADDRESS_917, CMIC_CNTADR_35,
+ 487:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             CMIC_BIT_LENGTH_1_32|CMIC_BIT_GPSPI_CS1_N|CMIC_BIT_GPSPI_RATE2, 0x7FF)) {
+ 488:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         return RN8209_STATUS_ACCESS_FAIL;
+ 489:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     }
+ 490:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 491:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     /* 2. 使能RN8209 CS */
+ 492:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     RN8209_ENABLE();
+ 493:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 494:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     /* 3. TX: CMD_SPL_U(0x32) + 3字节dummy → 32-bit = 0x32AAAAAA */
+ 495:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     vSPI_2byte_write(BMIC_ADDRESS_917, CMIC_TX3116_32, 0x32AAu);
+ 496:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     vSPI_2byte_write(BMIC_ADDRESS_917, CMIC_TX1500_31, 0xAAAAu);
+ 497:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if (TRUE != vSPI_2byte_write_Mask(BMIC_ADDRESS_917, CMIC_CNTADR_30,
+ 498:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             CMIC_CSON_1_ON|CMIC_MAN_CS_ON|CMIC_TALK_GPSPI1ON,
+ 499:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             CMIC_CSON_1_ON|CMIC_MAN_CS_ON|CMIC_TALK_GPSPI1ON)) {
+ 500:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         RN8209_DISABLE();
+ 501:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         return RN8209_STATUS_ACCESS_FAIL;
+ 502:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     }
+ 503:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 504:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     /* 4. RX: 32-bit捕获 → 丢弃首字节(CMD阶段) → 保留后24-bit */
+ 505:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     vSPI_2byte_read(BMIC_ADDRESS_917, CMIC_RX3116_34);
+ 506:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     vSPI_2byte_read(BMIC_ADDRESS_917, CMIC_RX1500_33);
+ 507:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     u16Rx34 = usSPI_Reg_ReadData[KA84917_ARRAY_INDEX][CMIC_RX3116_34];
+ 508:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     u16Rx33 = usSPI_Reg_ReadData[KA84917_ARRAY_INDEX][CMIC_RX1500_33];
+ 509:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     u32FullRx = ((uint32)u16Rx34 << 16u) | (uint32)u16Rx33;
+ 510:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     /* RX移位方向: MSB先入→[31:24], 故 [31:24]=垃圾(CMD回显), [23:16]=MSB, [15:8]=MID,
+ 511:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     *data = u32FullRx & 0x00FFFFFFu;
+ 512:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 513:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     /* 5. 释放RN8209 CS */
+ 514:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     RN8209_DISABLE();
+ 515:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 516:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     return RN8209_STATUS_ACCESS_OK;
+ 517:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** }
+ 1236              		.loc 1 517 0
+ 1237              		@ sp needed
+ 1238              	.LVL138:
+ 1239 0008 70BD     		pop	{r4, r5, r6, pc}
+ 1240              	.LVL139:
+ 1241              	.L74:
+ 481:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         return RN8209_STATUS_ACCESS_FAIL;
+ 1242              		.loc 1 481 0 discriminator 1
+ 1243 000a 234B     		ldr	r3, .L81
+ 1244 000c 1B78     		ldrb	r3, [r3]
+ 1245 000e 002B     		cmp	r3, #0
+ 1246 0010 F9D0     		beq	.L76
+ 486:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             CMIC_BIT_LENGTH_1_32|CMIC_BIT_GPSPI_CS1_N|CMIC_BIT_GPSPI_RATE2, 0x7FF)) {
+ 1247              		.loc 1 486 0
+ 1248 0012 224B     		ldr	r3, .L81+4
+ 1249 0014 224A     		ldr	r2, .L81+8
+ 1250 0016 3521     		movs	r1, #53
+ 1251 0018 0120     		movs	r0, #1
+ 1252              	.LVL140:
+ARM GAS  /tmp/ccYTzABM.s 			page 34
+
+
+ 1253 001a FFF7FEFF 		bl	vSPI_2byte_write_Mask
+ 1254              	.LVL141:
+ 1255 001e 0400     		movs	r4, r0
+ 1256 0020 0128     		cmp	r0, #1
+ 1257 0022 F0D1     		bne	.L76
+ 492:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 1258              		.loc 1 492 0
+ 1259 0024 A023     		movs	r3, #160
+ 1260 0026 DB00     		lsls	r3, r3, #3
+ 1261 0028 1A00     		movs	r2, r3
+ 1262 002a 3021     		movs	r1, #48
+ 1263 002c FFF7FEFF 		bl	vSPI_2byte_write_Mask
+ 1264              	.LVL142:
+ 495:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     vSPI_2byte_write(BMIC_ADDRESS_917, CMIC_TX1500_31, 0xAAAAu);
+ 1265              		.loc 1 495 0
+ 1266 0030 1C4A     		ldr	r2, .L81+12
+ 1267 0032 3221     		movs	r1, #50
+ 1268 0034 2000     		movs	r0, r4
+ 1269 0036 FFF7FEFF 		bl	vSPI_2byte_write
+ 1270              	.LVL143:
+ 496:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if (TRUE != vSPI_2byte_write_Mask(BMIC_ADDRESS_917, CMIC_CNTADR_30,
+ 1271              		.loc 1 496 0
+ 1272 003a 1B4A     		ldr	r2, .L81+16
+ 1273 003c 3121     		movs	r1, #49
+ 1274 003e 2000     		movs	r0, r4
+ 1275 0040 FFF7FEFF 		bl	vSPI_2byte_write
+ 1276              	.LVL144:
+ 497:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             CMIC_CSON_1_ON|CMIC_MAN_CS_ON|CMIC_TALK_GPSPI1ON,
+ 1277              		.loc 1 497 0
+ 1278 0044 194B     		ldr	r3, .L81+20
+ 1279 0046 3021     		movs	r1, #48
+ 1280 0048 1A00     		movs	r2, r3
+ 1281 004a 2000     		movs	r0, r4
+ 1282 004c FFF7FEFF 		bl	vSPI_2byte_write_Mask
+ 1283              	.LVL145:
+ 1284 0050 0500     		movs	r5, r0
+ 1285 0052 0128     		cmp	r0, #1
+ 1286 0054 07D0     		beq	.L77
+ 500:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         return RN8209_STATUS_ACCESS_FAIL;
+ 1287              		.loc 1 500 0
+ 1288 0056 8023     		movs	r3, #128
+ 1289 0058 0022     		movs	r2, #0
+ 1290 005a DB00     		lsls	r3, r3, #3
+ 1291 005c 3021     		movs	r1, #48
+ 1292 005e 2000     		movs	r0, r4
+ 1293 0060 FFF7FEFF 		bl	vSPI_2byte_write_Mask
+ 1294              	.LVL146:
+ 1295 0064 CFE7     		b	.L76
+ 1296              	.L77:
+ 505:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     vSPI_2byte_read(BMIC_ADDRESS_917, CMIC_RX1500_33);
+ 1297              		.loc 1 505 0
+ 1298 0066 3421     		movs	r1, #52
+ 1299 0068 FFF7FEFF 		bl	vSPI_2byte_read
+ 1300              	.LVL147:
+ 506:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     u16Rx34 = usSPI_Reg_ReadData[KA84917_ARRAY_INDEX][CMIC_RX3116_34];
+ 1301              		.loc 1 506 0
+ 1302 006c 3321     		movs	r1, #51
+ARM GAS  /tmp/ccYTzABM.s 			page 35
+
+
+ 1303 006e 2800     		movs	r0, r5
+ 1304 0070 FFF7FEFF 		bl	vSPI_2byte_read
+ 1305              	.LVL148:
+ 509:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     /* RX移位方向: MSB先入→[31:24], 故 [31:24]=垃圾(CMD回显), [23:16]=MSB, [15:8]=MID,
+ 1306              		.loc 1 509 0
+ 1307 0074 0E4A     		ldr	r2, .L81+24
+ 514:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 1308              		.loc 1 514 0
+ 1309 0076 2800     		movs	r0, r5
+ 509:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     /* RX移位方向: MSB先入→[31:24], 故 [31:24]=垃圾(CMD回显), [23:16]=MSB, [15:8]=MID,
+ 1310              		.loc 1 509 0
+ 1311 0078 6632     		adds	r2, r2, #102
+ 1312 007a 5388     		ldrh	r3, [r2, #2]
+ 1313 007c 1188     		ldrh	r1, [r2]
+ 1314 007e 1B04     		lsls	r3, r3, #16
+ 1315 0080 0B43     		orrs	r3, r1
+ 511:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 1316              		.loc 1 511 0
+ 1317 0082 1B02     		lsls	r3, r3, #8
+ 1318 0084 1B0A     		lsrs	r3, r3, #8
+ 1319 0086 3360     		str	r3, [r6]
+ 514:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 1320              		.loc 1 514 0
+ 1321 0088 8023     		movs	r3, #128
+ 1322 008a 0022     		movs	r2, #0
+ 1323 008c DB00     		lsls	r3, r3, #3
+ 1324 008e 3021     		movs	r1, #48
+ 1325 0090 FFF7FEFF 		bl	vSPI_2byte_write_Mask
+ 1326              	.LVL149:
+ 516:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** }
+ 1327              		.loc 1 516 0
+ 1328 0094 0020     		movs	r0, #0
+ 1329 0096 B7E7     		b	.L75
+ 1330              	.L82:
+ 1331              		.align	2
+ 1332              	.L81:
+ 1333 0098 00000000 		.word	.LANCHOR0
+ 1334 009c FF070000 		.word	2047
+ 1335 00a0 5F040000 		.word	1119
+ 1336 00a4 AA320000 		.word	12970
+ 1337 00a8 AAAA0000 		.word	43690
+ 1338 00ac 01050000 		.word	1281
+ 1339 00b0 00000000 		.word	usSPI_Reg_ReadData
+ 1340              		.cfi_endproc
+ 1341              	.LFE504:
+ 1343              		.section	.text.DRV_RN8209_ReadAdcIA_Fast_V3,"ax",%progbits
+ 1344              		.align	1
+ 1345              		.global	DRV_RN8209_ReadAdcIA_Fast_V3
+ 1346              		.syntax unified
+ 1347              		.code	16
+ 1348              		.thumb_func
+ 1349              		.fpu softvfp
+ 1351              	DRV_RN8209_ReadAdcIA_Fast_V3:
+ 1352              	.LFB505:
+ 518:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 519:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** /*=============================================================================================
+ 520:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** ** V4: 8-bit GPSPI帧 + NoWait批量入队
+ARM GAS  /tmp/ccYTzABM.s 			page 36
+
+
+ 521:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** **   协议: 与_Fast版完全相同(逐字节8-bit), 已验证数据正确
+ 522:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** **   优化: 将串行等待改为3段批量入队 + WaitAllDone
+ 523:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** **   WaitAllDone次数: 3次 (vs 原Fast版13次), 预计耗时从~4ms降至~1.5ms
+ 524:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** **===========================================================================================*/
+ 525:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 526:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** /*=============================================================================================
+ 527:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** ** @Name      : DRV_RN8209_ReadAdcIA_Fast_V3
+ 528:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** ** @Function  : RN8209 IA ADC读取 — 8-bit帧 + 3段批量入队
+ 529:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** **   Phase A: 配置 + CS使能 + CMD发送 + Dummy1发送 + 读RX → MSB
+ 530:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** **   Phase B: Dummy2发送 + 读RX → MID
+ 531:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** **   Phase C: Dummy3发送 + 读RX → LSB + CS释放
+ 532:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** **===========================================================================================*/
+ 533:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** uint8 DRV_RN8209_ReadAdcIA_Fast_V3(uint32* data)
+ 534:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** {
+ 1353              		.loc 1 534 0
+ 1354              		.cfi_startproc
+ 1355              		@ args = 0, pretend = 0, frame = 8
+ 1356              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1357              	.LVL150:
+ 1358 0000 F7B5     		push	{r0, r1, r2, r4, r5, r6, r7, lr}
+ 1359              	.LCFI11:
+ 1360              		.cfi_def_cfa_offset 32
+ 1361              		.cfi_offset 0, -32
+ 1362              		.cfi_offset 1, -28
+ 1363              		.cfi_offset 2, -24
+ 1364              		.cfi_offset 4, -20
+ 1365              		.cfi_offset 5, -16
+ 1366              		.cfi_offset 6, -12
+ 1367              		.cfi_offset 7, -8
+ 1368              		.cfi_offset 14, -4
+ 1369              		.loc 1 534 0
+ 1370 0002 071E     		subs	r7, r0, #0
+ 535:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     u8 u8Temp, u8Temp1, u8Temp2;
+ 536:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     u8 u8RetVal = RN8209_STATUS_ACCESS_FAIL;
+ 537:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 538:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if ((data == NULL_PTR) || (g_u8Rn8209Init == 0)) {
+ 1371              		.loc 1 538 0
+ 1372 0004 01D1     		bne	.L84
+ 1373              	.LVL151:
+ 1374              	.L92:
+ 539:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         return RN8209_STATUS_ACCESS_FAIL;
+ 540:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     }
+ 541:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 542:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     /* Phase A: 配置GPSPI(8bit) + CS使能 + CMD发送 + Dummy1发送 + 读RX, 全部NoWait入队
+ 543:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if (TRUE != vSPI_2byte_write_Mask_NoWait(BMIC_ADDRESS_917, CMIC_CNTADR_35,
+ 544:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             CMIC_BIT_LENGTH_1_7|CMIC_BIT_GPSPI_CS1_N|CMIC_BIT_GPSPI_RATE2, 0x7FF)) {
+ 545:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         return RN8209_STATUS_ACCESS_FAIL;
+ 546:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     }
+ 547:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     /* CS使能 */
+ 548:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     vSPI_2byte_write_Mask_NoWait(BMIC_ADDRESS_917, CMIC_CNTADR_30,
+ 549:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         CMIC_CSON_1_ON|CMIC_MAN_CS_ON, CMIC_CSON_1_ON|CMIC_MAN_CS_ON);
+ 550:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     /* CMD字节: CMD_SPL_IA(0x30) */
+ 551:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     vSPI_2byte_write_NoWait(BMIC_ADDRESS_917, CMIC_TX3116_32,
+ 552:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         (u16)(CMD_SPL_IA << 8) | RN8209_DUMMY_BYTE);
+ 553:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     /* TALK触发 */
+ 554:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     vSPI_2byte_write_Mask_NoWait(BMIC_ADDRESS_917, CMIC_CNTADR_30,
+ 555:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         CMIC_CSON_1_ON|CMIC_MAN_CS_ON|CMIC_TALK_GPSPI1ON,
+ARM GAS  /tmp/ccYTzABM.s 			page 37
+
+
+ 556:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         CMIC_CSON_1_ON|CMIC_MAN_CS_ON|CMIC_TALK_GPSPI1ON);
+ 557:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     /* Dummy1字节 */
+ 558:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     vSPI_2byte_write_NoWait(BMIC_ADDRESS_917, CMIC_TX3116_32,
+ 559:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         (u16)(RN8209_DUMMY_BYTE << 8) | RN8209_DUMMY_BYTE);
+ 560:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     /* TALK触发 */
+ 561:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     vSPI_2byte_write_Mask_NoWait(BMIC_ADDRESS_917, CMIC_CNTADR_30,
+ 562:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         CMIC_CSON_1_ON|CMIC_MAN_CS_ON|CMIC_TALK_GPSPI1ON,
+ 563:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         CMIC_CSON_1_ON|CMIC_MAN_CS_ON|CMIC_TALK_GPSPI1ON);
+ 564:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     /* 读回Dummy1数据(MSB) — NoWait入队, 状态机会在TALK完成后读 */
+ 565:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     vSPI_2byte_read_NoWait(BMIC_ADDRESS_917, CMIC_RX1500_33);
+ 566:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if (ucSPI_WaitAllDone(10u) != SPI_NOERR) {
+ 567:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         RN8209_DISABLE();
+ 568:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         return RN8209_STATUS_ACCESS_FAIL;
+ 1375              		.loc 1 568 0
+ 1376 0006 0120     		movs	r0, #1
+ 1377              	.LVL152:
+ 1378              	.L85:
+ 569:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     }
+ 570:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     u8Temp = (u8)(usSPI_Reg_ReadData[KA84917_ARRAY_INDEX][CMIC_RX1500_33] & 0xFF);
+ 571:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 572:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     /* Phase B: Dummy2发送 + 读RX(MID) */
+ 573:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     vSPI_2byte_write_NoWait(BMIC_ADDRESS_917, CMIC_TX3116_32,
+ 574:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         (u16)(RN8209_DUMMY_BYTE << 8) | RN8209_DUMMY_BYTE);
+ 575:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     vSPI_2byte_write_Mask_NoWait(BMIC_ADDRESS_917, CMIC_CNTADR_30,
+ 576:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         CMIC_CSON_1_ON|CMIC_MAN_CS_ON|CMIC_TALK_GPSPI1ON,
+ 577:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         CMIC_CSON_1_ON|CMIC_MAN_CS_ON|CMIC_TALK_GPSPI1ON);
+ 578:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     vSPI_2byte_read_NoWait(BMIC_ADDRESS_917, CMIC_RX1500_33);
+ 579:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if (ucSPI_WaitAllDone(10u) != SPI_NOERR) {
+ 580:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         RN8209_DISABLE();
+ 581:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         return RN8209_STATUS_ACCESS_FAIL;
+ 582:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     }
+ 583:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     u8Temp1 = (u8)(usSPI_Reg_ReadData[KA84917_ARRAY_INDEX][CMIC_RX1500_33] & 0xFF);
+ 584:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 585:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     /* Phase C: Dummy3发送 + 读RX(LSB) + CS释放 */
+ 586:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     vSPI_2byte_write_NoWait(BMIC_ADDRESS_917, CMIC_TX3116_32,
+ 587:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         (u16)(RN8209_DUMMY_BYTE << 8) | RN8209_DUMMY_BYTE);
+ 588:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     vSPI_2byte_write_Mask_NoWait(BMIC_ADDRESS_917, CMIC_CNTADR_30,
+ 589:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         CMIC_CSON_1_ON|CMIC_MAN_CS_ON|CMIC_TALK_GPSPI1ON,
+ 590:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         CMIC_CSON_1_ON|CMIC_MAN_CS_ON|CMIC_TALK_GPSPI1ON);
+ 591:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     vSPI_2byte_read_NoWait(BMIC_ADDRESS_917, CMIC_RX1500_33);
+ 592:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     /* CS释放 — 在TALK和读RX之后 */
+ 593:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     vSPI_2byte_write_Mask_NoWait(BMIC_ADDRESS_917, CMIC_CNTADR_30,
+ 594:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         CMIC_CSON_1_OFF|CMIC_MAN_CS_OFF, CMIC_CSON_1_ON|CMIC_MAN_CS_OFF);
+ 595:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if (ucSPI_WaitAllDone(10u) != SPI_NOERR) {
+ 596:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         return RN8209_STATUS_ACCESS_FAIL;
+ 597:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     }
+ 598:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     u8Temp2 = (u8)(usSPI_Reg_ReadData[KA84917_ARRAY_INDEX][CMIC_RX1500_33] & 0xFF);
+ 599:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 600:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     *data = ((uint32)u8Temp << 16) | ((uint32)u8Temp1 << 8) | u8Temp2;
+ 601:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     u8RetVal = RN8209_STATUS_ACCESS_OK;
+ 602:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 603:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     return u8RetVal;
+ 604:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** }
+ 1379              		.loc 1 604 0
+ 1380              		@ sp needed
+ 1381              	.LVL153:
+ 1382 0008 FEBD     		pop	{r1, r2, r3, r4, r5, r6, r7, pc}
+ARM GAS  /tmp/ccYTzABM.s 			page 38
+
+
+ 1383              	.LVL154:
+ 1384              	.L84:
+ 538:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         return RN8209_STATUS_ACCESS_FAIL;
+ 1385              		.loc 1 538 0 discriminator 1
+ 1386 000a 3D4B     		ldr	r3, .L93
+ 1387 000c 1B78     		ldrb	r3, [r3]
+ 1388 000e 002B     		cmp	r3, #0
+ 1389 0010 F9D0     		beq	.L92
+ 543:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             CMIC_BIT_LENGTH_1_7|CMIC_BIT_GPSPI_CS1_N|CMIC_BIT_GPSPI_RATE2, 0x7FF)) {
+ 1390              		.loc 1 543 0
+ 1391 0012 3C4B     		ldr	r3, .L93+4
+ 1392 0014 3C4A     		ldr	r2, .L93+8
+ 1393 0016 3521     		movs	r1, #53
+ 1394 0018 0120     		movs	r0, #1
+ 1395              	.LVL155:
+ 1396 001a FFF7FEFF 		bl	vSPI_2byte_write_Mask_NoWait
+ 1397              	.LVL156:
+ 1398 001e 0400     		movs	r4, r0
+ 1399 0020 0128     		cmp	r0, #1
+ 1400 0022 F0D1     		bne	.L92
+ 548:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         CMIC_CSON_1_ON|CMIC_MAN_CS_ON, CMIC_CSON_1_ON|CMIC_MAN_CS_ON);
+ 1401              		.loc 1 548 0
+ 1402 0024 A023     		movs	r3, #160
+ 1403 0026 DB00     		lsls	r3, r3, #3
+ 1404 0028 1A00     		movs	r2, r3
+ 1405 002a 3021     		movs	r1, #48
+ 1406 002c FFF7FEFF 		bl	vSPI_2byte_write_Mask_NoWait
+ 1407              	.LVL157:
+ 551:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         (u16)(CMD_SPL_IA << 8) | RN8209_DUMMY_BYTE);
+ 1408              		.loc 1 551 0
+ 1409 0030 364A     		ldr	r2, .L93+12
+ 1410 0032 3221     		movs	r1, #50
+ 1411 0034 2000     		movs	r0, r4
+ 1412 0036 FFF7FEFF 		bl	vSPI_2byte_write_NoWait
+ 1413              	.LVL158:
+ 554:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         CMIC_CSON_1_ON|CMIC_MAN_CS_ON|CMIC_TALK_GPSPI1ON,
+ 1414              		.loc 1 554 0
+ 1415 003a 354B     		ldr	r3, .L93+16
+ 1416 003c 3021     		movs	r1, #48
+ 1417 003e 1A00     		movs	r2, r3
+ 1418 0040 2000     		movs	r0, r4
+ 1419 0042 FFF7FEFF 		bl	vSPI_2byte_write_Mask_NoWait
+ 1420              	.LVL159:
+ 558:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         (u16)(RN8209_DUMMY_BYTE << 8) | RN8209_DUMMY_BYTE);
+ 1421              		.loc 1 558 0
+ 1422 0046 334A     		ldr	r2, .L93+20
+ 1423 0048 3221     		movs	r1, #50
+ 1424 004a 2000     		movs	r0, r4
+ 1425 004c FFF7FEFF 		bl	vSPI_2byte_write_NoWait
+ 1426              	.LVL160:
+ 561:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         CMIC_CSON_1_ON|CMIC_MAN_CS_ON|CMIC_TALK_GPSPI1ON,
+ 1427              		.loc 1 561 0
+ 1428 0050 2F4B     		ldr	r3, .L93+16
+ 1429 0052 3021     		movs	r1, #48
+ 1430 0054 1A00     		movs	r2, r3
+ 1431 0056 2000     		movs	r0, r4
+ 1432 0058 FFF7FEFF 		bl	vSPI_2byte_write_Mask_NoWait
+ARM GAS  /tmp/ccYTzABM.s 			page 39
+
+
+ 1433              	.LVL161:
+ 565:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if (ucSPI_WaitAllDone(10u) != SPI_NOERR) {
+ 1434              		.loc 1 565 0
+ 1435 005c 3321     		movs	r1, #51
+ 1436 005e 2000     		movs	r0, r4
+ 1437 0060 FFF7FEFF 		bl	vSPI_2byte_read_NoWait
+ 1438              	.LVL162:
+ 566:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         RN8209_DISABLE();
+ 1439              		.loc 1 566 0
+ 1440 0064 0A20     		movs	r0, #10
+ 1441 0066 FFF7FEFF 		bl	ucSPI_WaitAllDone
+ 1442              	.LVL163:
+ 1443 006a A028     		cmp	r0, #160
+ 1444 006c 07D0     		beq	.L87
+ 1445              	.L88:
+ 567:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         return RN8209_STATUS_ACCESS_FAIL;
+ 1446              		.loc 1 567 0
+ 1447 006e 8023     		movs	r3, #128
+ 1448 0070 0022     		movs	r2, #0
+ 1449 0072 DB00     		lsls	r3, r3, #3
+ 1450 0074 3021     		movs	r1, #48
+ 1451 0076 0120     		movs	r0, #1
+ 1452 0078 FFF7FEFF 		bl	vSPI_2byte_write_Mask
+ 1453              	.LVL164:
+ 1454 007c C3E7     		b	.L92
+ 1455              	.L87:
+ 570:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 1456              		.loc 1 570 0
+ 1457 007e 264E     		ldr	r6, .L93+24
+ 573:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         (u16)(RN8209_DUMMY_BYTE << 8) | RN8209_DUMMY_BYTE);
+ 1458              		.loc 1 573 0
+ 1459 0080 244A     		ldr	r2, .L93+20
+ 1460 0082 3221     		movs	r1, #50
+ 570:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 1461              		.loc 1 570 0
+ 1462 0084 6636     		adds	r6, r6, #102
+ 573:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         (u16)(RN8209_DUMMY_BYTE << 8) | RN8209_DUMMY_BYTE);
+ 1463              		.loc 1 573 0
+ 1464 0086 2000     		movs	r0, r4
+ 570:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 1465              		.loc 1 570 0
+ 1466 0088 3588     		ldrh	r5, [r6]
+ 1467              	.LVL165:
+ 573:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         (u16)(RN8209_DUMMY_BYTE << 8) | RN8209_DUMMY_BYTE);
+ 1468              		.loc 1 573 0
+ 1469 008a FFF7FEFF 		bl	vSPI_2byte_write_NoWait
+ 1470              	.LVL166:
+ 575:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         CMIC_CSON_1_ON|CMIC_MAN_CS_ON|CMIC_TALK_GPSPI1ON,
+ 1471              		.loc 1 575 0
+ 1472 008e 204B     		ldr	r3, .L93+16
+ 1473 0090 3021     		movs	r1, #48
+ 1474 0092 1A00     		movs	r2, r3
+ 1475 0094 2000     		movs	r0, r4
+ 1476 0096 FFF7FEFF 		bl	vSPI_2byte_write_Mask_NoWait
+ 1477              	.LVL167:
+ 578:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if (ucSPI_WaitAllDone(10u) != SPI_NOERR) {
+ 1478              		.loc 1 578 0
+ARM GAS  /tmp/ccYTzABM.s 			page 40
+
+
+ 1479 009a 3321     		movs	r1, #51
+ 1480 009c 2000     		movs	r0, r4
+ 1481 009e FFF7FEFF 		bl	vSPI_2byte_read_NoWait
+ 1482              	.LVL168:
+ 579:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         RN8209_DISABLE();
+ 1483              		.loc 1 579 0
+ 1484 00a2 0A20     		movs	r0, #10
+ 1485 00a4 FFF7FEFF 		bl	ucSPI_WaitAllDone
+ 1486              	.LVL169:
+ 1487 00a8 A028     		cmp	r0, #160
+ 1488 00aa E0D1     		bne	.L88
+ 583:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 1489              		.loc 1 583 0
+ 1490 00ac 3388     		ldrh	r3, [r6]
+ 586:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         (u16)(RN8209_DUMMY_BYTE << 8) | RN8209_DUMMY_BYTE);
+ 1491              		.loc 1 586 0
+ 1492 00ae 194A     		ldr	r2, .L93+20
+ 1493 00b0 3221     		movs	r1, #50
+ 1494 00b2 2000     		movs	r0, r4
+ 583:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 1495              		.loc 1 583 0
+ 1496 00b4 0193     		str	r3, [sp, #4]
+ 1497              	.LVL170:
+ 586:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         (u16)(RN8209_DUMMY_BYTE << 8) | RN8209_DUMMY_BYTE);
+ 1498              		.loc 1 586 0
+ 1499 00b6 FFF7FEFF 		bl	vSPI_2byte_write_NoWait
+ 1500              	.LVL171:
+ 588:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         CMIC_CSON_1_ON|CMIC_MAN_CS_ON|CMIC_TALK_GPSPI1ON,
+ 1501              		.loc 1 588 0
+ 1502 00ba 154B     		ldr	r3, .L93+16
+ 1503 00bc 3021     		movs	r1, #48
+ 1504 00be 1A00     		movs	r2, r3
+ 1505 00c0 2000     		movs	r0, r4
+ 1506 00c2 FFF7FEFF 		bl	vSPI_2byte_write_Mask_NoWait
+ 1507              	.LVL172:
+ 591:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     /* CS释放 — 在TALK和读RX之后 */
+ 1508              		.loc 1 591 0
+ 1509 00c6 3321     		movs	r1, #51
+ 1510 00c8 2000     		movs	r0, r4
+ 1511 00ca FFF7FEFF 		bl	vSPI_2byte_read_NoWait
+ 1512              	.LVL173:
+ 593:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         CMIC_CSON_1_OFF|CMIC_MAN_CS_OFF, CMIC_CSON_1_ON|CMIC_MAN_CS_OFF);
+ 1513              		.loc 1 593 0
+ 1514 00ce 8023     		movs	r3, #128
+ 1515 00d0 0022     		movs	r2, #0
+ 1516 00d2 DB00     		lsls	r3, r3, #3
+ 1517 00d4 3021     		movs	r1, #48
+ 1518 00d6 2000     		movs	r0, r4
+ 1519 00d8 FFF7FEFF 		bl	vSPI_2byte_write_Mask_NoWait
+ 1520              	.LVL174:
+ 595:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         return RN8209_STATUS_ACCESS_FAIL;
+ 1521              		.loc 1 595 0
+ 1522 00dc 0A20     		movs	r0, #10
+ 1523 00de FFF7FEFF 		bl	ucSPI_WaitAllDone
+ 1524              	.LVL175:
+ 1525 00e2 A028     		cmp	r0, #160
+ 1526 00e4 00D0     		beq	.LCB1311
+ARM GAS  /tmp/ccYTzABM.s 			page 41
+
+
+ 1527 00e6 8EE7     		b	.L92	@long jump
+ 1528              	.LCB1311:
+ 1529              	.LVL176:
+ 600:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     u8RetVal = RN8209_STATUS_ACCESS_OK;
+ 1530              		.loc 1 600 0
+ 1531 00e8 6B46     		mov	r3, sp
+ 1532 00ea 1B79     		ldrb	r3, [r3, #4]
+ 1533 00ec EDB2     		uxtb	r5, r5
+ 1534 00ee 1B02     		lsls	r3, r3, #8
+ 1535 00f0 2D04     		lsls	r5, r5, #16
+ 1536              	.LVL177:
+ 1537 00f2 1D43     		orrs	r5, r3
+ 1538 00f4 3378     		ldrb	r3, [r6]
+ 603:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** }
+ 1539              		.loc 1 603 0
+ 1540 00f6 0020     		movs	r0, #0
+ 600:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     u8RetVal = RN8209_STATUS_ACCESS_OK;
+ 1541              		.loc 1 600 0
+ 1542 00f8 1D43     		orrs	r5, r3
+ 1543 00fa 3D60     		str	r5, [r7]
+ 1544              	.LVL178:
+ 603:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** }
+ 1545              		.loc 1 603 0
+ 1546 00fc 84E7     		b	.L85
+ 1547              	.L94:
+ 1548 00fe C046     		.align	2
+ 1549              	.L93:
+ 1550 0100 00000000 		.word	.LANCHOR0
+ 1551 0104 FF070000 		.word	2047
+ 1552 0108 47040000 		.word	1095
+ 1553 010c AA300000 		.word	12458
+ 1554 0110 01050000 		.word	1281
+ 1555 0114 AAAA0000 		.word	43690
+ 1556 0118 00000000 		.word	usSPI_Reg_ReadData
+ 1557              		.cfi_endproc
+ 1558              	.LFE505:
+ 1560              		.section	.text.DRV_RN8209_ReadAdcU_Fast_V3,"ax",%progbits
+ 1561              		.align	1
+ 1562              		.global	DRV_RN8209_ReadAdcU_Fast_V3
+ 1563              		.syntax unified
+ 1564              		.code	16
+ 1565              		.thumb_func
+ 1566              		.fpu softvfp
+ 1568              	DRV_RN8209_ReadAdcU_Fast_V3:
+ 1569              	.LFB506:
+ 605:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 606:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 607:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** /*=============================================================================================
+ 608:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** ** @Name      : DRV_RN8209_ReadAdcU_Fast_V3
+ 609:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** ** @Function  : RN8209 U ADC读取 — 8-bit帧 + 3段批量入队
+ 610:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** **===========================================================================================*/
+ 611:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** uint8 DRV_RN8209_ReadAdcU_Fast_V3(uint32* data)
+ 612:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** {
+ 1570              		.loc 1 612 0
+ 1571              		.cfi_startproc
+ 1572              		@ args = 0, pretend = 0, frame = 8
+ 1573              		@ frame_needed = 0, uses_anonymous_args = 0
+ARM GAS  /tmp/ccYTzABM.s 			page 42
+
+
+ 1574              	.LVL179:
+ 1575 0000 F7B5     		push	{r0, r1, r2, r4, r5, r6, r7, lr}
+ 1576              	.LCFI12:
+ 1577              		.cfi_def_cfa_offset 32
+ 1578              		.cfi_offset 0, -32
+ 1579              		.cfi_offset 1, -28
+ 1580              		.cfi_offset 2, -24
+ 1581              		.cfi_offset 4, -20
+ 1582              		.cfi_offset 5, -16
+ 1583              		.cfi_offset 6, -12
+ 1584              		.cfi_offset 7, -8
+ 1585              		.cfi_offset 14, -4
+ 1586              		.loc 1 612 0
+ 1587 0002 071E     		subs	r7, r0, #0
+ 613:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     u8 u8Temp, u8Temp1, u8Temp2;
+ 614:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     u8 u8RetVal = RN8209_STATUS_ACCESS_FAIL;
+ 615:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 616:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if ((data == NULL_PTR) || (g_u8Rn8209Init == 0)) {
+ 1588              		.loc 1 616 0
+ 1589 0004 01D1     		bne	.L96
+ 1590              	.LVL180:
+ 1591              	.L104:
+ 617:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         return RN8209_STATUS_ACCESS_FAIL;
+ 618:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     }
+ 619:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 620:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     /* Phase A: 配置GPSPI(8bit) + CS使能 + CMD发送 + Dummy1发送 + 读RX */
+ 621:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if (TRUE != vSPI_2byte_write_Mask_NoWait(BMIC_ADDRESS_917, CMIC_CNTADR_35,
+ 622:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             CMIC_BIT_LENGTH_1_7|CMIC_BIT_GPSPI_CS1_N|CMIC_BIT_GPSPI_RATE2, 0x7FF)) {
+ 623:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         return RN8209_STATUS_ACCESS_FAIL;
+ 624:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     }
+ 625:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     vSPI_2byte_write_Mask_NoWait(BMIC_ADDRESS_917, CMIC_CNTADR_30,
+ 626:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         CMIC_CSON_1_ON|CMIC_MAN_CS_ON, CMIC_CSON_1_ON|CMIC_MAN_CS_ON);
+ 627:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     /* CMD字节: CMD_SPL_U(0x32) */
+ 628:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     vSPI_2byte_write_NoWait(BMIC_ADDRESS_917, CMIC_TX3116_32,
+ 629:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         (u16)(CMD_SPL_U << 8) | RN8209_DUMMY_BYTE);
+ 630:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     vSPI_2byte_write_Mask_NoWait(BMIC_ADDRESS_917, CMIC_CNTADR_30,
+ 631:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         CMIC_CSON_1_ON|CMIC_MAN_CS_ON|CMIC_TALK_GPSPI1ON,
+ 632:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         CMIC_CSON_1_ON|CMIC_MAN_CS_ON|CMIC_TALK_GPSPI1ON);
+ 633:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     vSPI_2byte_write_NoWait(BMIC_ADDRESS_917, CMIC_TX3116_32,
+ 634:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         (u16)(RN8209_DUMMY_BYTE << 8) | RN8209_DUMMY_BYTE);
+ 635:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     vSPI_2byte_write_Mask_NoWait(BMIC_ADDRESS_917, CMIC_CNTADR_30,
+ 636:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         CMIC_CSON_1_ON|CMIC_MAN_CS_ON|CMIC_TALK_GPSPI1ON,
+ 637:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         CMIC_CSON_1_ON|CMIC_MAN_CS_ON|CMIC_TALK_GPSPI1ON);
+ 638:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     vSPI_2byte_read_NoWait(BMIC_ADDRESS_917, CMIC_RX1500_33);
+ 639:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if (ucSPI_WaitAllDone(10u) != SPI_NOERR) {
+ 640:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         RN8209_DISABLE();
+ 641:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         return RN8209_STATUS_ACCESS_FAIL;
+ 1592              		.loc 1 641 0
+ 1593 0006 0120     		movs	r0, #1
+ 1594              	.LVL181:
+ 1595              	.L97:
+ 642:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     }
+ 643:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     u8Temp = (u8)(usSPI_Reg_ReadData[KA84917_ARRAY_INDEX][CMIC_RX1500_33] & 0xFF);
+ 644:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 645:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     /* Phase B: Dummy2 */
+ 646:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     vSPI_2byte_write_NoWait(BMIC_ADDRESS_917, CMIC_TX3116_32,
+ 647:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         (u16)(RN8209_DUMMY_BYTE << 8) | RN8209_DUMMY_BYTE);
+ARM GAS  /tmp/ccYTzABM.s 			page 43
+
+
+ 648:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     vSPI_2byte_write_Mask_NoWait(BMIC_ADDRESS_917, CMIC_CNTADR_30,
+ 649:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         CMIC_CSON_1_ON|CMIC_MAN_CS_ON|CMIC_TALK_GPSPI1ON,
+ 650:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         CMIC_CSON_1_ON|CMIC_MAN_CS_ON|CMIC_TALK_GPSPI1ON);
+ 651:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     vSPI_2byte_read_NoWait(BMIC_ADDRESS_917, CMIC_RX1500_33);
+ 652:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if (ucSPI_WaitAllDone(10u) != SPI_NOERR) {
+ 653:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         RN8209_DISABLE();
+ 654:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         return RN8209_STATUS_ACCESS_FAIL;
+ 655:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     }
+ 656:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     u8Temp1 = (u8)(usSPI_Reg_ReadData[KA84917_ARRAY_INDEX][CMIC_RX1500_33] & 0xFF);
+ 657:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 658:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     /* Phase C: Dummy3 + CS释放 */
+ 659:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     vSPI_2byte_write_NoWait(BMIC_ADDRESS_917, CMIC_TX3116_32,
+ 660:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         (u16)(RN8209_DUMMY_BYTE << 8) | RN8209_DUMMY_BYTE);
+ 661:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     vSPI_2byte_write_Mask_NoWait(BMIC_ADDRESS_917, CMIC_CNTADR_30,
+ 662:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         CMIC_CSON_1_ON|CMIC_MAN_CS_ON|CMIC_TALK_GPSPI1ON,
+ 663:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         CMIC_CSON_1_ON|CMIC_MAN_CS_ON|CMIC_TALK_GPSPI1ON);
+ 664:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     vSPI_2byte_read_NoWait(BMIC_ADDRESS_917, CMIC_RX1500_33);
+ 665:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     vSPI_2byte_write_Mask_NoWait(BMIC_ADDRESS_917, CMIC_CNTADR_30,
+ 666:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         CMIC_CSON_1_OFF|CMIC_MAN_CS_OFF, CMIC_CSON_1_ON|CMIC_MAN_CS_OFF);
+ 667:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if (ucSPI_WaitAllDone(10u) != SPI_NOERR) {
+ 668:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         return RN8209_STATUS_ACCESS_FAIL;
+ 669:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     }
+ 670:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     u8Temp2 = (u8)(usSPI_Reg_ReadData[KA84917_ARRAY_INDEX][CMIC_RX1500_33] & 0xFF);
+ 671:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 672:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     *data = ((uint32)u8Temp << 16) | ((uint32)u8Temp1 << 8) | u8Temp2;
+ 673:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     u8RetVal = RN8209_STATUS_ACCESS_OK;
+ 674:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 675:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     return u8RetVal;
+ 676:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** }
+ 1596              		.loc 1 676 0
+ 1597              		@ sp needed
+ 1598              	.LVL182:
+ 1599 0008 FEBD     		pop	{r1, r2, r3, r4, r5, r6, r7, pc}
+ 1600              	.LVL183:
+ 1601              	.L96:
+ 616:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         return RN8209_STATUS_ACCESS_FAIL;
+ 1602              		.loc 1 616 0 discriminator 1
+ 1603 000a 3D4B     		ldr	r3, .L105
+ 1604 000c 1B78     		ldrb	r3, [r3]
+ 1605 000e 002B     		cmp	r3, #0
+ 1606 0010 F9D0     		beq	.L104
+ 621:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             CMIC_BIT_LENGTH_1_7|CMIC_BIT_GPSPI_CS1_N|CMIC_BIT_GPSPI_RATE2, 0x7FF)) {
+ 1607              		.loc 1 621 0
+ 1608 0012 3C4B     		ldr	r3, .L105+4
+ 1609 0014 3C4A     		ldr	r2, .L105+8
+ 1610 0016 3521     		movs	r1, #53
+ 1611 0018 0120     		movs	r0, #1
+ 1612              	.LVL184:
+ 1613 001a FFF7FEFF 		bl	vSPI_2byte_write_Mask_NoWait
+ 1614              	.LVL185:
+ 1615 001e 0400     		movs	r4, r0
+ 1616 0020 0128     		cmp	r0, #1
+ 1617 0022 F0D1     		bne	.L104
+ 625:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         CMIC_CSON_1_ON|CMIC_MAN_CS_ON, CMIC_CSON_1_ON|CMIC_MAN_CS_ON);
+ 1618              		.loc 1 625 0
+ 1619 0024 A023     		movs	r3, #160
+ 1620 0026 DB00     		lsls	r3, r3, #3
+ARM GAS  /tmp/ccYTzABM.s 			page 44
+
+
+ 1621 0028 1A00     		movs	r2, r3
+ 1622 002a 3021     		movs	r1, #48
+ 1623 002c FFF7FEFF 		bl	vSPI_2byte_write_Mask_NoWait
+ 1624              	.LVL186:
+ 628:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         (u16)(CMD_SPL_U << 8) | RN8209_DUMMY_BYTE);
+ 1625              		.loc 1 628 0
+ 1626 0030 364A     		ldr	r2, .L105+12
+ 1627 0032 3221     		movs	r1, #50
+ 1628 0034 2000     		movs	r0, r4
+ 1629 0036 FFF7FEFF 		bl	vSPI_2byte_write_NoWait
+ 1630              	.LVL187:
+ 630:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         CMIC_CSON_1_ON|CMIC_MAN_CS_ON|CMIC_TALK_GPSPI1ON,
+ 1631              		.loc 1 630 0
+ 1632 003a 354B     		ldr	r3, .L105+16
+ 1633 003c 3021     		movs	r1, #48
+ 1634 003e 1A00     		movs	r2, r3
+ 1635 0040 2000     		movs	r0, r4
+ 1636 0042 FFF7FEFF 		bl	vSPI_2byte_write_Mask_NoWait
+ 1637              	.LVL188:
+ 633:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         (u16)(RN8209_DUMMY_BYTE << 8) | RN8209_DUMMY_BYTE);
+ 1638              		.loc 1 633 0
+ 1639 0046 334A     		ldr	r2, .L105+20
+ 1640 0048 3221     		movs	r1, #50
+ 1641 004a 2000     		movs	r0, r4
+ 1642 004c FFF7FEFF 		bl	vSPI_2byte_write_NoWait
+ 1643              	.LVL189:
+ 635:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         CMIC_CSON_1_ON|CMIC_MAN_CS_ON|CMIC_TALK_GPSPI1ON,
+ 1644              		.loc 1 635 0
+ 1645 0050 2F4B     		ldr	r3, .L105+16
+ 1646 0052 3021     		movs	r1, #48
+ 1647 0054 1A00     		movs	r2, r3
+ 1648 0056 2000     		movs	r0, r4
+ 1649 0058 FFF7FEFF 		bl	vSPI_2byte_write_Mask_NoWait
+ 1650              	.LVL190:
+ 638:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if (ucSPI_WaitAllDone(10u) != SPI_NOERR) {
+ 1651              		.loc 1 638 0
+ 1652 005c 3321     		movs	r1, #51
+ 1653 005e 2000     		movs	r0, r4
+ 1654 0060 FFF7FEFF 		bl	vSPI_2byte_read_NoWait
+ 1655              	.LVL191:
+ 639:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         RN8209_DISABLE();
+ 1656              		.loc 1 639 0
+ 1657 0064 0A20     		movs	r0, #10
+ 1658 0066 FFF7FEFF 		bl	ucSPI_WaitAllDone
+ 1659              	.LVL192:
+ 1660 006a A028     		cmp	r0, #160
+ 1661 006c 07D0     		beq	.L99
+ 1662              	.L100:
+ 640:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         return RN8209_STATUS_ACCESS_FAIL;
+ 1663              		.loc 1 640 0
+ 1664 006e 8023     		movs	r3, #128
+ 1665 0070 0022     		movs	r2, #0
+ 1666 0072 DB00     		lsls	r3, r3, #3
+ 1667 0074 3021     		movs	r1, #48
+ 1668 0076 0120     		movs	r0, #1
+ 1669 0078 FFF7FEFF 		bl	vSPI_2byte_write_Mask
+ 1670              	.LVL193:
+ARM GAS  /tmp/ccYTzABM.s 			page 45
+
+
+ 1671 007c C3E7     		b	.L104
+ 1672              	.L99:
+ 643:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 1673              		.loc 1 643 0
+ 1674 007e 264E     		ldr	r6, .L105+24
+ 646:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         (u16)(RN8209_DUMMY_BYTE << 8) | RN8209_DUMMY_BYTE);
+ 1675              		.loc 1 646 0
+ 1676 0080 244A     		ldr	r2, .L105+20
+ 1677 0082 3221     		movs	r1, #50
+ 643:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 1678              		.loc 1 643 0
+ 1679 0084 6636     		adds	r6, r6, #102
+ 646:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         (u16)(RN8209_DUMMY_BYTE << 8) | RN8209_DUMMY_BYTE);
+ 1680              		.loc 1 646 0
+ 1681 0086 2000     		movs	r0, r4
+ 643:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 1682              		.loc 1 643 0
+ 1683 0088 3588     		ldrh	r5, [r6]
+ 1684              	.LVL194:
+ 646:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         (u16)(RN8209_DUMMY_BYTE << 8) | RN8209_DUMMY_BYTE);
+ 1685              		.loc 1 646 0
+ 1686 008a FFF7FEFF 		bl	vSPI_2byte_write_NoWait
+ 1687              	.LVL195:
+ 648:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         CMIC_CSON_1_ON|CMIC_MAN_CS_ON|CMIC_TALK_GPSPI1ON,
+ 1688              		.loc 1 648 0
+ 1689 008e 204B     		ldr	r3, .L105+16
+ 1690 0090 3021     		movs	r1, #48
+ 1691 0092 1A00     		movs	r2, r3
+ 1692 0094 2000     		movs	r0, r4
+ 1693 0096 FFF7FEFF 		bl	vSPI_2byte_write_Mask_NoWait
+ 1694              	.LVL196:
+ 651:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if (ucSPI_WaitAllDone(10u) != SPI_NOERR) {
+ 1695              		.loc 1 651 0
+ 1696 009a 3321     		movs	r1, #51
+ 1697 009c 2000     		movs	r0, r4
+ 1698 009e FFF7FEFF 		bl	vSPI_2byte_read_NoWait
+ 1699              	.LVL197:
+ 652:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         RN8209_DISABLE();
+ 1700              		.loc 1 652 0
+ 1701 00a2 0A20     		movs	r0, #10
+ 1702 00a4 FFF7FEFF 		bl	ucSPI_WaitAllDone
+ 1703              	.LVL198:
+ 1704 00a8 A028     		cmp	r0, #160
+ 1705 00aa E0D1     		bne	.L100
+ 656:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 1706              		.loc 1 656 0
+ 1707 00ac 3388     		ldrh	r3, [r6]
+ 659:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         (u16)(RN8209_DUMMY_BYTE << 8) | RN8209_DUMMY_BYTE);
+ 1708              		.loc 1 659 0
+ 1709 00ae 194A     		ldr	r2, .L105+20
+ 1710 00b0 3221     		movs	r1, #50
+ 1711 00b2 2000     		movs	r0, r4
+ 656:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 1712              		.loc 1 656 0
+ 1713 00b4 0193     		str	r3, [sp, #4]
+ 1714              	.LVL199:
+ 659:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         (u16)(RN8209_DUMMY_BYTE << 8) | RN8209_DUMMY_BYTE);
+ARM GAS  /tmp/ccYTzABM.s 			page 46
+
+
+ 1715              		.loc 1 659 0
+ 1716 00b6 FFF7FEFF 		bl	vSPI_2byte_write_NoWait
+ 1717              	.LVL200:
+ 661:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         CMIC_CSON_1_ON|CMIC_MAN_CS_ON|CMIC_TALK_GPSPI1ON,
+ 1718              		.loc 1 661 0
+ 1719 00ba 154B     		ldr	r3, .L105+16
+ 1720 00bc 3021     		movs	r1, #48
+ 1721 00be 1A00     		movs	r2, r3
+ 1722 00c0 2000     		movs	r0, r4
+ 1723 00c2 FFF7FEFF 		bl	vSPI_2byte_write_Mask_NoWait
+ 1724              	.LVL201:
+ 664:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     vSPI_2byte_write_Mask_NoWait(BMIC_ADDRESS_917, CMIC_CNTADR_30,
+ 1725              		.loc 1 664 0
+ 1726 00c6 3321     		movs	r1, #51
+ 1727 00c8 2000     		movs	r0, r4
+ 1728 00ca FFF7FEFF 		bl	vSPI_2byte_read_NoWait
+ 1729              	.LVL202:
+ 665:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         CMIC_CSON_1_OFF|CMIC_MAN_CS_OFF, CMIC_CSON_1_ON|CMIC_MAN_CS_OFF);
+ 1730              		.loc 1 665 0
+ 1731 00ce 8023     		movs	r3, #128
+ 1732 00d0 0022     		movs	r2, #0
+ 1733 00d2 DB00     		lsls	r3, r3, #3
+ 1734 00d4 3021     		movs	r1, #48
+ 1735 00d6 2000     		movs	r0, r4
+ 1736 00d8 FFF7FEFF 		bl	vSPI_2byte_write_Mask_NoWait
+ 1737              	.LVL203:
+ 667:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         return RN8209_STATUS_ACCESS_FAIL;
+ 1738              		.loc 1 667 0
+ 1739 00dc 0A20     		movs	r0, #10
+ 1740 00de FFF7FEFF 		bl	ucSPI_WaitAllDone
+ 1741              	.LVL204:
+ 1742 00e2 A028     		cmp	r0, #160
+ 1743 00e4 00D0     		beq	.LCB1498
+ 1744 00e6 8EE7     		b	.L104	@long jump
+ 1745              	.LCB1498:
+ 1746              	.LVL205:
+ 672:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     u8RetVal = RN8209_STATUS_ACCESS_OK;
+ 1747              		.loc 1 672 0
+ 1748 00e8 6B46     		mov	r3, sp
+ 1749 00ea 1B79     		ldrb	r3, [r3, #4]
+ 1750 00ec EDB2     		uxtb	r5, r5
+ 1751 00ee 1B02     		lsls	r3, r3, #8
+ 1752 00f0 2D04     		lsls	r5, r5, #16
+ 1753              	.LVL206:
+ 1754 00f2 1D43     		orrs	r5, r3
+ 1755 00f4 3378     		ldrb	r3, [r6]
+ 675:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** }
+ 1756              		.loc 1 675 0
+ 1757 00f6 0020     		movs	r0, #0
+ 672:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     u8RetVal = RN8209_STATUS_ACCESS_OK;
+ 1758              		.loc 1 672 0
+ 1759 00f8 1D43     		orrs	r5, r3
+ 1760 00fa 3D60     		str	r5, [r7]
+ 1761              	.LVL207:
+ 675:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** }
+ 1762              		.loc 1 675 0
+ 1763 00fc 84E7     		b	.L97
+ARM GAS  /tmp/ccYTzABM.s 			page 47
+
+
+ 1764              	.L106:
+ 1765 00fe C046     		.align	2
+ 1766              	.L105:
+ 1767 0100 00000000 		.word	.LANCHOR0
+ 1768 0104 FF070000 		.word	2047
+ 1769 0108 47040000 		.word	1095
+ 1770 010c AA320000 		.word	12970
+ 1771 0110 01050000 		.word	1281
+ 1772 0114 AAAA0000 		.word	43690
+ 1773 0118 00000000 		.word	usSPI_Reg_ReadData
+ 1774              		.cfi_endproc
+ 1775              	.LFE506:
+ 1777              		.section	.text.DRV_RN8209_ReadRmsIA,"ax",%progbits
+ 1778              		.align	1
+ 1779              		.global	DRV_RN8209_ReadRmsIA
+ 1780              		.syntax unified
+ 1781              		.code	16
+ 1782              		.thumb_func
+ 1783              		.fpu softvfp
+ 1785              	DRV_RN8209_ReadRmsIA:
+ 1786              	.LFB507:
+ 677:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 678:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 679:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 680:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 681:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** uint8 DRV_RN8209_ReadRmsIA(uint32* data)
+ 682:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** {
+ 1787              		.loc 1 682 0
+ 1788              		.cfi_startproc
+ 1789              		@ args = 0, pretend = 0, frame = 0
+ 1790              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1791              	.LVL208:
+ 1792 0000 0100     		movs	r1, r0
+ 1793 0002 10B5     		push	{r4, lr}
+ 1794              	.LCFI13:
+ 1795              		.cfi_def_cfa_offset 8
+ 1796              		.cfi_offset 4, -8
+ 1797              		.cfi_offset 14, -4
+ 683:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if ((data == NULL_PTR) || (g_u8Rn8209Init == 0)) {
+ 684:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         return RN8209_STATUS_ACCESS_FAIL;
+ 1798              		.loc 1 684 0
+ 1799 0004 0120     		movs	r0, #1
+ 1800              	.LVL209:
+ 683:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if ((data == NULL_PTR) || (g_u8Rn8209Init == 0)) {
+ 1801              		.loc 1 683 0
+ 1802 0006 0029     		cmp	r1, #0
+ 1803 0008 06D0     		beq	.L108
+ 683:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if ((data == NULL_PTR) || (g_u8Rn8209Init == 0)) {
+ 1804              		.loc 1 683 0 is_stmt 0 discriminator 1
+ 1805 000a 044B     		ldr	r3, .L112
+ 1806 000c 1B78     		ldrb	r3, [r3]
+ 1807 000e 002B     		cmp	r3, #0
+ 1808 0010 02D0     		beq	.L108
+ 685:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     }
+ 686:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     return Rn8209Read3ByteCmdProc(CMD_IARMS, data);
+ 1809              		.loc 1 686 0 is_stmt 1
+ 1810 0012 2130     		adds	r0, r0, #33
+ARM GAS  /tmp/ccYTzABM.s 			page 48
+
+
+ 1811 0014 FFF7FEFF 		bl	Rn8209Read3ByteCmdProc
+ 1812              	.LVL210:
+ 1813              	.L108:
+ 687:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** }
+ 1814              		.loc 1 687 0
+ 1815              		@ sp needed
+ 1816 0018 10BD     		pop	{r4, pc}
+ 1817              	.L113:
+ 1818 001a C046     		.align	2
+ 1819              	.L112:
+ 1820 001c 00000000 		.word	.LANCHOR0
+ 1821              		.cfi_endproc
+ 1822              	.LFE507:
+ 1824              		.section	.text.DRV_RN8209_ReadRmsU,"ax",%progbits
+ 1825              		.align	1
+ 1826              		.global	DRV_RN8209_ReadRmsU
+ 1827              		.syntax unified
+ 1828              		.code	16
+ 1829              		.thumb_func
+ 1830              		.fpu softvfp
+ 1832              	DRV_RN8209_ReadRmsU:
+ 1833              	.LFB508:
+ 688:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 689:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** uint8 DRV_RN8209_ReadRmsU(uint32* data)
+ 690:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** {
+ 1834              		.loc 1 690 0
+ 1835              		.cfi_startproc
+ 1836              		@ args = 0, pretend = 0, frame = 0
+ 1837              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1838              	.LVL211:
+ 1839 0000 0100     		movs	r1, r0
+ 1840 0002 10B5     		push	{r4, lr}
+ 1841              	.LCFI14:
+ 1842              		.cfi_def_cfa_offset 8
+ 1843              		.cfi_offset 4, -8
+ 1844              		.cfi_offset 14, -4
+ 691:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if ((data == NULL_PTR) || (g_u8Rn8209Init == 0)) {
+ 692:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         return RN8209_STATUS_ACCESS_FAIL;
+ 1845              		.loc 1 692 0
+ 1846 0004 0120     		movs	r0, #1
+ 1847              	.LVL212:
+ 691:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if ((data == NULL_PTR) || (g_u8Rn8209Init == 0)) {
+ 1848              		.loc 1 691 0
+ 1849 0006 0029     		cmp	r1, #0
+ 1850 0008 06D0     		beq	.L115
+ 691:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if ((data == NULL_PTR) || (g_u8Rn8209Init == 0)) {
+ 1851              		.loc 1 691 0 is_stmt 0 discriminator 1
+ 1852 000a 044B     		ldr	r3, .L119
+ 1853 000c 1B78     		ldrb	r3, [r3]
+ 1854 000e 002B     		cmp	r3, #0
+ 1855 0010 02D0     		beq	.L115
+ 693:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     }
+ 694:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     return Rn8209Read3ByteCmdProc(CMD_URMS, data);
+ 1856              		.loc 1 694 0 is_stmt 1
+ 1857 0012 2330     		adds	r0, r0, #35
+ 1858 0014 FFF7FEFF 		bl	Rn8209Read3ByteCmdProc
+ 1859              	.LVL213:
+ARM GAS  /tmp/ccYTzABM.s 			page 49
+
+
+ 1860              	.L115:
+ 695:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** }
+ 1861              		.loc 1 695 0
+ 1862              		@ sp needed
+ 1863 0018 10BD     		pop	{r4, pc}
+ 1864              	.L120:
+ 1865 001a C046     		.align	2
+ 1866              	.L119:
+ 1867 001c 00000000 		.word	.LANCHOR0
+ 1868              		.cfi_endproc
+ 1869              	.LFE508:
+ 1871              		.section	.text.DRV_RN8209_WriteRmsIAOffset,"ax",%progbits
+ 1872              		.align	1
+ 1873              		.global	DRV_RN8209_WriteRmsIAOffset
+ 1874              		.syntax unified
+ 1875              		.code	16
+ 1876              		.thumb_func
+ 1877              		.fpu softvfp
+ 1879              	DRV_RN8209_WriteRmsIAOffset:
+ 1880              	.LFB509:
+ 696:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 697:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** uint8 DRV_RN8209_WriteRmsIAOffset(uint32 u32Rms)
+ 698:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** {
+ 1881              		.loc 1 698 0
+ 1882              		.cfi_startproc
+ 1883              		@ args = 0, pretend = 0, frame = 8
+ 1884              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1885              	.LVL214:
+ 1886 0000 37B5     		push	{r0, r1, r2, r4, r5, lr}
+ 1887              	.LCFI15:
+ 1888              		.cfi_def_cfa_offset 24
+ 1889              		.cfi_offset 0, -24
+ 1890              		.cfi_offset 1, -20
+ 1891              		.cfi_offset 2, -16
+ 1892              		.cfi_offset 4, -12
+ 1893              		.cfi_offset 5, -8
+ 1894              		.cfi_offset 14, -4
+ 1895              		.loc 1 698 0
+ 1896 0002 0400     		movs	r4, r0
+ 1897              	.LVL215:
+ 699:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     uint16 u16High16Data = (u32Rms >> 8U) & 0xFFFF;
+ 700:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     uint16 u16DclData;
+ 701:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     uint8 u8Ret, u8Ret1, u8Ret2;
+ 702:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 703:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     u8Ret2 = RN8209_STATUS_ACCESS_FAIL;
+ 704:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if (Rn8209SpecialCmdProc(DATA_RN8209_WRITE_ENABLE) == RN8209_STATUS_ACCESS_OK) {
+ 1898              		.loc 1 704 0
+ 1899 0004 E520     		movs	r0, #229
+ 1900              	.LVL216:
+ 1901 0006 FFF7FEFF 		bl	Rn8209SpecialCmdProc
+ 1902              	.LVL217:
+ 1903 000a 0028     		cmp	r0, #0
+ 1904 000c 05D0     		beq	.L122
+ 1905              	.L124:
+ 703:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if (Rn8209SpecialCmdProc(DATA_RN8209_WRITE_ENABLE) == RN8209_STATUS_ACCESS_OK) {
+ 1906              		.loc 1 703 0
+ 1907 000e 0124     		movs	r4, #1
+ARM GAS  /tmp/ccYTzABM.s 			page 50
+
+
+ 1908              	.LVL218:
+ 1909              	.L123:
+ 705:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         if (Rn8209Read2ByteCmdProc(CMD_DCL, &u16DclData) == RN8209_STATUS_ACCESS_OK) {
+ 706:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             u16DclData = (u16DclData & 0xFFF0U )| ((u32Rms >> 4U) & 0x000FU); // BIT[7:4]写入DCL�
+ 707:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             u8Ret = Rn8209Write2ByteCmdProc(CMD_DCIAH, u16High16Data);
+ 708:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             u8Ret1 = Rn8209Write2ByteCmdProc(CMD_DCL, u16DclData);
+ 709:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             if ((u8Ret == RN8209_STATUS_ACCESS_OK) && (u8Ret1 == RN8209_STATUS_ACCESS_OK)) {
+ 710:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****                 u8Ret2 = RN8209_STATUS_ACCESS_OK;
+ 711:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             }
+ 712:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         }
+ 713:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     }
+ 714:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     (void)Rn8209SpecialCmdProc(DATA_RN8209_WRITE_PROTECT);
+ 1910              		.loc 1 714 0
+ 1911 0010 DC20     		movs	r0, #220
+ 1912 0012 FFF7FEFF 		bl	Rn8209SpecialCmdProc
+ 1913              	.LVL219:
+ 715:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     return u8Ret2;
+ 716:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** }
+ 1914              		.loc 1 716 0
+ 1915              		@ sp needed
+ 1916 0016 2000     		movs	r0, r4
+ 1917              	.LVL220:
+ 1918 0018 3EBD     		pop	{r1, r2, r3, r4, r5, pc}
+ 1919              	.LVL221:
+ 1920              	.L122:
+ 705:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         if (Rn8209Read2ByteCmdProc(CMD_DCL, &u16DclData) == RN8209_STATUS_ACCESS_OK) {
+ 1921              		.loc 1 705 0
+ 1922 001a 6B46     		mov	r3, sp
+ 1923 001c 9D1D     		adds	r5, r3, #6
+ 1924 001e 2900     		movs	r1, r5
+ 1925 0020 1620     		movs	r0, #22
+ 1926 0022 FFF7FEFF 		bl	Rn8209Read2ByteCmdProc
+ 1927              	.LVL222:
+ 1928 0026 0028     		cmp	r0, #0
+ 1929 0028 F1D1     		bne	.L124
+ 706:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             u8Ret = Rn8209Write2ByteCmdProc(CMD_DCIAH, u16High16Data);
+ 1930              		.loc 1 706 0
+ 1931 002a 0F21     		movs	r1, #15
+ 1932 002c 2B88     		ldrh	r3, [r5]
+ 1933 002e 2209     		lsrs	r2, r4, #4
+ 1934 0030 0A40     		ands	r2, r1
+ 1935 0032 8B43     		bics	r3, r1
+ 699:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     uint16 u16DclData;
+ 1936              		.loc 1 699 0
+ 1937 0034 240A     		lsrs	r4, r4, #8
+ 1938              	.LVL223:
+ 706:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             u8Ret = Rn8209Write2ByteCmdProc(CMD_DCIAH, u16High16Data);
+ 1939              		.loc 1 706 0
+ 1940 0036 1343     		orrs	r3, r2
+ 707:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             u8Ret1 = Rn8209Write2ByteCmdProc(CMD_DCL, u16DclData);
+ 1941              		.loc 1 707 0
+ 1942 0038 A1B2     		uxth	r1, r4
+ 1943 003a 1330     		adds	r0, r0, #19
+ 706:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             u8Ret = Rn8209Write2ByteCmdProc(CMD_DCIAH, u16High16Data);
+ 1944              		.loc 1 706 0
+ 1945 003c 2B80     		strh	r3, [r5]
+ 707:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             u8Ret1 = Rn8209Write2ByteCmdProc(CMD_DCL, u16DclData);
+ARM GAS  /tmp/ccYTzABM.s 			page 51
+
+
+ 1946              		.loc 1 707 0
+ 1947 003e FFF7FEFF 		bl	Rn8209Write2ByteCmdProc
+ 1948              	.LVL224:
+ 708:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             if ((u8Ret == RN8209_STATUS_ACCESS_OK) && (u8Ret1 == RN8209_STATUS_ACCESS_OK)) {
+ 1949              		.loc 1 708 0
+ 1950 0042 2988     		ldrh	r1, [r5]
+ 707:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             u8Ret1 = Rn8209Write2ByteCmdProc(CMD_DCL, u16DclData);
+ 1951              		.loc 1 707 0
+ 1952 0044 0400     		movs	r4, r0
+ 1953              	.LVL225:
+ 708:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             if ((u8Ret == RN8209_STATUS_ACCESS_OK) && (u8Ret1 == RN8209_STATUS_ACCESS_OK)) {
+ 1954              		.loc 1 708 0
+ 1955 0046 1620     		movs	r0, #22
+ 1956 0048 FFF7FEFF 		bl	Rn8209Write2ByteCmdProc
+ 1957              	.LVL226:
+ 709:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****                 u8Ret2 = RN8209_STATUS_ACCESS_OK;
+ 1958              		.loc 1 709 0
+ 1959 004c 0443     		orrs	r4, r0
+ 1960              	.LVL227:
+ 1961 004e E4B2     		uxtb	r4, r4
+ 1962 0050 601E     		subs	r0, r4, #1
+ 1963 0052 8441     		sbcs	r4, r4, r0
+ 1964              	.LVL228:
+ 703:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if (Rn8209SpecialCmdProc(DATA_RN8209_WRITE_ENABLE) == RN8209_STATUS_ACCESS_OK) {
+ 1965              		.loc 1 703 0
+ 1966 0054 E4B2     		uxtb	r4, r4
+ 1967 0056 DBE7     		b	.L123
+ 1968              		.cfi_endproc
+ 1969              	.LFE509:
+ 1971              		.section	.text.DRV_RN8209_WriteRmsUOffset,"ax",%progbits
+ 1972              		.align	1
+ 1973              		.global	DRV_RN8209_WriteRmsUOffset
+ 1974              		.syntax unified
+ 1975              		.code	16
+ 1976              		.thumb_func
+ 1977              		.fpu softvfp
+ 1979              	DRV_RN8209_WriteRmsUOffset:
+ 1980              	.LFB510:
+ 717:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 718:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** uint8 DRV_RN8209_WriteRmsUOffset(uint32 u32Rms)
+ 719:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** {
+ 1981              		.loc 1 719 0
+ 1982              		.cfi_startproc
+ 1983              		@ args = 0, pretend = 0, frame = 8
+ 1984              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1985              	.LVL229:
+ 1986 0000 37B5     		push	{r0, r1, r2, r4, r5, lr}
+ 1987              	.LCFI16:
+ 1988              		.cfi_def_cfa_offset 24
+ 1989              		.cfi_offset 0, -24
+ 1990              		.cfi_offset 1, -20
+ 1991              		.cfi_offset 2, -16
+ 1992              		.cfi_offset 4, -12
+ 1993              		.cfi_offset 5, -8
+ 1994              		.cfi_offset 14, -4
+ 1995              		.loc 1 719 0
+ 1996 0002 0400     		movs	r4, r0
+ARM GAS  /tmp/ccYTzABM.s 			page 52
+
+
+ 1997              	.LVL230:
+ 720:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     uint16 u16High16Data = (u32Rms >> 8U) & 0xFFFF;
+ 721:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     uint16 u16DclData;
+ 722:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     uint8 u8Ret, u8Ret1, u8Ret2;
+ 723:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 724:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     u8Ret2 = RN8209_STATUS_ACCESS_FAIL;
+ 725:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if (Rn8209SpecialCmdProc(DATA_RN8209_WRITE_ENABLE) == RN8209_STATUS_ACCESS_OK) {
+ 1998              		.loc 1 725 0
+ 1999 0004 E520     		movs	r0, #229
+ 2000              	.LVL231:
+ 2001 0006 FFF7FEFF 		bl	Rn8209SpecialCmdProc
+ 2002              	.LVL232:
+ 2003 000a 0028     		cmp	r0, #0
+ 2004 000c 05D0     		beq	.L126
+ 2005              	.L128:
+ 724:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if (Rn8209SpecialCmdProc(DATA_RN8209_WRITE_ENABLE) == RN8209_STATUS_ACCESS_OK) {
+ 2006              		.loc 1 724 0
+ 2007 000e 0124     		movs	r4, #1
+ 2008              	.LVL233:
+ 2009              	.L127:
+ 726:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         if (Rn8209Read2ByteCmdProc(CMD_DCL, &u16DclData) == RN8209_STATUS_ACCESS_OK) {
+ 727:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             u16DclData = (u16DclData & 0xF0FF) | ((u32Rms << 4U) & 0x0F00U); // BIT[7:4]写入DCL�
+ 728:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             u8Ret = Rn8209Write2ByteCmdProc(CMD_DCUH, u16High16Data);
+ 729:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             u8Ret1 = Rn8209Write2ByteCmdProc(CMD_DCL, u16DclData);
+ 730:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             if ((u8Ret == RN8209_STATUS_ACCESS_OK) && (u8Ret1 == RN8209_STATUS_ACCESS_OK)) {
+ 731:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****                 u8Ret2 = RN8209_STATUS_ACCESS_OK;
+ 732:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             }
+ 733:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         }
+ 734:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     }
+ 735:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     (void)Rn8209SpecialCmdProc(DATA_RN8209_WRITE_PROTECT);
+ 2010              		.loc 1 735 0
+ 2011 0010 DC20     		movs	r0, #220
+ 2012 0012 FFF7FEFF 		bl	Rn8209SpecialCmdProc
+ 2013              	.LVL234:
+ 736:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     return u8Ret2;
+ 737:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** }
+ 2014              		.loc 1 737 0
+ 2015              		@ sp needed
+ 2016 0016 2000     		movs	r0, r4
+ 2017              	.LVL235:
+ 2018 0018 3EBD     		pop	{r1, r2, r3, r4, r5, pc}
+ 2019              	.LVL236:
+ 2020              	.L126:
+ 726:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         if (Rn8209Read2ByteCmdProc(CMD_DCL, &u16DclData) == RN8209_STATUS_ACCESS_OK) {
+ 2021              		.loc 1 726 0
+ 2022 001a 6B46     		mov	r3, sp
+ 2023 001c 9D1D     		adds	r5, r3, #6
+ 2024 001e 2900     		movs	r1, r5
+ 2025 0020 1620     		movs	r0, #22
+ 2026 0022 FFF7FEFF 		bl	Rn8209Read2ByteCmdProc
+ 2027              	.LVL237:
+ 2028 0026 0028     		cmp	r0, #0
+ 2029 0028 F1D1     		bne	.L128
+ 727:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             u8Ret = Rn8209Write2ByteCmdProc(CMD_DCUH, u16High16Data);
+ 2030              		.loc 1 727 0
+ 2031 002a F021     		movs	r1, #240
+ 2032 002c 2B88     		ldrh	r3, [r5]
+ARM GAS  /tmp/ccYTzABM.s 			page 53
+
+
+ 2033 002e 0B4A     		ldr	r2, .L129
+ 2034 0030 0901     		lsls	r1, r1, #4
+ 2035 0032 1340     		ands	r3, r2
+ 2036 0034 2201     		lsls	r2, r4, #4
+ 2037 0036 0A40     		ands	r2, r1
+ 720:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     uint16 u16DclData;
+ 2038              		.loc 1 720 0
+ 2039 0038 240A     		lsrs	r4, r4, #8
+ 2040              	.LVL238:
+ 727:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             u8Ret = Rn8209Write2ByteCmdProc(CMD_DCUH, u16High16Data);
+ 2041              		.loc 1 727 0
+ 2042 003a 1343     		orrs	r3, r2
+ 728:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             u8Ret1 = Rn8209Write2ByteCmdProc(CMD_DCL, u16DclData);
+ 2043              		.loc 1 728 0
+ 2044 003c A1B2     		uxth	r1, r4
+ 2045 003e 1530     		adds	r0, r0, #21
+ 727:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             u8Ret = Rn8209Write2ByteCmdProc(CMD_DCUH, u16High16Data);
+ 2046              		.loc 1 727 0
+ 2047 0040 2B80     		strh	r3, [r5]
+ 728:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             u8Ret1 = Rn8209Write2ByteCmdProc(CMD_DCL, u16DclData);
+ 2048              		.loc 1 728 0
+ 2049 0042 FFF7FEFF 		bl	Rn8209Write2ByteCmdProc
+ 2050              	.LVL239:
+ 729:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             if ((u8Ret == RN8209_STATUS_ACCESS_OK) && (u8Ret1 == RN8209_STATUS_ACCESS_OK)) {
+ 2051              		.loc 1 729 0
+ 2052 0046 2988     		ldrh	r1, [r5]
+ 728:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             u8Ret1 = Rn8209Write2ByteCmdProc(CMD_DCL, u16DclData);
+ 2053              		.loc 1 728 0
+ 2054 0048 0400     		movs	r4, r0
+ 2055              	.LVL240:
+ 729:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             if ((u8Ret == RN8209_STATUS_ACCESS_OK) && (u8Ret1 == RN8209_STATUS_ACCESS_OK)) {
+ 2056              		.loc 1 729 0
+ 2057 004a 1620     		movs	r0, #22
+ 2058 004c FFF7FEFF 		bl	Rn8209Write2ByteCmdProc
+ 2059              	.LVL241:
+ 730:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****                 u8Ret2 = RN8209_STATUS_ACCESS_OK;
+ 2060              		.loc 1 730 0
+ 2061 0050 0443     		orrs	r4, r0
+ 2062              	.LVL242:
+ 2063 0052 E4B2     		uxtb	r4, r4
+ 2064 0054 601E     		subs	r0, r4, #1
+ 2065 0056 8441     		sbcs	r4, r4, r0
+ 2066              	.LVL243:
+ 724:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if (Rn8209SpecialCmdProc(DATA_RN8209_WRITE_ENABLE) == RN8209_STATUS_ACCESS_OK) {
+ 2067              		.loc 1 724 0
+ 2068 0058 E4B2     		uxtb	r4, r4
+ 2069 005a D9E7     		b	.L127
+ 2070              	.L130:
+ 2071              		.align	2
+ 2072              	.L129:
+ 2073 005c FFF0FFFF 		.word	-3841
+ 2074              		.cfi_endproc
+ 2075              	.LFE510:
+ 2077              		.section	.text.RN8209ReadCMD_DEVICE_ID,"ax",%progbits
+ 2078              		.align	1
+ 2079              		.global	RN8209ReadCMD_DEVICE_ID
+ 2080              		.syntax unified
+ARM GAS  /tmp/ccYTzABM.s 			page 54
+
+
+ 2081              		.code	16
+ 2082              		.thumb_func
+ 2083              		.fpu softvfp
+ 2085              	RN8209ReadCMD_DEVICE_ID:
+ 2086              	.LFB512:
+ 738:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 739:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 740:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 741:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** uint8 Rn8209InitSuccessFlag = 0;
+ 742:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 743:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** DRV_RN8209_STATIC uint8 DRV_RN8209_ReadID(uint32* data)
+ 744:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** {
+ 745:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if ((data == NULL_PTR) || (g_u8Rn8209Init == 0)) {
+ 746:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         return RN8209_STATUS_ACCESS_FAIL;
+ 747:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     }
+ 748:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     return Rn8209Read3ByteCmdProc(CMD_DEVICE_ID,data);
+ 749:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** }
+ 750:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** 
+ 751:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** void RN8209ReadCMD_DEVICE_ID(void)
+ 752:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** {
+ 2087              		.loc 1 752 0
+ 2088              		.cfi_startproc
+ 2089              		@ args = 0, pretend = 0, frame = 8
+ 2090              		@ frame_needed = 0, uses_anonymous_args = 0
+ 2091 0000 13B5     		push	{r0, r1, r4, lr}
+ 2092              	.LCFI17:
+ 2093              		.cfi_def_cfa_offset 16
+ 2094              		.cfi_offset 0, -16
+ 2095              		.cfi_offset 1, -12
+ 2096              		.cfi_offset 4, -8
+ 2097              		.cfi_offset 14, -4
+ 753:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     //初始化RN8209成功的话,读取DeviceID寄存器内数据
+ 754:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     uint8 u8Ret;
+ 755:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     uint32 u32RdData;
+ 756:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     
+ 757:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     if (g_u8Rn8209Init == 1)
+ 2098              		.loc 1 757 0
+ 2099 0002 0A4B     		ldr	r3, .L134
+ 2100 0004 1C78     		ldrb	r4, [r3]
+ 2101 0006 012C     		cmp	r4, #1
+ 2102 0008 0BD1     		bne	.L131
+ 2103              	.LVL244:
+ 2104              	.LBB10:
+ 2105              	.LBB11:
+ 748:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** }
+ 2106              		.loc 1 748 0
+ 2107 000a 01A9     		add	r1, sp, #4
+ 2108              	.LVL245:
+ 2109 000c 7F20     		movs	r0, #127
+ 2110 000e FFF7FEFF 		bl	Rn8209Read3ByteCmdProc
+ 2111              	.LVL246:
+ 2112 0012 074B     		ldr	r3, .L134+4
+ 2113              	.LBE11:
+ 2114              	.LBE10:
+ 758:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     {
+ 759:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         /* ===== 8-bit GPSPI读取DEVICE_ID (原方法) ===== */
+ 760:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         u8Ret = DRV_RN8209_ReadID(&u32RdData);
+ARM GAS  /tmp/ccYTzABM.s 			page 55
+
+
+ 761:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         
+ 762:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         /* 判断8-bit结果 */
+ 763:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         if ((u8Ret == RN8209_STATUS_ACCESS_OK) && (u32RdData == 0x820900))
+ 2115              		.loc 1 763 0
+ 2116 0014 0028     		cmp	r0, #0
+ 2117 0016 05D1     		bne	.L133
+ 2118              		.loc 1 763 0 is_stmt 0 discriminator 1
+ 2119 0018 064A     		ldr	r2, .L134+8
+ 2120 001a 0199     		ldr	r1, [sp, #4]
+ 2121 001c 9142     		cmp	r1, r2
+ 2122 001e 01D1     		bne	.L133
+ 764:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         {
+ 765:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             Rn8209InitSuccessFlag = 1;
+ 2123              		.loc 1 765 0 is_stmt 1
+ 2124 0020 1C70     		strb	r4, [r3]
+ 2125              	.L131:
+ 766:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         }
+ 767:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         else
+ 768:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         {
+ 769:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****             Rn8209InitSuccessFlag = 0;
+ 770:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         }
+ 771:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****     }
+ 772:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c **** }
+ 2126              		.loc 1 772 0
+ 2127              		@ sp needed
+ 2128 0022 13BD     		pop	{r0, r1, r4, pc}
+ 2129              	.L133:
+ 769:./Application/BSPSys/BSPDevice/rn8209/drv_rn8209.c ****         }
+ 2130              		.loc 1 769 0
+ 2131 0024 0022     		movs	r2, #0
+ 2132 0026 1A70     		strb	r2, [r3]
+ 2133              		.loc 1 772 0
+ 2134 0028 FBE7     		b	.L131
+ 2135              	.L135:
+ 2136 002a C046     		.align	2
+ 2137              	.L134:
+ 2138 002c 00000000 		.word	.LANCHOR0
+ 2139 0030 00000000 		.word	.LANCHOR1
+ 2140 0034 00098200 		.word	8521984
+ 2141              		.cfi_endproc
+ 2142              	.LFE512:
+ 2144              		.global	Rn8209InitSuccessFlag
+ 2145              		.section	.bss.Rn8209InitSuccessFlag,"aw",%nobits
+ 2146              		.set	.LANCHOR1,. + 0
+ 2149              	Rn8209InitSuccessFlag:
+ 2150 0000 00       		.space	1
+ 2151              		.section	.bss.g_u8Rn8209Init,"aw",%nobits
+ 2152              		.set	.LANCHOR0,. + 0
+ 2155              	g_u8Rn8209Init:
+ 2156 0000 00       		.space	1
+ 2157              		.text
+ 2158              	.Letext0:
+ 2159              		.file 2 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/machine/_default_types.h"
+ 2160              		.file 3 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/lock.h"
+ 2161              		.file 4 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_types.h"
+ 2162              		.file 5 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/lib/gcc/arm-none-eabi/7.3.1/include/stddef.h"
+ 2163              		.file 6 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/reent.h"
+ARM GAS  /tmp/ccYTzABM.s 			page 56
+
+
+ 2164              		.file 7 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/stdlib.h"
+ 2165              		.file 8 "Application/BSPSys/Util/BSPTypeDef.h"
+ 2166              		.file 9 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_stdint.h"
+ 2167              		.file 10 "Core/Inc/FreeRTOSConfig.h"
+ 2168              		.file 11 "Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM0/portmacro.h"
+ 2169              		.file 12 "Application/BSPSys/BSPDevice/KA84917/BSPKA84917_async.h"
+ 2170              		.file 13 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/system_stm32g0xx.h"
+ 2171              		.file 14 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_def.h"
+ 2172              		.file 15 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_flash.h"
+ 2173              		.file 16 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_uart.h"
+ 2174              		.file 17 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal.h"
+ 2175              		.file 18 "Core/Inc/main.h"
+ 2176              		.file 19 "Application/Addition/RTT/SEGGER_RTT.h"
+ 2177              		.file 20 "./Application/BSPSys/BSPDevice/rn8209/drv_rn8209_type.h"
+ 2178              		.file 21 "./Application/BSPSys/BSPDevice/rn8209/drv_rn8209_interface.h"
+ 2179              		.file 22 "Application/Funtion/SystemData/SystemData.h"
+ 2180              		.file 23 "Application/Funtion/SystemDiag/SystemDiag.h"
+ 2181              		.file 24 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_ll_dma.h"
+ 2182              		.file 25 "Application/BSPSys/BSPDevice/KA84917/spi_async.h"
+ARM GAS  /tmp/ccYTzABM.s 			page 57
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 drv_rn8209.c
+     /tmp/ccYTzABM.s:16     .text.Rn8209Write2ByteCmdProc:0000000000000000 $t
+     /tmp/ccYTzABM.s:22     .text.Rn8209Write2ByteCmdProc:0000000000000000 Rn8209Write2ByteCmdProc
+     /tmp/ccYTzABM.s:110    .text.Rn8209Read2ByteCmdProc:0000000000000000 $t
+     /tmp/ccYTzABM.s:116    .text.Rn8209Read2ByteCmdProc:0000000000000000 Rn8209Read2ByteCmdProc
+     /tmp/ccYTzABM.s:210    .text.Rn8209SpecialCmdProc:0000000000000000 $t
+     /tmp/ccYTzABM.s:216    .text.Rn8209SpecialCmdProc:0000000000000000 Rn8209SpecialCmdProc
+     /tmp/ccYTzABM.s:287    .text.Rn8209Read3ByteCmdProc:0000000000000000 $t
+     /tmp/ccYTzABM.s:293    .text.Rn8209Read3ByteCmdProc:0000000000000000 Rn8209Read3ByteCmdProc
+     /tmp/ccYTzABM.s:401    .text.RN8209_DRV_Init:0000000000000000 $t
+     /tmp/ccYTzABM.s:408    .text.RN8209_DRV_Init:0000000000000000 RN8209_DRV_Init
+     /tmp/ccYTzABM.s:538    .text.RN8209_DRV_Init:0000000000000088 $d
+     /tmp/ccYTzABM.s:544    .text.DRV_RN8209_ReadAdcIA:0000000000000000 $t
+     /tmp/ccYTzABM.s:551    .text.DRV_RN8209_ReadAdcIA:0000000000000000 DRV_RN8209_ReadAdcIA
+     /tmp/ccYTzABM.s:586    .text.DRV_RN8209_ReadAdcIA:000000000000001c $d
+     /tmp/ccYTzABM.s:591    .text.DRV_RN8209_ReadAdcIA_Fast:0000000000000000 $t
+     /tmp/ccYTzABM.s:598    .text.DRV_RN8209_ReadAdcIA_Fast:0000000000000000 DRV_RN8209_ReadAdcIA_Fast
+     /tmp/ccYTzABM.s:792    .text.DRV_RN8209_ReadAdcIA_Fast:00000000000000f8 $d
+     /tmp/ccYTzABM.s:803    .text.DRV_RN8209_ReadAdcU:0000000000000000 $t
+     /tmp/ccYTzABM.s:810    .text.DRV_RN8209_ReadAdcU:0000000000000000 DRV_RN8209_ReadAdcU
+     /tmp/ccYTzABM.s:845    .text.DRV_RN8209_ReadAdcU:000000000000001c $d
+     /tmp/ccYTzABM.s:850    .text.DRV_RN8209_ReadAdcU_Fast:0000000000000000 $t
+     /tmp/ccYTzABM.s:857    .text.DRV_RN8209_ReadAdcU_Fast:0000000000000000 DRV_RN8209_ReadAdcU_Fast
+     /tmp/ccYTzABM.s:1057   .text.DRV_RN8209_ReadAdcU_Fast:0000000000000104 $d
+     /tmp/ccYTzABM.s:1068   .text.DRV_RN8209_ReadAdcIA_Fast_V2:0000000000000000 $t
+     /tmp/ccYTzABM.s:1075   .text.DRV_RN8209_ReadAdcIA_Fast_V2:0000000000000000 DRV_RN8209_ReadAdcIA_Fast_V2
+     /tmp/ccYTzABM.s:1195   .text.DRV_RN8209_ReadAdcIA_Fast_V2:0000000000000098 $d
+     /tmp/ccYTzABM.s:1206   .text.DRV_RN8209_ReadAdcU_Fast_V2:0000000000000000 $t
+     /tmp/ccYTzABM.s:1213   .text.DRV_RN8209_ReadAdcU_Fast_V2:0000000000000000 DRV_RN8209_ReadAdcU_Fast_V2
+     /tmp/ccYTzABM.s:1333   .text.DRV_RN8209_ReadAdcU_Fast_V2:0000000000000098 $d
+     /tmp/ccYTzABM.s:1344   .text.DRV_RN8209_ReadAdcIA_Fast_V3:0000000000000000 $t
+     /tmp/ccYTzABM.s:1351   .text.DRV_RN8209_ReadAdcIA_Fast_V3:0000000000000000 DRV_RN8209_ReadAdcIA_Fast_V3
+     /tmp/ccYTzABM.s:1550   .text.DRV_RN8209_ReadAdcIA_Fast_V3:0000000000000100 $d
+     /tmp/ccYTzABM.s:1561   .text.DRV_RN8209_ReadAdcU_Fast_V3:0000000000000000 $t
+     /tmp/ccYTzABM.s:1568   .text.DRV_RN8209_ReadAdcU_Fast_V3:0000000000000000 DRV_RN8209_ReadAdcU_Fast_V3
+     /tmp/ccYTzABM.s:1767   .text.DRV_RN8209_ReadAdcU_Fast_V3:0000000000000100 $d
+     /tmp/ccYTzABM.s:1778   .text.DRV_RN8209_ReadRmsIA:0000000000000000 $t
+     /tmp/ccYTzABM.s:1785   .text.DRV_RN8209_ReadRmsIA:0000000000000000 DRV_RN8209_ReadRmsIA
+     /tmp/ccYTzABM.s:1820   .text.DRV_RN8209_ReadRmsIA:000000000000001c $d
+     /tmp/ccYTzABM.s:1825   .text.DRV_RN8209_ReadRmsU:0000000000000000 $t
+     /tmp/ccYTzABM.s:1832   .text.DRV_RN8209_ReadRmsU:0000000000000000 DRV_RN8209_ReadRmsU
+     /tmp/ccYTzABM.s:1867   .text.DRV_RN8209_ReadRmsU:000000000000001c $d
+     /tmp/ccYTzABM.s:1872   .text.DRV_RN8209_WriteRmsIAOffset:0000000000000000 $t
+     /tmp/ccYTzABM.s:1879   .text.DRV_RN8209_WriteRmsIAOffset:0000000000000000 DRV_RN8209_WriteRmsIAOffset
+     /tmp/ccYTzABM.s:1972   .text.DRV_RN8209_WriteRmsUOffset:0000000000000000 $t
+     /tmp/ccYTzABM.s:1979   .text.DRV_RN8209_WriteRmsUOffset:0000000000000000 DRV_RN8209_WriteRmsUOffset
+     /tmp/ccYTzABM.s:2073   .text.DRV_RN8209_WriteRmsUOffset:000000000000005c $d
+     /tmp/ccYTzABM.s:2078   .text.RN8209ReadCMD_DEVICE_ID:0000000000000000 $t
+     /tmp/ccYTzABM.s:2085   .text.RN8209ReadCMD_DEVICE_ID:0000000000000000 RN8209ReadCMD_DEVICE_ID
+     /tmp/ccYTzABM.s:2138   .text.RN8209ReadCMD_DEVICE_ID:000000000000002c $d
+     /tmp/ccYTzABM.s:2149   .bss.Rn8209InitSuccessFlag:0000000000000000 Rn8209InitSuccessFlag
+     /tmp/ccYTzABM.s:2150   .bss.Rn8209InitSuccessFlag:0000000000000000 $d
+     /tmp/ccYTzABM.s:2155   .bss.g_u8Rn8209Init:0000000000000000 g_u8Rn8209Init
+     /tmp/ccYTzABM.s:2156   .bss.g_u8Rn8209Init:0000000000000000 $d
+
+UNDEFINED SYMBOLS
+ARM GAS  /tmp/ccYTzABM.s 			page 58
+
+
+vSPI_2byte_write_Mask
+SPI2_Send_Byte
+DiagSetErrNowStateAPI
+vSPI_2byte_write
+vSPI_2byte_read
+usSPI_Reg_ReadData
+vSPI_2byte_write_Mask_NoWait
+vSPI_2byte_write_NoWait
+vSPI_2byte_read_NoWait
+ucSPI_WaitAllDone

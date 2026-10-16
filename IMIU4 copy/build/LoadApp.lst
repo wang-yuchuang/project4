@@ -1,0 +1,622 @@
+ARM GAS  /tmp/cc2lcQy9.s 			page 1
+
+
+   1              		.cpu cortex-m0plus
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 4
+   9              		.eabi_attribute 34, 0
+  10              		.eabi_attribute 18, 4
+  11              		.file	"LoadApp.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.APPLoaderInit,"ax",%progbits
+  16              		.align	1
+  17              		.global	APPLoaderInit
+  18              		.syntax unified
+  19              		.code	16
+  20              		.thumb_func
+  21              		.fpu softvfp
+  23              	APPLoaderInit:
+  24              	.LFB493:
+  25              		.file 1 "./Application/Funtion/LoadApp/LoadApp.c"
+   1:./Application/Funtion/LoadApp/LoadApp.c **** /*==========================================Copyright(c)===========================================
+   2:./Application/Funtion/LoadApp/LoadApp.c **** **                                  Shenzhen Infypower Co., Ltd.
+   3:./Application/Funtion/LoadApp/LoadApp.c **** **                                  Power conversion Department
+   4:./Application/Funtion/LoadApp/LoadApp.c **** **                                       BMS Product Line
+   5:./Application/Funtion/LoadApp/LoadApp.c **** **
+   6:./Application/Funtion/LoadApp/LoadApp.c **** **---------------------------------------File Information------------------------------------------
+   7:./Application/Funtion/LoadApp/LoadApp.c **** ** @File Name    : LoadApp.c
+   8:./Application/Funtion/LoadApp/LoadApp.c **** ** @Founder      : WYP40505
+   9:./Application/Funtion/LoadApp/LoadApp.c **** ** @Date         : 2026.05.06
+  10:./Application/Funtion/LoadApp/LoadApp.c **** ** @Function     : 在线升级通信包模块
+  11:./Application/Funtion/LoadApp/LoadApp.c **** ** @Instructions : APP应用程序使用
+  12:./Application/Funtion/LoadApp/LoadApp.c **** **===============================================================================================*/
+  13:./Application/Funtion/LoadApp/LoadApp.c **** 
+  14:./Application/Funtion/LoadApp/LoadApp.c **** /*=================================================================================================
+  15:./Application/Funtion/LoadApp/LoadApp.c **** ** @Header file definition
+  16:./Application/Funtion/LoadApp/LoadApp.c **** **===============================================================================================*/
+  17:./Application/Funtion/LoadApp/LoadApp.c **** #include "LoadApp.h"
+  18:./Application/Funtion/LoadApp/LoadApp.c **** #include "BSPConfig.h"
+  19:./Application/Funtion/LoadApp/LoadApp.c **** #include "BSPIRQ.h"
+  20:./Application/Funtion/LoadApp/LoadApp.c **** #include "SystemInfo.h"
+  21:./Application/Funtion/LoadApp/LoadApp.c **** #include "BSPCAN.h"
+  22:./Application/Funtion/LoadApp/LoadApp.c **** #include "SystemPara.h"
+  23:./Application/Funtion/LoadApp/LoadApp.c **** /*=================================================================================================
+  24:./Application/Funtion/LoadApp/LoadApp.c **** ** @Global variable definition
+  25:./Application/Funtion/LoadApp/LoadApp.c **** **===============================================================================================*/
+  26:./Application/Funtion/LoadApp/LoadApp.c **** // static u8 sFlashBootPara[eBOOT_PARA_FLASH_ID_LEN] = {0};    /*在线升级BOOT参数用Flash保�
+  27:./Application/Funtion/LoadApp/LoadApp.c **** 
+  28:./Application/Funtion/LoadApp/LoadApp.c ****                               
+  29:./Application/Funtion/LoadApp/LoadApp.c **** // u8 gLoadWorkModel = 0; 
+  30:./Application/Funtion/LoadApp/LoadApp.c **** // u8 gLoadWorkState = 0;
+  31:./Application/Funtion/LoadApp/LoadApp.c **** /*=================================================================================================
+  32:./Application/Funtion/LoadApp/LoadApp.c **** ** @Static function declaration
+  33:./Application/Funtion/LoadApp/LoadApp.c **** **===============================================================================================*/
+ARM GAS  /tmp/cc2lcQy9.s 			page 2
+
+
+  34:./Application/Funtion/LoadApp/LoadApp.c **** /*=================================================================================================
+  35:./Application/Funtion/LoadApp/LoadApp.c **** ** @Name      : static u32 BuildLoadAREMsgID(u8 type, u8 sDev, u8 sAddr)
+  36:./Application/Funtion/LoadApp/LoadApp.c **** ** @Input     : type:报文类型 sDev:源设备类型[0:从控 1:高压模块 2:主控 3:堆控 0x
+  37:./Application/Funtion/LoadApp/LoadApp.c **** ** @Output    : 在线升级回复报文ID
+  38:./Application/Funtion/LoadApp/LoadApp.c **** ** @Function  : 构建在线升级回复报文ID
+  39:./Application/Funtion/LoadApp/LoadApp.c **** ** @The notes :
+  40:./Application/Funtion/LoadApp/LoadApp.c **** **===============================================================================================*/
+  41:./Application/Funtion/LoadApp/LoadApp.c **** // static u32 BuildLoadAREMsgID(u8 type, u8 sDev, u8 sAddr);
+  42:./Application/Funtion/LoadApp/LoadApp.c **** 
+  43:./Application/Funtion/LoadApp/LoadApp.c **** /*=================================================================================================
+  44:./Application/Funtion/LoadApp/LoadApp.c **** ** @Name      : static void EnterBootPro(void)
+  45:./Application/Funtion/LoadApp/LoadApp.c **** ** @Input     : void
+  46:./Application/Funtion/LoadApp/LoadApp.c **** ** @Output    : void
+  47:./Application/Funtion/LoadApp/LoadApp.c **** ** @Function  : 跳转进入BOOT程序
+  48:./Application/Funtion/LoadApp/LoadApp.c **** ** @The notes :
+  49:./Application/Funtion/LoadApp/LoadApp.c **** **===============================================================================================*/
+  50:./Application/Funtion/LoadApp/LoadApp.c **** // static void EnterBootPro(void);
+  51:./Application/Funtion/LoadApp/LoadApp.c **** #if 0
+  52:./Application/Funtion/LoadApp/LoadApp.c **** /*=================================================================================================
+  53:./Application/Funtion/LoadApp/LoadApp.c **** ** @Name      : static void EnterAppPro(void)
+  54:./Application/Funtion/LoadApp/LoadApp.c **** ** @Input     : void
+  55:./Application/Funtion/LoadApp/LoadApp.c **** ** @Output    : void
+  56:./Application/Funtion/LoadApp/LoadApp.c **** ** @Function  : 跳转进入应用程序
+  57:./Application/Funtion/LoadApp/LoadApp.c **** ** @The notes :
+  58:./Application/Funtion/LoadApp/LoadApp.c **** **===============================================================================================*/
+  59:./Application/Funtion/LoadApp/LoadApp.c **** static void EnterAppPro(void);
+  60:./Application/Funtion/LoadApp/LoadApp.c **** #endif
+  61:./Application/Funtion/LoadApp/LoadApp.c **** 
+  62:./Application/Funtion/LoadApp/LoadApp.c **** 
+  63:./Application/Funtion/LoadApp/LoadApp.c **** 
+  64:./Application/Funtion/LoadApp/LoadApp.c **** /*=================================================================================================
+  65:./Application/Funtion/LoadApp/LoadApp.c **** ** @Interface function definition
+  66:./Application/Funtion/LoadApp/LoadApp.c **** **===============================================================================================*/
+  67:./Application/Funtion/LoadApp/LoadApp.c **** /*=================================================================================================
+  68:./Application/Funtion/LoadApp/LoadApp.c **** ** @Name      : void BootLoaderInit(void)
+  69:./Application/Funtion/LoadApp/LoadApp.c **** ** @Input     : void
+  70:./Application/Funtion/LoadApp/LoadApp.c **** ** @Output    : void
+  71:./Application/Funtion/LoadApp/LoadApp.c **** ** @Function  : 在线升级模块初始化
+  72:./Application/Funtion/LoadApp/LoadApp.c **** ** @The notes : BOOT和APP有区别
+  73:./Application/Funtion/LoadApp/LoadApp.c **** **===============================================================================================*/
+  74:./Application/Funtion/LoadApp/LoadApp.c **** void APPLoaderInit(void)
+  75:./Application/Funtion/LoadApp/LoadApp.c **** {
+  26              		.loc 1 75 0
+  27              		.cfi_startproc
+  28              		@ args = 0, pretend = 0, frame = 24
+  29              		@ frame_needed = 0, uses_anonymous_args = 0
+  76:./Application/Funtion/LoadApp/LoadApp.c ****     FLASH_EraseInitTypeDef EraseInitStruct;
+  77:./Application/Funtion/LoadApp/LoadApp.c ****     // app_procedure_t procedure_stuct;
+  78:./Application/Funtion/LoadApp/LoadApp.c ****     uint32_t PageError = 0;
+  30              		.loc 1 78 0
+  31 0000 0023     		movs	r3, #0
+  75:./Application/Funtion/LoadApp/LoadApp.c ****     FLASH_EraseInitTypeDef EraseInitStruct;
+  32              		.loc 1 75 0
+  33 0002 F0B5     		push	{r4, r5, r6, r7, lr}
+  34              	.LCFI0:
+  35              		.cfi_def_cfa_offset 20
+  36              		.cfi_offset 4, -20
+ARM GAS  /tmp/cc2lcQy9.s 			page 3
+
+
+  37              		.cfi_offset 5, -16
+  38              		.cfi_offset 6, -12
+  39              		.cfi_offset 7, -8
+  40              		.cfi_offset 14, -4
+  79:./Application/Funtion/LoadApp/LoadApp.c ****     uint32_t write_addr = FLASH_USER_UPDATE_FLAG_ADDR;
+  41              		.loc 1 79 0
+  42 0004 2F4F     		ldr	r7, .L18
+  75:./Application/Funtion/LoadApp/LoadApp.c ****     FLASH_EraseInitTypeDef EraseInitStruct;
+  43              		.loc 1 75 0
+  44 0006 87B0     		sub	sp, sp, #28
+  45              	.LCFI1:
+  46              		.cfi_def_cfa_offset 48
+  78:./Application/Funtion/LoadApp/LoadApp.c ****     uint32_t write_addr = FLASH_USER_UPDATE_FLAG_ADDR;
+  47              		.loc 1 78 0
+  48 0008 0193     		str	r3, [sp, #4]
+  49              		.loc 1 79 0
+  50 000a 3B68     		ldr	r3, [r7]
+  51 000c 9C02     		lsls	r4, r3, #10
+  52 000e 2E4B     		ldr	r3, .L18+4
+  53 0010 1C40     		ands	r4, r3
+  54 0012 2E4B     		ldr	r3, .L18+8
+  55 0014 E418     		adds	r4, r4, r3
+  56              	.LVL0:
+  80:./Application/Funtion/LoadApp/LoadApp.c ****     uint64_t *pdata = 0;
+  81:./Application/Funtion/LoadApp/LoadApp.c ****     uint8_t tmp_array[8] = {0x5A,0x5A,0,0,0,0,0,0};//初始化为5A5A
+  82:./Application/Funtion/LoadApp/LoadApp.c ****     
+  83:./Application/Funtion/LoadApp/LoadApp.c ****     u8 *p_read = (u8 *)FLASH_USER_UPDATE_FLAG_ADDR;
+  84:./Application/Funtion/LoadApp/LoadApp.c **** 
+  85:./Application/Funtion/LoadApp/LoadApp.c ****     //首次上电 或参数被擦除
+  86:./Application/Funtion/LoadApp/LoadApp.c ****     if ((0xFFu == p_read[eBOOT_UDS_IAP_FLAG_ID0]) && (0xFFu == p_read[eBOOT_UDS_IAP_FLAG_ID1]) && (
+  57              		.loc 1 86 0
+  58 0016 2378     		ldrb	r3, [r4]
+  59 0018 FF2B     		cmp	r3, #255
+  60 001a 4CD1     		bne	.L1
+  61              		.loc 1 86 0 is_stmt 0 discriminator 1
+  62 001c 6378     		ldrb	r3, [r4, #1]
+  63 001e FF2B     		cmp	r3, #255
+  64 0020 49D1     		bne	.L1
+  65              		.loc 1 86 0 discriminator 2
+  66 0022 A378     		ldrb	r3, [r4, #2]
+  67 0024 FF2B     		cmp	r3, #255
+  68 0026 46D1     		bne	.L1
+  81:./Application/Funtion/LoadApp/LoadApp.c ****     
+  69              		.loc 1 81 0 is_stmt 1
+  70 0028 294B     		ldr	r3, .L18+12
+  71 002a 5A78     		ldrb	r2, [r3, #1]
+  72 002c 1E78     		ldrb	r6, [r3]
+  73 002e 1202     		lsls	r2, r2, #8
+  74 0030 3243     		orrs	r2, r6
+  75 0032 9E78     		ldrb	r6, [r3, #2]
+  76 0034 1D79     		ldrb	r5, [r3, #4]
+  77 0036 3604     		lsls	r6, r6, #16
+  78 0038 3243     		orrs	r2, r6
+  79 003a DE78     		ldrb	r6, [r3, #3]
+  80 003c 3606     		lsls	r6, r6, #24
+  81 003e 1643     		orrs	r6, r2
+  82 0040 5A79     		ldrb	r2, [r3, #5]
+ARM GAS  /tmp/cc2lcQy9.s 			page 4
+
+
+  83 0042 1202     		lsls	r2, r2, #8
+  84 0044 2A43     		orrs	r2, r5
+  85 0046 9D79     		ldrb	r5, [r3, #6]
+  86 0048 2D04     		lsls	r5, r5, #16
+  87 004a 2A43     		orrs	r2, r5
+  88 004c DD79     		ldrb	r5, [r3, #7]
+  89 004e 2D06     		lsls	r5, r5, #24
+  90 0050 1543     		orrs	r5, r2
+  91              	.LBB6:
+  92              	.LBB7:
+  93              		.file 2 "Drivers/CMSIS/Include/cmsis_gcc.h"
+   1:Drivers/CMSIS/Include/cmsis_gcc.h **** /**************************************************************************//**
+   2:Drivers/CMSIS/Include/cmsis_gcc.h ****  * @file     cmsis_gcc.h
+   3:Drivers/CMSIS/Include/cmsis_gcc.h ****  * @brief    CMSIS compiler GCC header file
+   4:Drivers/CMSIS/Include/cmsis_gcc.h ****  * @version  V5.2.0
+   5:Drivers/CMSIS/Include/cmsis_gcc.h ****  * @date     08. May 2019
+   6:Drivers/CMSIS/Include/cmsis_gcc.h ****  ******************************************************************************/
+   7:Drivers/CMSIS/Include/cmsis_gcc.h **** /*
+   8:Drivers/CMSIS/Include/cmsis_gcc.h ****  * Copyright (c) 2009-2019 Arm Limited. All rights reserved.
+   9:Drivers/CMSIS/Include/cmsis_gcc.h ****  *
+  10:Drivers/CMSIS/Include/cmsis_gcc.h ****  * SPDX-License-Identifier: Apache-2.0
+  11:Drivers/CMSIS/Include/cmsis_gcc.h ****  *
+  12:Drivers/CMSIS/Include/cmsis_gcc.h ****  * Licensed under the Apache License, Version 2.0 (the License); you may
+  13:Drivers/CMSIS/Include/cmsis_gcc.h ****  * not use this file except in compliance with the License.
+  14:Drivers/CMSIS/Include/cmsis_gcc.h ****  * You may obtain a copy of the License at
+  15:Drivers/CMSIS/Include/cmsis_gcc.h ****  *
+  16:Drivers/CMSIS/Include/cmsis_gcc.h ****  * www.apache.org/licenses/LICENSE-2.0
+  17:Drivers/CMSIS/Include/cmsis_gcc.h ****  *
+  18:Drivers/CMSIS/Include/cmsis_gcc.h ****  * Unless required by applicable law or agreed to in writing, software
+  19:Drivers/CMSIS/Include/cmsis_gcc.h ****  * distributed under the License is distributed on an AS IS BASIS, WITHOUT
+  20:Drivers/CMSIS/Include/cmsis_gcc.h ****  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  21:Drivers/CMSIS/Include/cmsis_gcc.h ****  * See the License for the specific language governing permissions and
+  22:Drivers/CMSIS/Include/cmsis_gcc.h ****  * limitations under the License.
+  23:Drivers/CMSIS/Include/cmsis_gcc.h ****  */
+  24:Drivers/CMSIS/Include/cmsis_gcc.h **** 
+  25:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef __CMSIS_GCC_H
+  26:Drivers/CMSIS/Include/cmsis_gcc.h **** #define __CMSIS_GCC_H
+  27:Drivers/CMSIS/Include/cmsis_gcc.h **** 
+  28:Drivers/CMSIS/Include/cmsis_gcc.h **** /* ignore some GCC warnings */
+  29:Drivers/CMSIS/Include/cmsis_gcc.h **** #pragma GCC diagnostic push
+  30:Drivers/CMSIS/Include/cmsis_gcc.h **** #pragma GCC diagnostic ignored "-Wsign-conversion"
+  31:Drivers/CMSIS/Include/cmsis_gcc.h **** #pragma GCC diagnostic ignored "-Wconversion"
+  32:Drivers/CMSIS/Include/cmsis_gcc.h **** #pragma GCC diagnostic ignored "-Wunused-parameter"
+  33:Drivers/CMSIS/Include/cmsis_gcc.h **** 
+  34:Drivers/CMSIS/Include/cmsis_gcc.h **** /* Fallback for __has_builtin */
+  35:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef __has_builtin
+  36:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __has_builtin(x) (0)
+  37:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+  38:Drivers/CMSIS/Include/cmsis_gcc.h **** 
+  39:Drivers/CMSIS/Include/cmsis_gcc.h **** /* CMSIS compiler specific defines */
+  40:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __ASM
+  41:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __ASM                                  __asm
+  42:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+  43:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __INLINE
+  44:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __INLINE                               inline
+  45:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+  46:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __STATIC_INLINE
+ARM GAS  /tmp/cc2lcQy9.s 			page 5
+
+
+  47:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __STATIC_INLINE                        static inline
+  48:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+  49:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __STATIC_FORCEINLINE                 
+  50:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __STATIC_FORCEINLINE                   __attribute__((always_inline)) static inline
+  51:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif                                           
+  52:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __NO_RETURN
+  53:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __NO_RETURN                            __attribute__((__noreturn__))
+  54:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+  55:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __USED
+  56:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __USED                                 __attribute__((used))
+  57:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+  58:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __WEAK
+  59:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __WEAK                                 __attribute__((weak))
+  60:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+  61:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __PACKED
+  62:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __PACKED                               __attribute__((packed, aligned(1)))
+  63:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+  64:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __PACKED_STRUCT
+  65:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __PACKED_STRUCT                        struct __attribute__((packed, aligned(1)))
+  66:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+  67:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __PACKED_UNION
+  68:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __PACKED_UNION                         union __attribute__((packed, aligned(1)))
+  69:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+  70:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __UNALIGNED_UINT32        /* deprecated */
+  71:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic push
+  72:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic ignored "-Wpacked"
+  73:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic ignored "-Wattributes"
+  74:Drivers/CMSIS/Include/cmsis_gcc.h ****   struct __attribute__((packed)) T_UINT32 { uint32_t v; };
+  75:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic pop
+  76:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __UNALIGNED_UINT32(x)                  (((struct T_UINT32 *)(x))->v)
+  77:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+  78:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __UNALIGNED_UINT16_WRITE
+  79:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic push
+  80:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic ignored "-Wpacked"
+  81:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic ignored "-Wattributes"
+  82:Drivers/CMSIS/Include/cmsis_gcc.h ****   __PACKED_STRUCT T_UINT16_WRITE { uint16_t v; };
+  83:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic pop
+  84:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __UNALIGNED_UINT16_WRITE(addr, val)    (void)((((struct T_UINT16_WRITE *)(void *)(addr))-
+  85:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+  86:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __UNALIGNED_UINT16_READ
+  87:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic push
+  88:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic ignored "-Wpacked"
+  89:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic ignored "-Wattributes"
+  90:Drivers/CMSIS/Include/cmsis_gcc.h ****   __PACKED_STRUCT T_UINT16_READ { uint16_t v; };
+  91:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic pop
+  92:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __UNALIGNED_UINT16_READ(addr)          (((const struct T_UINT16_READ *)(const void *)(add
+  93:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+  94:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __UNALIGNED_UINT32_WRITE
+  95:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic push
+  96:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic ignored "-Wpacked"
+  97:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic ignored "-Wattributes"
+  98:Drivers/CMSIS/Include/cmsis_gcc.h ****   __PACKED_STRUCT T_UINT32_WRITE { uint32_t v; };
+  99:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic pop
+ 100:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __UNALIGNED_UINT32_WRITE(addr, val)    (void)((((struct T_UINT32_WRITE *)(void *)(addr))-
+ 101:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+ 102:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __UNALIGNED_UINT32_READ
+ 103:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic push
+ARM GAS  /tmp/cc2lcQy9.s 			page 6
+
+
+ 104:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic ignored "-Wpacked"
+ 105:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic ignored "-Wattributes"
+ 106:Drivers/CMSIS/Include/cmsis_gcc.h ****   __PACKED_STRUCT T_UINT32_READ { uint32_t v; };
+ 107:Drivers/CMSIS/Include/cmsis_gcc.h ****   #pragma GCC diagnostic pop
+ 108:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __UNALIGNED_UINT32_READ(addr)          (((const struct T_UINT32_READ *)(const void *)(add
+ 109:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+ 110:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __ALIGNED
+ 111:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __ALIGNED(x)                           __attribute__((aligned(x)))
+ 112:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+ 113:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __RESTRICT
+ 114:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __RESTRICT                             __restrict
+ 115:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+ 116:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef   __COMPILER_BARRIER
+ 117:Drivers/CMSIS/Include/cmsis_gcc.h ****   #define __COMPILER_BARRIER()                   __ASM volatile("":::"memory")
+ 118:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+ 119:Drivers/CMSIS/Include/cmsis_gcc.h **** 
+ 120:Drivers/CMSIS/Include/cmsis_gcc.h **** /* #########################  Startup and Lowlevel Init  ######################## */
+ 121:Drivers/CMSIS/Include/cmsis_gcc.h **** 
+ 122:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef __PROGRAM_START
+ 123:Drivers/CMSIS/Include/cmsis_gcc.h **** 
+ 124:Drivers/CMSIS/Include/cmsis_gcc.h **** /**
+ 125:Drivers/CMSIS/Include/cmsis_gcc.h ****   \brief   Initializes data and bss sections
+ 126:Drivers/CMSIS/Include/cmsis_gcc.h ****   \details This default implementations initialized all data and additional bss
+ 127:Drivers/CMSIS/Include/cmsis_gcc.h ****            sections relying on .copy.table and .zero.table specified properly
+ 128:Drivers/CMSIS/Include/cmsis_gcc.h ****            in the used linker script.
+ 129:Drivers/CMSIS/Include/cmsis_gcc.h ****   
+ 130:Drivers/CMSIS/Include/cmsis_gcc.h ****  */
+ 131:Drivers/CMSIS/Include/cmsis_gcc.h **** __STATIC_FORCEINLINE __NO_RETURN void __cmsis_start(void)
+ 132:Drivers/CMSIS/Include/cmsis_gcc.h **** {
+ 133:Drivers/CMSIS/Include/cmsis_gcc.h ****   extern void _start(void) __NO_RETURN;
+ 134:Drivers/CMSIS/Include/cmsis_gcc.h ****   
+ 135:Drivers/CMSIS/Include/cmsis_gcc.h ****   typedef struct {
+ 136:Drivers/CMSIS/Include/cmsis_gcc.h ****     uint32_t const* src;
+ 137:Drivers/CMSIS/Include/cmsis_gcc.h ****     uint32_t* dest;
+ 138:Drivers/CMSIS/Include/cmsis_gcc.h ****     uint32_t  wlen;
+ 139:Drivers/CMSIS/Include/cmsis_gcc.h ****   } __copy_table_t;
+ 140:Drivers/CMSIS/Include/cmsis_gcc.h ****   
+ 141:Drivers/CMSIS/Include/cmsis_gcc.h ****   typedef struct {
+ 142:Drivers/CMSIS/Include/cmsis_gcc.h ****     uint32_t* dest;
+ 143:Drivers/CMSIS/Include/cmsis_gcc.h ****     uint32_t  wlen;
+ 144:Drivers/CMSIS/Include/cmsis_gcc.h ****   } __zero_table_t;
+ 145:Drivers/CMSIS/Include/cmsis_gcc.h ****   
+ 146:Drivers/CMSIS/Include/cmsis_gcc.h ****   extern const __copy_table_t __copy_table_start__;
+ 147:Drivers/CMSIS/Include/cmsis_gcc.h ****   extern const __copy_table_t __copy_table_end__;
+ 148:Drivers/CMSIS/Include/cmsis_gcc.h ****   extern const __zero_table_t __zero_table_start__;
+ 149:Drivers/CMSIS/Include/cmsis_gcc.h ****   extern const __zero_table_t __zero_table_end__;
+ 150:Drivers/CMSIS/Include/cmsis_gcc.h **** 
+ 151:Drivers/CMSIS/Include/cmsis_gcc.h ****   for (__copy_table_t const* pTable = &__copy_table_start__; pTable < &__copy_table_end__; ++pTable
+ 152:Drivers/CMSIS/Include/cmsis_gcc.h ****     for(uint32_t i=0u; i<pTable->wlen; ++i) {
+ 153:Drivers/CMSIS/Include/cmsis_gcc.h ****       pTable->dest[i] = pTable->src[i];
+ 154:Drivers/CMSIS/Include/cmsis_gcc.h ****     }
+ 155:Drivers/CMSIS/Include/cmsis_gcc.h ****   }
+ 156:Drivers/CMSIS/Include/cmsis_gcc.h ****  
+ 157:Drivers/CMSIS/Include/cmsis_gcc.h ****   for (__zero_table_t const* pTable = &__zero_table_start__; pTable < &__zero_table_end__; ++pTable
+ 158:Drivers/CMSIS/Include/cmsis_gcc.h ****     for(uint32_t i=0u; i<pTable->wlen; ++i) {
+ 159:Drivers/CMSIS/Include/cmsis_gcc.h ****       pTable->dest[i] = 0u;
+ 160:Drivers/CMSIS/Include/cmsis_gcc.h ****     }
+ARM GAS  /tmp/cc2lcQy9.s 			page 7
+
+
+ 161:Drivers/CMSIS/Include/cmsis_gcc.h ****   }
+ 162:Drivers/CMSIS/Include/cmsis_gcc.h ****  
+ 163:Drivers/CMSIS/Include/cmsis_gcc.h ****   _start();
+ 164:Drivers/CMSIS/Include/cmsis_gcc.h **** }
+ 165:Drivers/CMSIS/Include/cmsis_gcc.h ****   
+ 166:Drivers/CMSIS/Include/cmsis_gcc.h **** #define __PROGRAM_START           __cmsis_start
+ 167:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+ 168:Drivers/CMSIS/Include/cmsis_gcc.h **** 
+ 169:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef __INITIAL_SP
+ 170:Drivers/CMSIS/Include/cmsis_gcc.h **** #define __INITIAL_SP              __StackTop
+ 171:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+ 172:Drivers/CMSIS/Include/cmsis_gcc.h **** 
+ 173:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef __STACK_LIMIT
+ 174:Drivers/CMSIS/Include/cmsis_gcc.h **** #define __STACK_LIMIT             __StackLimit
+ 175:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+ 176:Drivers/CMSIS/Include/cmsis_gcc.h **** 
+ 177:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef __VECTOR_TABLE
+ 178:Drivers/CMSIS/Include/cmsis_gcc.h **** #define __VECTOR_TABLE            __Vectors
+ 179:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+ 180:Drivers/CMSIS/Include/cmsis_gcc.h **** 
+ 181:Drivers/CMSIS/Include/cmsis_gcc.h **** #ifndef __VECTOR_TABLE_ATTRIBUTE
+ 182:Drivers/CMSIS/Include/cmsis_gcc.h **** #define __VECTOR_TABLE_ATTRIBUTE  __attribute((used, section(".vectors")))
+ 183:Drivers/CMSIS/Include/cmsis_gcc.h **** #endif
+ 184:Drivers/CMSIS/Include/cmsis_gcc.h **** 
+ 185:Drivers/CMSIS/Include/cmsis_gcc.h **** /* ###########################  Core Function Access  ########################### */
+ 186:Drivers/CMSIS/Include/cmsis_gcc.h **** /** \ingroup  CMSIS_Core_FunctionInterface
+ 187:Drivers/CMSIS/Include/cmsis_gcc.h ****     \defgroup CMSIS_Core_RegAccFunctions CMSIS Core Register Access Functions
+ 188:Drivers/CMSIS/Include/cmsis_gcc.h ****   @{
+ 189:Drivers/CMSIS/Include/cmsis_gcc.h ****  */
+ 190:Drivers/CMSIS/Include/cmsis_gcc.h **** 
+ 191:Drivers/CMSIS/Include/cmsis_gcc.h **** /**
+ 192:Drivers/CMSIS/Include/cmsis_gcc.h ****   \brief   Enable IRQ Interrupts
+ 193:Drivers/CMSIS/Include/cmsis_gcc.h ****   \details Enables IRQ interrupts by clearing the I-bit in the CPSR.
+ 194:Drivers/CMSIS/Include/cmsis_gcc.h ****            Can only be executed in Privileged modes.
+ 195:Drivers/CMSIS/Include/cmsis_gcc.h ****  */
+ 196:Drivers/CMSIS/Include/cmsis_gcc.h **** __STATIC_FORCEINLINE void __enable_irq(void)
+ 197:Drivers/CMSIS/Include/cmsis_gcc.h **** {
+ 198:Drivers/CMSIS/Include/cmsis_gcc.h ****   __ASM volatile ("cpsie i" : : : "memory");
+ 199:Drivers/CMSIS/Include/cmsis_gcc.h **** }
+ 200:Drivers/CMSIS/Include/cmsis_gcc.h **** 
+ 201:Drivers/CMSIS/Include/cmsis_gcc.h **** 
+ 202:Drivers/CMSIS/Include/cmsis_gcc.h **** /**
+ 203:Drivers/CMSIS/Include/cmsis_gcc.h ****   \brief   Disable IRQ Interrupts
+ 204:Drivers/CMSIS/Include/cmsis_gcc.h ****   \details Disables IRQ interrupts by setting the I-bit in the CPSR.
+ 205:Drivers/CMSIS/Include/cmsis_gcc.h ****            Can only be executed in Privileged modes.
+ 206:Drivers/CMSIS/Include/cmsis_gcc.h ****  */
+ 207:Drivers/CMSIS/Include/cmsis_gcc.h **** __STATIC_FORCEINLINE void __disable_irq(void)
+ 208:Drivers/CMSIS/Include/cmsis_gcc.h **** {
+ 209:Drivers/CMSIS/Include/cmsis_gcc.h ****   __ASM volatile ("cpsid i" : : : "memory");
+  94              		.loc 2 209 0
+  95              		.syntax divided
+  96              	@ 209 "Drivers/CMSIS/Include/cmsis_gcc.h" 1
+  97 0052 72B6     		cpsid i
+  98              	@ 0 "" 2
+  99              		.thumb
+ 100              		.syntax unified
+ 101              	.LBE7:
+ARM GAS  /tmp/cc2lcQy9.s 			page 8
+
+
+ 102              	.LBE6:
+  87:./Application/Funtion/LoadApp/LoadApp.c ****     {
+  88:./Application/Funtion/LoadApp/LoadApp.c ****         __disable_irq();  /* 关中断保护Flash操作，防止并发破坏 */
+  89:./Application/Funtion/LoadApp/LoadApp.c ****         HAL_FLASH_Unlock();
+ 103              		.loc 1 89 0
+ 104 0054 FFF7FEFF 		bl	HAL_FLASH_Unlock
+ 105              	.LVL1:
+  90:./Application/Funtion/LoadApp/LoadApp.c ****         EraseInitStruct.TypeErase     = FLASH_CR_PER;
+ 106              		.loc 1 90 0
+ 107 0058 0223     		movs	r3, #2
+ 108 005a 0293     		str	r3, [sp, #8]
+  91:./Application/Funtion/LoadApp/LoadApp.c ****         EraseInitStruct.Banks         = FLASH_BANK_2;       //要擦除的位置位于flash尾部�
+ 109              		.loc 1 91 0
+ 110 005c 8023     		movs	r3, #128
+  92:./Application/Funtion/LoadApp/LoadApp.c ****         EraseInitStruct.Page          = FLASH_PAGE_NB-2;    //擦除起始的sector编号,倒数第
+ 111              		.loc 1 92 0
+ 112 005e C022     		movs	r2, #192
+  91:./Application/Funtion/LoadApp/LoadApp.c ****         EraseInitStruct.Banks         = FLASH_BANK_2;       //要擦除的位置位于flash尾部�
+ 113              		.loc 1 91 0
+ 114 0060 1B02     		lsls	r3, r3, #8
+ 115 0062 0393     		str	r3, [sp, #12]
+ 116              		.loc 1 92 0
+ 117 0064 1B4B     		ldr	r3, .L18+16
+ 118 0066 9204     		lsls	r2, r2, #18
+ 119 0068 1B68     		ldr	r3, [r3]
+ 120 006a 1340     		ands	r3, r2
+ 121 006c 07D0     		beq	.L3
+ 122              		.loc 1 92 0 is_stmt 0 discriminator 2
+ 123 006e 8022     		movs	r2, #128
+ 124 0070 5204     		lsls	r2, r2, #17
+ 125 0072 9342     		cmp	r3, r2
+ 126 0074 21D1     		bne	.L4
+ 127              		.loc 1 92 0 discriminator 3
+ 128 0076 184B     		ldr	r3, .L18+20
+ 129 0078 1B68     		ldr	r3, [r3]
+ 130 007a 9B02     		lsls	r3, r3, #10
+ 131 007c 1DD4     		bmi	.L4
+ 132              	.L3:
+ 133              		.loc 1 92 0 discriminator 5
+ 134 007e 3B68     		ldr	r3, [r7]
+ 135 0080 9B05     		lsls	r3, r3, #22
+ 136 0082 DB0D     		lsrs	r3, r3, #23
+ 137              	.L17:
+ 138              		.loc 1 92 0 discriminator 6
+ 139 0084 023B     		subs	r3, r3, #2
+ 140 0086 0493     		str	r3, [sp, #16]
+  93:./Application/Funtion/LoadApp/LoadApp.c ****         EraseInitStruct.NbPages       = 1;                  //擦除的sector数量
+ 141              		.loc 1 93 0 is_stmt 1 discriminator 6
+ 142 0088 0123     		movs	r3, #1
+  94:./Application/Funtion/LoadApp/LoadApp.c ****     
+  95:./Application/Funtion/LoadApp/LoadApp.c ****         if (HAL_FLASHEx_Erase(&EraseInitStruct, &PageError) != HAL_OK){
+ 143              		.loc 1 95 0 discriminator 6
+ 144 008a 01A9     		add	r1, sp, #4
+ 145 008c 02A8     		add	r0, sp, #8
+  93:./Application/Funtion/LoadApp/LoadApp.c ****         EraseInitStruct.NbPages       = 1;                  //擦除的sector数量
+ 146              		.loc 1 93 0 discriminator 6
+ 147 008e 0593     		str	r3, [sp, #20]
+ARM GAS  /tmp/cc2lcQy9.s 			page 9
+
+
+ 148              		.loc 1 95 0 discriminator 6
+ 149 0090 FFF7FEFF 		bl	HAL_FLASHEx_Erase
+ 150              	.LVL2:
+ 151 0094 0028     		cmp	r0, #0
+ 152 0096 01D0     		beq	.L6
+  96:./Application/Funtion/LoadApp/LoadApp.c ****             HAL_FLASH_Lock();
+ 153              		.loc 1 96 0
+ 154 0098 FFF7FEFF 		bl	HAL_FLASH_Lock
+ 155              	.LVL3:
+ 156              	.L6:
+  97:./Application/Funtion/LoadApp/LoadApp.c ****         }
+  98:./Application/Funtion/LoadApp/LoadApp.c ****     
+  99:./Application/Funtion/LoadApp/LoadApp.c ****         //写入升级标志和文件大小
+ 100:./Application/Funtion/LoadApp/LoadApp.c ****         pdata = (uint64_t*)&tmp_array[0];
+ 101:./Application/Funtion/LoadApp/LoadApp.c ****         if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, 
+ 157              		.loc 1 101 0
+ 158 009c 3200     		movs	r2, r6
+ 159 009e 2B00     		movs	r3, r5
+ 160 00a0 2100     		movs	r1, r4
+ 161 00a2 0120     		movs	r0, #1
+ 162 00a4 FFF7FEFF 		bl	HAL_FLASH_Program
+ 163              	.LVL4:
+ 164 00a8 0028     		cmp	r0, #0
+ 165 00aa 01D0     		beq	.L7
+ 102:./Application/Funtion/LoadApp/LoadApp.c ****                                   write_addr, 
+ 103:./Application/Funtion/LoadApp/LoadApp.c ****                                   ((uint64_t)*pdata)) == HAL_OK){
+ 104:./Application/Funtion/LoadApp/LoadApp.c ****         }else{
+ 105:./Application/Funtion/LoadApp/LoadApp.c ****             HAL_FLASH_Lock();
+ 166              		.loc 1 105 0
+ 167 00ac FFF7FEFF 		bl	HAL_FLASH_Lock
+ 168              	.LVL5:
+ 169              	.L7:
+ 106:./Application/Funtion/LoadApp/LoadApp.c ****         }
+ 107:./Application/Funtion/LoadApp/LoadApp.c ****         HAL_FLASH_Lock();  /* 确保Flash被锁定 */
+ 170              		.loc 1 107 0
+ 171 00b0 FFF7FEFF 		bl	HAL_FLASH_Lock
+ 172              	.LVL6:
+ 173              	.LBB8:
+ 174              	.LBB9:
+ 198:Drivers/CMSIS/Include/cmsis_gcc.h **** }
+ 175              		.loc 2 198 0
+ 176              		.syntax divided
+ 177              	@ 198 "Drivers/CMSIS/Include/cmsis_gcc.h" 1
+ 178 00b4 62B6     		cpsie i
+ 179              	@ 0 "" 2
+ 180              	.LVL7:
+ 181              		.thumb
+ 182              		.syntax unified
+ 183              	.L1:
+ 184              	.LBE9:
+ 185              	.LBE8:
+ 108:./Application/Funtion/LoadApp/LoadApp.c ****         __enable_irq();
+ 109:./Application/Funtion/LoadApp/LoadApp.c ****     }
+ 110:./Application/Funtion/LoadApp/LoadApp.c **** }
+ 186              		.loc 1 110 0
+ 187 00b6 07B0     		add	sp, sp, #28
+ 188              		@ sp needed
+ARM GAS  /tmp/cc2lcQy9.s 			page 10
+
+
+ 189              	.LVL8:
+ 190 00b8 F0BD     		pop	{r4, r5, r6, r7, pc}
+ 191              	.LVL9:
+ 192              	.L4:
+  92:./Application/Funtion/LoadApp/LoadApp.c ****         EraseInitStruct.NbPages       = 1;                  //擦除的sector数量
+ 193              		.loc 1 92 0 discriminator 6
+ 194 00ba 3B68     		ldr	r3, [r7]
+ 195 00bc 9B05     		lsls	r3, r3, #22
+ 196 00be 1B0E     		lsrs	r3, r3, #24
+ 197 00c0 E0E7     		b	.L17
+ 198              	.L19:
+ 199 00c2 C046     		.align	2
+ 200              	.L18:
+ 201 00c4 E075FF1F 		.word	536835552
+ 202 00c8 00FC0F00 		.word	1047552
+ 203 00cc 00F0FF07 		.word	134213632
+ 204 00d0 00000000 		.word	.LANCHOR0
+ 205 00d4 0075FF1F 		.word	536835328
+ 206 00d8 20200240 		.word	1073881120
+ 207              		.cfi_endproc
+ 208              	.LFE493:
+ 210              		.section	.rodata
+ 211              		.set	.LANCHOR0,. + 0
+ 212              	.LC0:
+ 213 0000 5A       		.byte	90
+ 214 0001 5A       		.byte	90
+ 215 0002 00       		.byte	0
+ 216 0003 00       		.byte	0
+ 217 0004 00       		.byte	0
+ 218 0005 00       		.byte	0
+ 219 0006 00       		.byte	0
+ 220 0007 00       		.byte	0
+ 221              		.text
+ 222              	.Letext0:
+ 223              		.file 3 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/machine/_default_types.h"
+ 224              		.file 4 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/lock.h"
+ 225              		.file 5 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_types.h"
+ 226              		.file 6 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/lib/gcc/arm-none-eabi/7.3.1/include/stddef.h"
+ 227              		.file 7 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/reent.h"
+ 228              		.file 8 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/stdlib.h"
+ 229              		.file 9 "Application/BSPSys/Util/BSPTypeDef.h"
+ 230              		.file 10 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_stdint.h"
+ 231              		.file 11 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/system_stm32g0xx.h"
+ 232              		.file 12 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/stm32g0b1xx.h"
+ 233              		.file 13 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/stm32g0xx.h"
+ 234              		.file 14 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_def.h"
+ 235              		.file 15 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_dma.h"
+ 236              		.file 16 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_flash.h"
+ 237              		.file 17 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_fdcan.h"
+ 238              		.file 18 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_spi.h"
+ 239              		.file 19 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_uart.h"
+ 240              		.file 20 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal.h"
+ 241              		.file 21 "Core/Inc/main.h"
+ 242              		.file 22 "Core/Inc/fdcan.h"
+ 243              		.file 23 "Core/Inc/spi.h"
+ 244              		.file 24 "Application/BSPSys/BSPDevice/gd25q32e/BSPGD25Q32E.h"
+ 245              		.file 25 "./Application/Funtion/LoadApp/LoadApp.h"
+ARM GAS  /tmp/cc2lcQy9.s 			page 11
+
+
+ 246              		.file 26 "Application/BSPSys/BSPCfg/BSPConfig.h"
+ 247              		.file 27 "Application/Funtion/SystemInfo/SystemInfo.h"
+ 248              		.file 28 "Application/Funtion/SystemPara/SystemPara.h"
+ 249              		.file 29 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_ll_dma.h"
+ 250              		.file 30 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_flash_ex.h"
+ARM GAS  /tmp/cc2lcQy9.s 			page 12
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 LoadApp.c
+     /tmp/cc2lcQy9.s:16     .text.APPLoaderInit:0000000000000000 $t
+     /tmp/cc2lcQy9.s:23     .text.APPLoaderInit:0000000000000000 APPLoaderInit
+     /tmp/cc2lcQy9.s:201    .text.APPLoaderInit:00000000000000c4 $d
+
+UNDEFINED SYMBOLS
+HAL_FLASH_Unlock
+HAL_FLASHEx_Erase
+HAL_FLASH_Lock
+HAL_FLASH_Program

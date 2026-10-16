@@ -1,0 +1,142 @@
+ARM GAS  /tmp/cckd6vp8.s 			page 1
+
+
+   1              		.cpu cortex-m0plus
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 4
+   9              		.eabi_attribute 34, 0
+  10              		.eabi_attribute 18, 4
+  11              		.file	"BSPDMA.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.BSPDMAInit,"ax",%progbits
+  16              		.align	1
+  17              		.global	BSPDMAInit
+  18              		.syntax unified
+  19              		.code	16
+  20              		.thumb_func
+  21              		.fpu softvfp
+  23              	BSPDMAInit:
+  24              	.LFB493:
+  25              		.file 1 "./Application/BSPSys/BSPDriver/BSPDMA.c"
+   1:./Application/BSPSys/BSPDriver/BSPDMA.c **** /*==========================================Copyright(c)=======================================
+   2:./Application/BSPSys/BSPDriver/BSPDMA.c **** **                                  Shenzhen Infypower Co., Ltd.
+   3:./Application/BSPSys/BSPDriver/BSPDMA.c **** **                                  Power conversion Department
+   4:./Application/BSPSys/BSPDriver/BSPDMA.c **** **                                       BMS Product Line
+   5:./Application/BSPSys/BSPDriver/BSPDMA.c **** **
+   6:./Application/BSPSys/BSPDriver/BSPDMA.c **** **---------------------------------------File Information--------------------------------------
+   7:./Application/BSPSys/BSPDriver/BSPDMA.c **** ** @File Name    : BSPDMA.c
+   8:./Application/BSPSys/BSPDriver/BSPDMA.c **** ** @Founder      : WYC834
+   9:./Application/BSPSys/BSPDriver/BSPDMA.c **** ** @Date         : 2025.08.26
+  10:./Application/BSPSys/BSPDriver/BSPDMA.c **** ** @Function     : BSP DMA 驱动接口
+  11:./Application/BSPSys/BSPDriver/BSPDMA.c **** ** @Instructions : 
+  12:./Application/BSPSys/BSPDriver/BSPDMA.c **** **===========================================================================================*/
+  13:./Application/BSPSys/BSPDriver/BSPDMA.c **** 
+  14:./Application/BSPSys/BSPDriver/BSPDMA.c **** /*=============================================================================================
+  15:./Application/BSPSys/BSPDriver/BSPDMA.c **** ** @Header file definition
+  16:./Application/BSPSys/BSPDriver/BSPDMA.c **** **===========================================================================================*/
+  17:./Application/BSPSys/BSPDriver/BSPDMA.c **** #include "BSPTypeDef.h"
+  18:./Application/BSPSys/BSPDriver/BSPDMA.c **** #include "BSPConfig.h"
+  19:./Application/BSPSys/BSPDriver/BSPDMA.c **** #include "BSPDMA.h"
+  20:./Application/BSPSys/BSPDriver/BSPDMA.c **** #include "dma.h"
+  21:./Application/BSPSys/BSPDriver/BSPDMA.c **** 
+  22:./Application/BSPSys/BSPDriver/BSPDMA.c **** /*=============================================================================================
+  23:./Application/BSPSys/BSPDriver/BSPDMA.c **** ** @Global variable definition
+  24:./Application/BSPSys/BSPDriver/BSPDMA.c **** **===========================================================================================*/
+  25:./Application/BSPSys/BSPDriver/BSPDMA.c **** 
+  26:./Application/BSPSys/BSPDriver/BSPDMA.c **** 
+  27:./Application/BSPSys/BSPDriver/BSPDMA.c **** /*=============================================================================================
+  28:./Application/BSPSys/BSPDriver/BSPDMA.c **** ** @Static function declaration
+  29:./Application/BSPSys/BSPDriver/BSPDMA.c **** **===========================================================================================*/
+  30:./Application/BSPSys/BSPDriver/BSPDMA.c **** 
+  31:./Application/BSPSys/BSPDriver/BSPDMA.c **** /*=============================================================================================
+  32:./Application/BSPSys/BSPDriver/BSPDMA.c **** ** @Interface function definition
+  33:./Application/BSPSys/BSPDriver/BSPDMA.c **** **===========================================================================================*/
+ARM GAS  /tmp/cckd6vp8.s 			page 2
+
+
+  34:./Application/BSPSys/BSPDriver/BSPDMA.c **** /*=============================================================================================
+  35:./Application/BSPSys/BSPDriver/BSPDMA.c **** ** @Name      : void BSPDMAInit(void)
+  36:./Application/BSPSys/BSPDriver/BSPDMA.c **** ** @Input     : void
+  37:./Application/BSPSys/BSPDriver/BSPDMA.c **** ** @Output    : 
+  38:./Application/BSPSys/BSPDriver/BSPDMA.c **** ** @Function  : 内部DMA模块初始化
+  39:./Application/BSPSys/BSPDriver/BSPDMA.c **** ** @The notes : 实际DMA初始化已在外设初始化时进行，此处仅进行DMA中断配置
+  40:./Application/BSPSys/BSPDriver/BSPDMA.c **** **===========================================================================================*/
+  41:./Application/BSPSys/BSPDriver/BSPDMA.c **** void BSPDMAInit(void)
+  42:./Application/BSPSys/BSPDriver/BSPDMA.c **** {
+  26              		.loc 1 42 0
+  27              		.cfi_startproc
+  28              		@ args = 0, pretend = 0, frame = 0
+  29              		@ frame_needed = 0, uses_anonymous_args = 0
+  43:./Application/BSPSys/BSPDriver/BSPDMA.c ****     if(1 != gBSPFunCfg.Bits.DMAEn)                                              /*DMA使能*/
+  30              		.loc 1 43 0
+  31 0000 034B     		ldr	r3, .L6
+  42:./Application/BSPSys/BSPDriver/BSPDMA.c ****     if(1 != gBSPFunCfg.Bits.DMAEn)                                              /*DMA使能*/
+  32              		.loc 1 42 0
+  33 0002 10B5     		push	{r4, lr}
+  34              	.LCFI0:
+  35              		.cfi_def_cfa_offset 8
+  36              		.cfi_offset 4, -8
+  37              		.cfi_offset 14, -4
+  38              		.loc 1 43 0
+  39 0004 1B88     		ldrh	r3, [r3]
+  40 0006 DB05     		lsls	r3, r3, #23
+  41 0008 01D5     		bpl	.L1
+  44:./Application/BSPSys/BSPDriver/BSPDMA.c ****     {
+  45:./Application/BSPSys/BSPDriver/BSPDMA.c ****         return;                                                             
+  46:./Application/BSPSys/BSPDriver/BSPDMA.c ****     }
+  47:./Application/BSPSys/BSPDriver/BSPDMA.c ****     MX_DMA_Init();                                                              /*初始化DMA*/   
+  42              		.loc 1 47 0
+  43 000a FFF7FEFF 		bl	MX_DMA_Init
+  44              	.LVL0:
+  45              	.L1:
+  48:./Application/BSPSys/BSPDriver/BSPDMA.c **** }
+  46              		.loc 1 48 0
+  47              		@ sp needed
+  48 000e 10BD     		pop	{r4, pc}
+  49              	.L7:
+  50              		.align	2
+  51              	.L6:
+  52 0010 00000000 		.word	gBSPFunCfg
+  53              		.cfi_endproc
+  54              	.LFE493:
+  56              		.text
+  57              	.Letext0:
+  58              		.file 2 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/machine/_default_types.h"
+  59              		.file 3 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/lock.h"
+  60              		.file 4 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_types.h"
+  61              		.file 5 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/lib/gcc/arm-none-eabi/7.3.1/include/stddef.h"
+  62              		.file 6 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/reent.h"
+  63              		.file 7 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/stdlib.h"
+  64              		.file 8 "Application/BSPSys/Util/BSPTypeDef.h"
+  65              		.file 9 "Application/BSPSys/BSPCfg/BSPConfig.h"
+  66              		.file 10 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_stdint.h"
+  67              		.file 11 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/system_stm32g0xx.h"
+ARM GAS  /tmp/cckd6vp8.s 			page 3
+
+
+  68              		.file 12 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_def.h"
+  69              		.file 13 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_flash.h"
+  70              		.file 14 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_uart.h"
+  71              		.file 15 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal.h"
+  72              		.file 16 "Core/Inc/main.h"
+  73              		.file 17 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_ll_dma.h"
+  74              		.file 18 "Core/Inc/dma.h"
+ARM GAS  /tmp/cckd6vp8.s 			page 4
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 BSPDMA.c
+     /tmp/cckd6vp8.s:16     .text.BSPDMAInit:0000000000000000 $t
+     /tmp/cckd6vp8.s:23     .text.BSPDMAInit:0000000000000000 BSPDMAInit
+     /tmp/cckd6vp8.s:52     .text.BSPDMAInit:0000000000000010 $d
+
+UNDEFINED SYMBOLS
+MX_DMA_Init
+gBSPFunCfg

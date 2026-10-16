@@ -1,0 +1,31 @@
+
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "STM32G0B1 Debug (OpenOCD)",
+            "cwd": "${workspaceRoot}",
+            "executable": "./build/IMIU4.elf",
+            "request": "launch",
+            "type": "cortex-debug",
+            "servertype": "openocd",
+            "device": "STM32G0B1xx",
+            "svdFile": "",
+            "configFiles": [
+                "interface/stlink.cfg",
+                "target/stm32g0x.cfg"
+            ],
+            "openOCDPreConfigLaunchCommands": {
+                "set WORKAREASIZE": "0x2000"
+            },
+            "runToEntryPoint": "main",
+            "showDevDebugOutput": "none",
+            "liveWatch": {
+                "enabled": true,
+                "samples": 100
+            },
+            "preLaunchTask": "build",
+            "postDebugTask": ""
+        }
+    ]
+}

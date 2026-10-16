@@ -1,0 +1,3251 @@
+ARM GAS  /tmp/ccKCUOAK.s 			page 1
+
+
+   1              		.cpu cortex-m0plus
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 4
+   9              		.eabi_attribute 34, 0
+  10              		.eabi_attribute 18, 4
+  11              		.file	"cm_backtrace.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.disassembly_ins_is_bl_blx,"ax",%progbits
+  16              		.align	1
+  17              		.syntax unified
+  18              		.code	16
+  19              		.thumb_func
+  20              		.fpu softvfp
+  22              	disassembly_ins_is_bl_blx:
+  23              	.LFB11:
+  24              		.file 1 "./Application/Addition/cm_backtrace/cm_backtrace.c"
+   1:./Application/Addition/cm_backtrace/cm_backtrace.c **** /*
+   2:./Application/Addition/cm_backtrace/cm_backtrace.c ****  * This file is part of the CmBacktrace Library.
+   3:./Application/Addition/cm_backtrace/cm_backtrace.c ****  *
+   4:./Application/Addition/cm_backtrace/cm_backtrace.c ****  * Copyright (c) 2016-2019, Armink, <armink.ztl@gmail.com>
+   5:./Application/Addition/cm_backtrace/cm_backtrace.c ****  *
+   6:./Application/Addition/cm_backtrace/cm_backtrace.c ****  * Permission is hereby granted, free of charge, to any person obtaining
+   7:./Application/Addition/cm_backtrace/cm_backtrace.c ****  * a copy of this software and associated documentation files (the
+   8:./Application/Addition/cm_backtrace/cm_backtrace.c ****  * 'Software'), to deal in the Software without restriction, including
+   9:./Application/Addition/cm_backtrace/cm_backtrace.c ****  * without limitation the rights to use, copy, modify, merge, publish,
+  10:./Application/Addition/cm_backtrace/cm_backtrace.c ****  * distribute, sublicense, and/or sell copies of the Software, and to
+  11:./Application/Addition/cm_backtrace/cm_backtrace.c ****  * permit persons to whom the Software is furnished to do so, subject to
+  12:./Application/Addition/cm_backtrace/cm_backtrace.c ****  * the following conditions:
+  13:./Application/Addition/cm_backtrace/cm_backtrace.c ****  *
+  14:./Application/Addition/cm_backtrace/cm_backtrace.c ****  * The above copyright notice and this permission notice shall be
+  15:./Application/Addition/cm_backtrace/cm_backtrace.c ****  * included in all copies or substantial portions of the Software.
+  16:./Application/Addition/cm_backtrace/cm_backtrace.c ****  *
+  17:./Application/Addition/cm_backtrace/cm_backtrace.c ****  * THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
+  18:./Application/Addition/cm_backtrace/cm_backtrace.c ****  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  19:./Application/Addition/cm_backtrace/cm_backtrace.c ****  * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+  20:./Application/Addition/cm_backtrace/cm_backtrace.c ****  * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+  21:./Application/Addition/cm_backtrace/cm_backtrace.c ****  * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+  22:./Application/Addition/cm_backtrace/cm_backtrace.c ****  * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+  23:./Application/Addition/cm_backtrace/cm_backtrace.c ****  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+  24:./Application/Addition/cm_backtrace/cm_backtrace.c ****  *
+  25:./Application/Addition/cm_backtrace/cm_backtrace.c ****  * Function: Initialize function and other general function.
+  26:./Application/Addition/cm_backtrace/cm_backtrace.c ****  * Created on: 2016-12-15
+  27:./Application/Addition/cm_backtrace/cm_backtrace.c ****  */
+  28:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+  29:./Application/Addition/cm_backtrace/cm_backtrace.c **** #include <cm_backtrace.h>
+  30:./Application/Addition/cm_backtrace/cm_backtrace.c **** #include <stdbool.h>
+  31:./Application/Addition/cm_backtrace/cm_backtrace.c **** #include <string.h>
+  32:./Application/Addition/cm_backtrace/cm_backtrace.c **** #include <stdio.h>
+  33:./Application/Addition/cm_backtrace/cm_backtrace.c **** #include "SEGGER_RTT.h"
+  34:./Application/Addition/cm_backtrace/cm_backtrace.c **** #if __STDC_VERSION__ < 199901L
+ARM GAS  /tmp/ccKCUOAK.s 			page 2
+
+
+  35:./Application/Addition/cm_backtrace/cm_backtrace.c ****     #error "must be C99 or higher. try to add '-std=c99' to compile parameters"
+  36:./Application/Addition/cm_backtrace/cm_backtrace.c **** #endif
+  37:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+  38:./Application/Addition/cm_backtrace/cm_backtrace.c **** #if defined(__ARMCC_VERSION)
+  39:./Application/Addition/cm_backtrace/cm_backtrace.c ****     #define SECTION_START(_name_)                _name_##$$Base
+  40:./Application/Addition/cm_backtrace/cm_backtrace.c ****     #define SECTION_END(_name_)                  _name_##$$Limit
+  41:./Application/Addition/cm_backtrace/cm_backtrace.c ****     #define IMAGE_SECTION_START(_name_)          Image$$##_name_##$$Base
+  42:./Application/Addition/cm_backtrace/cm_backtrace.c ****     #define IMAGE_SECTION_END(_name_)            Image$$##_name_##$$Limit
+  43:./Application/Addition/cm_backtrace/cm_backtrace.c ****     #define CSTACK_BLOCK_START(_name_)           SECTION_START(_name_)
+  44:./Application/Addition/cm_backtrace/cm_backtrace.c ****     #define CSTACK_BLOCK_END(_name_)             SECTION_END(_name_)
+  45:./Application/Addition/cm_backtrace/cm_backtrace.c ****     #define CODE_SECTION_START(_name_)           IMAGE_SECTION_START(_name_)
+  46:./Application/Addition/cm_backtrace/cm_backtrace.c ****     #define CODE_SECTION_END(_name_)             IMAGE_SECTION_END(_name_)
+  47:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+  48:./Application/Addition/cm_backtrace/cm_backtrace.c ****     extern const int CSTACK_BLOCK_START(CMB_CSTACK_BLOCK_NAME);
+  49:./Application/Addition/cm_backtrace/cm_backtrace.c ****     extern const int CSTACK_BLOCK_END(CMB_CSTACK_BLOCK_NAME);
+  50:./Application/Addition/cm_backtrace/cm_backtrace.c ****     extern const int CODE_SECTION_START(CMB_CODE_SECTION_NAME);
+  51:./Application/Addition/cm_backtrace/cm_backtrace.c ****     extern const int CODE_SECTION_END(CMB_CODE_SECTION_NAME);
+  52:./Application/Addition/cm_backtrace/cm_backtrace.c **** #elif defined(__ICCARM__)
+  53:./Application/Addition/cm_backtrace/cm_backtrace.c ****     #pragma section=CMB_CSTACK_BLOCK_NAME
+  54:./Application/Addition/cm_backtrace/cm_backtrace.c ****     #pragma section=CMB_CODE_SECTION_NAME
+  55:./Application/Addition/cm_backtrace/cm_backtrace.c **** #elif defined(__GNUC__)
+  56:./Application/Addition/cm_backtrace/cm_backtrace.c ****     extern const int CMB_CSTACK_BLOCK_START;
+  57:./Application/Addition/cm_backtrace/cm_backtrace.c ****     extern const int CMB_CSTACK_BLOCK_END;
+  58:./Application/Addition/cm_backtrace/cm_backtrace.c ****     extern const int CMB_CODE_SECTION_START;
+  59:./Application/Addition/cm_backtrace/cm_backtrace.c ****     extern const int CMB_CODE_SECTION_END;
+  60:./Application/Addition/cm_backtrace/cm_backtrace.c **** #else
+  61:./Application/Addition/cm_backtrace/cm_backtrace.c ****     #error "not supported compiler"
+  62:./Application/Addition/cm_backtrace/cm_backtrace.c **** #endif
+  63:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+  64:./Application/Addition/cm_backtrace/cm_backtrace.c **** enum {
+  65:./Application/Addition/cm_backtrace/cm_backtrace.c ****     PRINT_MAIN_STACK_CFG_ERROR,
+  66:./Application/Addition/cm_backtrace/cm_backtrace.c ****     PRINT_FIRMWARE_INFO,
+  67:./Application/Addition/cm_backtrace/cm_backtrace.c ****     PRINT_ASSERT_ON_THREAD,
+  68:./Application/Addition/cm_backtrace/cm_backtrace.c ****     PRINT_ASSERT_ON_HANDLER,
+  69:./Application/Addition/cm_backtrace/cm_backtrace.c ****     PRINT_THREAD_STACK_INFO,
+  70:./Application/Addition/cm_backtrace/cm_backtrace.c ****     PRINT_MAIN_STACK_INFO,
+  71:./Application/Addition/cm_backtrace/cm_backtrace.c ****     PRINT_THREAD_STACK_OVERFLOW,
+  72:./Application/Addition/cm_backtrace/cm_backtrace.c ****     PRINT_MAIN_STACK_OVERFLOW,
+  73:./Application/Addition/cm_backtrace/cm_backtrace.c ****     PRINT_CALL_STACK_INFO,
+  74:./Application/Addition/cm_backtrace/cm_backtrace.c ****     PRINT_CALL_STACK_ERR,
+  75:./Application/Addition/cm_backtrace/cm_backtrace.c ****     PRINT_FAULT_ON_THREAD,
+  76:./Application/Addition/cm_backtrace/cm_backtrace.c ****     PRINT_FAULT_ON_HANDLER,
+  77:./Application/Addition/cm_backtrace/cm_backtrace.c ****     PRINT_REGS_TITLE,
+  78:./Application/Addition/cm_backtrace/cm_backtrace.c ****     PRINT_HFSR_VECTBL,
+  79:./Application/Addition/cm_backtrace/cm_backtrace.c ****     PRINT_MFSR_IACCVIOL,
+  80:./Application/Addition/cm_backtrace/cm_backtrace.c ****     PRINT_MFSR_DACCVIOL,
+  81:./Application/Addition/cm_backtrace/cm_backtrace.c ****     PRINT_MFSR_MUNSTKERR,
+  82:./Application/Addition/cm_backtrace/cm_backtrace.c ****     PRINT_MFSR_MSTKERR,
+  83:./Application/Addition/cm_backtrace/cm_backtrace.c ****     PRINT_MFSR_MLSPERR,
+  84:./Application/Addition/cm_backtrace/cm_backtrace.c ****     PRINT_BFSR_IBUSERR,
+  85:./Application/Addition/cm_backtrace/cm_backtrace.c ****     PRINT_BFSR_PRECISERR,
+  86:./Application/Addition/cm_backtrace/cm_backtrace.c ****     PRINT_BFSR_IMPREISERR,
+  87:./Application/Addition/cm_backtrace/cm_backtrace.c ****     PRINT_BFSR_UNSTKERR,
+  88:./Application/Addition/cm_backtrace/cm_backtrace.c ****     PRINT_BFSR_STKERR,
+  89:./Application/Addition/cm_backtrace/cm_backtrace.c ****     PRINT_BFSR_LSPERR,
+  90:./Application/Addition/cm_backtrace/cm_backtrace.c ****     PRINT_UFSR_UNDEFINSTR,
+  91:./Application/Addition/cm_backtrace/cm_backtrace.c ****     PRINT_UFSR_INVSTATE,
+ARM GAS  /tmp/ccKCUOAK.s 			page 3
+
+
+  92:./Application/Addition/cm_backtrace/cm_backtrace.c ****     PRINT_UFSR_INVPC,
+  93:./Application/Addition/cm_backtrace/cm_backtrace.c ****     PRINT_UFSR_NOCP,
+  94:./Application/Addition/cm_backtrace/cm_backtrace.c **** #if (CMB_CPU_PLATFORM_TYPE == CMB_CPU_ARM_CORTEX_M33)
+  95:./Application/Addition/cm_backtrace/cm_backtrace.c ****     PRINT_UFSR_STKOF,
+  96:./Application/Addition/cm_backtrace/cm_backtrace.c **** #endif
+  97:./Application/Addition/cm_backtrace/cm_backtrace.c ****     PRINT_UFSR_UNALIGNED,
+  98:./Application/Addition/cm_backtrace/cm_backtrace.c ****     PRINT_UFSR_DIVBYZERO0,
+  99:./Application/Addition/cm_backtrace/cm_backtrace.c ****     PRINT_DFSR_HALTED,
+ 100:./Application/Addition/cm_backtrace/cm_backtrace.c ****     PRINT_DFSR_BKPT,
+ 101:./Application/Addition/cm_backtrace/cm_backtrace.c ****     PRINT_DFSR_DWTTRAP,
+ 102:./Application/Addition/cm_backtrace/cm_backtrace.c ****     PRINT_DFSR_VCATCH,
+ 103:./Application/Addition/cm_backtrace/cm_backtrace.c ****     PRINT_DFSR_EXTERNAL,
+ 104:./Application/Addition/cm_backtrace/cm_backtrace.c ****     PRINT_MMAR,
+ 105:./Application/Addition/cm_backtrace/cm_backtrace.c ****     PRINT_BFAR,
+ 106:./Application/Addition/cm_backtrace/cm_backtrace.c **** };
+ 107:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 108:./Application/Addition/cm_backtrace/cm_backtrace.c **** static const char * const print_info[] = {
+ 109:./Application/Addition/cm_backtrace/cm_backtrace.c **** #if (CMB_PRINT_LANGUAGE == CMB_PRINT_LANGUAGE_ENGLISH)
+ 110:./Application/Addition/cm_backtrace/cm_backtrace.c ****     #include "Languages/en-US/cmb_en_US.h"
+ 111:./Application/Addition/cm_backtrace/cm_backtrace.c **** #elif (CMB_PRINT_LANGUAGE == CMB_PRINT_LANGUAGE_CHINESE)
+ 112:./Application/Addition/cm_backtrace/cm_backtrace.c ****     #include "Languages/zh-CN/cmb_zh_CN.h"
+ 113:./Application/Addition/cm_backtrace/cm_backtrace.c **** #elif (CMB_PRINT_LANGUAGE == CMB_PRINT_LANGUAGE_CHINESE_UTF8)
+ 114:./Application/Addition/cm_backtrace/cm_backtrace.c ****     #include "Languages/zh-CN/cmb_zh_CN_UTF8.h"
+ 115:./Application/Addition/cm_backtrace/cm_backtrace.c **** #elif (CMB_PRINT_LANGUAGE == CMB_PRINT_LANGUAGE_CUSTOM)
+ 116:./Application/Addition/cm_backtrace/cm_backtrace.c ****     #include "cmb_language_custom.h"
+ 117:./Application/Addition/cm_backtrace/cm_backtrace.c **** #else
+ 118:./Application/Addition/cm_backtrace/cm_backtrace.c ****     #error "CMB_PRINT_LANGUAGE defined error in 'cmb_cfg.h'"
+ 119:./Application/Addition/cm_backtrace/cm_backtrace.c **** #endif
+ 120:./Application/Addition/cm_backtrace/cm_backtrace.c **** };
+ 121:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 122:./Application/Addition/cm_backtrace/cm_backtrace.c **** static char fw_name[CMB_NAME_MAX + 1] = {0};
+ 123:./Application/Addition/cm_backtrace/cm_backtrace.c **** static char hw_ver[CMB_NAME_MAX + 1] = {0};
+ 124:./Application/Addition/cm_backtrace/cm_backtrace.c **** static char sw_ver[CMB_NAME_MAX + 1] = {0};
+ 125:./Application/Addition/cm_backtrace/cm_backtrace.c **** static uint32_t main_stack_start_addr = 0;
+ 126:./Application/Addition/cm_backtrace/cm_backtrace.c **** static size_t main_stack_size = 0;
+ 127:./Application/Addition/cm_backtrace/cm_backtrace.c **** static uint32_t code_start_addr = 0;
+ 128:./Application/Addition/cm_backtrace/cm_backtrace.c **** static size_t code_size = 0;
+ 129:./Application/Addition/cm_backtrace/cm_backtrace.c **** static bool init_ok = false;
+ 130:./Application/Addition/cm_backtrace/cm_backtrace.c **** static char call_stack_info[CMB_CALL_STACK_MAX_DEPTH * (8 + 1)] = { 0 };
+ 131:./Application/Addition/cm_backtrace/cm_backtrace.c **** static bool on_fault = false;
+ 132:./Application/Addition/cm_backtrace/cm_backtrace.c **** static bool stack_is_overflow = false;
+ 133:./Application/Addition/cm_backtrace/cm_backtrace.c **** static struct cmb_hard_fault_regs regs;
+ 134:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 135:./Application/Addition/cm_backtrace/cm_backtrace.c **** #if (CMB_CPU_PLATFORM_TYPE == CMB_CPU_ARM_CORTEX_M4) || (CMB_CPU_PLATFORM_TYPE == CMB_CPU_ARM_CORTE
+ 136:./Application/Addition/cm_backtrace/cm_backtrace.c ****     (CMB_CPU_PLATFORM_TYPE == CMB_CPU_ARM_CORTEX_M33)
+ 137:./Application/Addition/cm_backtrace/cm_backtrace.c **** static bool statck_has_fpu_regs = false;
+ 138:./Application/Addition/cm_backtrace/cm_backtrace.c **** #endif
+ 139:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 140:./Application/Addition/cm_backtrace/cm_backtrace.c **** static bool on_thread_before_fault = false;
+ 141:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 142:./Application/Addition/cm_backtrace/cm_backtrace.c **** /**
+ 143:./Application/Addition/cm_backtrace/cm_backtrace.c ****  * library initialize
+ 144:./Application/Addition/cm_backtrace/cm_backtrace.c ****  */
+ 145:./Application/Addition/cm_backtrace/cm_backtrace.c **** void cm_backtrace_init(const char *firmware_name, const char *hardware_ver, const char *software_ve
+ 146:./Application/Addition/cm_backtrace/cm_backtrace.c ****     strncpy(fw_name, firmware_name, CMB_NAME_MAX);
+ 147:./Application/Addition/cm_backtrace/cm_backtrace.c ****     strncpy(hw_ver, hardware_ver, CMB_NAME_MAX);
+ 148:./Application/Addition/cm_backtrace/cm_backtrace.c ****     strncpy(sw_ver, software_ver, CMB_NAME_MAX);
+ARM GAS  /tmp/ccKCUOAK.s 			page 4
+
+
+ 149:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 150:./Application/Addition/cm_backtrace/cm_backtrace.c **** #if defined(__ARMCC_VERSION)
+ 151:./Application/Addition/cm_backtrace/cm_backtrace.c ****     main_stack_start_addr = (uint32_t)&CSTACK_BLOCK_START(CMB_CSTACK_BLOCK_NAME);
+ 152:./Application/Addition/cm_backtrace/cm_backtrace.c ****     main_stack_size = (uint32_t)&CSTACK_BLOCK_END(CMB_CSTACK_BLOCK_NAME) - main_stack_start_addr;
+ 153:./Application/Addition/cm_backtrace/cm_backtrace.c ****     code_start_addr = (uint32_t)&CODE_SECTION_START(CMB_CODE_SECTION_NAME);
+ 154:./Application/Addition/cm_backtrace/cm_backtrace.c ****     code_size = (uint32_t)&CODE_SECTION_END(CMB_CODE_SECTION_NAME) - code_start_addr;
+ 155:./Application/Addition/cm_backtrace/cm_backtrace.c **** #elif defined(__ICCARM__)
+ 156:./Application/Addition/cm_backtrace/cm_backtrace.c ****     main_stack_start_addr = (uint32_t)__section_begin(CMB_CSTACK_BLOCK_NAME);
+ 157:./Application/Addition/cm_backtrace/cm_backtrace.c ****     main_stack_size = (uint32_t)__section_end(CMB_CSTACK_BLOCK_NAME) - main_stack_start_addr;
+ 158:./Application/Addition/cm_backtrace/cm_backtrace.c ****     code_start_addr = (uint32_t)__section_begin(CMB_CODE_SECTION_NAME);
+ 159:./Application/Addition/cm_backtrace/cm_backtrace.c ****     code_size = (uint32_t)__section_end(CMB_CODE_SECTION_NAME) - code_start_addr;
+ 160:./Application/Addition/cm_backtrace/cm_backtrace.c **** #elif defined(__GNUC__)
+ 161:./Application/Addition/cm_backtrace/cm_backtrace.c ****     main_stack_start_addr = (uint32_t)(&CMB_CSTACK_BLOCK_START);
+ 162:./Application/Addition/cm_backtrace/cm_backtrace.c ****     main_stack_size = (uint32_t)(&CMB_CSTACK_BLOCK_END) - main_stack_start_addr;
+ 163:./Application/Addition/cm_backtrace/cm_backtrace.c ****     code_start_addr = (uint32_t)(&CMB_CODE_SECTION_START);
+ 164:./Application/Addition/cm_backtrace/cm_backtrace.c ****     code_size = (uint32_t)(&CMB_CODE_SECTION_END) - code_start_addr;
+ 165:./Application/Addition/cm_backtrace/cm_backtrace.c **** #else
+ 166:./Application/Addition/cm_backtrace/cm_backtrace.c ****     #error "not supported compiler"
+ 167:./Application/Addition/cm_backtrace/cm_backtrace.c **** #endif
+ 168:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 169:./Application/Addition/cm_backtrace/cm_backtrace.c ****     if (main_stack_size == 0) {
+ 170:./Application/Addition/cm_backtrace/cm_backtrace.c ****         cmb_println(print_info[PRINT_MAIN_STACK_CFG_ERROR]);
+ 171:./Application/Addition/cm_backtrace/cm_backtrace.c ****         return;
+ 172:./Application/Addition/cm_backtrace/cm_backtrace.c ****     }
+ 173:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 174:./Application/Addition/cm_backtrace/cm_backtrace.c ****     init_ok = true;
+ 175:./Application/Addition/cm_backtrace/cm_backtrace.c **** }
+ 176:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 177:./Application/Addition/cm_backtrace/cm_backtrace.c **** /**
+ 178:./Application/Addition/cm_backtrace/cm_backtrace.c ****  * print firmware information, such as: firmware name, hardware version, software version
+ 179:./Application/Addition/cm_backtrace/cm_backtrace.c ****  */
+ 180:./Application/Addition/cm_backtrace/cm_backtrace.c **** void cm_backtrace_firmware_info(void) {
+ 181:./Application/Addition/cm_backtrace/cm_backtrace.c ****     cmb_println(print_info[PRINT_FIRMWARE_INFO], fw_name, hw_ver, sw_ver);
+ 182:./Application/Addition/cm_backtrace/cm_backtrace.c **** }
+ 183:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 184:./Application/Addition/cm_backtrace/cm_backtrace.c **** #ifdef CMB_USING_OS_PLATFORM
+ 185:./Application/Addition/cm_backtrace/cm_backtrace.c **** /**
+ 186:./Application/Addition/cm_backtrace/cm_backtrace.c ****  * Get current thread stack information
+ 187:./Application/Addition/cm_backtrace/cm_backtrace.c ****  *
+ 188:./Application/Addition/cm_backtrace/cm_backtrace.c ****  * @param sp stack current pointer
+ 189:./Application/Addition/cm_backtrace/cm_backtrace.c ****  * @param start_addr stack start address
+ 190:./Application/Addition/cm_backtrace/cm_backtrace.c ****  * @param size stack size
+ 191:./Application/Addition/cm_backtrace/cm_backtrace.c ****  */
+ 192:./Application/Addition/cm_backtrace/cm_backtrace.c **** static void get_cur_thread_stack_info(uint32_t *sp, uint32_t *start_addr, size_t *size) {
+ 193:./Application/Addition/cm_backtrace/cm_backtrace.c ****     CMB_ASSERT(start_addr);
+ 194:./Application/Addition/cm_backtrace/cm_backtrace.c ****     CMB_ASSERT(size);
+ 195:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 196:./Application/Addition/cm_backtrace/cm_backtrace.c **** #if (CMB_OS_PLATFORM_TYPE == CMB_OS_PLATFORM_RTT)
+ 197:./Application/Addition/cm_backtrace/cm_backtrace.c ****     *start_addr = (uint32_t) rt_thread_self()->stack_addr;
+ 198:./Application/Addition/cm_backtrace/cm_backtrace.c ****     *size = rt_thread_self()->stack_size;
+ 199:./Application/Addition/cm_backtrace/cm_backtrace.c ****     *sp = (uint32_t)rt_thread_self()->sp;
+ 200:./Application/Addition/cm_backtrace/cm_backtrace.c **** #elif (CMB_OS_PLATFORM_TYPE == CMB_OS_PLATFORM_UCOSII)
+ 201:./Application/Addition/cm_backtrace/cm_backtrace.c ****     extern OS_TCB *OSTCBCur;
+ 202:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 203:./Application/Addition/cm_backtrace/cm_backtrace.c ****     *start_addr = (uint32_t) OSTCBCur->OSTCBStkBottom;
+ 204:./Application/Addition/cm_backtrace/cm_backtrace.c ****     *size = OSTCBCur->OSTCBStkSize * sizeof(OS_STK);
+ 205:./Application/Addition/cm_backtrace/cm_backtrace.c **** #elif (CMB_OS_PLATFORM_TYPE == CMB_OS_PLATFORM_UCOSIII)
+ARM GAS  /tmp/ccKCUOAK.s 			page 5
+
+
+ 206:./Application/Addition/cm_backtrace/cm_backtrace.c ****     extern OS_TCB *OSTCBCurPtr;
+ 207:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 208:./Application/Addition/cm_backtrace/cm_backtrace.c ****     *start_addr = (uint32_t) OSTCBCurPtr->StkBasePtr;
+ 209:./Application/Addition/cm_backtrace/cm_backtrace.c ****     *size = OSTCBCurPtr->StkSize * sizeof(CPU_STK_SIZE);
+ 210:./Application/Addition/cm_backtrace/cm_backtrace.c **** #elif (CMB_OS_PLATFORM_TYPE == CMB_OS_PLATFORM_FREERTOS)
+ 211:./Application/Addition/cm_backtrace/cm_backtrace.c ****     *start_addr = (uint32_t)vTaskStackAddr();
+ 212:./Application/Addition/cm_backtrace/cm_backtrace.c ****     *size = vTaskStackSize() * sizeof( StackType_t );
+ 213:./Application/Addition/cm_backtrace/cm_backtrace.c **** #elif (CMB_OS_PLATFORM_TYPE == CMB_OS_PLATFORM_RTX5)
+ 214:./Application/Addition/cm_backtrace/cm_backtrace.c ****     osRtxThread_t *thread = osRtxInfo.thread.run.curr;
+ 215:./Application/Addition/cm_backtrace/cm_backtrace.c ****     *start_addr = (uint32_t)thread->stack_mem;
+ 216:./Application/Addition/cm_backtrace/cm_backtrace.c ****     *size = thread->stack_size;
+ 217:./Application/Addition/cm_backtrace/cm_backtrace.c **** #endif
+ 218:./Application/Addition/cm_backtrace/cm_backtrace.c **** }
+ 219:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 220:./Application/Addition/cm_backtrace/cm_backtrace.c **** /**
+ 221:./Application/Addition/cm_backtrace/cm_backtrace.c ****  * Get current thread name
+ 222:./Application/Addition/cm_backtrace/cm_backtrace.c ****  */
+ 223:./Application/Addition/cm_backtrace/cm_backtrace.c **** static const char *get_cur_thread_name(void) {
+ 224:./Application/Addition/cm_backtrace/cm_backtrace.c **** #if (CMB_OS_PLATFORM_TYPE == CMB_OS_PLATFORM_RTT)
+ 225:./Application/Addition/cm_backtrace/cm_backtrace.c **** #if (RT_VER_NUM < 0x50001)
+ 226:./Application/Addition/cm_backtrace/cm_backtrace.c ****     return rt_thread_self()->name;
+ 227:./Application/Addition/cm_backtrace/cm_backtrace.c **** #else
+ 228:./Application/Addition/cm_backtrace/cm_backtrace.c ****     return rt_thread_self()->parent.name;
+ 229:./Application/Addition/cm_backtrace/cm_backtrace.c **** #endif
+ 230:./Application/Addition/cm_backtrace/cm_backtrace.c **** #elif (CMB_OS_PLATFORM_TYPE == CMB_OS_PLATFORM_UCOSII)
+ 231:./Application/Addition/cm_backtrace/cm_backtrace.c ****     extern OS_TCB *OSTCBCur;
+ 232:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 233:./Application/Addition/cm_backtrace/cm_backtrace.c **** #if OS_TASK_NAME_SIZE > 0 || OS_TASK_NAME_EN > 0
+ 234:./Application/Addition/cm_backtrace/cm_backtrace.c ****         return (const char *)OSTCBCur->OSTCBTaskName;
+ 235:./Application/Addition/cm_backtrace/cm_backtrace.c **** #else
+ 236:./Application/Addition/cm_backtrace/cm_backtrace.c ****         return NULL;
+ 237:./Application/Addition/cm_backtrace/cm_backtrace.c **** #endif /* OS_TASK_NAME_SIZE > 0 || OS_TASK_NAME_EN > 0 */
+ 238:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 239:./Application/Addition/cm_backtrace/cm_backtrace.c **** #elif (CMB_OS_PLATFORM_TYPE == CMB_OS_PLATFORM_UCOSIII)
+ 240:./Application/Addition/cm_backtrace/cm_backtrace.c ****     extern OS_TCB *OSTCBCurPtr;
+ 241:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 242:./Application/Addition/cm_backtrace/cm_backtrace.c ****     return (const char *)OSTCBCurPtr->NamePtr;
+ 243:./Application/Addition/cm_backtrace/cm_backtrace.c **** #elif (CMB_OS_PLATFORM_TYPE == CMB_OS_PLATFORM_FREERTOS)
+ 244:./Application/Addition/cm_backtrace/cm_backtrace.c ****     return vTaskName();
+ 245:./Application/Addition/cm_backtrace/cm_backtrace.c **** #elif (CMB_OS_PLATFORM_TYPE == CMB_OS_PLATFORM_RTX5)
+ 246:./Application/Addition/cm_backtrace/cm_backtrace.c ****     return osRtxInfo.thread.run.curr->name;
+ 247:./Application/Addition/cm_backtrace/cm_backtrace.c **** #endif
+ 248:./Application/Addition/cm_backtrace/cm_backtrace.c **** }
+ 249:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 250:./Application/Addition/cm_backtrace/cm_backtrace.c **** #endif /* CMB_USING_OS_PLATFORM */
+ 251:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 252:./Application/Addition/cm_backtrace/cm_backtrace.c **** #ifdef CMB_USING_DUMP_STACK_INFO
+ 253:./Application/Addition/cm_backtrace/cm_backtrace.c **** /**
+ 254:./Application/Addition/cm_backtrace/cm_backtrace.c ****  * dump current stack information
+ 255:./Application/Addition/cm_backtrace/cm_backtrace.c ****  */
+ 256:./Application/Addition/cm_backtrace/cm_backtrace.c **** static void dump_stack(uint32_t stack_start_addr, size_t stack_size, uint32_t *stack_pointer) {
+ 257:./Application/Addition/cm_backtrace/cm_backtrace.c ****     uint32_t deep = CMB_DUMP_STACK_DEPTH_SIZE;
+ 258:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 259:./Application/Addition/cm_backtrace/cm_backtrace.c ****     if (stack_is_overflow) {
+ 260:./Application/Addition/cm_backtrace/cm_backtrace.c ****         if (on_thread_before_fault) {
+ 261:./Application/Addition/cm_backtrace/cm_backtrace.c ****             cmb_println(print_info[PRINT_THREAD_STACK_OVERFLOW], stack_pointer);
+ 262:./Application/Addition/cm_backtrace/cm_backtrace.c ****         } else {
+ARM GAS  /tmp/ccKCUOAK.s 			page 6
+
+
+ 263:./Application/Addition/cm_backtrace/cm_backtrace.c ****             cmb_println(print_info[PRINT_MAIN_STACK_OVERFLOW], stack_pointer);
+ 264:./Application/Addition/cm_backtrace/cm_backtrace.c ****         }
+ 265:./Application/Addition/cm_backtrace/cm_backtrace.c ****         if ((uint32_t) stack_pointer < stack_start_addr) {
+ 266:./Application/Addition/cm_backtrace/cm_backtrace.c ****             stack_pointer = (uint32_t *) stack_start_addr;
+ 267:./Application/Addition/cm_backtrace/cm_backtrace.c ****         } else if ((uint32_t) stack_pointer > stack_start_addr + stack_size) {
+ 268:./Application/Addition/cm_backtrace/cm_backtrace.c ****             stack_pointer = (uint32_t *) (stack_start_addr + stack_size);
+ 269:./Application/Addition/cm_backtrace/cm_backtrace.c ****         }
+ 270:./Application/Addition/cm_backtrace/cm_backtrace.c ****     }
+ 271:./Application/Addition/cm_backtrace/cm_backtrace.c ****     cmb_println(print_info[PRINT_THREAD_STACK_INFO]);
+ 272:./Application/Addition/cm_backtrace/cm_backtrace.c ****     for (; (uint32_t) stack_pointer < stack_start_addr + stack_size && deep; stack_pointer++, deep-
+ 273:./Application/Addition/cm_backtrace/cm_backtrace.c ****         cmb_println("  addr: %08x    data: %08x", stack_pointer, *stack_pointer);
+ 274:./Application/Addition/cm_backtrace/cm_backtrace.c ****     }
+ 275:./Application/Addition/cm_backtrace/cm_backtrace.c ****     cmb_println("====================================");
+ 276:./Application/Addition/cm_backtrace/cm_backtrace.c **** }
+ 277:./Application/Addition/cm_backtrace/cm_backtrace.c **** #endif /* CMB_USING_DUMP_STACK_INFO */
+ 278:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 279:./Application/Addition/cm_backtrace/cm_backtrace.c **** /* check the disassembly instruction is 'BL' or 'BLX' */
+ 280:./Application/Addition/cm_backtrace/cm_backtrace.c **** static bool disassembly_ins_is_bl_blx(uint32_t addr) {
+  25              		.loc 1 280 0
+  26              		.cfi_startproc
+  27              		@ args = 0, pretend = 0, frame = 0
+  28              		@ frame_needed = 0, uses_anonymous_args = 0
+  29              		@ link register save eliminated.
+  30              	.LVL0:
+ 281:./Application/Addition/cm_backtrace/cm_backtrace.c ****     uint16_t ins1 = *((uint16_t *)addr);
+ 282:./Application/Addition/cm_backtrace/cm_backtrace.c ****     uint16_t ins2 = *((uint16_t *)(addr + 2));
+  31              		.loc 1 282 0
+  32 0000 4388     		ldrh	r3, [r0, #2]
+ 281:./Application/Addition/cm_backtrace/cm_backtrace.c ****     uint16_t ins1 = *((uint16_t *)addr);
+  33              		.loc 1 281 0
+  34 0002 0288     		ldrh	r2, [r0]
+  35              	.LVL1:
+ 283:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 284:./Application/Addition/cm_backtrace/cm_backtrace.c **** #define BL_INS_MASK         0xF800
+ 285:./Application/Addition/cm_backtrace/cm_backtrace.c **** #define BL_INS_HIGH         0xF800
+ 286:./Application/Addition/cm_backtrace/cm_backtrace.c **** #define BL_INS_LOW          0xF000
+ 287:./Application/Addition/cm_backtrace/cm_backtrace.c **** #define BLX_INX_MASK        0xFF00
+ 288:./Application/Addition/cm_backtrace/cm_backtrace.c **** #define BLX_INX             0x4700
+ 289:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 290:./Application/Addition/cm_backtrace/cm_backtrace.c ****     if ((ins2 & BL_INS_MASK) == BL_INS_HIGH && (ins1 & BL_INS_MASK) == BL_INS_LOW) {
+  36              		.loc 1 290 0
+  37 0004 D90A     		lsrs	r1, r3, #11
+  38 0006 1F29     		cmp	r1, #31
+  39 0008 03D1     		bne	.L2
+  40              		.loc 1 290 0 is_stmt 0 discriminator 1
+  41 000a D20A     		lsrs	r2, r2, #11
+  42              	.LVL2:
+ 291:./Application/Addition/cm_backtrace/cm_backtrace.c ****         return true;
+  43              		.loc 1 291 0 is_stmt 1 discriminator 1
+  44 000c 0120     		movs	r0, #1
+  45              	.LVL3:
+ 290:./Application/Addition/cm_backtrace/cm_backtrace.c ****         return true;
+  46              		.loc 1 290 0 discriminator 1
+  47 000e 1E2A     		cmp	r2, #30
+  48 0010 06D0     		beq	.L3
+  49              	.L2:
+ 292:./Application/Addition/cm_backtrace/cm_backtrace.c ****     } else if ((ins2 & BLX_INX_MASK) == BLX_INX) {
+ARM GAS  /tmp/ccKCUOAK.s 			page 7
+
+
+  50              		.loc 1 292 0
+  51 0012 FF22     		movs	r2, #255
+  52 0014 9343     		bics	r3, r2
+  53              	.LVL4:
+  54 0016 034A     		ldr	r2, .L5
+  55 0018 9B18     		adds	r3, r3, r2
+  56 001a 5842     		rsbs	r0, r3, #0
+  57 001c 5841     		adcs	r0, r0, r3
+  58 001e C0B2     		uxtb	r0, r0
+  59              	.L3:
+ 293:./Application/Addition/cm_backtrace/cm_backtrace.c ****         return true;
+ 294:./Application/Addition/cm_backtrace/cm_backtrace.c ****     } else {
+ 295:./Application/Addition/cm_backtrace/cm_backtrace.c ****         return false;
+ 296:./Application/Addition/cm_backtrace/cm_backtrace.c ****     }
+ 297:./Application/Addition/cm_backtrace/cm_backtrace.c **** }
+  60              		.loc 1 297 0
+  61              		@ sp needed
+  62 0020 7047     		bx	lr
+  63              	.L6:
+  64 0022 C046     		.align	2
+  65              	.L5:
+  66 0024 00B9FFFF 		.word	-18176
+  67              		.cfi_endproc
+  68              	.LFE11:
+  70              		.section	.text.dump_stack,"ax",%progbits
+  71              		.align	1
+  72              		.syntax unified
+  73              		.code	16
+  74              		.thumb_func
+  75              		.fpu softvfp
+  77              	dump_stack:
+  78              	.LFB10:
+ 256:./Application/Addition/cm_backtrace/cm_backtrace.c ****     uint32_t deep = CMB_DUMP_STACK_DEPTH_SIZE;
+  79              		.loc 1 256 0
+  80              		.cfi_startproc
+  81              		@ args = 0, pretend = 0, frame = 8
+  82              		@ frame_needed = 0, uses_anonymous_args = 0
+  83              	.LVL5:
+  84 0000 F7B5     		push	{r0, r1, r2, r4, r5, r6, r7, lr}
+  85              	.LCFI0:
+  86              		.cfi_def_cfa_offset 32
+  87              		.cfi_offset 0, -32
+  88              		.cfi_offset 1, -28
+  89              		.cfi_offset 2, -24
+  90              		.cfi_offset 4, -20
+  91              		.cfi_offset 5, -16
+  92              		.cfi_offset 6, -12
+  93              		.cfi_offset 7, -8
+  94              		.cfi_offset 14, -4
+ 259:./Application/Addition/cm_backtrace/cm_backtrace.c ****         if (on_thread_before_fault) {
+  95              		.loc 1 259 0
+  96 0002 244B     		ldr	r3, .L18
+ 256:./Application/Addition/cm_backtrace/cm_backtrace.c ****     uint32_t deep = CMB_DUMP_STACK_DEPTH_SIZE;
+  97              		.loc 1 256 0
+  98 0004 0600     		movs	r6, r0
+ 259:./Application/Addition/cm_backtrace/cm_backtrace.c ****         if (on_thread_before_fault) {
+  99              		.loc 1 259 0
+ARM GAS  /tmp/ccKCUOAK.s 			page 8
+
+
+ 100 0006 1B78     		ldrb	r3, [r3]
+ 256:./Application/Addition/cm_backtrace/cm_backtrace.c ****     uint32_t deep = CMB_DUMP_STACK_DEPTH_SIZE;
+ 101              		.loc 1 256 0
+ 102 0008 0191     		str	r1, [sp, #4]
+ 103 000a 1400     		movs	r4, r2
+ 104 000c 224D     		ldr	r5, .L18+4
+ 259:./Application/Addition/cm_backtrace/cm_backtrace.c ****         if (on_thread_before_fault) {
+ 105              		.loc 1 259 0
+ 106 000e 002B     		cmp	r3, #0
+ 107 0010 0ED0     		beq	.L9
+ 260:./Application/Addition/cm_backtrace/cm_backtrace.c ****             cmb_println(print_info[PRINT_THREAD_STACK_OVERFLOW], stack_pointer);
+ 108              		.loc 1 260 0
+ 109 0012 224B     		ldr	r3, .L18+8
+ 110 0014 1F78     		ldrb	r7, [r3]
+ 111 0016 002F     		cmp	r7, #0
+ 112 0018 23D0     		beq	.L10
+ 261:./Application/Addition/cm_backtrace/cm_backtrace.c ****         } else {
+ 113              		.loc 1 261 0
+ 114 001a 2149     		ldr	r1, .L18+12
+ 115              	.LVL6:
+ 116 001c 0020     		movs	r0, #0
+ 117              	.LVL7:
+ 118 001e FFF7FEFF 		bl	SEGGER_RTT_printf
+ 119              	.LVL8:
+ 120 0022 2900     		movs	r1, r5
+ 121 0024 0020     		movs	r0, #0
+ 122              	.L17:
+ 263:./Application/Addition/cm_backtrace/cm_backtrace.c ****         }
+ 123              		.loc 1 263 0
+ 124 0026 FFF7FEFF 		bl	SEGGER_RTT_WriteString
+ 125              	.LVL9:
+ 265:./Application/Addition/cm_backtrace/cm_backtrace.c ****             stack_pointer = (uint32_t *) stack_start_addr;
+ 126              		.loc 1 265 0
+ 127 002a B442     		cmp	r4, r6
+ 128 002c 20D2     		bcs	.L12
+ 266:./Application/Addition/cm_backtrace/cm_backtrace.c ****         } else if ((uint32_t) stack_pointer > stack_start_addr + stack_size) {
+ 129              		.loc 1 266 0
+ 130 002e 3400     		movs	r4, r6
+ 131              	.LVL10:
+ 132              	.L9:
+ 271:./Application/Addition/cm_backtrace/cm_backtrace.c ****     for (; (uint32_t) stack_pointer < stack_start_addr + stack_size && deep; stack_pointer++, deep-
+ 133              		.loc 1 271 0
+ 134 0030 1C49     		ldr	r1, .L18+16
+ 135 0032 0020     		movs	r0, #0
+ 136 0034 FFF7FEFF 		bl	SEGGER_RTT_printf
+ 137              	.LVL11:
+ 138 0038 2700     		movs	r7, r4
+ 139 003a 2900     		movs	r1, r5
+ 140 003c 0020     		movs	r0, #0
+ 141 003e FFF7FEFF 		bl	SEGGER_RTT_WriteString
+ 142              	.LVL12:
+ 143 0042 4037     		adds	r7, r7, #64
+ 144              	.LVL13:
+ 145              	.L14:
+ 272:./Application/Addition/cm_backtrace/cm_backtrace.c ****         cmb_println("  addr: %08x    data: %08x", stack_pointer, *stack_pointer);
+ 146              		.loc 1 272 0 discriminator 1
+ 147 0044 019B     		ldr	r3, [sp, #4]
+ARM GAS  /tmp/ccKCUOAK.s 			page 9
+
+
+ 148 0046 F318     		adds	r3, r6, r3
+ 149 0048 9C42     		cmp	r4, r3
+ 150 004a 01D2     		bcs	.L15
+ 272:./Application/Addition/cm_backtrace/cm_backtrace.c ****         cmb_println("  addr: %08x    data: %08x", stack_pointer, *stack_pointer);
+ 151              		.loc 1 272 0 is_stmt 0 discriminator 2
+ 152 004c BC42     		cmp	r4, r7
+ 153 004e 15D1     		bne	.L16
+ 154              	.L15:
+ 275:./Application/Addition/cm_backtrace/cm_backtrace.c **** }
+ 155              		.loc 1 275 0 is_stmt 1
+ 156 0050 1549     		ldr	r1, .L18+20
+ 157 0052 0020     		movs	r0, #0
+ 158 0054 FFF7FEFF 		bl	SEGGER_RTT_printf
+ 159              	.LVL14:
+ 160 0058 2900     		movs	r1, r5
+ 161 005a 0020     		movs	r0, #0
+ 162 005c FFF7FEFF 		bl	SEGGER_RTT_WriteString
+ 163              	.LVL15:
+ 276:./Application/Addition/cm_backtrace/cm_backtrace.c **** #endif /* CMB_USING_DUMP_STACK_INFO */
+ 164              		.loc 1 276 0
+ 165              		@ sp needed
+ 166              	.LVL16:
+ 167              	.LVL17:
+ 168 0060 F7BD     		pop	{r0, r1, r2, r4, r5, r6, r7, pc}
+ 169              	.LVL18:
+ 170              	.L10:
+ 263:./Application/Addition/cm_backtrace/cm_backtrace.c ****         }
+ 171              		.loc 1 263 0
+ 172 0062 1249     		ldr	r1, .L18+24
+ 173              	.LVL19:
+ 174 0064 3800     		movs	r0, r7
+ 175              	.LVL20:
+ 176 0066 FFF7FEFF 		bl	SEGGER_RTT_printf
+ 177              	.LVL21:
+ 178 006a 2900     		movs	r1, r5
+ 179 006c 3800     		movs	r0, r7
+ 180 006e DAE7     		b	.L17
+ 181              	.L12:
+ 182 0070 019B     		ldr	r3, [sp, #4]
+ 183 0072 F318     		adds	r3, r6, r3
+ 267:./Application/Addition/cm_backtrace/cm_backtrace.c ****             stack_pointer = (uint32_t *) (stack_start_addr + stack_size);
+ 184              		.loc 1 267 0
+ 185 0074 9C42     		cmp	r4, r3
+ 186 0076 DBD9     		bls	.L9
+ 268:./Application/Addition/cm_backtrace/cm_backtrace.c ****         }
+ 187              		.loc 1 268 0
+ 188 0078 1C00     		movs	r4, r3
+ 189              	.LVL22:
+ 190 007a D9E7     		b	.L9
+ 191              	.LVL23:
+ 192              	.L16:
+ 273:./Application/Addition/cm_backtrace/cm_backtrace.c ****     }
+ 193              		.loc 1 273 0 discriminator 3
+ 194 007c 2368     		ldr	r3, [r4]
+ 195 007e 2200     		movs	r2, r4
+ 196 0080 0B49     		ldr	r1, .L18+28
+ 197 0082 0020     		movs	r0, #0
+ARM GAS  /tmp/ccKCUOAK.s 			page 10
+
+
+ 198 0084 FFF7FEFF 		bl	SEGGER_RTT_printf
+ 199              	.LVL24:
+ 200 0088 2900     		movs	r1, r5
+ 201 008a 0020     		movs	r0, #0
+ 202 008c FFF7FEFF 		bl	SEGGER_RTT_WriteString
+ 203              	.LVL25:
+ 272:./Application/Addition/cm_backtrace/cm_backtrace.c ****         cmb_println("  addr: %08x    data: %08x", stack_pointer, *stack_pointer);
+ 204              		.loc 1 272 0 discriminator 3
+ 205 0090 0434     		adds	r4, r4, #4
+ 206              	.LVL26:
+ 207 0092 D7E7     		b	.L14
+ 208              	.L19:
+ 209              		.align	2
+ 210              	.L18:
+ 211 0094 00000000 		.word	.LANCHOR0
+ 212 0098 27000000 		.word	.LC15
+ 213 009c 00000000 		.word	.LANCHOR1
+ 214 00a0 00000000 		.word	.LC13
+ 215 00a4 4F000000 		.word	.LC19
+ 216 00a8 8F000000 		.word	.LC23
+ 217 00ac 2A000000 		.word	.LC17
+ 218 00b0 74000000 		.word	.LC21
+ 219              		.cfi_endproc
+ 220              	.LFE10:
+ 222              		.section	.text.get_cur_thread_stack_info.isra.0,"ax",%progbits
+ 223              		.align	1
+ 224              		.syntax unified
+ 225              		.code	16
+ 226              		.thumb_func
+ 227              		.fpu softvfp
+ 229              	get_cur_thread_stack_info.isra.0:
+ 230              	.LFB17:
+ 192:./Application/Addition/cm_backtrace/cm_backtrace.c ****     CMB_ASSERT(start_addr);
+ 231              		.loc 1 192 0
+ 232              		.cfi_startproc
+ 233              		@ args = 0, pretend = 0, frame = 0
+ 234              		@ frame_needed = 0, uses_anonymous_args = 0
+ 235              	.LVL27:
+ 236 0000 70B5     		push	{r4, r5, r6, lr}
+ 237              	.LCFI1:
+ 238              		.cfi_def_cfa_offset 16
+ 239              		.cfi_offset 4, -16
+ 240              		.cfi_offset 5, -12
+ 241              		.cfi_offset 6, -8
+ 242              		.cfi_offset 14, -4
+ 192:./Application/Addition/cm_backtrace/cm_backtrace.c ****     CMB_ASSERT(start_addr);
+ 243              		.loc 1 192 0
+ 244 0002 0500     		movs	r5, r0
+ 245 0004 0C00     		movs	r4, r1
+ 211:./Application/Addition/cm_backtrace/cm_backtrace.c ****     *size = vTaskStackSize() * sizeof( StackType_t );
+ 246              		.loc 1 211 0
+ 247 0006 FFF7FEFF 		bl	vTaskStackAddr
+ 248              	.LVL28:
+ 249 000a 2860     		str	r0, [r5]
+ 212:./Application/Addition/cm_backtrace/cm_backtrace.c **** #elif (CMB_OS_PLATFORM_TYPE == CMB_OS_PLATFORM_RTX5)
+ 250              		.loc 1 212 0
+ 251 000c FFF7FEFF 		bl	vTaskStackSize
+ARM GAS  /tmp/ccKCUOAK.s 			page 11
+
+
+ 252              	.LVL29:
+ 253 0010 8000     		lsls	r0, r0, #2
+ 254 0012 2060     		str	r0, [r4]
+ 218:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 255              		.loc 1 218 0
+ 256              		@ sp needed
+ 257              	.LVL30:
+ 258              	.LVL31:
+ 259 0014 70BD     		pop	{r4, r5, r6, pc}
+ 260              		.cfi_endproc
+ 261              	.LFE17:
+ 263              		.section	.text.cm_backtrace_init,"ax",%progbits
+ 264              		.align	1
+ 265              		.global	cm_backtrace_init
+ 266              		.syntax unified
+ 267              		.code	16
+ 268              		.thumb_func
+ 269              		.fpu softvfp
+ 271              	cm_backtrace_init:
+ 272              	.LFB6:
+ 145:./Application/Addition/cm_backtrace/cm_backtrace.c ****     strncpy(fw_name, firmware_name, CMB_NAME_MAX);
+ 273              		.loc 1 145 0
+ 274              		.cfi_startproc
+ 275              		@ args = 0, pretend = 0, frame = 0
+ 276              		@ frame_needed = 0, uses_anonymous_args = 0
+ 277              	.LVL32:
+ 278 0000 70B5     		push	{r4, r5, r6, lr}
+ 279              	.LCFI2:
+ 280              		.cfi_def_cfa_offset 16
+ 281              		.cfi_offset 4, -16
+ 282              		.cfi_offset 5, -12
+ 283              		.cfi_offset 6, -8
+ 284              		.cfi_offset 14, -4
+ 145:./Application/Addition/cm_backtrace/cm_backtrace.c ****     strncpy(fw_name, firmware_name, CMB_NAME_MAX);
+ 285              		.loc 1 145 0
+ 286 0002 0D00     		movs	r5, r1
+ 287 0004 1400     		movs	r4, r2
+ 146:./Application/Addition/cm_backtrace/cm_backtrace.c ****     strncpy(hw_ver, hardware_ver, CMB_NAME_MAX);
+ 288              		.loc 1 146 0
+ 289 0006 0100     		movs	r1, r0
+ 290              	.LVL33:
+ 291 0008 2022     		movs	r2, #32
+ 292              	.LVL34:
+ 293 000a 1548     		ldr	r0, .L24
+ 294              	.LVL35:
+ 295 000c FFF7FEFF 		bl	strncpy
+ 296              	.LVL36:
+ 147:./Application/Addition/cm_backtrace/cm_backtrace.c ****     strncpy(sw_ver, software_ver, CMB_NAME_MAX);
+ 297              		.loc 1 147 0
+ 298 0010 2022     		movs	r2, #32
+ 299 0012 2900     		movs	r1, r5
+ 300 0014 1348     		ldr	r0, .L24+4
+ 301 0016 FFF7FEFF 		bl	strncpy
+ 302              	.LVL37:
+ 148:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 303              		.loc 1 148 0
+ 304 001a 2022     		movs	r2, #32
+ARM GAS  /tmp/ccKCUOAK.s 			page 12
+
+
+ 305 001c 2100     		movs	r1, r4
+ 306 001e 1248     		ldr	r0, .L24+8
+ 307 0020 FFF7FEFF 		bl	strncpy
+ 308              	.LVL38:
+ 161:./Application/Addition/cm_backtrace/cm_backtrace.c ****     main_stack_size = (uint32_t)(&CMB_CSTACK_BLOCK_END) - main_stack_start_addr;
+ 309              		.loc 1 161 0
+ 310 0024 114B     		ldr	r3, .L24+12
+ 311 0026 124A     		ldr	r2, .L24+16
+ 162:./Application/Addition/cm_backtrace/cm_backtrace.c ****     code_start_addr = (uint32_t)(&CMB_CODE_SECTION_START);
+ 312              		.loc 1 162 0
+ 313 0028 124C     		ldr	r4, .L24+20
+ 314              	.LVL39:
+ 161:./Application/Addition/cm_backtrace/cm_backtrace.c ****     main_stack_size = (uint32_t)(&CMB_CSTACK_BLOCK_END) - main_stack_start_addr;
+ 315              		.loc 1 161 0
+ 316 002a 1360     		str	r3, [r2]
+ 162:./Application/Addition/cm_backtrace/cm_backtrace.c ****     code_start_addr = (uint32_t)(&CMB_CODE_SECTION_START);
+ 317              		.loc 1 162 0
+ 318 002c E41A     		subs	r4, r4, r3
+ 319 002e 124B     		ldr	r3, .L24+24
+ 163:./Application/Addition/cm_backtrace/cm_backtrace.c ****     code_size = (uint32_t)(&CMB_CODE_SECTION_END) - code_start_addr;
+ 320              		.loc 1 163 0
+ 321 0030 124A     		ldr	r2, .L24+28
+ 162:./Application/Addition/cm_backtrace/cm_backtrace.c ****     code_start_addr = (uint32_t)(&CMB_CODE_SECTION_START);
+ 322              		.loc 1 162 0
+ 323 0032 1C60     		str	r4, [r3]
+ 163:./Application/Addition/cm_backtrace/cm_backtrace.c ****     code_size = (uint32_t)(&CMB_CODE_SECTION_END) - code_start_addr;
+ 324              		.loc 1 163 0
+ 325 0034 124B     		ldr	r3, .L24+32
+ 326 0036 1A60     		str	r2, [r3]
+ 164:./Application/Addition/cm_backtrace/cm_backtrace.c **** #else
+ 327              		.loc 1 164 0
+ 328 0038 124B     		ldr	r3, .L24+36
+ 329 003a 9B1A     		subs	r3, r3, r2
+ 330 003c 124A     		ldr	r2, .L24+40
+ 331 003e 1360     		str	r3, [r2]
+ 169:./Application/Addition/cm_backtrace/cm_backtrace.c ****         cmb_println(print_info[PRINT_MAIN_STACK_CFG_ERROR]);
+ 332              		.loc 1 169 0
+ 333 0040 002C     		cmp	r4, #0
+ 334 0042 08D1     		bne	.L22
+ 170:./Application/Addition/cm_backtrace/cm_backtrace.c ****         return;
+ 335              		.loc 1 170 0
+ 336 0044 1149     		ldr	r1, .L24+44
+ 337 0046 2000     		movs	r0, r4
+ 338 0048 FFF7FEFF 		bl	SEGGER_RTT_printf
+ 339              	.LVL40:
+ 340 004c 1049     		ldr	r1, .L24+48
+ 341 004e 2000     		movs	r0, r4
+ 342 0050 FFF7FEFF 		bl	SEGGER_RTT_WriteString
+ 343              	.LVL41:
+ 344              	.L21:
+ 175:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 345              		.loc 1 175 0
+ 346              		@ sp needed
+ 347              	.LVL42:
+ 348 0054 70BD     		pop	{r4, r5, r6, pc}
+ 349              	.LVL43:
+ 350              	.L22:
+ARM GAS  /tmp/ccKCUOAK.s 			page 13
+
+
+ 174:./Application/Addition/cm_backtrace/cm_backtrace.c **** }
+ 351              		.loc 1 174 0
+ 352 0056 0122     		movs	r2, #1
+ 353 0058 0E4B     		ldr	r3, .L24+52
+ 354 005a 1A70     		strb	r2, [r3]
+ 355 005c FAE7     		b	.L21
+ 356              	.L25:
+ 357 005e C046     		.align	2
+ 358              	.L24:
+ 359 0060 00000000 		.word	.LANCHOR2
+ 360 0064 00000000 		.word	.LANCHOR3
+ 361 0068 00000000 		.word	.LANCHOR4
+ 362 006c 00000000 		.word	_sstack
+ 363 0070 00000000 		.word	.LANCHOR5
+ 364 0074 00000000 		.word	_estack
+ 365 0078 00000000 		.word	.LANCHOR6
+ 366 007c 00000000 		.word	_stext
+ 367 0080 00000000 		.word	.LANCHOR7
+ 368 0084 00000000 		.word	_etext
+ 369 0088 00000000 		.word	.LANCHOR8
+ 370 008c 00000000 		.word	.LC36
+ 371 0090 27000000 		.word	.LC15
+ 372 0094 00000000 		.word	.LANCHOR9
+ 373              		.cfi_endproc
+ 374              	.LFE6:
+ 376              		.section	.text.cm_backtrace_firmware_info,"ax",%progbits
+ 377              		.align	1
+ 378              		.global	cm_backtrace_firmware_info
+ 379              		.syntax unified
+ 380              		.code	16
+ 381              		.thumb_func
+ 382              		.fpu softvfp
+ 384              	cm_backtrace_firmware_info:
+ 385              	.LFB7:
+ 180:./Application/Addition/cm_backtrace/cm_backtrace.c ****     cmb_println(print_info[PRINT_FIRMWARE_INFO], fw_name, hw_ver, sw_ver);
+ 386              		.loc 1 180 0
+ 387              		.cfi_startproc
+ 388              		@ args = 0, pretend = 0, frame = 0
+ 389              		@ frame_needed = 0, uses_anonymous_args = 0
+ 390 0000 07B5     		push	{r0, r1, r2, lr}
+ 391              	.LCFI3:
+ 392              		.cfi_def_cfa_offset 16
+ 393              		.cfi_offset 0, -16
+ 394              		.cfi_offset 1, -12
+ 395              		.cfi_offset 2, -8
+ 396              		.cfi_offset 14, -4
+ 181:./Application/Addition/cm_backtrace/cm_backtrace.c **** }
+ 397              		.loc 1 181 0
+ 398 0002 064B     		ldr	r3, .L27
+ 399 0004 064A     		ldr	r2, .L27+4
+ 400 0006 0093     		str	r3, [sp]
+ 401 0008 0649     		ldr	r1, .L27+8
+ 402 000a 074B     		ldr	r3, .L27+12
+ 403 000c 0020     		movs	r0, #0
+ 404 000e FFF7FEFF 		bl	SEGGER_RTT_printf
+ 405              	.LVL44:
+ 406 0012 0649     		ldr	r1, .L27+16
+ARM GAS  /tmp/ccKCUOAK.s 			page 14
+
+
+ 407 0014 0020     		movs	r0, #0
+ 408 0016 FFF7FEFF 		bl	SEGGER_RTT_WriteString
+ 409              	.LVL45:
+ 182:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 410              		.loc 1 182 0
+ 411              		@ sp needed
+ 412 001a 07BD     		pop	{r0, r1, r2, pc}
+ 413              	.L28:
+ 414              		.align	2
+ 415              	.L27:
+ 416 001c 00000000 		.word	.LANCHOR4
+ 417 0020 00000000 		.word	.LANCHOR2
+ 418 0024 00000000 		.word	.LC42
+ 419 0028 00000000 		.word	.LANCHOR3
+ 420 002c 27000000 		.word	.LC15
+ 421              		.cfi_endproc
+ 422              	.LFE7:
+ 424              		.section	.text.cm_backtrace_call_stack_any,"ax",%progbits
+ 425              		.align	1
+ 426              		.global	cm_backtrace_call_stack_any
+ 427              		.syntax unified
+ 428              		.code	16
+ 429              		.thumb_func
+ 430              		.fpu softvfp
+ 432              	cm_backtrace_call_stack_any:
+ 433              	.LFB12:
+ 298:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 299:./Application/Addition/cm_backtrace/cm_backtrace.c **** size_t cm_backtrace_call_stack_any(uint32_t *buffer, size_t size, uint32_t sp, uint32_t stack_start
+ 300:./Application/Addition/cm_backtrace/cm_backtrace.c **** {
+ 434              		.loc 1 300 0
+ 435              		.cfi_startproc
+ 436              		@ args = 4, pretend = 0, frame = 16
+ 437              		@ frame_needed = 0, uses_anonymous_args = 0
+ 438              	.LVL46:
+ 439 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+ 440              	.LCFI4:
+ 441              		.cfi_def_cfa_offset 20
+ 442              		.cfi_offset 4, -20
+ 443              		.cfi_offset 5, -16
+ 444              		.cfi_offset 6, -12
+ 445              		.cfi_offset 7, -8
+ 446              		.cfi_offset 14, -4
+ 447 0002 0700     		movs	r7, r0
+ 301:./Application/Addition/cm_backtrace/cm_backtrace.c ****     uint32_t pc;
+ 302:./Application/Addition/cm_backtrace/cm_backtrace.c ****     size_t depth = 0;
+ 448              		.loc 1 302 0
+ 449 0004 0024     		movs	r4, #0
+ 300:./Application/Addition/cm_backtrace/cm_backtrace.c ****     uint32_t pc;
+ 450              		.loc 1 300 0
+ 451 0006 1500     		movs	r5, r2
+ 303:./Application/Addition/cm_backtrace/cm_backtrace.c ****     /* copy called function address */
+ 304:./Application/Addition/cm_backtrace/cm_backtrace.c ****     for (; sp < stack_start_addr + stack_size; sp += sizeof(size_t)) {
+ 305:./Application/Addition/cm_backtrace/cm_backtrace.c ****         /* the *sp value may be LR, so need decrease a word to PC */
+ 306:./Application/Addition/cm_backtrace/cm_backtrace.c ****         pc = *((uint32_t *) sp) - sizeof(size_t);
+ 307:./Application/Addition/cm_backtrace/cm_backtrace.c ****         /* the Cortex-M using thumb instruction, so the pc must be an odd number */
+ 308:./Application/Addition/cm_backtrace/cm_backtrace.c ****         if (pc % 2 == 0) {
+ 309:./Application/Addition/cm_backtrace/cm_backtrace.c ****             continue;
+ARM GAS  /tmp/ccKCUOAK.s 			page 15
+
+
+ 310:./Application/Addition/cm_backtrace/cm_backtrace.c ****         }
+ 311:./Application/Addition/cm_backtrace/cm_backtrace.c ****         /* fix the PC address in thumb mode */
+ 312:./Application/Addition/cm_backtrace/cm_backtrace.c ****         pc = *((uint32_t *) sp) - 1;
+ 313:./Application/Addition/cm_backtrace/cm_backtrace.c ****         if ((pc >= code_start_addr + sizeof(size_t)) && (pc <= code_start_addr + code_size) && (dep
+ 452              		.loc 1 313 0
+ 453 0008 164A     		ldr	r2, .L39
+ 454              	.LVL47:
+ 300:./Application/Addition/cm_backtrace/cm_backtrace.c ****     uint32_t pc;
+ 455              		.loc 1 300 0
+ 456 000a 85B0     		sub	sp, sp, #20
+ 457              	.LCFI5:
+ 458              		.cfi_def_cfa_offset 40
+ 459              		.loc 1 313 0
+ 460 000c 1268     		ldr	r2, [r2]
+ 300:./Application/Addition/cm_backtrace/cm_backtrace.c ****     uint32_t pc;
+ 461              		.loc 1 300 0
+ 462 000e 0291     		str	r1, [sp, #8]
+ 463              		.loc 1 313 0
+ 464 0010 111D     		adds	r1, r2, #4
+ 465              	.LVL48:
+ 466 0012 0091     		str	r1, [sp]
+ 467 0014 1449     		ldr	r1, .L39+4
+ 468 0016 0968     		ldr	r1, [r1]
+ 469 0018 5218     		adds	r2, r2, r1
+ 470 001a 0192     		str	r2, [sp, #4]
+ 304:./Application/Addition/cm_backtrace/cm_backtrace.c ****         /* the *sp value may be LR, so need decrease a word to PC */
+ 471              		.loc 1 304 0
+ 472 001c 0A9A     		ldr	r2, [sp, #40]
+ 473 001e 9B18     		adds	r3, r3, r2
+ 474              	.LVL49:
+ 475 0020 0393     		str	r3, [sp, #12]
+ 476              	.LVL50:
+ 477              	.L30:
+ 304:./Application/Addition/cm_backtrace/cm_backtrace.c ****         /* the *sp value may be LR, so need decrease a word to PC */
+ 478              		.loc 1 304 0 is_stmt 0 discriminator 1
+ 479 0022 039B     		ldr	r3, [sp, #12]
+ 480 0024 AB42     		cmp	r3, r5
+ 481 0026 02D8     		bhi	.L32
+ 314:./Application/Addition/cm_backtrace/cm_backtrace.c ****                 /* check the the instruction before PC address is 'BL' or 'BLX' */
+ 315:./Application/Addition/cm_backtrace/cm_backtrace.c ****                 && disassembly_ins_is_bl_blx(pc - sizeof(size_t)) && (depth < size)) {
+ 316:./Application/Addition/cm_backtrace/cm_backtrace.c ****             /* the second depth function may be already saved, so need ignore repeat */
+ 317:./Application/Addition/cm_backtrace/cm_backtrace.c ****             buffer[depth++] = pc;
+ 318:./Application/Addition/cm_backtrace/cm_backtrace.c ****         }
+ 319:./Application/Addition/cm_backtrace/cm_backtrace.c ****     }
+ 320:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 321:./Application/Addition/cm_backtrace/cm_backtrace.c ****     return depth;
+ 322:./Application/Addition/cm_backtrace/cm_backtrace.c **** }
+ 482              		.loc 1 322 0 is_stmt 1
+ 483 0028 2000     		movs	r0, r4
+ 484 002a 05B0     		add	sp, sp, #20
+ 485              		@ sp needed
+ 486              	.LVL51:
+ 487              	.LVL52:
+ 488              	.LVL53:
+ 489 002c F0BD     		pop	{r4, r5, r6, r7, pc}
+ 490              	.LVL54:
+ 491              	.L32:
+ARM GAS  /tmp/ccKCUOAK.s 			page 16
+
+
+ 308:./Application/Addition/cm_backtrace/cm_backtrace.c ****             continue;
+ 492              		.loc 1 308 0
+ 493 002e 0122     		movs	r2, #1
+ 306:./Application/Addition/cm_backtrace/cm_backtrace.c ****         /* the Cortex-M using thumb instruction, so the pc must be an odd number */
+ 494              		.loc 1 306 0
+ 495 0030 2868     		ldr	r0, [r5]
+ 496              	.LVL55:
+ 497 0032 031F     		subs	r3, r0, #4
+ 498              	.LVL56:
+ 308:./Application/Addition/cm_backtrace/cm_backtrace.c ****             continue;
+ 499              		.loc 1 308 0
+ 500 0034 1342     		tst	r3, r2
+ 501 0036 13D0     		beq	.L31
+ 313:./Application/Addition/cm_backtrace/cm_backtrace.c ****                 /* check the the instruction before PC address is 'BL' or 'BLX' */
+ 502              		.loc 1 313 0
+ 503 0038 009B     		ldr	r3, [sp]
+ 504              	.LVL57:
+ 312:./Application/Addition/cm_backtrace/cm_backtrace.c ****         if ((pc >= code_start_addr + sizeof(size_t)) && (pc <= code_start_addr + code_size) && (dep
+ 505              		.loc 1 312 0
+ 506 003a 461E     		subs	r6, r0, #1
+ 507              	.LVL58:
+ 313:./Application/Addition/cm_backtrace/cm_backtrace.c ****                 /* check the the instruction before PC address is 'BL' or 'BLX' */
+ 508              		.loc 1 313 0
+ 509 003c B342     		cmp	r3, r6
+ 510 003e 0FD8     		bhi	.L31
+ 313:./Application/Addition/cm_backtrace/cm_backtrace.c ****                 /* check the the instruction before PC address is 'BL' or 'BLX' */
+ 511              		.loc 1 313 0 is_stmt 0 discriminator 1
+ 512 0040 019B     		ldr	r3, [sp, #4]
+ 513 0042 B342     		cmp	r3, r6
+ 514 0044 0CD3     		bcc	.L31
+ 313:./Application/Addition/cm_backtrace/cm_backtrace.c ****                 /* check the the instruction before PC address is 'BL' or 'BLX' */
+ 515              		.loc 1 313 0 discriminator 2
+ 516 0046 1F2C     		cmp	r4, #31
+ 517 0048 0AD8     		bhi	.L31
+ 315:./Application/Addition/cm_backtrace/cm_backtrace.c ****             /* the second depth function may be already saved, so need ignore repeat */
+ 518              		.loc 1 315 0 is_stmt 1
+ 519 004a 0538     		subs	r0, r0, #5
+ 520 004c FFF7FEFF 		bl	disassembly_ins_is_bl_blx
+ 521              	.LVL59:
+ 522 0050 0028     		cmp	r0, #0
+ 523 0052 05D0     		beq	.L31
+ 315:./Application/Addition/cm_backtrace/cm_backtrace.c ****             /* the second depth function may be already saved, so need ignore repeat */
+ 524              		.loc 1 315 0 is_stmt 0 discriminator 1
+ 525 0054 029B     		ldr	r3, [sp, #8]
+ 526 0056 9C42     		cmp	r4, r3
+ 527 0058 02D2     		bcs	.L31
+ 528              	.LVL60:
+ 317:./Application/Addition/cm_backtrace/cm_backtrace.c ****         }
+ 529              		.loc 1 317 0 is_stmt 1
+ 530 005a A300     		lsls	r3, r4, #2
+ 531 005c DE51     		str	r6, [r3, r7]
+ 532 005e 0134     		adds	r4, r4, #1
+ 533              	.LVL61:
+ 534              	.L31:
+ 304:./Application/Addition/cm_backtrace/cm_backtrace.c ****         /* the *sp value may be LR, so need decrease a word to PC */
+ 535              		.loc 1 304 0
+ 536 0060 0435     		adds	r5, r5, #4
+ARM GAS  /tmp/ccKCUOAK.s 			page 17
+
+
+ 537              	.LVL62:
+ 538 0062 DEE7     		b	.L30
+ 539              	.L40:
+ 540              		.align	2
+ 541              	.L39:
+ 542 0064 00000000 		.word	.LANCHOR7
+ 543 0068 00000000 		.word	.LANCHOR8
+ 544              		.cfi_endproc
+ 545              	.LFE12:
+ 547              		.section	.text.cm_backtrace_call_stack,"ax",%progbits
+ 548              		.align	1
+ 549              		.global	cm_backtrace_call_stack
+ 550              		.syntax unified
+ 551              		.code	16
+ 552              		.thumb_func
+ 553              		.fpu softvfp
+ 555              	cm_backtrace_call_stack:
+ 556              	.LFB13:
+ 323:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 324:./Application/Addition/cm_backtrace/cm_backtrace.c **** /**
+ 325:./Application/Addition/cm_backtrace/cm_backtrace.c ****  * backtrace function call stack
+ 326:./Application/Addition/cm_backtrace/cm_backtrace.c ****  *
+ 327:./Application/Addition/cm_backtrace/cm_backtrace.c ****  * @param buffer call stack buffer
+ 328:./Application/Addition/cm_backtrace/cm_backtrace.c ****  * @param size buffer size
+ 329:./Application/Addition/cm_backtrace/cm_backtrace.c ****  * @param sp stack pointer
+ 330:./Application/Addition/cm_backtrace/cm_backtrace.c ****  *
+ 331:./Application/Addition/cm_backtrace/cm_backtrace.c ****  * @return depth
+ 332:./Application/Addition/cm_backtrace/cm_backtrace.c ****  */
+ 333:./Application/Addition/cm_backtrace/cm_backtrace.c **** size_t cm_backtrace_call_stack(uint32_t *buffer, size_t size, uint32_t sp) {
+ 557              		.loc 1 333 0
+ 558              		.cfi_startproc
+ 559              		@ args = 0, pretend = 0, frame = 32
+ 560              		@ frame_needed = 0, uses_anonymous_args = 0
+ 561              	.LVL63:
+ 562 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+ 563              	.LCFI6:
+ 564              		.cfi_def_cfa_offset 20
+ 565              		.cfi_offset 4, -20
+ 566              		.cfi_offset 5, -16
+ 567              		.cfi_offset 6, -12
+ 568              		.cfi_offset 7, -8
+ 569              		.cfi_offset 14, -4
+ 334:./Application/Addition/cm_backtrace/cm_backtrace.c ****     uint32_t stack_start_addr = main_stack_start_addr, pc;
+ 570              		.loc 1 334 0
+ 571 0002 3D4B     		ldr	r3, .L68
+ 333:./Application/Addition/cm_backtrace/cm_backtrace.c ****     uint32_t stack_start_addr = main_stack_start_addr, pc;
+ 572              		.loc 1 333 0
+ 573 0004 89B0     		sub	sp, sp, #36
+ 574              	.LCFI7:
+ 575              		.cfi_def_cfa_offset 56
+ 576              		.loc 1 334 0
+ 577 0006 1B68     		ldr	r3, [r3]
+ 333:./Application/Addition/cm_backtrace/cm_backtrace.c ****     uint32_t stack_start_addr = main_stack_start_addr, pc;
+ 578              		.loc 1 333 0
+ 579 0008 0500     		movs	r5, r0
+ 580              		.loc 1 334 0
+ 581 000a 0693     		str	r3, [sp, #24]
+ARM GAS  /tmp/ccKCUOAK.s 			page 18
+
+
+ 335:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 336:./Application/Addition/cm_backtrace/cm_backtrace.c **** #ifdef CMB_USING_OS_PLATFORM
+ 337:./Application/Addition/cm_backtrace/cm_backtrace.c ****     uint32_t tcb_sp;
+ 338:./Application/Addition/cm_backtrace/cm_backtrace.c **** #endif
+ 339:./Application/Addition/cm_backtrace/cm_backtrace.c ****     size_t depth = 0, stack_size = main_stack_size;
+ 582              		.loc 1 339 0
+ 583 000c 3B4B     		ldr	r3, .L68+4
+ 333:./Application/Addition/cm_backtrace/cm_backtrace.c ****     uint32_t stack_start_addr = main_stack_start_addr, pc;
+ 584              		.loc 1 333 0
+ 585 000e 0291     		str	r1, [sp, #8]
+ 586              		.loc 1 339 0
+ 587 0010 1B68     		ldr	r3, [r3]
+ 333:./Application/Addition/cm_backtrace/cm_backtrace.c ****     uint32_t stack_start_addr = main_stack_start_addr, pc;
+ 588              		.loc 1 333 0
+ 589 0012 0192     		str	r2, [sp, #4]
+ 590              		.loc 1 339 0
+ 591 0014 0793     		str	r3, [sp, #28]
+ 340:./Application/Addition/cm_backtrace/cm_backtrace.c ****     bool regs_saved_lr_is_valid = false;
+ 341:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 342:./Application/Addition/cm_backtrace/cm_backtrace.c ****     if (on_fault) {
+ 592              		.loc 1 342 0
+ 593 0016 3A4B     		ldr	r3, .L68+8
+ 594 0018 1E78     		ldrb	r6, [r3]
+ 595 001a 002E     		cmp	r6, #0
+ 596 001c 3BD0     		beq	.L42
+ 343:./Application/Addition/cm_backtrace/cm_backtrace.c ****         if (!stack_is_overflow) {
+ 597              		.loc 1 343 0
+ 598 001e 394B     		ldr	r3, .L68+12
+ 599 0020 1F78     		ldrb	r7, [r3]
+ 600 0022 002F     		cmp	r7, #0
+ 601 0024 34D1     		bne	.L50
+ 602              	.LVL64:
+ 344:./Application/Addition/cm_backtrace/cm_backtrace.c ****             /* first depth is PC */
+ 345:./Application/Addition/cm_backtrace/cm_backtrace.c ****             buffer[depth++] = regs.saved.pc;
+ 603              		.loc 1 345 0
+ 604 0026 384B     		ldr	r3, .L68+16
+ 605 0028 0124     		movs	r4, #1
+ 606 002a 9A69     		ldr	r2, [r3, #24]
+ 607              	.LVL65:
+ 346:./Application/Addition/cm_backtrace/cm_backtrace.c ****             /* fix the LR address in thumb mode */
+ 347:./Application/Addition/cm_backtrace/cm_backtrace.c ****             pc = regs.saved.lr - 1;
+ 608              		.loc 1 347 0
+ 609 002c 5B69     		ldr	r3, [r3, #20]
+ 345:./Application/Addition/cm_backtrace/cm_backtrace.c ****             /* fix the LR address in thumb mode */
+ 610              		.loc 1 345 0
+ 611 002e 0260     		str	r2, [r0]
+ 348:./Application/Addition/cm_backtrace/cm_backtrace.c ****             if ((pc >= code_start_addr) && (pc <= code_start_addr + code_size) && (depth < CMB_CALL
+ 612              		.loc 1 348 0
+ 613 0030 364A     		ldr	r2, .L68+20
+ 347:./Application/Addition/cm_backtrace/cm_backtrace.c ****             if ((pc >= code_start_addr) && (pc <= code_start_addr + code_size) && (depth < CMB_CALL
+ 614              		.loc 1 347 0
+ 615 0032 013B     		subs	r3, r3, #1
+ 616              	.LVL66:
+ 617              		.loc 1 348 0
+ 618 0034 1268     		ldr	r2, [r2]
+ 619 0036 9A42     		cmp	r2, r3
+ 620 0038 0AD8     		bhi	.L43
+ARM GAS  /tmp/ccKCUOAK.s 			page 19
+
+
+ 621              		.loc 1 348 0 is_stmt 0 discriminator 1
+ 622 003a 3549     		ldr	r1, .L68+24
+ 623              	.LVL67:
+ 624 003c 0968     		ldr	r1, [r1]
+ 625 003e 5218     		adds	r2, r2, r1
+ 626 0040 9A42     		cmp	r2, r3
+ 627 0042 05D3     		bcc	.L43
+ 349:./Application/Addition/cm_backtrace/cm_backtrace.c ****                     && (depth < size)) {
+ 628              		.loc 1 349 0 is_stmt 1
+ 629 0044 029A     		ldr	r2, [sp, #8]
+ 630 0046 A242     		cmp	r2, r4
+ 631 0048 02D9     		bls	.L43
+ 632              	.LVL68:
+ 350:./Application/Addition/cm_backtrace/cm_backtrace.c ****                 buffer[depth++] = pc;
+ 351:./Application/Addition/cm_backtrace/cm_backtrace.c ****                 regs_saved_lr_is_valid = true;
+ 633              		.loc 1 351 0
+ 634 004a 3700     		movs	r7, r6
+ 350:./Application/Addition/cm_backtrace/cm_backtrace.c ****                 buffer[depth++] = pc;
+ 635              		.loc 1 350 0
+ 636 004c 4360     		str	r3, [r0, #4]
+ 637              	.LVL69:
+ 638 004e 2419     		adds	r4, r4, r4
+ 639              	.LVL70:
+ 640              	.L43:
+ 352:./Application/Addition/cm_backtrace/cm_backtrace.c ****             }
+ 353:./Application/Addition/cm_backtrace/cm_backtrace.c ****         }
+ 354:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 355:./Application/Addition/cm_backtrace/cm_backtrace.c **** #ifdef CMB_USING_OS_PLATFORM
+ 356:./Application/Addition/cm_backtrace/cm_backtrace.c ****         /* program is running on thread before fault */
+ 357:./Application/Addition/cm_backtrace/cm_backtrace.c ****         if (on_thread_before_fault) {
+ 641              		.loc 1 357 0
+ 642 0050 304B     		ldr	r3, .L68+28
+ 643 0052 1B78     		ldrb	r3, [r3]
+ 644 0054 002B     		cmp	r3, #0
+ 645 0056 03D0     		beq	.L44
+ 358:./Application/Addition/cm_backtrace/cm_backtrace.c ****             get_cur_thread_stack_info(&tcb_sp, &stack_start_addr, &stack_size);
+ 646              		.loc 1 358 0
+ 647 0058 07A9     		add	r1, sp, #28
+ 648 005a 06A8     		add	r0, sp, #24
+ 649              	.LVL71:
+ 650 005c FFF7FEFF 		bl	get_cur_thread_stack_info.isra.0
+ 651              	.LVL72:
+ 652              	.L44:
+ 359:./Application/Addition/cm_backtrace/cm_backtrace.c ****         }
+ 360:./Application/Addition/cm_backtrace/cm_backtrace.c ****     } else {
+ 361:./Application/Addition/cm_backtrace/cm_backtrace.c ****         /* OS environment */
+ 362:./Application/Addition/cm_backtrace/cm_backtrace.c ****         if (cmb_get_sp() == cmb_get_psp()) {
+ 363:./Application/Addition/cm_backtrace/cm_backtrace.c ****             get_cur_thread_stack_info(&tcb_sp, &stack_start_addr, &stack_size);
+ 364:./Application/Addition/cm_backtrace/cm_backtrace.c ****         }
+ 365:./Application/Addition/cm_backtrace/cm_backtrace.c **** #endif /* CMB_USING_OS_PLATFORM */
+ 366:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 367:./Application/Addition/cm_backtrace/cm_backtrace.c ****     }
+ 368:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 369:./Application/Addition/cm_backtrace/cm_backtrace.c ****     if (stack_is_overflow) {
+ 653              		.loc 1 369 0
+ 654 0060 284A     		ldr	r2, .L68+12
+ 655 0062 069B     		ldr	r3, [sp, #24]
+ARM GAS  /tmp/ccKCUOAK.s 			page 20
+
+
+ 656 0064 1278     		ldrb	r2, [r2]
+ 657 0066 002A     		cmp	r2, #0
+ 658 0068 00D0     		beq	.L45
+ 370:./Application/Addition/cm_backtrace/cm_backtrace.c ****         sp = stack_start_addr;
+ 659              		.loc 1 370 0
+ 660 006a 0193     		str	r3, [sp, #4]
+ 661              	.LVL73:
+ 662              	.L45:
+ 371:./Application/Addition/cm_backtrace/cm_backtrace.c ****     }
+ 372:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 373:./Application/Addition/cm_backtrace/cm_backtrace.c ****     /* copy called function address */
+ 374:./Application/Addition/cm_backtrace/cm_backtrace.c ****     for (; sp < stack_start_addr + stack_size; sp += sizeof(size_t)) {
+ 663              		.loc 1 374 0 discriminator 1
+ 664 006c 079A     		ldr	r2, [sp, #28]
+ 665 006e 9B18     		adds	r3, r3, r2
+ 666 0070 0593     		str	r3, [sp, #20]
+ 375:./Application/Addition/cm_backtrace/cm_backtrace.c ****         /* the *sp value may be LR, so need decrease a word to PC */
+ 376:./Application/Addition/cm_backtrace/cm_backtrace.c ****         pc = *((uint32_t *) sp) - sizeof(size_t);
+ 377:./Application/Addition/cm_backtrace/cm_backtrace.c ****         /* the Cortex-M using thumb instruction, so the pc must be an odd number */
+ 378:./Application/Addition/cm_backtrace/cm_backtrace.c ****         if (pc % 2 == 0) {
+ 379:./Application/Addition/cm_backtrace/cm_backtrace.c ****             continue;
+ 380:./Application/Addition/cm_backtrace/cm_backtrace.c ****         }
+ 381:./Application/Addition/cm_backtrace/cm_backtrace.c ****         /* fix the PC address in thumb mode */
+ 382:./Application/Addition/cm_backtrace/cm_backtrace.c ****         pc = *((uint32_t *) sp) - 1;
+ 383:./Application/Addition/cm_backtrace/cm_backtrace.c ****         if ((pc >= code_start_addr + sizeof(size_t)) && (pc <= code_start_addr + code_size) && (dep
+ 667              		.loc 1 383 0 discriminator 1
+ 668 0072 264B     		ldr	r3, .L68+20
+ 669 0074 1B68     		ldr	r3, [r3]
+ 670 0076 1A1D     		adds	r2, r3, #4
+ 671 0078 0392     		str	r2, [sp, #12]
+ 672 007a 254A     		ldr	r2, .L68+24
+ 673 007c 1268     		ldr	r2, [r2]
+ 674 007e 9B18     		adds	r3, r3, r2
+ 675 0080 0493     		str	r3, [sp, #16]
+ 676              	.LVL74:
+ 677              	.L46:
+ 374:./Application/Addition/cm_backtrace/cm_backtrace.c ****         /* the *sp value may be LR, so need decrease a word to PC */
+ 678              		.loc 1 374 0 discriminator 1
+ 679 0082 059B     		ldr	r3, [sp, #20]
+ 680 0084 019A     		ldr	r2, [sp, #4]
+ 681 0086 9342     		cmp	r3, r2
+ 682 0088 11D8     		bhi	.L49
+ 683              	.LVL75:
+ 384:./Application/Addition/cm_backtrace/cm_backtrace.c ****                 /* check the the instruction before PC address is 'BL' or 'BLX' */
+ 385:./Application/Addition/cm_backtrace/cm_backtrace.c ****                 && disassembly_ins_is_bl_blx(pc - sizeof(size_t)) && (depth < size)) {
+ 386:./Application/Addition/cm_backtrace/cm_backtrace.c ****             /* the second depth function may be already saved, so need ignore repeat */
+ 387:./Application/Addition/cm_backtrace/cm_backtrace.c ****             if ((depth == 2) && regs_saved_lr_is_valid && (pc == buffer[1])) {
+ 388:./Application/Addition/cm_backtrace/cm_backtrace.c ****                 continue;
+ 389:./Application/Addition/cm_backtrace/cm_backtrace.c ****             }
+ 390:./Application/Addition/cm_backtrace/cm_backtrace.c ****             buffer[depth++] = pc;
+ 391:./Application/Addition/cm_backtrace/cm_backtrace.c ****         }
+ 392:./Application/Addition/cm_backtrace/cm_backtrace.c ****     }
+ 393:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 394:./Application/Addition/cm_backtrace/cm_backtrace.c ****     return depth;
+ 395:./Application/Addition/cm_backtrace/cm_backtrace.c **** }
+ 684              		.loc 1 395 0
+ 685 008a 2000     		movs	r0, r4
+ARM GAS  /tmp/ccKCUOAK.s 			page 21
+
+
+ 686 008c 09B0     		add	sp, sp, #36
+ 687              		@ sp needed
+ 688              	.LVL76:
+ 689              	.LVL77:
+ 690              	.LVL78:
+ 691 008e F0BD     		pop	{r4, r5, r6, r7, pc}
+ 692              	.LVL79:
+ 693              	.L50:
+ 340:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 694              		.loc 1 340 0
+ 695 0090 0027     		movs	r7, #0
+ 339:./Application/Addition/cm_backtrace/cm_backtrace.c ****     bool regs_saved_lr_is_valid = false;
+ 696              		.loc 1 339 0
+ 697 0092 3C00     		movs	r4, r7
+ 698 0094 DCE7     		b	.L43
+ 699              	.L42:
+ 700              	.LBB32:
+ 701              	.LBB33:
+ 702              		.file 2 "Application/Addition/cm_backtrace/cmb_def.h"
+   1:Application/Addition/cm_backtrace/cmb_def.h **** /*
+   2:Application/Addition/cm_backtrace/cmb_def.h ****  * This file is part of the CmBacktrace Library.
+   3:Application/Addition/cm_backtrace/cmb_def.h ****  *
+   4:Application/Addition/cm_backtrace/cmb_def.h ****  * Copyright (c) 2016-2020, Armink, <armink.ztl@gmail.com>
+   5:Application/Addition/cm_backtrace/cmb_def.h ****  *
+   6:Application/Addition/cm_backtrace/cmb_def.h ****  * Permission is hereby granted, free of charge, to any person obtaining
+   7:Application/Addition/cm_backtrace/cmb_def.h ****  * a copy of this software and associated documentation files (the
+   8:Application/Addition/cm_backtrace/cmb_def.h ****  * 'Software'), to deal in the Software without restriction, including
+   9:Application/Addition/cm_backtrace/cmb_def.h ****  * without limitation the rights to use, copy, modify, merge, publish,
+  10:Application/Addition/cm_backtrace/cmb_def.h ****  * distribute, sublicense, and/or sell copies of the Software, and to
+  11:Application/Addition/cm_backtrace/cmb_def.h ****  * permit persons to whom the Software is furnished to do so, subject to
+  12:Application/Addition/cm_backtrace/cmb_def.h ****  * the following conditions:
+  13:Application/Addition/cm_backtrace/cmb_def.h ****  *
+  14:Application/Addition/cm_backtrace/cmb_def.h ****  * The above copyright notice and this permission notice shall be
+  15:Application/Addition/cm_backtrace/cmb_def.h ****  * included in all copies or substantial portions of the Software.
+  16:Application/Addition/cm_backtrace/cmb_def.h ****  *
+  17:Application/Addition/cm_backtrace/cmb_def.h ****  * THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
+  18:Application/Addition/cm_backtrace/cmb_def.h ****  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  19:Application/Addition/cm_backtrace/cmb_def.h ****  * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+  20:Application/Addition/cm_backtrace/cmb_def.h ****  * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+  21:Application/Addition/cm_backtrace/cmb_def.h ****  * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+  22:Application/Addition/cm_backtrace/cmb_def.h ****  * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+  23:Application/Addition/cm_backtrace/cmb_def.h ****  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+  24:Application/Addition/cm_backtrace/cmb_def.h ****  *
+  25:Application/Addition/cm_backtrace/cmb_def.h ****  * Function: It is the macro definition head file for this library.
+  26:Application/Addition/cm_backtrace/cmb_def.h ****  * Created on: 2016-12-15
+  27:Application/Addition/cm_backtrace/cmb_def.h ****  */
+  28:Application/Addition/cm_backtrace/cmb_def.h **** 
+  29:Application/Addition/cm_backtrace/cmb_def.h **** #ifndef _CMB_DEF_H_
+  30:Application/Addition/cm_backtrace/cmb_def.h **** #define _CMB_DEF_H_
+  31:Application/Addition/cm_backtrace/cmb_def.h **** 
+  32:Application/Addition/cm_backtrace/cmb_def.h **** #include <cmb_cfg.h>
+  33:Application/Addition/cm_backtrace/cmb_def.h **** #include <stdint.h>
+  34:Application/Addition/cm_backtrace/cmb_def.h **** #include <stdlib.h>
+  35:Application/Addition/cm_backtrace/cmb_def.h **** 
+  36:Application/Addition/cm_backtrace/cmb_def.h **** /* library software version number */
+  37:Application/Addition/cm_backtrace/cmb_def.h **** #define CMB_SW_VERSION                "1.4.2"
+  38:Application/Addition/cm_backtrace/cmb_def.h **** 
+ARM GAS  /tmp/ccKCUOAK.s 			page 22
+
+
+  39:Application/Addition/cm_backtrace/cmb_def.h **** #define CMB_CPU_ARM_CORTEX_M0             0
+  40:Application/Addition/cm_backtrace/cmb_def.h **** #define CMB_CPU_ARM_CORTEX_M3             1
+  41:Application/Addition/cm_backtrace/cmb_def.h **** #define CMB_CPU_ARM_CORTEX_M4             2
+  42:Application/Addition/cm_backtrace/cmb_def.h **** #define CMB_CPU_ARM_CORTEX_M7             3
+  43:Application/Addition/cm_backtrace/cmb_def.h **** #define CMB_CPU_ARM_CORTEX_M33            4
+  44:Application/Addition/cm_backtrace/cmb_def.h **** 
+  45:Application/Addition/cm_backtrace/cmb_def.h **** #define CMB_OS_PLATFORM_RTT               0
+  46:Application/Addition/cm_backtrace/cmb_def.h **** #define CMB_OS_PLATFORM_UCOSII            1
+  47:Application/Addition/cm_backtrace/cmb_def.h **** #define CMB_OS_PLATFORM_UCOSIII           2
+  48:Application/Addition/cm_backtrace/cmb_def.h **** #define CMB_OS_PLATFORM_FREERTOS          3
+  49:Application/Addition/cm_backtrace/cmb_def.h **** #define CMB_OS_PLATFORM_RTX5              4
+  50:Application/Addition/cm_backtrace/cmb_def.h **** 
+  51:Application/Addition/cm_backtrace/cmb_def.h **** #define CMB_PRINT_LANGUAGE_ENGLISH        0
+  52:Application/Addition/cm_backtrace/cmb_def.h **** #define CMB_PRINT_LANGUAGE_CHINESE        1
+  53:Application/Addition/cm_backtrace/cmb_def.h **** #define CMB_PRINT_LANGUAGE_CHINESE_UTF8   2
+  54:Application/Addition/cm_backtrace/cmb_def.h **** #define CMB_PRINT_LANGUAGE_CUSTOM         0xFF
+  55:Application/Addition/cm_backtrace/cmb_def.h **** 
+  56:Application/Addition/cm_backtrace/cmb_def.h **** /* name max length, default size: 32 */
+  57:Application/Addition/cm_backtrace/cmb_def.h **** #ifndef CMB_NAME_MAX
+  58:Application/Addition/cm_backtrace/cmb_def.h **** #define CMB_NAME_MAX                      32
+  59:Application/Addition/cm_backtrace/cmb_def.h **** #endif
+  60:Application/Addition/cm_backtrace/cmb_def.h **** 
+  61:Application/Addition/cm_backtrace/cmb_def.h **** /* print information language, default is English */
+  62:Application/Addition/cm_backtrace/cmb_def.h **** #ifndef CMB_PRINT_LANGUAGE
+  63:Application/Addition/cm_backtrace/cmb_def.h **** #define CMB_PRINT_LANGUAGE                CMB_PRINT_LANGUAGE_ENGLISH
+  64:Application/Addition/cm_backtrace/cmb_def.h **** #endif
+  65:Application/Addition/cm_backtrace/cmb_def.h **** 
+  66:Application/Addition/cm_backtrace/cmb_def.h **** 
+  67:Application/Addition/cm_backtrace/cmb_def.h **** #if defined(__ARMCC_VERSION)
+  68:Application/Addition/cm_backtrace/cmb_def.h ****     /* C stack block name, default is STACK */
+  69:Application/Addition/cm_backtrace/cmb_def.h ****     #ifndef CMB_CSTACK_BLOCK_NAME
+  70:Application/Addition/cm_backtrace/cmb_def.h ****     #define CMB_CSTACK_BLOCK_NAME          STACK
+  71:Application/Addition/cm_backtrace/cmb_def.h ****     #endif
+  72:Application/Addition/cm_backtrace/cmb_def.h ****     /* code section name, default is ER_IROM1 */
+  73:Application/Addition/cm_backtrace/cmb_def.h ****     #ifndef CMB_CODE_SECTION_NAME
+  74:Application/Addition/cm_backtrace/cmb_def.h ****     #define CMB_CODE_SECTION_NAME          ER_IROM1
+  75:Application/Addition/cm_backtrace/cmb_def.h ****     #endif
+  76:Application/Addition/cm_backtrace/cmb_def.h **** #elif defined(__ICCARM__)
+  77:Application/Addition/cm_backtrace/cmb_def.h ****     /* C stack block name, default is 'CSTACK' */
+  78:Application/Addition/cm_backtrace/cmb_def.h ****     #ifndef CMB_CSTACK_BLOCK_NAME
+  79:Application/Addition/cm_backtrace/cmb_def.h ****     #define CMB_CSTACK_BLOCK_NAME          "CSTACK"
+  80:Application/Addition/cm_backtrace/cmb_def.h ****     #endif
+  81:Application/Addition/cm_backtrace/cmb_def.h ****     /* code section name, default is '.text' */
+  82:Application/Addition/cm_backtrace/cmb_def.h ****     #ifndef CMB_CODE_SECTION_NAME
+  83:Application/Addition/cm_backtrace/cmb_def.h ****     #define CMB_CODE_SECTION_NAME          ".text"
+  84:Application/Addition/cm_backtrace/cmb_def.h ****     #endif
+  85:Application/Addition/cm_backtrace/cmb_def.h **** #elif defined(__GNUC__)
+  86:Application/Addition/cm_backtrace/cmb_def.h ****     /* C stack block start address, defined on linker script file, default is _sstack */
+  87:Application/Addition/cm_backtrace/cmb_def.h ****     #ifndef CMB_CSTACK_BLOCK_START
+  88:Application/Addition/cm_backtrace/cmb_def.h ****     #define CMB_CSTACK_BLOCK_START         _sstack
+  89:Application/Addition/cm_backtrace/cmb_def.h ****     #endif
+  90:Application/Addition/cm_backtrace/cmb_def.h ****     /* C stack block end address, defined on linker script file, default is _estack */
+  91:Application/Addition/cm_backtrace/cmb_def.h ****     #ifndef CMB_CSTACK_BLOCK_END
+  92:Application/Addition/cm_backtrace/cmb_def.h ****     #define CMB_CSTACK_BLOCK_END           _estack
+  93:Application/Addition/cm_backtrace/cmb_def.h ****     #endif
+  94:Application/Addition/cm_backtrace/cmb_def.h ****     /* code section start address, defined on linker script file, default is _stext */
+  95:Application/Addition/cm_backtrace/cmb_def.h ****     #ifndef CMB_CODE_SECTION_START
+ARM GAS  /tmp/ccKCUOAK.s 			page 23
+
+
+  96:Application/Addition/cm_backtrace/cmb_def.h ****     #define CMB_CODE_SECTION_START         _stext
+  97:Application/Addition/cm_backtrace/cmb_def.h ****     #endif
+  98:Application/Addition/cm_backtrace/cmb_def.h ****     /* code section end address, defined on linker script file, default is _etext */
+  99:Application/Addition/cm_backtrace/cmb_def.h ****     #ifndef CMB_CODE_SECTION_END
+ 100:Application/Addition/cm_backtrace/cmb_def.h ****     #define CMB_CODE_SECTION_END           _etext
+ 101:Application/Addition/cm_backtrace/cmb_def.h ****     #endif
+ 102:Application/Addition/cm_backtrace/cmb_def.h **** #else
+ 103:Application/Addition/cm_backtrace/cmb_def.h ****     #error "not supported compiler"
+ 104:Application/Addition/cm_backtrace/cmb_def.h **** #endif
+ 105:Application/Addition/cm_backtrace/cmb_def.h **** 
+ 106:Application/Addition/cm_backtrace/cmb_def.h **** /* supported function call stack max depth, default is 32 */
+ 107:Application/Addition/cm_backtrace/cmb_def.h **** #ifndef CMB_CALL_STACK_MAX_DEPTH
+ 108:Application/Addition/cm_backtrace/cmb_def.h **** #define CMB_CALL_STACK_MAX_DEPTH       32
+ 109:Application/Addition/cm_backtrace/cmb_def.h **** #endif
+ 110:Application/Addition/cm_backtrace/cmb_def.h **** 
+ 111:Application/Addition/cm_backtrace/cmb_def.h **** /* 
+ 112:Application/Addition/cm_backtrace/cmb_def.h ****  * The maximum print depth in case of exception prevents
+ 113:Application/Addition/cm_backtrace/cmb_def.h ****  * too much stack information from printing and insufficient log space
+ 114:Application/Addition/cm_backtrace/cmb_def.h ****  */
+ 115:Application/Addition/cm_backtrace/cmb_def.h **** #ifndef CMB_DUMP_STACK_DEPTH_SIZE
+ 116:Application/Addition/cm_backtrace/cmb_def.h **** #define CMB_DUMP_STACK_DEPTH_SIZE     (16)
+ 117:Application/Addition/cm_backtrace/cmb_def.h **** #endif
+ 118:Application/Addition/cm_backtrace/cmb_def.h **** 
+ 119:Application/Addition/cm_backtrace/cmb_def.h **** /* system handler control and state register */
+ 120:Application/Addition/cm_backtrace/cmb_def.h **** #ifndef CMB_SYSHND_CTRL
+ 121:Application/Addition/cm_backtrace/cmb_def.h **** #define CMB_SYSHND_CTRL                (*(volatile unsigned int*)  (0xE000ED24u))
+ 122:Application/Addition/cm_backtrace/cmb_def.h **** #endif
+ 123:Application/Addition/cm_backtrace/cmb_def.h **** 
+ 124:Application/Addition/cm_backtrace/cmb_def.h **** /* memory management fault status register */
+ 125:Application/Addition/cm_backtrace/cmb_def.h **** #ifndef CMB_NVIC_MFSR
+ 126:Application/Addition/cm_backtrace/cmb_def.h **** #define CMB_NVIC_MFSR                  (*(volatile unsigned char*) (0xE000ED28u))
+ 127:Application/Addition/cm_backtrace/cmb_def.h **** #endif
+ 128:Application/Addition/cm_backtrace/cmb_def.h **** 
+ 129:Application/Addition/cm_backtrace/cmb_def.h **** /* bus fault status register */
+ 130:Application/Addition/cm_backtrace/cmb_def.h **** #ifndef CMB_NVIC_BFSR
+ 131:Application/Addition/cm_backtrace/cmb_def.h **** #define CMB_NVIC_BFSR                  (*(volatile unsigned char*) (0xE000ED29u))
+ 132:Application/Addition/cm_backtrace/cmb_def.h **** #endif
+ 133:Application/Addition/cm_backtrace/cmb_def.h **** 
+ 134:Application/Addition/cm_backtrace/cmb_def.h **** /* usage fault status register */
+ 135:Application/Addition/cm_backtrace/cmb_def.h **** #ifndef CMB_NVIC_UFSR
+ 136:Application/Addition/cm_backtrace/cmb_def.h **** #define CMB_NVIC_UFSR                  (*(volatile unsigned short*)(0xE000ED2Au))
+ 137:Application/Addition/cm_backtrace/cmb_def.h **** #endif
+ 138:Application/Addition/cm_backtrace/cmb_def.h **** 
+ 139:Application/Addition/cm_backtrace/cmb_def.h **** /* hard fault status register */
+ 140:Application/Addition/cm_backtrace/cmb_def.h **** #ifndef CMB_NVIC_HFSR
+ 141:Application/Addition/cm_backtrace/cmb_def.h **** #define CMB_NVIC_HFSR                  (*(volatile unsigned int*)  (0xE000ED2Cu))
+ 142:Application/Addition/cm_backtrace/cmb_def.h **** #endif
+ 143:Application/Addition/cm_backtrace/cmb_def.h **** 
+ 144:Application/Addition/cm_backtrace/cmb_def.h **** /* debug fault status register */
+ 145:Application/Addition/cm_backtrace/cmb_def.h **** #ifndef CMB_NVIC_DFSR
+ 146:Application/Addition/cm_backtrace/cmb_def.h **** #define CMB_NVIC_DFSR                  (*(volatile unsigned short*)(0xE000ED30u))
+ 147:Application/Addition/cm_backtrace/cmb_def.h **** #endif
+ 148:Application/Addition/cm_backtrace/cmb_def.h **** 
+ 149:Application/Addition/cm_backtrace/cmb_def.h **** /* memory management fault address register */
+ 150:Application/Addition/cm_backtrace/cmb_def.h **** #ifndef CMB_NVIC_MMAR
+ 151:Application/Addition/cm_backtrace/cmb_def.h **** #define CMB_NVIC_MMAR                  (*(volatile unsigned int*)  (0xE000ED34u))
+ 152:Application/Addition/cm_backtrace/cmb_def.h **** #endif
+ARM GAS  /tmp/ccKCUOAK.s 			page 24
+
+
+ 153:Application/Addition/cm_backtrace/cmb_def.h **** 
+ 154:Application/Addition/cm_backtrace/cmb_def.h **** /* bus fault manage address register */
+ 155:Application/Addition/cm_backtrace/cmb_def.h **** #ifndef CMB_NVIC_BFAR
+ 156:Application/Addition/cm_backtrace/cmb_def.h **** #define CMB_NVIC_BFAR                  (*(volatile unsigned int*)  (0xE000ED38u))
+ 157:Application/Addition/cm_backtrace/cmb_def.h **** #endif
+ 158:Application/Addition/cm_backtrace/cmb_def.h **** 
+ 159:Application/Addition/cm_backtrace/cmb_def.h **** /* auxiliary fault status register */
+ 160:Application/Addition/cm_backtrace/cmb_def.h **** #ifndef CMB_NVIC_AFSR
+ 161:Application/Addition/cm_backtrace/cmb_def.h **** #define CMB_NVIC_AFSR                  (*(volatile unsigned short*)(0xE000ED3Cu))
+ 162:Application/Addition/cm_backtrace/cmb_def.h **** #endif
+ 163:Application/Addition/cm_backtrace/cmb_def.h **** 
+ 164:Application/Addition/cm_backtrace/cmb_def.h **** /**
+ 165:Application/Addition/cm_backtrace/cmb_def.h ****  * Cortex-M fault registers
+ 166:Application/Addition/cm_backtrace/cmb_def.h ****  */
+ 167:Application/Addition/cm_backtrace/cmb_def.h **** struct cmb_hard_fault_regs{
+ 168:Application/Addition/cm_backtrace/cmb_def.h ****   struct {
+ 169:Application/Addition/cm_backtrace/cmb_def.h ****     unsigned int r0;                     // Register R0
+ 170:Application/Addition/cm_backtrace/cmb_def.h ****     unsigned int r1;                     // Register R1
+ 171:Application/Addition/cm_backtrace/cmb_def.h ****     unsigned int r2;                     // Register R2
+ 172:Application/Addition/cm_backtrace/cmb_def.h ****     unsigned int r3;                     // Register R3
+ 173:Application/Addition/cm_backtrace/cmb_def.h ****     unsigned int r12;                    // Register R12
+ 174:Application/Addition/cm_backtrace/cmb_def.h ****     unsigned int lr;                     // Link register
+ 175:Application/Addition/cm_backtrace/cmb_def.h ****     unsigned int pc;                     // Program counter
+ 176:Application/Addition/cm_backtrace/cmb_def.h ****     union {
+ 177:Application/Addition/cm_backtrace/cmb_def.h ****       unsigned int value;
+ 178:Application/Addition/cm_backtrace/cmb_def.h ****       struct {
+ 179:Application/Addition/cm_backtrace/cmb_def.h **** #if (CMB_CPU_PLATFORM_TYPE == CMB_CPU_ARM_CORTEX_M33)
+ 180:Application/Addition/cm_backtrace/cmb_def.h ****         unsigned int IPSR : 9;           // Interrupt Program Status register (IPSR)
+ 181:Application/Addition/cm_backtrace/cmb_def.h ****         unsigned int EPSR : 18;          // Execution Program Status register (EPSR)
+ 182:Application/Addition/cm_backtrace/cmb_def.h ****         unsigned int APSR : 5;           // Application Program Status register (APSR)
+ 183:Application/Addition/cm_backtrace/cmb_def.h **** #else
+ 184:Application/Addition/cm_backtrace/cmb_def.h ****         unsigned int IPSR : 8;           // Interrupt Program Status register (IPSR)
+ 185:Application/Addition/cm_backtrace/cmb_def.h ****         unsigned int EPSR : 19;          // Execution Program Status register (EPSR)
+ 186:Application/Addition/cm_backtrace/cmb_def.h ****         unsigned int APSR : 5;           // Application Program Status register (APSR)
+ 187:Application/Addition/cm_backtrace/cmb_def.h **** #endif
+ 188:Application/Addition/cm_backtrace/cmb_def.h ****       } bits;
+ 189:Application/Addition/cm_backtrace/cmb_def.h ****     } psr;                               // Program status register.
+ 190:Application/Addition/cm_backtrace/cmb_def.h ****   } saved;
+ 191:Application/Addition/cm_backtrace/cmb_def.h **** 
+ 192:Application/Addition/cm_backtrace/cmb_def.h ****   union {
+ 193:Application/Addition/cm_backtrace/cmb_def.h ****     unsigned int value;
+ 194:Application/Addition/cm_backtrace/cmb_def.h ****     struct {
+ 195:Application/Addition/cm_backtrace/cmb_def.h ****       unsigned int MEMFAULTACT    : 1;   // Read as 1 if memory management fault is active
+ 196:Application/Addition/cm_backtrace/cmb_def.h ****       unsigned int BUSFAULTACT    : 1;   // Read as 1 if bus fault exception is active
+ 197:Application/Addition/cm_backtrace/cmb_def.h **** #if (CMB_CPU_PLATFORM_TYPE == CMB_CPU_ARM_CORTEX_M33)
+ 198:Application/Addition/cm_backtrace/cmb_def.h ****       unsigned int HARDFAULTACT   : 1;   // Read as 1 if hardfault is active
+ 199:Application/Addition/cm_backtrace/cmb_def.h **** #else
+ 200:Application/Addition/cm_backtrace/cmb_def.h ****       unsigned int UnusedBits1    : 1;
+ 201:Application/Addition/cm_backtrace/cmb_def.h **** #endif
+ 202:Application/Addition/cm_backtrace/cmb_def.h ****       unsigned int USGFAULTACT    : 1;   // Read as 1 if usage fault exception is active
+ 203:Application/Addition/cm_backtrace/cmb_def.h **** #if (CMB_CPU_PLATFORM_TYPE == CMB_CPU_ARM_CORTEX_M33)
+ 204:Application/Addition/cm_backtrace/cmb_def.h ****       unsigned int SECUREFAULTACT : 1;   // Read as 1 if secure fault exception is active
+ 205:Application/Addition/cm_backtrace/cmb_def.h ****       unsigned int NMIACT         : 1;   // Read as 1 if NMI exception is active
+ 206:Application/Addition/cm_backtrace/cmb_def.h ****       unsigned int UnusedBits2    : 1;
+ 207:Application/Addition/cm_backtrace/cmb_def.h **** #else
+ 208:Application/Addition/cm_backtrace/cmb_def.h ****       unsigned int UnusedBits2    : 3;
+ 209:Application/Addition/cm_backtrace/cmb_def.h **** #endif
+ARM GAS  /tmp/ccKCUOAK.s 			page 25
+
+
+ 210:Application/Addition/cm_backtrace/cmb_def.h ****       unsigned int SVCALLACT      : 1;   // Read as 1 if SVC exception is active
+ 211:Application/Addition/cm_backtrace/cmb_def.h ****       unsigned int MONITORACT     : 1;   // Read as 1 if debug monitor exception is active
+ 212:Application/Addition/cm_backtrace/cmb_def.h ****       unsigned int UnusedBits3    : 1;
+ 213:Application/Addition/cm_backtrace/cmb_def.h ****       unsigned int PENDSVACT      : 1;   // Read as 1 if PendSV exception is active
+ 214:Application/Addition/cm_backtrace/cmb_def.h ****       unsigned int SYSTICKACT     : 1;   // Read as 1 if SYSTICK exception is active
+ 215:Application/Addition/cm_backtrace/cmb_def.h ****       unsigned int USGFAULTPENDED : 1;   // Usage fault pended; usage fault started but was replace
+ 216:Application/Addition/cm_backtrace/cmb_def.h ****       unsigned int MEMFAULTPENDED : 1;   // Memory management fault pended; memory management fault
+ 217:Application/Addition/cm_backtrace/cmb_def.h ****       unsigned int BUSFAULTPENDED : 1;   // Bus fault pended; bus fault handler was started but was
+ 218:Application/Addition/cm_backtrace/cmb_def.h ****       unsigned int SVCALLPENDED   : 1;   // SVC pended; SVC was started but was replaced by a highe
+ 219:Application/Addition/cm_backtrace/cmb_def.h ****       unsigned int MEMFAULTENA    : 1;   // Memory management fault handler enable
+ 220:Application/Addition/cm_backtrace/cmb_def.h ****       unsigned int BUSFAULTENA    : 1;   // Bus fault handler enable
+ 221:Application/Addition/cm_backtrace/cmb_def.h ****       unsigned int USGFAULTENA    : 1;   // Usage fault handler enable
+ 222:Application/Addition/cm_backtrace/cmb_def.h **** #if (CMB_CPU_PLATFORM_TYPE == CMB_CPU_ARM_CORTEX_M33)
+ 223:Application/Addition/cm_backtrace/cmb_def.h ****       unsigned int SECUREFAULTENA : 1;   // Secure fault handler enable
+ 224:Application/Addition/cm_backtrace/cmb_def.h ****       unsigned int SECUREFAULTPENDED : 1;   // Secure fault pended; Secure fault handler was starte
+ 225:Application/Addition/cm_backtrace/cmb_def.h ****       unsigned int HARDFAULTPENDED   : 1;   // Hard fault pended; Hard fault handler was started bu
+ 226:Application/Addition/cm_backtrace/cmb_def.h **** #else
+ 227:Application/Addition/cm_backtrace/cmb_def.h ****       // None
+ 228:Application/Addition/cm_backtrace/cmb_def.h **** #endif
+ 229:Application/Addition/cm_backtrace/cmb_def.h ****     } bits;
+ 230:Application/Addition/cm_backtrace/cmb_def.h ****   } syshndctrl;                          // System Handler Control and State Register (0xE000ED24)
+ 231:Application/Addition/cm_backtrace/cmb_def.h **** 
+ 232:Application/Addition/cm_backtrace/cmb_def.h ****   union {
+ 233:Application/Addition/cm_backtrace/cmb_def.h ****     unsigned char value;
+ 234:Application/Addition/cm_backtrace/cmb_def.h ****     struct {
+ 235:Application/Addition/cm_backtrace/cmb_def.h ****       unsigned char IACCVIOL    : 1;     // Instruction access violation
+ 236:Application/Addition/cm_backtrace/cmb_def.h ****       unsigned char DACCVIOL    : 1;     // Data access violation
+ 237:Application/Addition/cm_backtrace/cmb_def.h ****       unsigned char UnusedBits  : 1;
+ 238:Application/Addition/cm_backtrace/cmb_def.h ****       unsigned char MUNSTKERR   : 1;     // Unstacking error
+ 239:Application/Addition/cm_backtrace/cmb_def.h ****       unsigned char MSTKERR     : 1;     // Stacking error
+ 240:Application/Addition/cm_backtrace/cmb_def.h ****       unsigned char MLSPERR     : 1;     // Floating-point lazy state preservation (M4/M7)
+ 241:Application/Addition/cm_backtrace/cmb_def.h ****       unsigned char UnusedBits2 : 1;
+ 242:Application/Addition/cm_backtrace/cmb_def.h ****       unsigned char MMARVALID   : 1;     // Indicates the MMAR is valid
+ 243:Application/Addition/cm_backtrace/cmb_def.h ****     } bits;
+ 244:Application/Addition/cm_backtrace/cmb_def.h ****   } mfsr;                                // Memory Management Fault Status Register (0xE000ED28)
+ 245:Application/Addition/cm_backtrace/cmb_def.h ****   unsigned int mmar;                     // Memory Management Fault Address Register (0xE000ED34)
+ 246:Application/Addition/cm_backtrace/cmb_def.h **** 
+ 247:Application/Addition/cm_backtrace/cmb_def.h ****   union {
+ 248:Application/Addition/cm_backtrace/cmb_def.h ****     unsigned char value;
+ 249:Application/Addition/cm_backtrace/cmb_def.h ****     struct {
+ 250:Application/Addition/cm_backtrace/cmb_def.h ****       unsigned char IBUSERR    : 1;      // Instruction access violation
+ 251:Application/Addition/cm_backtrace/cmb_def.h ****       unsigned char PRECISERR  : 1;      // Precise data access violation
+ 252:Application/Addition/cm_backtrace/cmb_def.h ****       unsigned char IMPREISERR : 1;      // Imprecise data access violation
+ 253:Application/Addition/cm_backtrace/cmb_def.h ****       unsigned char UNSTKERR   : 1;      // Unstacking error
+ 254:Application/Addition/cm_backtrace/cmb_def.h ****       unsigned char STKERR     : 1;      // Stacking error
+ 255:Application/Addition/cm_backtrace/cmb_def.h ****       unsigned char LSPERR     : 1;      // Floating-point lazy state preservation (M4/M7)
+ 256:Application/Addition/cm_backtrace/cmb_def.h ****       unsigned char UnusedBits : 1;
+ 257:Application/Addition/cm_backtrace/cmb_def.h ****       unsigned char BFARVALID  : 1;      // Indicates BFAR is valid
+ 258:Application/Addition/cm_backtrace/cmb_def.h ****     } bits;
+ 259:Application/Addition/cm_backtrace/cmb_def.h ****   } bfsr;                                // Bus Fault Status Register (0xE000ED29)
+ 260:Application/Addition/cm_backtrace/cmb_def.h ****   unsigned int bfar;                     // Bus Fault Manage Address Register (0xE000ED38)
+ 261:Application/Addition/cm_backtrace/cmb_def.h **** 
+ 262:Application/Addition/cm_backtrace/cmb_def.h ****   union {
+ 263:Application/Addition/cm_backtrace/cmb_def.h ****     unsigned short value;
+ 264:Application/Addition/cm_backtrace/cmb_def.h ****     struct {
+ 265:Application/Addition/cm_backtrace/cmb_def.h ****       unsigned short UNDEFINSTR : 1;     // Attempts to execute an undefined instruction
+ 266:Application/Addition/cm_backtrace/cmb_def.h ****       unsigned short INVSTATE   : 1;     // Attempts to switch to an invalid state (e.g., ARM)
+ARM GAS  /tmp/ccKCUOAK.s 			page 26
+
+
+ 267:Application/Addition/cm_backtrace/cmb_def.h ****       unsigned short INVPC      : 1;     // Attempts to do an exception with a bad value in the EXC
+ 268:Application/Addition/cm_backtrace/cmb_def.h ****       unsigned short NOCP       : 1;     // Attempts to execute a coprocessor instruction
+ 269:Application/Addition/cm_backtrace/cmb_def.h **** #if (CMB_CPU_PLATFORM_TYPE == CMB_CPU_ARM_CORTEX_M33)
+ 270:Application/Addition/cm_backtrace/cmb_def.h ****       unsigned short STKOF      : 1;     // Indicates a stack overflow error has occured
+ 271:Application/Addition/cm_backtrace/cmb_def.h ****       unsigned short UnusedBits : 3;
+ 272:Application/Addition/cm_backtrace/cmb_def.h **** #else
+ 273:Application/Addition/cm_backtrace/cmb_def.h ****       unsigned short UnusedBits : 4;
+ 274:Application/Addition/cm_backtrace/cmb_def.h **** #endif
+ 275:Application/Addition/cm_backtrace/cmb_def.h ****       unsigned short UNALIGNED  : 1;     // Indicates that an unaligned access fault has taken plac
+ 276:Application/Addition/cm_backtrace/cmb_def.h ****       unsigned short DIVBYZERO0 : 1;     // Indicates a divide by zero has taken place (can be set 
+ 277:Application/Addition/cm_backtrace/cmb_def.h ****     } bits;
+ 278:Application/Addition/cm_backtrace/cmb_def.h ****   } ufsr;                                // Usage Fault Status Register (0xE000ED2A)
+ 279:Application/Addition/cm_backtrace/cmb_def.h **** 
+ 280:Application/Addition/cm_backtrace/cmb_def.h ****   union {
+ 281:Application/Addition/cm_backtrace/cmb_def.h ****     unsigned int value;
+ 282:Application/Addition/cm_backtrace/cmb_def.h ****     struct {
+ 283:Application/Addition/cm_backtrace/cmb_def.h ****       unsigned int UnusedBits  : 1;
+ 284:Application/Addition/cm_backtrace/cmb_def.h ****       unsigned int VECTBL      : 1;      // Indicates hard fault is caused by failed vector fetch
+ 285:Application/Addition/cm_backtrace/cmb_def.h ****       unsigned int UnusedBits2 : 28;
+ 286:Application/Addition/cm_backtrace/cmb_def.h ****       unsigned int FORCED      : 1;      // Indicates hard fault is taken because of bus fault/memo
+ 287:Application/Addition/cm_backtrace/cmb_def.h ****       unsigned int DEBUGEVT    : 1;      // Indicates hard fault is triggered by debug event
+ 288:Application/Addition/cm_backtrace/cmb_def.h ****     } bits;
+ 289:Application/Addition/cm_backtrace/cmb_def.h ****   } hfsr;                                // Hard Fault Status Register (0xE000ED2C)
+ 290:Application/Addition/cm_backtrace/cmb_def.h **** 
+ 291:Application/Addition/cm_backtrace/cmb_def.h ****   union {
+ 292:Application/Addition/cm_backtrace/cmb_def.h ****     unsigned int value;
+ 293:Application/Addition/cm_backtrace/cmb_def.h ****     struct {
+ 294:Application/Addition/cm_backtrace/cmb_def.h ****       unsigned int HALTED   : 1;         // Halt requested in NVIC
+ 295:Application/Addition/cm_backtrace/cmb_def.h ****       unsigned int BKPT     : 1;         // BKPT instruction executed
+ 296:Application/Addition/cm_backtrace/cmb_def.h ****       unsigned int DWTTRAP  : 1;         // DWT match occurred
+ 297:Application/Addition/cm_backtrace/cmb_def.h ****       unsigned int VCATCH   : 1;         // Vector fetch occurred
+ 298:Application/Addition/cm_backtrace/cmb_def.h ****       unsigned int EXTERNAL : 1;         // EDBGRQ signal asserted
+ 299:Application/Addition/cm_backtrace/cmb_def.h ****     } bits;
+ 300:Application/Addition/cm_backtrace/cmb_def.h ****   } dfsr;                                // Debug Fault Status Register (0xE000ED30)
+ 301:Application/Addition/cm_backtrace/cmb_def.h **** 
+ 302:Application/Addition/cm_backtrace/cmb_def.h ****   unsigned int afsr;                     // Auxiliary Fault Status Register (0xE000ED3C), Vendor co
+ 303:Application/Addition/cm_backtrace/cmb_def.h **** };
+ 304:Application/Addition/cm_backtrace/cmb_def.h **** 
+ 305:Application/Addition/cm_backtrace/cmb_def.h **** /* assert for developer. */
+ 306:Application/Addition/cm_backtrace/cmb_def.h **** #define CMB_ASSERT(EXPR)                                                       \
+ 307:Application/Addition/cm_backtrace/cmb_def.h **** if (!(EXPR))                                                                   \
+ 308:Application/Addition/cm_backtrace/cmb_def.h **** {                                                                              \
+ 309:Application/Addition/cm_backtrace/cmb_def.h ****     cmb_println("(%s) has assert failed at %s.", #EXPR, __FUNCTION__);         \
+ 310:Application/Addition/cm_backtrace/cmb_def.h ****     while (1);                                                                 \
+ 311:Application/Addition/cm_backtrace/cmb_def.h **** }
+ 312:Application/Addition/cm_backtrace/cmb_def.h **** 
+ 313:Application/Addition/cm_backtrace/cmb_def.h **** /* ELF(Executable and Linking Format) file extension name for each compiler */
+ 314:Application/Addition/cm_backtrace/cmb_def.h **** #if defined(__CC_ARM) || defined(__CLANG_ARM) || defined(__ARMCC_VERSION)
+ 315:Application/Addition/cm_backtrace/cmb_def.h ****     #define CMB_ELF_FILE_EXTENSION_NAME          ".axf"
+ 316:Application/Addition/cm_backtrace/cmb_def.h **** #elif defined(__ICCARM__)
+ 317:Application/Addition/cm_backtrace/cmb_def.h ****     #define CMB_ELF_FILE_EXTENSION_NAME          ".out"
+ 318:Application/Addition/cm_backtrace/cmb_def.h **** #elif defined(__GNUC__)
+ 319:Application/Addition/cm_backtrace/cmb_def.h ****     #define CMB_ELF_FILE_EXTENSION_NAME          ".elf"
+ 320:Application/Addition/cm_backtrace/cmb_def.h **** #else
+ 321:Application/Addition/cm_backtrace/cmb_def.h ****     #error "not supported compiler"
+ 322:Application/Addition/cm_backtrace/cmb_def.h **** #endif
+ 323:Application/Addition/cm_backtrace/cmb_def.h **** 
+ARM GAS  /tmp/ccKCUOAK.s 			page 27
+
+
+ 324:Application/Addition/cm_backtrace/cmb_def.h **** #ifndef cmb_println
+ 325:Application/Addition/cm_backtrace/cmb_def.h ****     #error "cmb_println isn't defined in 'cmb_cfg.h'"
+ 326:Application/Addition/cm_backtrace/cmb_def.h **** #endif
+ 327:Application/Addition/cm_backtrace/cmb_def.h **** 
+ 328:Application/Addition/cm_backtrace/cmb_def.h **** #ifndef CMB_CPU_PLATFORM_TYPE
+ 329:Application/Addition/cm_backtrace/cmb_def.h ****     #error "CMB_CPU_PLATFORM_TYPE isn't defined in 'cmb_cfg.h'"
+ 330:Application/Addition/cm_backtrace/cmb_def.h **** #endif
+ 331:Application/Addition/cm_backtrace/cmb_def.h **** 
+ 332:Application/Addition/cm_backtrace/cmb_def.h **** #if (defined(CMB_USING_BARE_METAL_PLATFORM) && defined(CMB_USING_OS_PLATFORM))
+ 333:Application/Addition/cm_backtrace/cmb_def.h ****     #error "CMB_USING_BARE_METAL_PLATFORM and CMB_USING_OS_PLATFORM only one of them can be used"
+ 334:Application/Addition/cm_backtrace/cmb_def.h **** #elif defined(CMB_USING_OS_PLATFORM)
+ 335:Application/Addition/cm_backtrace/cmb_def.h ****     #if !defined(CMB_OS_PLATFORM_TYPE)
+ 336:Application/Addition/cm_backtrace/cmb_def.h ****         #error "CMB_OS_PLATFORM_TYPE isn't defined in 'cmb_cfg.h'"
+ 337:Application/Addition/cm_backtrace/cmb_def.h ****     #endif /* !defined(CMB_OS_PLATFORM_TYPE) */
+ 338:Application/Addition/cm_backtrace/cmb_def.h ****     #if (CMB_OS_PLATFORM_TYPE == CMB_OS_PLATFORM_RTT)
+ 339:Application/Addition/cm_backtrace/cmb_def.h ****         #include <rtthread.h>
+ 340:Application/Addition/cm_backtrace/cmb_def.h ****     #elif (CMB_OS_PLATFORM_TYPE == CMB_OS_PLATFORM_UCOSII)
+ 341:Application/Addition/cm_backtrace/cmb_def.h ****         #include <ucos_ii.h>
+ 342:Application/Addition/cm_backtrace/cmb_def.h ****     #elif (CMB_OS_PLATFORM_TYPE == CMB_OS_PLATFORM_UCOSIII)
+ 343:Application/Addition/cm_backtrace/cmb_def.h ****         #include <os.h>
+ 344:Application/Addition/cm_backtrace/cmb_def.h ****     #elif (CMB_OS_PLATFORM_TYPE == CMB_OS_PLATFORM_FREERTOS)
+ 345:Application/Addition/cm_backtrace/cmb_def.h ****         #include <FreeRTOS.h>  
+ 346:Application/Addition/cm_backtrace/cmb_def.h ****         extern uint32_t *vTaskStackAddr(void);/* need to modify the FreeRTOS/tasks source code */
+ 347:Application/Addition/cm_backtrace/cmb_def.h ****         extern uint32_t vTaskStackSize(void);
+ 348:Application/Addition/cm_backtrace/cmb_def.h ****         extern char * vTaskName(void);
+ 349:Application/Addition/cm_backtrace/cmb_def.h ****     #elif (CMB_OS_PLATFORM_TYPE == CMB_OS_PLATFORM_RTX5)
+ 350:Application/Addition/cm_backtrace/cmb_def.h ****         #include "rtx_os.h"
+ 351:Application/Addition/cm_backtrace/cmb_def.h ****     #else
+ 352:Application/Addition/cm_backtrace/cmb_def.h ****         #error "not supported OS type"
+ 353:Application/Addition/cm_backtrace/cmb_def.h ****     #endif /* (CMB_OS_PLATFORM_TYPE == CMB_OS_PLATFORM_RTT) */
+ 354:Application/Addition/cm_backtrace/cmb_def.h **** #endif /* (defined(CMB_USING_BARE_METAL_PLATFORM) && defined(CMB_USING_OS_PLATFORM)) */
+ 355:Application/Addition/cm_backtrace/cmb_def.h **** 
+ 356:Application/Addition/cm_backtrace/cmb_def.h **** /* include or export for supported cmb_get_msp, cmb_get_psp and cmb_get_sp function */
+ 357:Application/Addition/cm_backtrace/cmb_def.h **** #if defined(__CC_ARM)
+ 358:Application/Addition/cm_backtrace/cmb_def.h ****     static __inline __asm uint32_t cmb_get_msp(void) {
+ 359:Application/Addition/cm_backtrace/cmb_def.h ****         mrs r0, msp
+ 360:Application/Addition/cm_backtrace/cmb_def.h ****         bx lr
+ 361:Application/Addition/cm_backtrace/cmb_def.h ****     }
+ 362:Application/Addition/cm_backtrace/cmb_def.h ****     static __inline __asm uint32_t cmb_get_psp(void) {
+ 363:Application/Addition/cm_backtrace/cmb_def.h ****         mrs r0, psp
+ 364:Application/Addition/cm_backtrace/cmb_def.h ****         bx lr
+ 365:Application/Addition/cm_backtrace/cmb_def.h ****     }
+ 366:Application/Addition/cm_backtrace/cmb_def.h ****     static __inline __asm uint32_t cmb_get_sp(void) {
+ 367:Application/Addition/cm_backtrace/cmb_def.h ****         mov r0, sp
+ 368:Application/Addition/cm_backtrace/cmb_def.h ****         bx lr
+ 369:Application/Addition/cm_backtrace/cmb_def.h ****     }
+ 370:Application/Addition/cm_backtrace/cmb_def.h **** #elif defined(__CLANG_ARM)
+ 371:Application/Addition/cm_backtrace/cmb_def.h ****     __attribute__( (always_inline) ) static __inline uint32_t cmb_get_msp(void) {
+ 372:Application/Addition/cm_backtrace/cmb_def.h ****         uint32_t result;
+ 373:Application/Addition/cm_backtrace/cmb_def.h ****         __asm volatile ("mrs %0, msp" : "=r" (result) );
+ 374:Application/Addition/cm_backtrace/cmb_def.h ****         return (result);
+ 375:Application/Addition/cm_backtrace/cmb_def.h ****     }
+ 376:Application/Addition/cm_backtrace/cmb_def.h ****     __attribute__( (always_inline) ) static __inline uint32_t cmb_get_psp(void) {
+ 377:Application/Addition/cm_backtrace/cmb_def.h ****         uint32_t result;
+ 378:Application/Addition/cm_backtrace/cmb_def.h ****         __asm volatile ("mrs %0, psp" : "=r" (result) );
+ 379:Application/Addition/cm_backtrace/cmb_def.h ****         return (result);
+ 380:Application/Addition/cm_backtrace/cmb_def.h ****     }
+ARM GAS  /tmp/ccKCUOAK.s 			page 28
+
+
+ 381:Application/Addition/cm_backtrace/cmb_def.h ****     __attribute__( (always_inline) ) static __inline uint32_t cmb_get_sp(void) {
+ 382:Application/Addition/cm_backtrace/cmb_def.h ****         uint32_t result;
+ 383:Application/Addition/cm_backtrace/cmb_def.h ****         __asm volatile ("mov %0, sp" : "=r" (result) );
+ 384:Application/Addition/cm_backtrace/cmb_def.h ****         return (result);
+ 385:Application/Addition/cm_backtrace/cmb_def.h ****     }
+ 386:Application/Addition/cm_backtrace/cmb_def.h **** #elif defined(__ICCARM__)
+ 387:Application/Addition/cm_backtrace/cmb_def.h **** /* IAR iccarm specific functions */
+ 388:Application/Addition/cm_backtrace/cmb_def.h **** /* Close Raw Asm Code Warning */  
+ 389:Application/Addition/cm_backtrace/cmb_def.h **** #pragma diag_suppress=Pe940    
+ 390:Application/Addition/cm_backtrace/cmb_def.h ****     static uint32_t cmb_get_msp(void)
+ 391:Application/Addition/cm_backtrace/cmb_def.h ****     {
+ 392:Application/Addition/cm_backtrace/cmb_def.h ****       __asm("mrs r0, msp");
+ 393:Application/Addition/cm_backtrace/cmb_def.h ****       __asm("bx lr");        
+ 394:Application/Addition/cm_backtrace/cmb_def.h ****     }
+ 395:Application/Addition/cm_backtrace/cmb_def.h ****     static uint32_t cmb_get_psp(void)
+ 396:Application/Addition/cm_backtrace/cmb_def.h ****     {
+ 397:Application/Addition/cm_backtrace/cmb_def.h ****       __asm("mrs r0, psp");
+ 398:Application/Addition/cm_backtrace/cmb_def.h ****       __asm("bx lr");        
+ 399:Application/Addition/cm_backtrace/cmb_def.h ****     }
+ 400:Application/Addition/cm_backtrace/cmb_def.h ****     static uint32_t cmb_get_sp(void)
+ 401:Application/Addition/cm_backtrace/cmb_def.h ****     {
+ 402:Application/Addition/cm_backtrace/cmb_def.h ****       __asm("mov r0, sp");
+ 403:Application/Addition/cm_backtrace/cmb_def.h ****       __asm("bx lr");       
+ 404:Application/Addition/cm_backtrace/cmb_def.h ****     }
+ 405:Application/Addition/cm_backtrace/cmb_def.h **** #pragma diag_default=Pe940  
+ 406:Application/Addition/cm_backtrace/cmb_def.h **** #elif defined(__GNUC__)
+ 407:Application/Addition/cm_backtrace/cmb_def.h ****     __attribute__( ( always_inline ) ) static inline uint32_t cmb_get_msp(void) {
+ 408:Application/Addition/cm_backtrace/cmb_def.h ****         register uint32_t result;
+ 409:Application/Addition/cm_backtrace/cmb_def.h ****         __asm volatile ("MRS %0, msp\n" : "=r" (result) );
+ 410:Application/Addition/cm_backtrace/cmb_def.h ****         return(result);
+ 411:Application/Addition/cm_backtrace/cmb_def.h ****     }
+ 412:Application/Addition/cm_backtrace/cmb_def.h ****     __attribute__( ( always_inline ) ) static inline uint32_t cmb_get_psp(void) {
+ 413:Application/Addition/cm_backtrace/cmb_def.h ****         register uint32_t result;
+ 414:Application/Addition/cm_backtrace/cmb_def.h ****         __asm volatile ("MRS %0, psp\n" : "=r" (result) );
+ 415:Application/Addition/cm_backtrace/cmb_def.h ****         return(result);
+ 416:Application/Addition/cm_backtrace/cmb_def.h ****     }
+ 417:Application/Addition/cm_backtrace/cmb_def.h ****     __attribute__( ( always_inline ) ) static inline uint32_t cmb_get_sp(void) {
+ 418:Application/Addition/cm_backtrace/cmb_def.h ****         register uint32_t result;
+ 419:Application/Addition/cm_backtrace/cmb_def.h ****         __asm volatile ("MOV %0, sp\n" : "=r" (result) );
+ 703              		.loc 2 419 0
+ 704              		.syntax divided
+ 705              	@ 419 "Application/Addition/cm_backtrace/cmb_def.h" 1
+ 706 0096 6B46     		MOV r3, sp
+ 707              	
+ 708              	@ 0 "" 2
+ 709              		.thumb
+ 710              		.syntax unified
+ 711              	.LBE33:
+ 712              	.LBE32:
+ 713              	.LBB34:
+ 714              	.LBB35:
+ 414:Application/Addition/cm_backtrace/cmb_def.h ****         return(result);
+ 715              		.loc 2 414 0
+ 716              		.syntax divided
+ 717              	@ 414 "Application/Addition/cm_backtrace/cmb_def.h" 1
+ 718 0098 EFF30982 		MRS r2, psp
+ 719              	
+ARM GAS  /tmp/ccKCUOAK.s 			page 29
+
+
+ 720              	@ 0 "" 2
+ 721              	.LVL80:
+ 722              		.thumb
+ 723              		.syntax unified
+ 724              	.LBE35:
+ 725              	.LBE34:
+ 362:./Application/Addition/cm_backtrace/cm_backtrace.c ****             get_cur_thread_stack_info(&tcb_sp, &stack_start_addr, &stack_size);
+ 726              		.loc 1 362 0
+ 727 009c 9A42     		cmp	r2, r3
+ 728 009e 03D1     		bne	.L54
+ 363:./Application/Addition/cm_backtrace/cm_backtrace.c ****         }
+ 729              		.loc 1 363 0
+ 730 00a0 07A9     		add	r1, sp, #28
+ 731              	.LVL81:
+ 732 00a2 06A8     		add	r0, sp, #24
+ 733              	.LVL82:
+ 734 00a4 FFF7FEFF 		bl	get_cur_thread_stack_info.isra.0
+ 735              	.LVL83:
+ 736              	.L54:
+ 340:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 737              		.loc 1 340 0
+ 738 00a8 3700     		movs	r7, r6
+ 339:./Application/Addition/cm_backtrace/cm_backtrace.c ****     bool regs_saved_lr_is_valid = false;
+ 739              		.loc 1 339 0
+ 740 00aa 3400     		movs	r4, r6
+ 741 00ac D8E7     		b	.L44
+ 742              	.LVL84:
+ 743              	.L49:
+ 378:./Application/Addition/cm_backtrace/cm_backtrace.c ****             continue;
+ 744              		.loc 1 378 0
+ 745 00ae 0122     		movs	r2, #1
+ 746              	.LVL85:
+ 376:./Application/Addition/cm_backtrace/cm_backtrace.c ****         /* the Cortex-M using thumb instruction, so the pc must be an odd number */
+ 747              		.loc 1 376 0
+ 748 00b0 019B     		ldr	r3, [sp, #4]
+ 749 00b2 1868     		ldr	r0, [r3]
+ 750              	.LVL86:
+ 751 00b4 031F     		subs	r3, r0, #4
+ 752              	.LVL87:
+ 378:./Application/Addition/cm_backtrace/cm_backtrace.c ****             continue;
+ 753              		.loc 1 378 0
+ 754 00b6 1342     		tst	r3, r2
+ 755 00b8 1AD0     		beq	.L47
+ 383:./Application/Addition/cm_backtrace/cm_backtrace.c ****                 /* check the the instruction before PC address is 'BL' or 'BLX' */
+ 756              		.loc 1 383 0
+ 757 00ba 039B     		ldr	r3, [sp, #12]
+ 758              	.LVL88:
+ 382:./Application/Addition/cm_backtrace/cm_backtrace.c ****         if ((pc >= code_start_addr + sizeof(size_t)) && (pc <= code_start_addr + code_size) && (dep
+ 759              		.loc 1 382 0
+ 760 00bc 461E     		subs	r6, r0, #1
+ 761              	.LVL89:
+ 383:./Application/Addition/cm_backtrace/cm_backtrace.c ****                 /* check the the instruction before PC address is 'BL' or 'BLX' */
+ 762              		.loc 1 383 0
+ 763 00be B342     		cmp	r3, r6
+ 764 00c0 16D8     		bhi	.L47
+ 383:./Application/Addition/cm_backtrace/cm_backtrace.c ****                 /* check the the instruction before PC address is 'BL' or 'BLX' */
+ 765              		.loc 1 383 0 is_stmt 0 discriminator 1
+ARM GAS  /tmp/ccKCUOAK.s 			page 30
+
+
+ 766 00c2 049B     		ldr	r3, [sp, #16]
+ 767 00c4 B342     		cmp	r3, r6
+ 768 00c6 13D3     		bcc	.L47
+ 383:./Application/Addition/cm_backtrace/cm_backtrace.c ****                 /* check the the instruction before PC address is 'BL' or 'BLX' */
+ 769              		.loc 1 383 0 discriminator 2
+ 770 00c8 1F2C     		cmp	r4, #31
+ 771 00ca 11D8     		bhi	.L47
+ 385:./Application/Addition/cm_backtrace/cm_backtrace.c ****             /* the second depth function may be already saved, so need ignore repeat */
+ 772              		.loc 1 385 0 is_stmt 1
+ 773 00cc 0538     		subs	r0, r0, #5
+ 774 00ce FFF7FEFF 		bl	disassembly_ins_is_bl_blx
+ 775              	.LVL90:
+ 776 00d2 0028     		cmp	r0, #0
+ 777 00d4 0CD0     		beq	.L47
+ 385:./Application/Addition/cm_backtrace/cm_backtrace.c ****             /* the second depth function may be already saved, so need ignore repeat */
+ 778              		.loc 1 385 0 is_stmt 0 discriminator 1
+ 779 00d6 029B     		ldr	r3, [sp, #8]
+ 780 00d8 9C42     		cmp	r4, r3
+ 781 00da 09D2     		bcs	.L47
+ 387:./Application/Addition/cm_backtrace/cm_backtrace.c ****                 continue;
+ 782              		.loc 1 387 0 is_stmt 1
+ 783 00dc 022C     		cmp	r4, #2
+ 784 00de 04D1     		bne	.L48
+ 387:./Application/Addition/cm_backtrace/cm_backtrace.c ****                 continue;
+ 785              		.loc 1 387 0 is_stmt 0 discriminator 1
+ 786 00e0 002F     		cmp	r7, #0
+ 787 00e2 02D0     		beq	.L48
+ 387:./Application/Addition/cm_backtrace/cm_backtrace.c ****                 continue;
+ 788              		.loc 1 387 0 discriminator 2
+ 789 00e4 6B68     		ldr	r3, [r5, #4]
+ 790 00e6 B342     		cmp	r3, r6
+ 791 00e8 02D0     		beq	.L47
+ 792              	.L48:
+ 793              	.LVL91:
+ 390:./Application/Addition/cm_backtrace/cm_backtrace.c ****         }
+ 794              		.loc 1 390 0 is_stmt 1
+ 795 00ea A300     		lsls	r3, r4, #2
+ 796 00ec 5E51     		str	r6, [r3, r5]
+ 797 00ee 0134     		adds	r4, r4, #1
+ 798              	.LVL92:
+ 799              	.L47:
+ 374:./Application/Addition/cm_backtrace/cm_backtrace.c ****         /* the *sp value may be LR, so need decrease a word to PC */
+ 800              		.loc 1 374 0
+ 801 00f0 019B     		ldr	r3, [sp, #4]
+ 802 00f2 0433     		adds	r3, r3, #4
+ 803 00f4 0193     		str	r3, [sp, #4]
+ 804              	.LVL93:
+ 805 00f6 C4E7     		b	.L46
+ 806              	.L69:
+ 807              		.align	2
+ 808              	.L68:
+ 809 00f8 00000000 		.word	.LANCHOR5
+ 810 00fc 00000000 		.word	.LANCHOR6
+ 811 0100 00000000 		.word	.LANCHOR10
+ 812 0104 00000000 		.word	.LANCHOR0
+ 813 0108 00000000 		.word	.LANCHOR11
+ 814 010c 00000000 		.word	.LANCHOR7
+ARM GAS  /tmp/ccKCUOAK.s 			page 31
+
+
+ 815 0110 00000000 		.word	.LANCHOR8
+ 816 0114 00000000 		.word	.LANCHOR1
+ 817              		.cfi_endproc
+ 818              	.LFE13:
+ 820              		.section	.text.print_call_stack,"ax",%progbits
+ 821              		.align	1
+ 822              		.syntax unified
+ 823              		.code	16
+ 824              		.thumb_func
+ 825              		.fpu softvfp
+ 827              	print_call_stack:
+ 828              	.LFB14:
+ 396:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 397:./Application/Addition/cm_backtrace/cm_backtrace.c **** /**
+ 398:./Application/Addition/cm_backtrace/cm_backtrace.c ****  * dump function call stack
+ 399:./Application/Addition/cm_backtrace/cm_backtrace.c ****  *
+ 400:./Application/Addition/cm_backtrace/cm_backtrace.c ****  * @param sp stack pointer
+ 401:./Application/Addition/cm_backtrace/cm_backtrace.c ****  */
+ 402:./Application/Addition/cm_backtrace/cm_backtrace.c **** static void print_call_stack(uint32_t sp) {
+ 829              		.loc 1 402 0
+ 830              		.cfi_startproc
+ 831              		@ args = 0, pretend = 0, frame = 128
+ 832              		@ frame_needed = 0, uses_anonymous_args = 0
+ 833              	.LVL94:
+ 834 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+ 835              	.LCFI8:
+ 836              		.cfi_def_cfa_offset 20
+ 837              		.cfi_offset 4, -20
+ 838              		.cfi_offset 5, -16
+ 839              		.cfi_offset 6, -12
+ 840              		.cfi_offset 7, -8
+ 841              		.cfi_offset 14, -4
+ 842 0002 0400     		movs	r4, r0
+ 843 0004 A3B0     		sub	sp, sp, #140
+ 844              	.LCFI9:
+ 845              		.cfi_def_cfa_offset 160
+ 403:./Application/Addition/cm_backtrace/cm_backtrace.c ****     size_t i, cur_depth = 0;
+ 404:./Application/Addition/cm_backtrace/cm_backtrace.c ****     uint32_t call_stack_buf[CMB_CALL_STACK_MAX_DEPTH] = {0};
+ 846              		.loc 1 404 0
+ 847 0006 02AE     		add	r6, sp, #8
+ 848 0008 8022     		movs	r2, #128
+ 849 000a 0021     		movs	r1, #0
+ 850 000c 3000     		movs	r0, r6
+ 851              	.LVL95:
+ 852 000e FFF7FEFF 		bl	memset
+ 853              	.LVL96:
+ 405:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 406:./Application/Addition/cm_backtrace/cm_backtrace.c ****     cur_depth = cm_backtrace_call_stack(call_stack_buf, CMB_CALL_STACK_MAX_DEPTH, sp);
+ 854              		.loc 1 406 0
+ 855 0012 2200     		movs	r2, r4
+ 856 0014 2021     		movs	r1, #32
+ 857 0016 3000     		movs	r0, r6
+ 858 0018 FFF7FEFF 		bl	cm_backtrace_call_stack
+ 859              	.LVL97:
+ 407:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 408:./Application/Addition/cm_backtrace/cm_backtrace.c ****     for (i = 0; i < cur_depth; i++) {
+ 860              		.loc 1 408 0
+ARM GAS  /tmp/ccKCUOAK.s 			page 32
+
+
+ 861 001c 0024     		movs	r4, #0
+ 862              	.LVL98:
+ 406:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 863              		.loc 1 406 0
+ 864 001e 0700     		movs	r7, r0
+ 865              	.LVL99:
+ 866              	.L71:
+ 867              		.loc 1 408 0 discriminator 1
+ 868 0020 BC42     		cmp	r4, r7
+ 869 0022 13D1     		bne	.L72
+ 870 0024 144D     		ldr	r5, .L76
+ 409:./Application/Addition/cm_backtrace/cm_backtrace.c ****         sprintf(call_stack_info + i * (8 + 1), "%08lx", (unsigned long)call_stack_buf[i]);
+ 410:./Application/Addition/cm_backtrace/cm_backtrace.c ****         call_stack_info[i * (8 + 1) + 8] = ' ';
+ 411:./Application/Addition/cm_backtrace/cm_backtrace.c ****     }
+ 412:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 413:./Application/Addition/cm_backtrace/cm_backtrace.c ****     if (cur_depth) {
+ 871              		.loc 1 413 0
+ 872 0026 002C     		cmp	r4, #0
+ 873 0028 1ED0     		beq	.L73
+ 414:./Application/Addition/cm_backtrace/cm_backtrace.c ****         cmb_println(print_info[PRINT_CALL_STACK_INFO], fw_name, CMB_ELF_FILE_EXTENSION_NAME, cur_de
+ 874              		.loc 1 414 0
+ 875 002a 144B     		ldr	r3, .L76+4
+ 876 002c 1449     		ldr	r1, .L76+8
+ 877 002e 0193     		str	r3, [sp, #4]
+ 878 0030 0923     		movs	r3, #9
+ 879 0032 5C43     		muls	r4, r3
+ 880              	.LVL100:
+ 881 0034 134A     		ldr	r2, .L76+12
+ 882 0036 0094     		str	r4, [sp]
+ 883 0038 134B     		ldr	r3, .L76+16
+ 884 003a 0020     		movs	r0, #0
+ 885 003c FFF7FEFF 		bl	SEGGER_RTT_printf
+ 886              	.LVL101:
+ 887 0040 2900     		movs	r1, r5
+ 888 0042 0020     		movs	r0, #0
+ 889              	.L75:
+ 890              	.LBB38:
+ 891              	.LBB39:
+ 415:./Application/Addition/cm_backtrace/cm_backtrace.c ****                 call_stack_info);
+ 416:./Application/Addition/cm_backtrace/cm_backtrace.c ****     } else {
+ 417:./Application/Addition/cm_backtrace/cm_backtrace.c ****         cmb_println(print_info[PRINT_CALL_STACK_ERR]);
+ 892              		.loc 1 417 0
+ 893 0044 FFF7FEFF 		bl	SEGGER_RTT_WriteString
+ 894              	.LVL102:
+ 895              	.LBE39:
+ 896              	.LBE38:
+ 418:./Application/Addition/cm_backtrace/cm_backtrace.c ****     }
+ 419:./Application/Addition/cm_backtrace/cm_backtrace.c **** }
+ 897              		.loc 1 419 0
+ 898 0048 23B0     		add	sp, sp, #140
+ 899              		@ sp needed
+ 900              	.LVL103:
+ 901 004a F0BD     		pop	{r4, r5, r6, r7, pc}
+ 902              	.LVL104:
+ 903              	.L72:
+ 904 004c 0925     		movs	r5, #9
+ 905 004e 6543     		muls	r5, r4
+ARM GAS  /tmp/ccKCUOAK.s 			page 33
+
+
+ 409:./Application/Addition/cm_backtrace/cm_backtrace.c ****         call_stack_info[i * (8 + 1) + 8] = ' ';
+ 906              		.loc 1 409 0 discriminator 3
+ 907 0050 0A4A     		ldr	r2, .L76+4
+ 908 0052 A300     		lsls	r3, r4, #2
+ 909 0054 AD18     		adds	r5, r5, r2
+ 910 0056 0D49     		ldr	r1, .L76+20
+ 911 0058 F258     		ldr	r2, [r6, r3]
+ 912 005a 2800     		movs	r0, r5
+ 913 005c FFF7FEFF 		bl	sprintf
+ 914              	.LVL105:
+ 410:./Application/Addition/cm_backtrace/cm_backtrace.c ****     }
+ 915              		.loc 1 410 0 discriminator 3
+ 916 0060 2023     		movs	r3, #32
+ 408:./Application/Addition/cm_backtrace/cm_backtrace.c ****         sprintf(call_stack_info + i * (8 + 1), "%08lx", (unsigned long)call_stack_buf[i]);
+ 917              		.loc 1 408 0 discriminator 3
+ 918 0062 0134     		adds	r4, r4, #1
+ 919              	.LVL106:
+ 410:./Application/Addition/cm_backtrace/cm_backtrace.c ****     }
+ 920              		.loc 1 410 0 discriminator 3
+ 921 0064 2B72     		strb	r3, [r5, #8]
+ 922 0066 DBE7     		b	.L71
+ 923              	.L73:
+ 924              	.LVL107:
+ 925              	.LBB41:
+ 926              	.LBB40:
+ 417:./Application/Addition/cm_backtrace/cm_backtrace.c ****     }
+ 927              		.loc 1 417 0
+ 928 0068 0949     		ldr	r1, .L76+24
+ 929 006a 2000     		movs	r0, r4
+ 930 006c FFF7FEFF 		bl	SEGGER_RTT_printf
+ 931              	.LVL108:
+ 932 0070 2900     		movs	r1, r5
+ 933 0072 2000     		movs	r0, r4
+ 934 0074 E6E7     		b	.L75
+ 935              	.L77:
+ 936 0076 C046     		.align	2
+ 937              	.L76:
+ 938 0078 27000000 		.word	.LC15
+ 939 007c 00000000 		.word	call_stack_info
+ 940 0080 0B000000 		.word	.LC64
+ 941 0084 00000000 		.word	.LANCHOR2
+ 942 0088 06000000 		.word	.LC61
+ 943 008c 00000000 		.word	.LC58
+ 944 0090 4B000000 		.word	.LC67
+ 945              	.LBE40:
+ 946              	.LBE41:
+ 947              		.cfi_endproc
+ 948              	.LFE14:
+ 950              		.section	.text.cm_backtrace_assert,"ax",%progbits
+ 951              		.align	1
+ 952              		.global	cm_backtrace_assert
+ 953              		.syntax unified
+ 954              		.code	16
+ 955              		.thumb_func
+ 956              		.fpu softvfp
+ 958              	cm_backtrace_assert:
+ 959              	.LFB15:
+ARM GAS  /tmp/ccKCUOAK.s 			page 34
+
+
+ 420:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 421:./Application/Addition/cm_backtrace/cm_backtrace.c **** /**
+ 422:./Application/Addition/cm_backtrace/cm_backtrace.c ****  * backtrace for assert
+ 423:./Application/Addition/cm_backtrace/cm_backtrace.c ****  *
+ 424:./Application/Addition/cm_backtrace/cm_backtrace.c ****  * @param sp the stack pointer when on assert occurred
+ 425:./Application/Addition/cm_backtrace/cm_backtrace.c ****  */
+ 426:./Application/Addition/cm_backtrace/cm_backtrace.c **** void cm_backtrace_assert(uint32_t sp) {
+ 960              		.loc 1 426 0
+ 961              		.cfi_startproc
+ 962              		@ args = 0, pretend = 0, frame = 8
+ 963              		@ frame_needed = 0, uses_anonymous_args = 0
+ 964              	.LVL109:
+ 965 0000 F7B5     		push	{r0, r1, r2, r4, r5, r6, r7, lr}
+ 966              	.LCFI10:
+ 967              		.cfi_def_cfa_offset 32
+ 968              		.cfi_offset 0, -32
+ 969              		.cfi_offset 1, -28
+ 970              		.cfi_offset 2, -24
+ 971              		.cfi_offset 4, -20
+ 972              		.cfi_offset 5, -16
+ 973              		.cfi_offset 6, -12
+ 974              		.cfi_offset 7, -8
+ 975              		.cfi_offset 14, -4
+ 976              		.loc 1 426 0
+ 977 0002 0500     		movs	r5, r0
+ 978              	.LBB42:
+ 979              	.LBB43:
+ 980              		.loc 2 419 0
+ 981              		.syntax divided
+ 982              	@ 419 "Application/Addition/cm_backtrace/cmb_def.h" 1
+ 983 0004 6F46     		MOV r7, sp
+ 984              	
+ 985              	@ 0 "" 2
+ 986              		.thumb
+ 987              		.syntax unified
+ 988              	.LBE43:
+ 989              	.LBE42:
+ 427:./Application/Addition/cm_backtrace/cm_backtrace.c **** #ifdef CMB_USING_OS_PLATFORM
+ 428:./Application/Addition/cm_backtrace/cm_backtrace.c ****     uint32_t tcb_sp;
+ 429:./Application/Addition/cm_backtrace/cm_backtrace.c ****     uint32_t cur_stack_pointer = cmb_get_sp();
+ 430:./Application/Addition/cm_backtrace/cm_backtrace.c **** #endif
+ 431:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 432:./Application/Addition/cm_backtrace/cm_backtrace.c ****     CMB_ASSERT(init_ok);
+ 990              		.loc 1 432 0
+ 991 0006 244B     		ldr	r3, .L84
+ 992 0008 244C     		ldr	r4, .L84+4
+ 993 000a 1E78     		ldrb	r6, [r3]
+ 994 000c 002E     		cmp	r6, #0
+ 995 000e 0AD1     		bne	.L79
+ 996              		.loc 1 432 0 is_stmt 0 discriminator 1
+ 997 0010 2349     		ldr	r1, .L84+8
+ 998 0012 244B     		ldr	r3, .L84+12
+ 999 0014 244A     		ldr	r2, .L84+16
+ 1000 0016 3000     		movs	r0, r6
+ 1001              	.LVL110:
+ 1002 0018 FFF7FEFF 		bl	SEGGER_RTT_printf
+ 1003              	.LVL111:
+ARM GAS  /tmp/ccKCUOAK.s 			page 35
+
+
+ 1004 001c 2100     		movs	r1, r4
+ 1005 001e 3000     		movs	r0, r6
+ 1006 0020 FFF7FEFF 		bl	SEGGER_RTT_WriteString
+ 1007              	.LVL112:
+ 1008              	.L80:
+ 1009 0024 FEE7     		b	.L80
+ 1010              	.LVL113:
+ 1011              	.L79:
+ 433:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 434:./Application/Addition/cm_backtrace/cm_backtrace.c ****     cmb_println("");
+ 1012              		.loc 1 434 0 is_stmt 1
+ 1013 0026 2149     		ldr	r1, .L84+20
+ 1014 0028 0020     		movs	r0, #0
+ 1015              	.LVL114:
+ 1016 002a FFF7FEFF 		bl	SEGGER_RTT_printf
+ 1017              	.LVL115:
+ 1018 002e 2100     		movs	r1, r4
+ 1019 0030 0020     		movs	r0, #0
+ 1020 0032 FFF7FEFF 		bl	SEGGER_RTT_WriteString
+ 1021              	.LVL116:
+ 435:./Application/Addition/cm_backtrace/cm_backtrace.c ****     cm_backtrace_firmware_info();
+ 1022              		.loc 1 435 0
+ 1023 0036 FFF7FEFF 		bl	cm_backtrace_firmware_info
+ 1024              	.LVL117:
+ 1025              	.LBB44:
+ 1026              	.LBB45:
+ 409:Application/Addition/cm_backtrace/cmb_def.h ****         return(result);
+ 1027              		.loc 2 409 0
+ 1028              		.syntax divided
+ 1029              	@ 409 "Application/Addition/cm_backtrace/cmb_def.h" 1
+ 1030 003a EFF30883 		MRS r3, msp
+ 1031              	
+ 1032              	@ 0 "" 2
+ 1033              		.thumb
+ 1034              		.syntax unified
+ 1035              	.LBE45:
+ 1036              	.LBE44:
+ 436:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 437:./Application/Addition/cm_backtrace/cm_backtrace.c **** #ifdef CMB_USING_OS_PLATFORM
+ 438:./Application/Addition/cm_backtrace/cm_backtrace.c ****     /* OS environment */
+ 439:./Application/Addition/cm_backtrace/cm_backtrace.c ****     if (cur_stack_pointer == cmb_get_msp()) {
+ 1037              		.loc 1 439 0
+ 1038 003e 9F42     		cmp	r7, r3
+ 1039 0040 12D1     		bne	.L81
+ 440:./Application/Addition/cm_backtrace/cm_backtrace.c ****         cmb_println(print_info[PRINT_ASSERT_ON_HANDLER]);
+ 1040              		.loc 1 440 0
+ 1041 0042 1B49     		ldr	r1, .L84+24
+ 1042 0044 0020     		movs	r0, #0
+ 1043 0046 FFF7FEFF 		bl	SEGGER_RTT_printf
+ 1044              	.LVL118:
+ 1045 004a 2100     		movs	r1, r4
+ 1046 004c 0020     		movs	r0, #0
+ 1047 004e FFF7FEFF 		bl	SEGGER_RTT_WriteString
+ 1048              	.LVL119:
+ 441:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 442:./Application/Addition/cm_backtrace/cm_backtrace.c **** #ifdef CMB_USING_DUMP_STACK_INFO
+ 443:./Application/Addition/cm_backtrace/cm_backtrace.c ****         dump_stack(main_stack_start_addr, main_stack_size, (uint32_t *) sp);
+ARM GAS  /tmp/ccKCUOAK.s 			page 36
+
+
+ 1049              		.loc 1 443 0
+ 1050 0052 2A00     		movs	r2, r5
+ 1051 0054 174B     		ldr	r3, .L84+28
+ 1052 0056 1968     		ldr	r1, [r3]
+ 1053 0058 174B     		ldr	r3, .L84+32
+ 1054 005a 1868     		ldr	r0, [r3]
+ 1055              	.LVL120:
+ 1056              	.L83:
+ 1057              	.LBB46:
+ 444:./Application/Addition/cm_backtrace/cm_backtrace.c **** #endif /* CMB_USING_DUMP_STACK_INFO */
+ 445:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 446:./Application/Addition/cm_backtrace/cm_backtrace.c ****     } else if (cur_stack_pointer == cmb_get_psp()) {
+ 447:./Application/Addition/cm_backtrace/cm_backtrace.c ****         cmb_println(print_info[PRINT_ASSERT_ON_THREAD], get_cur_thread_name());
+ 448:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 449:./Application/Addition/cm_backtrace/cm_backtrace.c **** #ifdef CMB_USING_DUMP_STACK_INFO
+ 450:./Application/Addition/cm_backtrace/cm_backtrace.c ****         uint32_t stack_start_addr;
+ 451:./Application/Addition/cm_backtrace/cm_backtrace.c ****         size_t stack_size;
+ 452:./Application/Addition/cm_backtrace/cm_backtrace.c ****         get_cur_thread_stack_info(&tcb_sp, &stack_start_addr, &stack_size);
+ 453:./Application/Addition/cm_backtrace/cm_backtrace.c ****         dump_stack(stack_start_addr, stack_size, (uint32_t *) sp);
+ 1058              		.loc 1 453 0
+ 1059 005c FFF7FEFF 		bl	dump_stack
+ 1060              	.LVL121:
+ 1061              	.L82:
+ 1062              	.LBE46:
+ 454:./Application/Addition/cm_backtrace/cm_backtrace.c **** #endif /* CMB_USING_DUMP_STACK_INFO */
+ 455:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 456:./Application/Addition/cm_backtrace/cm_backtrace.c ****     }
+ 457:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 458:./Application/Addition/cm_backtrace/cm_backtrace.c **** #else
+ 459:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 460:./Application/Addition/cm_backtrace/cm_backtrace.c ****     /* bare metal(no OS) environment */
+ 461:./Application/Addition/cm_backtrace/cm_backtrace.c **** #ifdef CMB_USING_DUMP_STACK_INFO
+ 462:./Application/Addition/cm_backtrace/cm_backtrace.c ****     dump_stack(main_stack_start_addr, main_stack_size, (uint32_t *) sp);
+ 463:./Application/Addition/cm_backtrace/cm_backtrace.c **** #endif /* CMB_USING_DUMP_STACK_INFO */
+ 464:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 465:./Application/Addition/cm_backtrace/cm_backtrace.c **** #endif /* CMB_USING_OS_PLATFORM */
+ 466:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 467:./Application/Addition/cm_backtrace/cm_backtrace.c ****     print_call_stack(sp);
+ 1063              		.loc 1 467 0
+ 1064 0060 2800     		movs	r0, r5
+ 1065 0062 FFF7FEFF 		bl	print_call_stack
+ 1066              	.LVL122:
+ 468:./Application/Addition/cm_backtrace/cm_backtrace.c **** }
+ 1067              		.loc 1 468 0
+ 1068              		@ sp needed
+ 1069              	.LVL123:
+ 1070 0066 F7BD     		pop	{r0, r1, r2, r4, r5, r6, r7, pc}
+ 1071              	.LVL124:
+ 1072              	.L81:
+ 1073              	.LBB51:
+ 1074              	.LBB52:
+ 414:Application/Addition/cm_backtrace/cmb_def.h ****         return(result);
+ 1075              		.loc 2 414 0
+ 1076              		.syntax divided
+ 1077              	@ 414 "Application/Addition/cm_backtrace/cmb_def.h" 1
+ 1078 0068 EFF30983 		MRS r3, psp
+ 1079              	
+ARM GAS  /tmp/ccKCUOAK.s 			page 37
+
+
+ 1080              	@ 0 "" 2
+ 1081              		.thumb
+ 1082              		.syntax unified
+ 1083              	.LBE52:
+ 1084              	.LBE51:
+ 446:./Application/Addition/cm_backtrace/cm_backtrace.c ****         cmb_println(print_info[PRINT_ASSERT_ON_THREAD], get_cur_thread_name());
+ 1085              		.loc 1 446 0
+ 1086 006c 9F42     		cmp	r7, r3
+ 1087 006e F7D1     		bne	.L82
+ 1088              	.LBB53:
+ 1089              	.LBB47:
+ 1090              	.LBB48:
+ 244:./Application/Addition/cm_backtrace/cm_backtrace.c **** #elif (CMB_OS_PLATFORM_TYPE == CMB_OS_PLATFORM_RTX5)
+ 1091              		.loc 1 244 0
+ 1092 0070 FFF7FEFF 		bl	vTaskName
+ 1093              	.LVL125:
+ 1094              	.LBE48:
+ 1095              	.LBE47:
+ 447:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 1096              		.loc 1 447 0
+ 1097 0074 1149     		ldr	r1, .L84+36
+ 1098              	.LBB50:
+ 1099              	.LBB49:
+ 244:./Application/Addition/cm_backtrace/cm_backtrace.c **** #elif (CMB_OS_PLATFORM_TYPE == CMB_OS_PLATFORM_RTX5)
+ 1100              		.loc 1 244 0
+ 1101 0076 0200     		movs	r2, r0
+ 1102              	.LBE49:
+ 1103              	.LBE50:
+ 447:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 1104              		.loc 1 447 0
+ 1105 0078 0020     		movs	r0, #0
+ 1106 007a FFF7FEFF 		bl	SEGGER_RTT_printf
+ 1107              	.LVL126:
+ 1108 007e 2100     		movs	r1, r4
+ 1109 0080 0020     		movs	r0, #0
+ 1110 0082 FFF7FEFF 		bl	SEGGER_RTT_WriteString
+ 1111              	.LVL127:
+ 452:./Application/Addition/cm_backtrace/cm_backtrace.c ****         dump_stack(stack_start_addr, stack_size, (uint32_t *) sp);
+ 1112              		.loc 1 452 0
+ 1113 0086 01A9     		add	r1, sp, #4
+ 1114 0088 6846     		mov	r0, sp
+ 1115 008a FFF7FEFF 		bl	get_cur_thread_stack_info.isra.0
+ 1116              	.LVL128:
+ 453:./Application/Addition/cm_backtrace/cm_backtrace.c **** #endif /* CMB_USING_DUMP_STACK_INFO */
+ 1117              		.loc 1 453 0
+ 1118 008e 2A00     		movs	r2, r5
+ 1119 0090 0199     		ldr	r1, [sp, #4]
+ 1120 0092 0098     		ldr	r0, [sp]
+ 1121 0094 E2E7     		b	.L83
+ 1122              	.L85:
+ 1123 0096 C046     		.align	2
+ 1124              	.L84:
+ 1125 0098 00000000 		.word	.LANCHOR9
+ 1126 009c 27000000 		.word	.LC15
+ 1127 00a0 08000000 		.word	.LC73
+ 1128 00a4 00000000 		.word	.LANCHOR12
+ 1129 00a8 00000000 		.word	.LC71
+ARM GAS  /tmp/ccKCUOAK.s 			page 38
+
+
+ 1130 00ac 26000000 		.word	.LC76
+ 1131 00b0 27000000 		.word	.LC78
+ 1132 00b4 00000000 		.word	.LANCHOR6
+ 1133 00b8 00000000 		.word	.LANCHOR5
+ 1134 00bc 5C000000 		.word	.LC82
+ 1135              	.LBE53:
+ 1136              		.cfi_endproc
+ 1137              	.LFE15:
+ 1139              		.section	.text.cm_backtrace_fault,"ax",%progbits
+ 1140              		.align	1
+ 1141              		.global	cm_backtrace_fault
+ 1142              		.syntax unified
+ 1143              		.code	16
+ 1144              		.thumb_func
+ 1145              		.fpu softvfp
+ 1147              	cm_backtrace_fault:
+ 1148              	.LFB16:
+ 469:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 470:./Application/Addition/cm_backtrace/cm_backtrace.c **** #if (CMB_CPU_PLATFORM_TYPE != CMB_CPU_ARM_CORTEX_M0)
+ 471:./Application/Addition/cm_backtrace/cm_backtrace.c **** /**
+ 472:./Application/Addition/cm_backtrace/cm_backtrace.c ****  * fault diagnosis then print cause of fault
+ 473:./Application/Addition/cm_backtrace/cm_backtrace.c ****  */
+ 474:./Application/Addition/cm_backtrace/cm_backtrace.c **** static void fault_diagnosis(void) {
+ 475:./Application/Addition/cm_backtrace/cm_backtrace.c ****     if (regs.hfsr.bits.VECTBL) {
+ 476:./Application/Addition/cm_backtrace/cm_backtrace.c ****         cmb_println(print_info[PRINT_HFSR_VECTBL]);
+ 477:./Application/Addition/cm_backtrace/cm_backtrace.c ****     }
+ 478:./Application/Addition/cm_backtrace/cm_backtrace.c ****     if (regs.hfsr.bits.FORCED) {
+ 479:./Application/Addition/cm_backtrace/cm_backtrace.c ****         /* Memory Management Fault */
+ 480:./Application/Addition/cm_backtrace/cm_backtrace.c ****         if (regs.mfsr.value) {
+ 481:./Application/Addition/cm_backtrace/cm_backtrace.c ****             if (regs.mfsr.bits.IACCVIOL) {
+ 482:./Application/Addition/cm_backtrace/cm_backtrace.c ****                 cmb_println(print_info[PRINT_MFSR_IACCVIOL]);
+ 483:./Application/Addition/cm_backtrace/cm_backtrace.c ****             }
+ 484:./Application/Addition/cm_backtrace/cm_backtrace.c ****             if (regs.mfsr.bits.DACCVIOL) {
+ 485:./Application/Addition/cm_backtrace/cm_backtrace.c ****                 cmb_println(print_info[PRINT_MFSR_DACCVIOL]);
+ 486:./Application/Addition/cm_backtrace/cm_backtrace.c ****             }
+ 487:./Application/Addition/cm_backtrace/cm_backtrace.c ****             if (regs.mfsr.bits.MUNSTKERR) {
+ 488:./Application/Addition/cm_backtrace/cm_backtrace.c ****                 cmb_println(print_info[PRINT_MFSR_MUNSTKERR]);
+ 489:./Application/Addition/cm_backtrace/cm_backtrace.c ****             }
+ 490:./Application/Addition/cm_backtrace/cm_backtrace.c ****             if (regs.mfsr.bits.MSTKERR) {
+ 491:./Application/Addition/cm_backtrace/cm_backtrace.c ****                 cmb_println(print_info[PRINT_MFSR_MSTKERR]);
+ 492:./Application/Addition/cm_backtrace/cm_backtrace.c ****             }
+ 493:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 494:./Application/Addition/cm_backtrace/cm_backtrace.c **** #if (CMB_CPU_PLATFORM_TYPE == CMB_CPU_ARM_CORTEX_M4) || (CMB_CPU_PLATFORM_TYPE == CMB_CPU_ARM_CORTE
+ 495:./Application/Addition/cm_backtrace/cm_backtrace.c ****     (CMB_CPU_PLATFORM_TYPE == CMB_CPU_ARM_CORTEX_M33)
+ 496:./Application/Addition/cm_backtrace/cm_backtrace.c ****             if (regs.mfsr.bits.MLSPERR) {
+ 497:./Application/Addition/cm_backtrace/cm_backtrace.c ****                 cmb_println(print_info[PRINT_MFSR_MLSPERR]);
+ 498:./Application/Addition/cm_backtrace/cm_backtrace.c ****             }
+ 499:./Application/Addition/cm_backtrace/cm_backtrace.c **** #endif
+ 500:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 501:./Application/Addition/cm_backtrace/cm_backtrace.c ****             if (regs.mfsr.bits.MMARVALID) {
+ 502:./Application/Addition/cm_backtrace/cm_backtrace.c ****                 if (regs.mfsr.bits.IACCVIOL || regs.mfsr.bits.DACCVIOL) {
+ 503:./Application/Addition/cm_backtrace/cm_backtrace.c ****                     cmb_println(print_info[PRINT_MMAR], regs.mmar);
+ 504:./Application/Addition/cm_backtrace/cm_backtrace.c ****                 }
+ 505:./Application/Addition/cm_backtrace/cm_backtrace.c ****             }
+ 506:./Application/Addition/cm_backtrace/cm_backtrace.c ****         }
+ 507:./Application/Addition/cm_backtrace/cm_backtrace.c ****         /* Bus Fault */
+ 508:./Application/Addition/cm_backtrace/cm_backtrace.c ****         if (regs.bfsr.value) {
+ARM GAS  /tmp/ccKCUOAK.s 			page 39
+
+
+ 509:./Application/Addition/cm_backtrace/cm_backtrace.c ****             if (regs.bfsr.bits.IBUSERR) {
+ 510:./Application/Addition/cm_backtrace/cm_backtrace.c ****                 cmb_println(print_info[PRINT_BFSR_IBUSERR]);
+ 511:./Application/Addition/cm_backtrace/cm_backtrace.c ****             }
+ 512:./Application/Addition/cm_backtrace/cm_backtrace.c ****             if (regs.bfsr.bits.PRECISERR) {
+ 513:./Application/Addition/cm_backtrace/cm_backtrace.c ****                 cmb_println(print_info[PRINT_BFSR_PRECISERR]);
+ 514:./Application/Addition/cm_backtrace/cm_backtrace.c ****             }
+ 515:./Application/Addition/cm_backtrace/cm_backtrace.c ****             if (regs.bfsr.bits.IMPREISERR) {
+ 516:./Application/Addition/cm_backtrace/cm_backtrace.c ****                 cmb_println(print_info[PRINT_BFSR_IMPREISERR]);
+ 517:./Application/Addition/cm_backtrace/cm_backtrace.c ****             }
+ 518:./Application/Addition/cm_backtrace/cm_backtrace.c ****             if (regs.bfsr.bits.UNSTKERR) {
+ 519:./Application/Addition/cm_backtrace/cm_backtrace.c ****                 cmb_println(print_info[PRINT_BFSR_UNSTKERR]);
+ 520:./Application/Addition/cm_backtrace/cm_backtrace.c ****             }
+ 521:./Application/Addition/cm_backtrace/cm_backtrace.c ****             if (regs.bfsr.bits.STKERR) {
+ 522:./Application/Addition/cm_backtrace/cm_backtrace.c ****                 cmb_println(print_info[PRINT_BFSR_STKERR]);
+ 523:./Application/Addition/cm_backtrace/cm_backtrace.c ****             }
+ 524:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 525:./Application/Addition/cm_backtrace/cm_backtrace.c **** #if (CMB_CPU_PLATFORM_TYPE == CMB_CPU_ARM_CORTEX_M4) || (CMB_CPU_PLATFORM_TYPE == CMB_CPU_ARM_CORTE
+ 526:./Application/Addition/cm_backtrace/cm_backtrace.c ****     (CMB_CPU_PLATFORM_TYPE == CMB_CPU_ARM_CORTEX_M33)
+ 527:./Application/Addition/cm_backtrace/cm_backtrace.c ****             if (regs.bfsr.bits.LSPERR) {
+ 528:./Application/Addition/cm_backtrace/cm_backtrace.c ****                 cmb_println(print_info[PRINT_BFSR_LSPERR]);
+ 529:./Application/Addition/cm_backtrace/cm_backtrace.c ****             }
+ 530:./Application/Addition/cm_backtrace/cm_backtrace.c **** #endif
+ 531:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 532:./Application/Addition/cm_backtrace/cm_backtrace.c ****             if (regs.bfsr.bits.BFARVALID) {
+ 533:./Application/Addition/cm_backtrace/cm_backtrace.c ****                 if (regs.bfsr.bits.PRECISERR) {
+ 534:./Application/Addition/cm_backtrace/cm_backtrace.c ****                     cmb_println(print_info[PRINT_BFAR], regs.bfar);
+ 535:./Application/Addition/cm_backtrace/cm_backtrace.c ****                 }
+ 536:./Application/Addition/cm_backtrace/cm_backtrace.c ****             }
+ 537:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 538:./Application/Addition/cm_backtrace/cm_backtrace.c ****         }
+ 539:./Application/Addition/cm_backtrace/cm_backtrace.c ****         /* Usage Fault */
+ 540:./Application/Addition/cm_backtrace/cm_backtrace.c ****         if (regs.ufsr.value) {
+ 541:./Application/Addition/cm_backtrace/cm_backtrace.c ****             if (regs.ufsr.bits.UNDEFINSTR) {
+ 542:./Application/Addition/cm_backtrace/cm_backtrace.c ****                 cmb_println(print_info[PRINT_UFSR_UNDEFINSTR]);
+ 543:./Application/Addition/cm_backtrace/cm_backtrace.c ****             }
+ 544:./Application/Addition/cm_backtrace/cm_backtrace.c ****             if (regs.ufsr.bits.INVSTATE) {
+ 545:./Application/Addition/cm_backtrace/cm_backtrace.c ****                 cmb_println(print_info[PRINT_UFSR_INVSTATE]);
+ 546:./Application/Addition/cm_backtrace/cm_backtrace.c ****             }
+ 547:./Application/Addition/cm_backtrace/cm_backtrace.c ****             if (regs.ufsr.bits.INVPC) {
+ 548:./Application/Addition/cm_backtrace/cm_backtrace.c ****                 cmb_println(print_info[PRINT_UFSR_INVPC]);
+ 549:./Application/Addition/cm_backtrace/cm_backtrace.c ****             }
+ 550:./Application/Addition/cm_backtrace/cm_backtrace.c ****             if (regs.ufsr.bits.NOCP) {
+ 551:./Application/Addition/cm_backtrace/cm_backtrace.c ****                 cmb_println(print_info[PRINT_UFSR_NOCP]);
+ 552:./Application/Addition/cm_backtrace/cm_backtrace.c ****             }
+ 553:./Application/Addition/cm_backtrace/cm_backtrace.c **** #if (CMB_CPU_PLATFORM_TYPE == CMB_CPU_ARM_CORTEX_M33)
+ 554:./Application/Addition/cm_backtrace/cm_backtrace.c ****             if (regs.ufsr.bits.STKOF) {
+ 555:./Application/Addition/cm_backtrace/cm_backtrace.c ****                 cmb_println(print_info[PRINT_UFSR_STKOF]);
+ 556:./Application/Addition/cm_backtrace/cm_backtrace.c ****             }
+ 557:./Application/Addition/cm_backtrace/cm_backtrace.c **** #endif
+ 558:./Application/Addition/cm_backtrace/cm_backtrace.c ****             if (regs.ufsr.bits.UNALIGNED) {
+ 559:./Application/Addition/cm_backtrace/cm_backtrace.c ****                 cmb_println(print_info[PRINT_UFSR_UNALIGNED]);
+ 560:./Application/Addition/cm_backtrace/cm_backtrace.c ****             }
+ 561:./Application/Addition/cm_backtrace/cm_backtrace.c ****             if (regs.ufsr.bits.DIVBYZERO0) {
+ 562:./Application/Addition/cm_backtrace/cm_backtrace.c ****                 cmb_println(print_info[PRINT_UFSR_DIVBYZERO0]);
+ 563:./Application/Addition/cm_backtrace/cm_backtrace.c ****             }
+ 564:./Application/Addition/cm_backtrace/cm_backtrace.c ****         }
+ 565:./Application/Addition/cm_backtrace/cm_backtrace.c ****     }
+ARM GAS  /tmp/ccKCUOAK.s 			page 40
+
+
+ 566:./Application/Addition/cm_backtrace/cm_backtrace.c ****     /* Debug Fault */
+ 567:./Application/Addition/cm_backtrace/cm_backtrace.c ****     if (regs.hfsr.bits.DEBUGEVT) {
+ 568:./Application/Addition/cm_backtrace/cm_backtrace.c ****         if (regs.dfsr.value) {
+ 569:./Application/Addition/cm_backtrace/cm_backtrace.c ****             if (regs.dfsr.bits.HALTED) {
+ 570:./Application/Addition/cm_backtrace/cm_backtrace.c ****                 cmb_println(print_info[PRINT_DFSR_HALTED]);
+ 571:./Application/Addition/cm_backtrace/cm_backtrace.c ****             }
+ 572:./Application/Addition/cm_backtrace/cm_backtrace.c ****             if (regs.dfsr.bits.BKPT) {
+ 573:./Application/Addition/cm_backtrace/cm_backtrace.c ****                 cmb_println(print_info[PRINT_DFSR_BKPT]);
+ 574:./Application/Addition/cm_backtrace/cm_backtrace.c ****             }
+ 575:./Application/Addition/cm_backtrace/cm_backtrace.c ****             if (regs.dfsr.bits.DWTTRAP) {
+ 576:./Application/Addition/cm_backtrace/cm_backtrace.c ****                 cmb_println(print_info[PRINT_DFSR_DWTTRAP]);
+ 577:./Application/Addition/cm_backtrace/cm_backtrace.c ****             }
+ 578:./Application/Addition/cm_backtrace/cm_backtrace.c ****             if (regs.dfsr.bits.VCATCH) {
+ 579:./Application/Addition/cm_backtrace/cm_backtrace.c ****                 cmb_println(print_info[PRINT_DFSR_VCATCH]);
+ 580:./Application/Addition/cm_backtrace/cm_backtrace.c ****             }
+ 581:./Application/Addition/cm_backtrace/cm_backtrace.c ****             if (regs.dfsr.bits.EXTERNAL) {
+ 582:./Application/Addition/cm_backtrace/cm_backtrace.c ****                 cmb_println(print_info[PRINT_DFSR_EXTERNAL]);
+ 583:./Application/Addition/cm_backtrace/cm_backtrace.c ****             }
+ 584:./Application/Addition/cm_backtrace/cm_backtrace.c ****         }
+ 585:./Application/Addition/cm_backtrace/cm_backtrace.c ****     }
+ 586:./Application/Addition/cm_backtrace/cm_backtrace.c **** }
+ 587:./Application/Addition/cm_backtrace/cm_backtrace.c **** #endif /* (CMB_CPU_PLATFORM_TYPE != CMB_CPU_ARM_CORTEX_M0) */
+ 588:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 589:./Application/Addition/cm_backtrace/cm_backtrace.c **** #if (CMB_CPU_PLATFORM_TYPE == CMB_CPU_ARM_CORTEX_M4) || (CMB_CPU_PLATFORM_TYPE == CMB_CPU_ARM_CORTE
+ 590:./Application/Addition/cm_backtrace/cm_backtrace.c ****     (CMB_CPU_PLATFORM_TYPE == CMB_CPU_ARM_CORTEX_M33)
+ 591:./Application/Addition/cm_backtrace/cm_backtrace.c **** static uint32_t statck_del_fpu_regs(uint32_t fault_handler_lr, uint32_t sp) {
+ 592:./Application/Addition/cm_backtrace/cm_backtrace.c ****     statck_has_fpu_regs = (fault_handler_lr & (1UL << 4)) == 0 ? true : false;
+ 593:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 594:./Application/Addition/cm_backtrace/cm_backtrace.c ****     /* the stack has S0~S15 and FPSCR registers when statck_has_fpu_regs is true, double word align
+ 595:./Application/Addition/cm_backtrace/cm_backtrace.c ****     return statck_has_fpu_regs == true ? sp + sizeof(size_t) * 18 : sp;
+ 596:./Application/Addition/cm_backtrace/cm_backtrace.c **** }
+ 597:./Application/Addition/cm_backtrace/cm_backtrace.c **** #endif
+ 598:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 599:./Application/Addition/cm_backtrace/cm_backtrace.c **** /**
+ 600:./Application/Addition/cm_backtrace/cm_backtrace.c ****  * backtrace for fault
+ 601:./Application/Addition/cm_backtrace/cm_backtrace.c ****  * @note only call once
+ 602:./Application/Addition/cm_backtrace/cm_backtrace.c ****  *
+ 603:./Application/Addition/cm_backtrace/cm_backtrace.c ****  * @param fault_handler_lr the LR register value on fault handler
+ 604:./Application/Addition/cm_backtrace/cm_backtrace.c ****  * @param fault_handler_sp the stack pointer on fault handler
+ 605:./Application/Addition/cm_backtrace/cm_backtrace.c ****  */
+ 606:./Application/Addition/cm_backtrace/cm_backtrace.c **** void cm_backtrace_fault(uint32_t fault_handler_lr, uint32_t fault_handler_sp) {
+ 1149              		.loc 1 606 0
+ 1150              		.cfi_startproc
+ 1151              		@ args = 0, pretend = 0, frame = 8
+ 1152              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1153              	.LVL129:
+ 1154 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+ 1155              	.LCFI11:
+ 1156              		.cfi_def_cfa_offset 20
+ 1157              		.cfi_offset 4, -20
+ 1158              		.cfi_offset 5, -16
+ 1159              		.cfi_offset 6, -12
+ 1160              		.cfi_offset 7, -8
+ 1161              		.cfi_offset 14, -4
+ 607:./Application/Addition/cm_backtrace/cm_backtrace.c ****     uint32_t stack_pointer = fault_handler_sp, saved_regs_addr = stack_pointer, tcb_stack_pointer =
+ 608:./Application/Addition/cm_backtrace/cm_backtrace.c ****     const char *regs_name[] = { "R0 ", "R1 ", "R2 ", "R3 ", "R12", "LR ", "PC ", "PSR" };
+ 609:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ARM GAS  /tmp/ccKCUOAK.s 			page 41
+
+
+ 610:./Application/Addition/cm_backtrace/cm_backtrace.c **** #ifdef CMB_USING_DUMP_STACK_INFO
+ 611:./Application/Addition/cm_backtrace/cm_backtrace.c ****     uint32_t stack_start_addr = main_stack_start_addr;
+ 1162              		.loc 1 611 0
+ 1163 0002 654B     		ldr	r3, .L98
+ 606:./Application/Addition/cm_backtrace/cm_backtrace.c ****     uint32_t stack_pointer = fault_handler_sp, saved_regs_addr = stack_pointer, tcb_stack_pointer =
+ 1164              		.loc 1 606 0
+ 1165 0004 89B0     		sub	sp, sp, #36
+ 1166              	.LCFI12:
+ 1167              		.cfi_def_cfa_offset 56
+ 1168              		.loc 1 611 0
+ 1169 0006 1B68     		ldr	r3, [r3]
+ 606:./Application/Addition/cm_backtrace/cm_backtrace.c ****     uint32_t stack_pointer = fault_handler_sp, saved_regs_addr = stack_pointer, tcb_stack_pointer =
+ 1170              		.loc 1 606 0
+ 1171 0008 0600     		movs	r6, r0
+ 1172              		.loc 1 611 0
+ 1173 000a 0693     		str	r3, [sp, #24]
+ 612:./Application/Addition/cm_backtrace/cm_backtrace.c ****     size_t stack_size = main_stack_size;
+ 1174              		.loc 1 612 0
+ 1175 000c 634B     		ldr	r3, .L98+4
+ 606:./Application/Addition/cm_backtrace/cm_backtrace.c ****     uint32_t stack_pointer = fault_handler_sp, saved_regs_addr = stack_pointer, tcb_stack_pointer =
+ 1176              		.loc 1 606 0
+ 1177 000e 0D00     		movs	r5, r1
+ 1178              	.LVL130:
+ 1179              		.loc 1 612 0
+ 1180 0010 1B68     		ldr	r3, [r3]
+ 1181 0012 634C     		ldr	r4, .L98+8
+ 1182 0014 0793     		str	r3, [sp, #28]
+ 613:./Application/Addition/cm_backtrace/cm_backtrace.c **** #endif
+ 614:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 615:./Application/Addition/cm_backtrace/cm_backtrace.c ****     CMB_ASSERT(init_ok);
+ 1183              		.loc 1 615 0
+ 1184 0016 634B     		ldr	r3, .L98+12
+ 1185 0018 1F78     		ldrb	r7, [r3]
+ 1186 001a 002F     		cmp	r7, #0
+ 1187 001c 0AD1     		bne	.L87
+ 1188              		.loc 1 615 0 is_stmt 0 discriminator 1
+ 1189 001e 6249     		ldr	r1, .L98+16
+ 1190              	.LVL131:
+ 1191 0020 624B     		ldr	r3, .L98+20
+ 1192 0022 634A     		ldr	r2, .L98+24
+ 1193 0024 3800     		movs	r0, r7
+ 1194              	.LVL132:
+ 1195 0026 FFF7FEFF 		bl	SEGGER_RTT_printf
+ 1196              	.LVL133:
+ 1197 002a 2100     		movs	r1, r4
+ 1198 002c 3800     		movs	r0, r7
+ 1199 002e FFF7FEFF 		bl	SEGGER_RTT_WriteString
+ 1200              	.LVL134:
+ 1201              	.L88:
+ 1202 0032 FEE7     		b	.L88
+ 1203              	.LVL135:
+ 1204              	.L87:
+ 616:./Application/Addition/cm_backtrace/cm_backtrace.c ****     /* only call once */
+ 617:./Application/Addition/cm_backtrace/cm_backtrace.c ****     CMB_ASSERT(!on_fault);
+ 1205              		.loc 1 617 0 is_stmt 1
+ 1206 0034 5F4B     		ldr	r3, .L98+28
+ 1207 0036 1F78     		ldrb	r7, [r3]
+ARM GAS  /tmp/ccKCUOAK.s 			page 42
+
+
+ 1208 0038 002F     		cmp	r7, #0
+ 1209 003a 0AD0     		beq	.L89
+ 1210              		.loc 1 617 0 is_stmt 0 discriminator 1
+ 1211 003c 5A49     		ldr	r1, .L98+16
+ 1212              	.LVL136:
+ 1213 003e 5B4B     		ldr	r3, .L98+20
+ 1214 0040 5D4A     		ldr	r2, .L98+32
+ 1215 0042 0020     		movs	r0, #0
+ 1216              	.LVL137:
+ 1217 0044 FFF7FEFF 		bl	SEGGER_RTT_printf
+ 1218              	.LVL138:
+ 1219 0048 2100     		movs	r1, r4
+ 1220 004a 0020     		movs	r0, #0
+ 1221 004c FFF7FEFF 		bl	SEGGER_RTT_WriteString
+ 1222              	.LVL139:
+ 1223              	.L90:
+ 1224 0050 FEE7     		b	.L90
+ 1225              	.LVL140:
+ 1226              	.L89:
+ 618:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 619:./Application/Addition/cm_backtrace/cm_backtrace.c ****     on_fault = true;
+ 1227              		.loc 1 619 0 is_stmt 1
+ 1228 0052 0122     		movs	r2, #1
+ 620:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 621:./Application/Addition/cm_backtrace/cm_backtrace.c ****     cmb_println("");
+ 1229              		.loc 1 621 0
+ 1230 0054 5949     		ldr	r1, .L98+36
+ 1231              	.LVL141:
+ 1232 0056 3800     		movs	r0, r7
+ 1233              	.LVL142:
+ 619:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 1234              		.loc 1 619 0
+ 1235 0058 1A70     		strb	r2, [r3]
+ 1236              		.loc 1 621 0
+ 1237 005a FFF7FEFF 		bl	SEGGER_RTT_printf
+ 1238              	.LVL143:
+ 1239 005e 2100     		movs	r1, r4
+ 1240 0060 3800     		movs	r0, r7
+ 1241 0062 FFF7FEFF 		bl	SEGGER_RTT_WriteString
+ 1242              	.LVL144:
+ 622:./Application/Addition/cm_backtrace/cm_backtrace.c ****     cm_backtrace_firmware_info();
+ 1243              		.loc 1 622 0
+ 1244 0066 FFF7FEFF 		bl	cm_backtrace_firmware_info
+ 1245              	.LVL145:
+ 623:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 624:./Application/Addition/cm_backtrace/cm_backtrace.c **** #ifdef CMB_USING_OS_PLATFORM
+ 625:./Application/Addition/cm_backtrace/cm_backtrace.c ****     on_thread_before_fault = fault_handler_lr & (1UL << 2);
+ 1246              		.loc 1 625 0
+ 1247 006a 0423     		movs	r3, #4
+ 1248 006c 1E40     		ands	r6, r3
+ 1249              	.LVL146:
+ 1250 006e 3200     		movs	r2, r6
+ 1251 0070 531E     		subs	r3, r2, #1
+ 1252 0072 9A41     		sbcs	r2, r2, r3
+ 1253 0074 524B     		ldr	r3, .L98+40
+ 1254 0076 1A70     		strb	r2, [r3]
+ 626:./Application/Addition/cm_backtrace/cm_backtrace.c ****     /* check which stack was used before (MSP or PSP) */
+ARM GAS  /tmp/ccKCUOAK.s 			page 43
+
+
+ 627:./Application/Addition/cm_backtrace/cm_backtrace.c ****     if (on_thread_before_fault) {
+ 1255              		.loc 1 627 0
+ 1256 0078 002E     		cmp	r6, #0
+ 1257 007a 00D1     		bne	.LCB1162
+ 1258 007c 82E0     		b	.L91	@long jump
+ 1259              	.LCB1162:
+ 1260              	.LBB54:
+ 1261              	.LBB55:
+ 244:./Application/Addition/cm_backtrace/cm_backtrace.c **** #elif (CMB_OS_PLATFORM_TYPE == CMB_OS_PLATFORM_RTX5)
+ 1262              		.loc 1 244 0
+ 1263 007e FFF7FEFF 		bl	vTaskName
+ 1264              	.LVL147:
+ 1265              	.LBE55:
+ 1266              	.LBE54:
+ 628:./Application/Addition/cm_backtrace/cm_backtrace.c ****         cmb_println(print_info[PRINT_FAULT_ON_THREAD], get_cur_thread_name() != NULL ? get_cur_thre
+ 1267              		.loc 1 628 0
+ 1268 0082 504A     		ldr	r2, .L98+44
+ 1269 0084 0028     		cmp	r0, #0
+ 1270 0086 02D0     		beq	.L92
+ 1271              	.LBB56:
+ 1272              	.LBB57:
+ 244:./Application/Addition/cm_backtrace/cm_backtrace.c **** #elif (CMB_OS_PLATFORM_TYPE == CMB_OS_PLATFORM_RTX5)
+ 1273              		.loc 1 244 0
+ 1274 0088 FFF7FEFF 		bl	vTaskName
+ 1275              	.LVL148:
+ 1276 008c 0200     		movs	r2, r0
+ 1277              	.L92:
+ 1278              	.LBE57:
+ 1279              	.LBE56:
+ 1280              		.loc 1 628 0 discriminator 4
+ 1281 008e 4E49     		ldr	r1, .L98+48
+ 1282 0090 0020     		movs	r0, #0
+ 1283 0092 FFF7FEFF 		bl	SEGGER_RTT_printf
+ 1284              	.LVL149:
+ 1285 0096 2100     		movs	r1, r4
+ 1286 0098 0020     		movs	r0, #0
+ 1287 009a FFF7FEFF 		bl	SEGGER_RTT_WriteString
+ 1288              	.LVL150:
+ 1289              	.LBB58:
+ 1290              	.LBB59:
+ 414:Application/Addition/cm_backtrace/cmb_def.h ****         return(result);
+ 1291              		.loc 2 414 0 discriminator 4
+ 1292              		.syntax divided
+ 1293              	@ 414 "Application/Addition/cm_backtrace/cmb_def.h" 1
+ 1294 009e EFF30985 		MRS r5, psp
+ 1295              	
+ 1296              	@ 0 "" 2
+ 1297              	.LVL151:
+ 1298              		.thumb
+ 1299              		.syntax unified
+ 1300              	.LBE59:
+ 1301              	.LBE58:
+ 629:./Application/Addition/cm_backtrace/cm_backtrace.c ****         saved_regs_addr = stack_pointer = cmb_get_psp();
+ 630:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 631:./Application/Addition/cm_backtrace/cm_backtrace.c **** #ifdef CMB_USING_DUMP_STACK_INFO
+ 632:./Application/Addition/cm_backtrace/cm_backtrace.c ****         get_cur_thread_stack_info(&tcb_stack_pointer, &stack_start_addr, &stack_size);
+ 1302              		.loc 1 632 0 discriminator 4
+ARM GAS  /tmp/ccKCUOAK.s 			page 44
+
+
+ 1303 00a2 07A9     		add	r1, sp, #28
+ 1304 00a4 06A8     		add	r0, sp, #24
+ 1305 00a6 FFF7FEFF 		bl	get_cur_thread_stack_info.isra.0
+ 1306              	.LVL152:
+ 1307              	.L93:
+ 633:./Application/Addition/cm_backtrace/cm_backtrace.c **** #endif /* CMB_USING_DUMP_STACK_INFO */
+ 634:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 635:./Application/Addition/cm_backtrace/cm_backtrace.c ****     } else {
+ 636:./Application/Addition/cm_backtrace/cm_backtrace.c ****         cmb_println(print_info[PRINT_FAULT_ON_HANDLER]);
+ 637:./Application/Addition/cm_backtrace/cm_backtrace.c ****     }
+ 638:./Application/Addition/cm_backtrace/cm_backtrace.c **** #else
+ 639:./Application/Addition/cm_backtrace/cm_backtrace.c ****     /* bare metal(no OS) environment */
+ 640:./Application/Addition/cm_backtrace/cm_backtrace.c ****     cmb_println(print_info[PRINT_FAULT_ON_HANDLER]);
+ 641:./Application/Addition/cm_backtrace/cm_backtrace.c **** #endif /* CMB_USING_OS_PLATFORM */
+ 642:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 643:./Application/Addition/cm_backtrace/cm_backtrace.c ****     /* delete saved R0~R3, R12, LR,PC,xPSR registers space */
+ 644:./Application/Addition/cm_backtrace/cm_backtrace.c ****     stack_pointer += sizeof(size_t) * 8;
+ 1308              		.loc 1 644 0
+ 1309 00aa 2E00     		movs	r6, r5
+ 645:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 646:./Application/Addition/cm_backtrace/cm_backtrace.c **** #if (CMB_CPU_PLATFORM_TYPE == CMB_CPU_ARM_CORTEX_M4) || (CMB_CPU_PLATFORM_TYPE == CMB_CPU_ARM_CORTE
+ 647:./Application/Addition/cm_backtrace/cm_backtrace.c ****     (CMB_CPU_PLATFORM_TYPE == CMB_CPU_ARM_CORTEX_M33)
+ 648:./Application/Addition/cm_backtrace/cm_backtrace.c ****     stack_pointer = statck_del_fpu_regs(fault_handler_lr, stack_pointer);
+ 649:./Application/Addition/cm_backtrace/cm_backtrace.c **** #endif /* (CMB_CPU_PLATFORM_TYPE == CMB_CPU_ARM_CORTEX_M4) || (CMB_CPU_PLATFORM_TYPE == CMB_CPU_ARM
+ 650:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 651:./Application/Addition/cm_backtrace/cm_backtrace.c **** #ifdef CMB_USING_DUMP_STACK_INFO
+ 652:./Application/Addition/cm_backtrace/cm_backtrace.c ****     /* check stack overflow */
+ 653:./Application/Addition/cm_backtrace/cm_backtrace.c ****     if (stack_pointer < stack_start_addr || stack_pointer > stack_start_addr + stack_size) {
+ 1310              		.loc 1 653 0
+ 1311 00ac 069B     		ldr	r3, [sp, #24]
+ 1312 00ae 079A     		ldr	r2, [sp, #28]
+ 644:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 1313              		.loc 1 644 0
+ 1314 00b0 2036     		adds	r6, r6, #32
+ 1315              	.LVL153:
+ 1316 00b2 9A18     		adds	r2, r3, r2
+ 1317              		.loc 1 653 0
+ 1318 00b4 B342     		cmp	r3, r6
+ 1319 00b6 01D8     		bhi	.L94
+ 1320              		.loc 1 653 0 is_stmt 0 discriminator 1
+ 1321 00b8 9642     		cmp	r6, r2
+ 1322 00ba 0CD9     		bls	.L95
+ 1323              	.L94:
+ 654:./Application/Addition/cm_backtrace/cm_backtrace.c ****         cmb_println("stack_pointer: 0x%08x, stack_start_addr: 0x%08x, stack_end_addr: 0x%08x", stac
+ 1324              		.loc 1 654 0 is_stmt 1
+ 1325 00bc 0092     		str	r2, [sp]
+ 1326 00be 4349     		ldr	r1, .L98+52
+ 1327 00c0 3200     		movs	r2, r6
+ 1328 00c2 0020     		movs	r0, #0
+ 1329 00c4 FFF7FEFF 		bl	SEGGER_RTT_printf
+ 1330              	.LVL154:
+ 1331 00c8 2100     		movs	r1, r4
+ 1332 00ca 0020     		movs	r0, #0
+ 1333 00cc FFF7FEFF 		bl	SEGGER_RTT_WriteString
+ 1334              	.LVL155:
+ 655:./Application/Addition/cm_backtrace/cm_backtrace.c ****             stack_start_addr + stack_size);
+ 656:./Application/Addition/cm_backtrace/cm_backtrace.c ****         stack_is_overflow = true;
+ARM GAS  /tmp/ccKCUOAK.s 			page 45
+
+
+ 1335              		.loc 1 656 0
+ 1336 00d0 0122     		movs	r2, #1
+ 1337 00d2 3F4B     		ldr	r3, .L98+56
+ 1338 00d4 1A70     		strb	r2, [r3]
+ 1339              	.L95:
+ 657:./Application/Addition/cm_backtrace/cm_backtrace.c **** #if (CMB_OS_PLATFORM_TYPE == CMB_OS_PLATFORM_RTT)
+ 658:./Application/Addition/cm_backtrace/cm_backtrace.c ****         if (on_thread_before_fault) {
+ 659:./Application/Addition/cm_backtrace/cm_backtrace.c ****              /* change the stack start adder to TCB->sp when stack is overflow  */
+ 660:./Application/Addition/cm_backtrace/cm_backtrace.c ****             stack_pointer = tcb_stack_pointer;
+ 661:./Application/Addition/cm_backtrace/cm_backtrace.c ****         }
+ 662:./Application/Addition/cm_backtrace/cm_backtrace.c **** #endif
+ 663:./Application/Addition/cm_backtrace/cm_backtrace.c ****     }
+ 664:./Application/Addition/cm_backtrace/cm_backtrace.c ****     /* dump stack information */
+ 665:./Application/Addition/cm_backtrace/cm_backtrace.c ****     dump_stack(stack_start_addr, stack_size, (uint32_t *) stack_pointer);
+ 1340              		.loc 1 665 0
+ 1341 00d6 3200     		movs	r2, r6
+ 1342 00d8 0799     		ldr	r1, [sp, #28]
+ 1343 00da 0698     		ldr	r0, [sp, #24]
+ 1344 00dc FFF7FEFF 		bl	dump_stack
+ 1345              	.LVL156:
+ 666:./Application/Addition/cm_backtrace/cm_backtrace.c **** #endif /* CMB_USING_DUMP_STACK_INFO */
+ 667:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 668:./Application/Addition/cm_backtrace/cm_backtrace.c ****     {
+ 669:./Application/Addition/cm_backtrace/cm_backtrace.c ****         /* dump register */
+ 670:./Application/Addition/cm_backtrace/cm_backtrace.c ****         cmb_println(print_info[PRINT_REGS_TITLE]);
+ 1346              		.loc 1 670 0
+ 1347 00e0 3C49     		ldr	r1, .L98+60
+ 1348 00e2 0020     		movs	r0, #0
+ 1349 00e4 FFF7FEFF 		bl	SEGGER_RTT_printf
+ 1350              	.LVL157:
+ 1351 00e8 2D4F     		ldr	r7, .L98+8
+ 1352 00ea 0020     		movs	r0, #0
+ 1353 00ec 3900     		movs	r1, r7
+ 1354 00ee FFF7FEFF 		bl	SEGGER_RTT_WriteString
+ 1355              	.LVL158:
+ 671:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 672:./Application/Addition/cm_backtrace/cm_backtrace.c ****         regs.saved.r0        = ((uint32_t *)saved_regs_addr)[0];  // Register R0
+ 1356              		.loc 1 672 0
+ 1357 00f2 2B68     		ldr	r3, [r5]
+ 1358 00f4 384C     		ldr	r4, .L98+64
+ 1359 00f6 9C46     		mov	ip, r3
+ 1360 00f8 2360     		str	r3, [r4]
+ 673:./Application/Addition/cm_backtrace/cm_backtrace.c ****         regs.saved.r1        = ((uint32_t *)saved_regs_addr)[1];  // Register R1
+ 674:./Application/Addition/cm_backtrace/cm_backtrace.c ****         regs.saved.r2        = ((uint32_t *)saved_regs_addr)[2];  // Register R2
+ 675:./Application/Addition/cm_backtrace/cm_backtrace.c ****         regs.saved.r3        = ((uint32_t *)saved_regs_addr)[3];  // Register R3
+ 676:./Application/Addition/cm_backtrace/cm_backtrace.c ****         regs.saved.r12       = ((uint32_t *)saved_regs_addr)[4];  // Register R12
+ 1361              		.loc 1 676 0
+ 1362 00fa 2B69     		ldr	r3, [r5, #16]
+ 673:./Application/Addition/cm_backtrace/cm_backtrace.c ****         regs.saved.r1        = ((uint32_t *)saved_regs_addr)[1];  // Register R1
+ 1363              		.loc 1 673 0
+ 1364 00fc 6A68     		ldr	r2, [r5, #4]
+ 1365              		.loc 1 676 0
+ 1366 00fe 2361     		str	r3, [r4, #16]
+ 677:./Application/Addition/cm_backtrace/cm_backtrace.c ****         regs.saved.lr        = ((uint32_t *)saved_regs_addr)[5];  // Link register LR
+ 1367              		.loc 1 677 0
+ 1368 0100 6B69     		ldr	r3, [r5, #20]
+ 674:./Application/Addition/cm_backtrace/cm_backtrace.c ****         regs.saved.r3        = ((uint32_t *)saved_regs_addr)[3];  // Register R3
+ARM GAS  /tmp/ccKCUOAK.s 			page 46
+
+
+ 1369              		.loc 1 674 0
+ 1370 0102 A968     		ldr	r1, [r5, #8]
+ 1371              		.loc 1 677 0
+ 1372 0104 6361     		str	r3, [r4, #20]
+ 678:./Application/Addition/cm_backtrace/cm_backtrace.c ****         regs.saved.pc        = ((uint32_t *)saved_regs_addr)[6];  // Program counter PC
+ 1373              		.loc 1 678 0
+ 1374 0106 AB69     		ldr	r3, [r5, #24]
+ 675:./Application/Addition/cm_backtrace/cm_backtrace.c ****         regs.saved.r12       = ((uint32_t *)saved_regs_addr)[4];  // Register R12
+ 1375              		.loc 1 675 0
+ 1376 0108 E868     		ldr	r0, [r5, #12]
+ 1377              		.loc 1 678 0
+ 1378 010a A361     		str	r3, [r4, #24]
+ 679:./Application/Addition/cm_backtrace/cm_backtrace.c ****         regs.saved.psr.value = ((uint32_t *)saved_regs_addr)[7];  // Program status word PSR
+ 1379              		.loc 1 679 0
+ 1380 010c EB69     		ldr	r3, [r5, #28]
+ 673:./Application/Addition/cm_backtrace/cm_backtrace.c ****         regs.saved.r2        = ((uint32_t *)saved_regs_addr)[2];  // Register R2
+ 1381              		.loc 1 673 0
+ 1382 010e 6260     		str	r2, [r4, #4]
+ 674:./Application/Addition/cm_backtrace/cm_backtrace.c ****         regs.saved.r3        = ((uint32_t *)saved_regs_addr)[3];  // Register R3
+ 1383              		.loc 1 674 0
+ 1384 0110 A160     		str	r1, [r4, #8]
+ 675:./Application/Addition/cm_backtrace/cm_backtrace.c ****         regs.saved.r12       = ((uint32_t *)saved_regs_addr)[4];  // Register R12
+ 1385              		.loc 1 675 0
+ 1386 0112 E060     		str	r0, [r4, #12]
+ 1387              		.loc 1 679 0
+ 1388 0114 E361     		str	r3, [r4, #28]
+ 680:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 681:./Application/Addition/cm_backtrace/cm_backtrace.c ****         cmb_println("  %s: %08x  %s: %08x  %s: %08x  %s: %08x", regs_name[0], regs.saved.r0,
+ 1389              		.loc 1 681 0
+ 1390 0116 314D     		ldr	r5, .L98+68
+ 1391              	.LVL159:
+ 1392 0118 0590     		str	r0, [sp, #20]
+ 1393 011a 0391     		str	r1, [sp, #12]
+ 1394 011c 3048     		ldr	r0, .L98+72
+ 1395 011e 3149     		ldr	r1, .L98+76
+ 1396 0120 0192     		str	r2, [sp, #4]
+ 1397 0122 314A     		ldr	r2, .L98+80
+ 1398 0124 6346     		mov	r3, ip
+ 1399 0126 0490     		str	r0, [sp, #16]
+ 1400 0128 0291     		str	r1, [sp, #8]
+ 1401 012a 0092     		str	r2, [sp]
+ 1402 012c 2900     		movs	r1, r5
+ 1403 012e 2F4A     		ldr	r2, .L98+84
+ 1404 0130 0020     		movs	r0, #0
+ 1405 0132 FFF7FEFF 		bl	SEGGER_RTT_printf
+ 1406              	.LVL160:
+ 1407 0136 3900     		movs	r1, r7
+ 1408 0138 0020     		movs	r0, #0
+ 1409 013a FFF7FEFF 		bl	SEGGER_RTT_WriteString
+ 1410              	.LVL161:
+ 682:./Application/Addition/cm_backtrace/cm_backtrace.c ****                                                                 regs_name[1], regs.saved.r1,
+ 683:./Application/Addition/cm_backtrace/cm_backtrace.c ****                                                                 regs_name[2], regs.saved.r2,
+ 684:./Application/Addition/cm_backtrace/cm_backtrace.c ****                                                                 regs_name[3], regs.saved.r3);
+ 685:./Application/Addition/cm_backtrace/cm_backtrace.c ****         cmb_println("  %s: %08x  %s: %08x  %s: %08x  %s: %08x", regs_name[4], regs.saved.r12,
+ 1411              		.loc 1 685 0
+ 1412 013e E369     		ldr	r3, [r4, #28]
+ 1413 0140 2B4A     		ldr	r2, .L98+88
+ARM GAS  /tmp/ccKCUOAK.s 			page 47
+
+
+ 1414 0142 0593     		str	r3, [sp, #20]
+ 1415 0144 2B4B     		ldr	r3, .L98+92
+ 1416 0146 2900     		movs	r1, r5
+ 1417 0148 0493     		str	r3, [sp, #16]
+ 1418 014a A369     		ldr	r3, [r4, #24]
+ 1419 014c 0020     		movs	r0, #0
+ 1420 014e 0393     		str	r3, [sp, #12]
+ 1421 0150 294B     		ldr	r3, .L98+96
+ 1422 0152 0293     		str	r3, [sp, #8]
+ 1423 0154 6369     		ldr	r3, [r4, #20]
+ 1424 0156 0193     		str	r3, [sp, #4]
+ 1425 0158 284B     		ldr	r3, .L98+100
+ 1426 015a 0093     		str	r3, [sp]
+ 1427 015c 2369     		ldr	r3, [r4, #16]
+ 1428 015e FFF7FEFF 		bl	SEGGER_RTT_printf
+ 1429              	.LVL162:
+ 1430 0162 3900     		movs	r1, r7
+ 1431 0164 0020     		movs	r0, #0
+ 1432 0166 FFF7FEFF 		bl	SEGGER_RTT_WriteString
+ 1433              	.LVL163:
+ 686:./Application/Addition/cm_backtrace/cm_backtrace.c ****                                                                 regs_name[5], regs.saved.lr,
+ 687:./Application/Addition/cm_backtrace/cm_backtrace.c ****                                                                 regs_name[6], regs.saved.pc,
+ 688:./Application/Addition/cm_backtrace/cm_backtrace.c ****                                                                 regs_name[7], regs.saved.psr.value)
+ 689:./Application/Addition/cm_backtrace/cm_backtrace.c ****         cmb_println("==============================================================");
+ 1434              		.loc 1 689 0
+ 1435 016a 2549     		ldr	r1, .L98+104
+ 1436 016c 0020     		movs	r0, #0
+ 1437 016e FFF7FEFF 		bl	SEGGER_RTT_printf
+ 1438              	.LVL164:
+ 1439 0172 3900     		movs	r1, r7
+ 1440 0174 0020     		movs	r0, #0
+ 1441 0176 FFF7FEFF 		bl	SEGGER_RTT_WriteString
+ 1442              	.LVL165:
+ 690:./Application/Addition/cm_backtrace/cm_backtrace.c ****     }
+ 691:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 692:./Application/Addition/cm_backtrace/cm_backtrace.c ****     /* the Cortex-M0 is not support fault diagnosis */
+ 693:./Application/Addition/cm_backtrace/cm_backtrace.c **** #if (CMB_CPU_PLATFORM_TYPE != CMB_CPU_ARM_CORTEX_M0)
+ 694:./Application/Addition/cm_backtrace/cm_backtrace.c ****     regs.syshndctrl.value = CMB_SYSHND_CTRL;  // System Handler Control and State Register
+ 695:./Application/Addition/cm_backtrace/cm_backtrace.c ****     regs.mfsr.value       = CMB_NVIC_MFSR;    // Memory Fault Status Register
+ 696:./Application/Addition/cm_backtrace/cm_backtrace.c ****     regs.mmar             = CMB_NVIC_MMAR;    // Memory Management Fault Address Register
+ 697:./Application/Addition/cm_backtrace/cm_backtrace.c ****     regs.bfsr.value       = CMB_NVIC_BFSR;    // Bus Fault Status Register
+ 698:./Application/Addition/cm_backtrace/cm_backtrace.c ****     regs.bfar             = CMB_NVIC_BFAR;    // Bus Fault Manage Address Register
+ 699:./Application/Addition/cm_backtrace/cm_backtrace.c ****     regs.ufsr.value       = CMB_NVIC_UFSR;    // Usage Fault Status Register
+ 700:./Application/Addition/cm_backtrace/cm_backtrace.c ****     regs.hfsr.value       = CMB_NVIC_HFSR;    // Hard Fault Status Register
+ 701:./Application/Addition/cm_backtrace/cm_backtrace.c ****     regs.dfsr.value       = CMB_NVIC_DFSR;    // Debug Fault Status Register
+ 702:./Application/Addition/cm_backtrace/cm_backtrace.c ****     regs.afsr             = CMB_NVIC_AFSR;    // Auxiliary Fault Status Register
+ 703:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 704:./Application/Addition/cm_backtrace/cm_backtrace.c ****     fault_diagnosis();
+ 705:./Application/Addition/cm_backtrace/cm_backtrace.c **** #endif
+ 706:./Application/Addition/cm_backtrace/cm_backtrace.c **** 
+ 707:./Application/Addition/cm_backtrace/cm_backtrace.c ****     print_call_stack(stack_pointer);
+ 1443              		.loc 1 707 0
+ 1444 017a 3000     		movs	r0, r6
+ 1445 017c FFF7FEFF 		bl	print_call_stack
+ 1446              	.LVL166:
+ 708:./Application/Addition/cm_backtrace/cm_backtrace.c **** }
+ 1447              		.loc 1 708 0
+ARM GAS  /tmp/ccKCUOAK.s 			page 48
+
+
+ 1448 0180 09B0     		add	sp, sp, #36
+ 1449              		@ sp needed
+ 1450              	.LVL167:
+ 1451 0182 F0BD     		pop	{r4, r5, r6, r7, pc}
+ 1452              	.LVL168:
+ 1453              	.L91:
+ 636:./Application/Addition/cm_backtrace/cm_backtrace.c ****     }
+ 1454              		.loc 1 636 0
+ 1455 0184 1F49     		ldr	r1, .L98+108
+ 1456 0186 3000     		movs	r0, r6
+ 1457 0188 FFF7FEFF 		bl	SEGGER_RTT_printf
+ 1458              	.LVL169:
+ 1459 018c 2100     		movs	r1, r4
+ 1460 018e 3000     		movs	r0, r6
+ 1461 0190 FFF7FEFF 		bl	SEGGER_RTT_WriteString
+ 1462              	.LVL170:
+ 1463 0194 89E7     		b	.L93
+ 1464              	.L99:
+ 1465 0196 C046     		.align	2
+ 1466              	.L98:
+ 1467 0198 00000000 		.word	.LANCHOR5
+ 1468 019c 00000000 		.word	.LANCHOR6
+ 1469 01a0 27000000 		.word	.LC15
+ 1470 01a4 00000000 		.word	.LANCHOR9
+ 1471 01a8 08000000 		.word	.LC73
+ 1472 01ac 00000000 		.word	.LANCHOR13
+ 1473 01b0 00000000 		.word	.LC71
+ 1474 01b4 00000000 		.word	.LANCHOR10
+ 1475 01b8 08000000 		.word	.LC94
+ 1476 01bc 26000000 		.word	.LC76
+ 1477 01c0 00000000 		.word	.LANCHOR1
+ 1478 01c4 00000000 		.word	.LC84
+ 1479 01c8 12000000 		.word	.LC98
+ 1480 01cc 59000000 		.word	.LC102
+ 1481 01d0 00000000 		.word	.LANCHOR0
+ 1482 01d4 A1000000 		.word	.LC105
+ 1483 01d8 00000000 		.word	.LANCHOR11
+ 1484 01dc E0000000 		.word	.LC109
+ 1485 01e0 04000000 		.word	.LC3
+ 1486 01e4 08000000 		.word	.LC2
+ 1487 01e8 0C000000 		.word	.LC1
+ 1488 01ec 00000000 		.word	.LC0
+ 1489 01f0 10000000 		.word	.LC4
+ 1490 01f4 14000000 		.word	.LC7
+ 1491 01f8 18000000 		.word	.LC6
+ 1492 01fc 1C000000 		.word	.LC5
+ 1493 0200 09010000 		.word	.LC118
+ 1494 0204 25000000 		.word	.LC100
+ 1495              		.cfi_endproc
+ 1496              	.LFE16:
+ 1498              		.section	.bss.call_stack_info,"aw",%nobits
+ 1501              	call_stack_info:
+ 1502 0000 00000000 		.space	288
+ 1502      00000000 
+ 1502      00000000 
+ 1502      00000000 
+ 1502      00000000 
+ARM GAS  /tmp/ccKCUOAK.s 			page 49
+
+
+ 1503              		.section	.bss.code_size,"aw",%nobits
+ 1504              		.align	2
+ 1505              		.set	.LANCHOR8,. + 0
+ 1508              	code_size:
+ 1509 0000 00000000 		.space	4
+ 1510              		.section	.bss.code_start_addr,"aw",%nobits
+ 1511              		.align	2
+ 1512              		.set	.LANCHOR7,. + 0
+ 1515              	code_start_addr:
+ 1516 0000 00000000 		.space	4
+ 1517              		.section	.bss.fw_name,"aw",%nobits
+ 1518              		.set	.LANCHOR2,. + 0
+ 1521              	fw_name:
+ 1522 0000 00000000 		.space	33
+ 1522      00000000 
+ 1522      00000000 
+ 1522      00000000 
+ 1522      00000000 
+ 1523              		.section	.bss.hw_ver,"aw",%nobits
+ 1524              		.set	.LANCHOR3,. + 0
+ 1527              	hw_ver:
+ 1528 0000 00000000 		.space	33
+ 1528      00000000 
+ 1528      00000000 
+ 1528      00000000 
+ 1528      00000000 
+ 1529              		.section	.bss.init_ok,"aw",%nobits
+ 1530              		.set	.LANCHOR9,. + 0
+ 1533              	init_ok:
+ 1534 0000 00       		.space	1
+ 1535              		.section	.bss.main_stack_size,"aw",%nobits
+ 1536              		.align	2
+ 1537              		.set	.LANCHOR6,. + 0
+ 1540              	main_stack_size:
+ 1541 0000 00000000 		.space	4
+ 1542              		.section	.bss.main_stack_start_addr,"aw",%nobits
+ 1543              		.align	2
+ 1544              		.set	.LANCHOR5,. + 0
+ 1547              	main_stack_start_addr:
+ 1548 0000 00000000 		.space	4
+ 1549              		.section	.bss.on_fault,"aw",%nobits
+ 1550              		.set	.LANCHOR10,. + 0
+ 1553              	on_fault:
+ 1554 0000 00       		.space	1
+ 1555              		.section	.bss.on_thread_before_fault,"aw",%nobits
+ 1556              		.set	.LANCHOR1,. + 0
+ 1559              	on_thread_before_fault:
+ 1560 0000 00       		.space	1
+ 1561              		.section	.bss.regs,"aw",%nobits
+ 1562              		.align	2
+ 1563              		.set	.LANCHOR11,. + 0
+ 1566              	regs:
+ 1567 0000 00000000 		.space	68
+ 1567      00000000 
+ 1567      00000000 
+ 1567      00000000 
+ 1567      00000000 
+ARM GAS  /tmp/ccKCUOAK.s 			page 50
+
+
+ 1568              		.section	.bss.stack_is_overflow,"aw",%nobits
+ 1569              		.set	.LANCHOR0,. + 0
+ 1572              	stack_is_overflow:
+ 1573 0000 00       		.space	1
+ 1574              		.section	.bss.sw_ver,"aw",%nobits
+ 1575              		.set	.LANCHOR4,. + 0
+ 1578              	sw_ver:
+ 1579 0000 00000000 		.space	33
+ 1579      00000000 
+ 1579      00000000 
+ 1579      00000000 
+ 1579      00000000 
+ 1580              		.section	.rodata.__FUNCTION__.6408,"a",%progbits
+ 1581              		.set	.LANCHOR12,. + 0
+ 1584              	__FUNCTION__.6408:
+ 1585 0000 636D5F62 		.ascii	"cm_backtrace_assert\000"
+ 1585      61636B74 
+ 1585      72616365 
+ 1585      5F617373 
+ 1585      65727400 
+ 1586              		.section	.rodata.__FUNCTION__.6422,"a",%progbits
+ 1587              		.set	.LANCHOR13,. + 0
+ 1590              	__FUNCTION__.6422:
+ 1591 0000 636D5F62 		.ascii	"cm_backtrace_fault\000"
+ 1591      61636B74 
+ 1591      72616365 
+ 1591      5F666175 
+ 1591      6C7400
+ 1592              		.section	.rodata.cm_backtrace_assert.str1.1,"aMS",%progbits,1
+ 1593              	.LC71:
+ 1594 0000 696E6974 		.ascii	"init_ok\000"
+ 1594      5F6F6B00 
+ 1595              	.LC73:
+ 1596 0008 28257329 		.ascii	"(%s) has assert failed at %s.\000"
+ 1596      20686173 
+ 1596      20617373 
+ 1596      65727420 
+ 1596      6661696C 
+ 1597              	.LC76:
+ 1598 0026 00       		.ascii	"\000"
+ 1599              	.LC78:
+ 1600 0027 41737365 		.ascii	"Assert on interrupt or bare metal(no OS) environmen"
+ 1600      7274206F 
+ 1600      6E20696E 
+ 1600      74657272 
+ 1600      75707420 
+ 1601 005a 7400     		.ascii	"t\000"
+ 1602              	.LC82:
+ 1603 005c 41737365 		.ascii	"Assert on thread %s\000"
+ 1603      7274206F 
+ 1603      6E207468 
+ 1603      72656164 
+ 1603      20257300 
+ 1604              		.section	.rodata.cm_backtrace_fault.str1.1,"aMS",%progbits,1
+ 1605              	.LC84:
+ 1606 0000 4E4F5F4E 		.ascii	"NO_NAME\000"
+ 1606      414D4500 
+ARM GAS  /tmp/ccKCUOAK.s 			page 51
+
+
+ 1607              	.LC94:
+ 1608 0008 216F6E5F 		.ascii	"!on_fault\000"
+ 1608      6661756C 
+ 1608      7400
+ 1609              	.LC98:
+ 1610 0012 4661756C 		.ascii	"Fault on thread %s\000"
+ 1610      74206F6E 
+ 1610      20746872 
+ 1610      65616420 
+ 1610      257300
+ 1611              	.LC100:
+ 1612 0025 4661756C 		.ascii	"Fault on interrupt or bare metal(no OS) environment"
+ 1612      74206F6E 
+ 1612      20696E74 
+ 1612      65727275 
+ 1612      7074206F 
+ 1613 0058 00       		.ascii	"\000"
+ 1614              	.LC102:
+ 1615 0059 73746163 		.ascii	"stack_pointer: 0x%08x, stack_start_addr: 0x%08x, st"
+ 1615      6B5F706F 
+ 1615      696E7465 
+ 1615      723A2030 
+ 1615      78253038 
+ 1616 008c 61636B5F 		.ascii	"ack_end_addr: 0x%08x\000"
+ 1616      656E645F 
+ 1616      61646472 
+ 1616      3A203078 
+ 1616      25303878 
+ 1617              	.LC105:
+ 1618 00a1 3D3D3D3D 		.ascii	"=================== Registers information ========="
+ 1618      3D3D3D3D 
+ 1618      3D3D3D3D 
+ 1618      3D3D3D3D 
+ 1618      3D3D3D20 
+ 1619 00d4 3D3D3D3D 		.ascii	"===========\000"
+ 1619      3D3D3D3D 
+ 1619      3D3D3D00 
+ 1620              	.LC109:
+ 1621 00e0 20202573 		.ascii	"  %s: %08x  %s: %08x  %s: %08x  %s: %08x\000"
+ 1621      3A202530 
+ 1621      38782020 
+ 1621      25733A20 
+ 1621      25303878 
+ 1622              	.LC118:
+ 1623 0109 3D3D3D3D 		.ascii	"==================================================="
+ 1623      3D3D3D3D 
+ 1623      3D3D3D3D 
+ 1623      3D3D3D3D 
+ 1623      3D3D3D3D 
+ 1624 013c 3D3D3D3D 		.ascii	"===========\000"
+ 1624      3D3D3D3D 
+ 1624      3D3D3D00 
+ 1625              		.section	.rodata.cm_backtrace_firmware_info.str1.1,"aMS",%progbits,1
+ 1626              	.LC42:
+ 1627 0000 4669726D 		.ascii	"Firmware name: %s, hardware version: %s, software v"
+ 1627      77617265 
+ 1627      206E616D 
+ARM GAS  /tmp/ccKCUOAK.s 			page 52
+
+
+ 1627      653A2025 
+ 1627      732C2068 
+ 1628 0033 65727369 		.ascii	"ersion: %s\000"
+ 1628      6F6E3A20 
+ 1628      257300
+ 1629              		.section	.rodata.cm_backtrace_init.str1.1,"aMS",%progbits,1
+ 1630              	.LC36:
+ 1631 0000 4552524F 		.ascii	"ERROR: Unable to get the main stack information, pl"
+ 1631      523A2055 
+ 1631      6E61626C 
+ 1631      6520746F 
+ 1631      20676574 
+ 1632 0033 65617365 		.ascii	"ease check the configuration of the main stack\000"
+ 1632      20636865 
+ 1632      636B2074 
+ 1632      68652063 
+ 1632      6F6E6669 
+ 1633              		.section	.rodata.dump_stack.str1.1,"aMS",%progbits,1
+ 1634              	.LC13:
+ 1635 0000 4572726F 		.ascii	"Error: Thread stack(%08x) was overflow\000"
+ 1635      723A2054 
+ 1635      68726561 
+ 1635      64207374 
+ 1635      61636B28 
+ 1636              	.LC15:
+ 1637 0027 0D0A00   		.ascii	"\015\012\000"
+ 1638              	.LC17:
+ 1639 002a 4572726F 		.ascii	"Error: Main stack(%08x) was overflow\000"
+ 1639      723A204D 
+ 1639      61696E20 
+ 1639      73746163 
+ 1639      6B282530 
+ 1640              	.LC19:
+ 1641 004f 3D3D3D3D 		.ascii	"===== Thread stack information =====\000"
+ 1641      3D205468 
+ 1641      72656164 
+ 1641      20737461 
+ 1641      636B2069 
+ 1642              	.LC21:
+ 1643 0074 20206164 		.ascii	"  addr: %08x    data: %08x\000"
+ 1643      64723A20 
+ 1643      25303878 
+ 1643      20202020 
+ 1643      64617461 
+ 1644              	.LC23:
+ 1645 008f 3D3D3D3D 		.ascii	"====================================\000"
+ 1645      3D3D3D3D 
+ 1645      3D3D3D3D 
+ 1645      3D3D3D3D 
+ 1645      3D3D3D3D 
+ 1646              		.section	.rodata.print_call_stack.str1.1,"aMS",%progbits,1
+ 1647              	.LC58:
+ 1648 0000 2530386C 		.ascii	"%08lx\000"
+ 1648      7800
+ 1649              	.LC61:
+ 1650 0006 2E656C66 		.ascii	".elf\000"
+ 1650      00
+ARM GAS  /tmp/ccKCUOAK.s 			page 53
+
+
+ 1651              	.LC64:
+ 1652 000b 53686F77 		.ascii	"Show more call stack info by run: addr2line -e %s%s"
+ 1652      206D6F72 
+ 1652      65206361 
+ 1652      6C6C2073 
+ 1652      7461636B 
+ 1653 003e 202D6166 		.ascii	" -afpiC %.*s\000"
+ 1653      70694320 
+ 1653      252E2A73 
+ 1653      00
+ 1654              	.LC67:
+ 1655 004b 44756D70 		.ascii	"Dump call stack has an error\000"
+ 1655      2063616C 
+ 1655      6C207374 
+ 1655      61636B20 
+ 1655      68617320 
+ 1656              		.section	.rodata.str1.1,"aMS",%progbits,1
+ 1657              	.LC0:
+ 1658 0000 52302000 		.ascii	"R0 \000"
+ 1659              	.LC3:
+ 1660 0004 52332000 		.ascii	"R3 \000"
+ 1661              	.LC2:
+ 1662 0008 52322000 		.ascii	"R2 \000"
+ 1663              	.LC1:
+ 1664 000c 52312000 		.ascii	"R1 \000"
+ 1665              	.LC4:
+ 1666 0010 52313200 		.ascii	"R12\000"
+ 1667              	.LC7:
+ 1668 0014 50535200 		.ascii	"PSR\000"
+ 1669              	.LC6:
+ 1670 0018 50432000 		.ascii	"PC \000"
+ 1671              	.LC5:
+ 1672 001c 4C522000 		.ascii	"LR \000"
+ 1673              		.text
+ 1674              	.Letext0:
+ 1675              		.file 3 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/lib/gcc/arm-none-eabi/7.3.1/include/stddef.h"
+ 1676              		.file 4 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/machine/_default_types.h"
+ 1677              		.file 5 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/lock.h"
+ 1678              		.file 6 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_types.h"
+ 1679              		.file 7 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/reent.h"
+ 1680              		.file 8 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/stdlib.h"
+ 1681              		.file 9 "Application/Addition/RTT/SEGGER_RTT.h"
+ 1682              		.file 10 "Application/BSPSys/Util/BSPTypeDef.h"
+ 1683              		.file 11 "Application/BSPSys/BSPCfg/BSPConfig.h"
+ 1684              		.file 12 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_stdint.h"
+ 1685              		.file 13 "Core/Inc/FreeRTOSConfig.h"
+ 1686              		.file 14 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/string.h"
+ 1687              		.file 15 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/stdio.h"
+ 1688              		.file 16 "<built-in>"
+ARM GAS  /tmp/ccKCUOAK.s 			page 54
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 cm_backtrace.c
+     /tmp/ccKCUOAK.s:16     .text.disassembly_ins_is_bl_blx:0000000000000000 $t
+     /tmp/ccKCUOAK.s:22     .text.disassembly_ins_is_bl_blx:0000000000000000 disassembly_ins_is_bl_blx
+     /tmp/ccKCUOAK.s:66     .text.disassembly_ins_is_bl_blx:0000000000000024 $d
+     /tmp/ccKCUOAK.s:71     .text.dump_stack:0000000000000000 $t
+     /tmp/ccKCUOAK.s:77     .text.dump_stack:0000000000000000 dump_stack
+     /tmp/ccKCUOAK.s:211    .text.dump_stack:0000000000000094 $d
+     /tmp/ccKCUOAK.s:223    .text.get_cur_thread_stack_info.isra.0:0000000000000000 $t
+     /tmp/ccKCUOAK.s:229    .text.get_cur_thread_stack_info.isra.0:0000000000000000 get_cur_thread_stack_info.isra.0
+     /tmp/ccKCUOAK.s:264    .text.cm_backtrace_init:0000000000000000 $t
+     /tmp/ccKCUOAK.s:271    .text.cm_backtrace_init:0000000000000000 cm_backtrace_init
+     /tmp/ccKCUOAK.s:359    .text.cm_backtrace_init:0000000000000060 $d
+     /tmp/ccKCUOAK.s:377    .text.cm_backtrace_firmware_info:0000000000000000 $t
+     /tmp/ccKCUOAK.s:384    .text.cm_backtrace_firmware_info:0000000000000000 cm_backtrace_firmware_info
+     /tmp/ccKCUOAK.s:416    .text.cm_backtrace_firmware_info:000000000000001c $d
+     /tmp/ccKCUOAK.s:425    .text.cm_backtrace_call_stack_any:0000000000000000 $t
+     /tmp/ccKCUOAK.s:432    .text.cm_backtrace_call_stack_any:0000000000000000 cm_backtrace_call_stack_any
+     /tmp/ccKCUOAK.s:542    .text.cm_backtrace_call_stack_any:0000000000000064 $d
+     /tmp/ccKCUOAK.s:548    .text.cm_backtrace_call_stack:0000000000000000 $t
+     /tmp/ccKCUOAK.s:555    .text.cm_backtrace_call_stack:0000000000000000 cm_backtrace_call_stack
+     /tmp/ccKCUOAK.s:809    .text.cm_backtrace_call_stack:00000000000000f8 $d
+     /tmp/ccKCUOAK.s:821    .text.print_call_stack:0000000000000000 $t
+     /tmp/ccKCUOAK.s:827    .text.print_call_stack:0000000000000000 print_call_stack
+     /tmp/ccKCUOAK.s:938    .text.print_call_stack:0000000000000078 $d
+     /tmp/ccKCUOAK.s:1501   .bss.call_stack_info:0000000000000000 call_stack_info
+     /tmp/ccKCUOAK.s:951    .text.cm_backtrace_assert:0000000000000000 $t
+     /tmp/ccKCUOAK.s:958    .text.cm_backtrace_assert:0000000000000000 cm_backtrace_assert
+     /tmp/ccKCUOAK.s:1125   .text.cm_backtrace_assert:0000000000000098 $d
+     /tmp/ccKCUOAK.s:1140   .text.cm_backtrace_fault:0000000000000000 $t
+     /tmp/ccKCUOAK.s:1147   .text.cm_backtrace_fault:0000000000000000 cm_backtrace_fault
+     /tmp/ccKCUOAK.s:1467   .text.cm_backtrace_fault:0000000000000198 $d
+     /tmp/ccKCUOAK.s:1502   .bss.call_stack_info:0000000000000000 $d
+     /tmp/ccKCUOAK.s:1504   .bss.code_size:0000000000000000 $d
+     /tmp/ccKCUOAK.s:1508   .bss.code_size:0000000000000000 code_size
+     /tmp/ccKCUOAK.s:1511   .bss.code_start_addr:0000000000000000 $d
+     /tmp/ccKCUOAK.s:1515   .bss.code_start_addr:0000000000000000 code_start_addr
+     /tmp/ccKCUOAK.s:1521   .bss.fw_name:0000000000000000 fw_name
+     /tmp/ccKCUOAK.s:1522   .bss.fw_name:0000000000000000 $d
+     /tmp/ccKCUOAK.s:1527   .bss.hw_ver:0000000000000000 hw_ver
+     /tmp/ccKCUOAK.s:1528   .bss.hw_ver:0000000000000000 $d
+     /tmp/ccKCUOAK.s:1533   .bss.init_ok:0000000000000000 init_ok
+     /tmp/ccKCUOAK.s:1534   .bss.init_ok:0000000000000000 $d
+     /tmp/ccKCUOAK.s:1536   .bss.main_stack_size:0000000000000000 $d
+     /tmp/ccKCUOAK.s:1540   .bss.main_stack_size:0000000000000000 main_stack_size
+     /tmp/ccKCUOAK.s:1543   .bss.main_stack_start_addr:0000000000000000 $d
+     /tmp/ccKCUOAK.s:1547   .bss.main_stack_start_addr:0000000000000000 main_stack_start_addr
+     /tmp/ccKCUOAK.s:1553   .bss.on_fault:0000000000000000 on_fault
+     /tmp/ccKCUOAK.s:1554   .bss.on_fault:0000000000000000 $d
+     /tmp/ccKCUOAK.s:1559   .bss.on_thread_before_fault:0000000000000000 on_thread_before_fault
+     /tmp/ccKCUOAK.s:1560   .bss.on_thread_before_fault:0000000000000000 $d
+     /tmp/ccKCUOAK.s:1562   .bss.regs:0000000000000000 $d
+     /tmp/ccKCUOAK.s:1566   .bss.regs:0000000000000000 regs
+     /tmp/ccKCUOAK.s:1572   .bss.stack_is_overflow:0000000000000000 stack_is_overflow
+     /tmp/ccKCUOAK.s:1573   .bss.stack_is_overflow:0000000000000000 $d
+     /tmp/ccKCUOAK.s:1578   .bss.sw_ver:0000000000000000 sw_ver
+     /tmp/ccKCUOAK.s:1579   .bss.sw_ver:0000000000000000 $d
+ARM GAS  /tmp/ccKCUOAK.s 			page 55
+
+
+     /tmp/ccKCUOAK.s:1584   .rodata.__FUNCTION__.6408:0000000000000000 __FUNCTION__.6408
+     /tmp/ccKCUOAK.s:1590   .rodata.__FUNCTION__.6422:0000000000000000 __FUNCTION__.6422
+
+UNDEFINED SYMBOLS
+SEGGER_RTT_printf
+SEGGER_RTT_WriteString
+vTaskStackAddr
+vTaskStackSize
+strncpy
+_sstack
+_estack
+_stext
+_etext
+memset
+sprintf
+vTaskName

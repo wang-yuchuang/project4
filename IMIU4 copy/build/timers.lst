@@ -1,0 +1,2910 @@
+ARM GAS  /tmp/ccdaQvPI.s 			page 1
+
+
+   1              		.cpu cortex-m0plus
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 4
+   9              		.eabi_attribute 34, 0
+  10              		.eabi_attribute 18, 4
+  11              		.file	"timers.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.prvCheckForValidListAndQueue,"ax",%progbits
+  16              		.align	1
+  17              		.syntax unified
+  18              		.code	16
+  19              		.thumb_func
+  20              		.fpu softvfp
+  22              	prvCheckForValidListAndQueue:
+  23              	.LFB18:
+  24              		.file 1 "Middlewares/Third_Party/FreeRTOS/Source/timers.c"
+   1:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** /*
+   2:Middlewares/Third_Party/FreeRTOS/Source/timers.c ****  * FreeRTOS Kernel V10.3.1
+   3:Middlewares/Third_Party/FreeRTOS/Source/timers.c ****  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+   4:Middlewares/Third_Party/FreeRTOS/Source/timers.c ****  *
+   5:Middlewares/Third_Party/FreeRTOS/Source/timers.c ****  * Permission is hereby granted, free of charge, to any person obtaining a copy of
+   6:Middlewares/Third_Party/FreeRTOS/Source/timers.c ****  * this software and associated documentation files (the "Software"), to deal in
+   7:Middlewares/Third_Party/FreeRTOS/Source/timers.c ****  * the Software without restriction, including without limitation the rights to
+   8:Middlewares/Third_Party/FreeRTOS/Source/timers.c ****  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+   9:Middlewares/Third_Party/FreeRTOS/Source/timers.c ****  * the Software, and to permit persons to whom the Software is furnished to do so,
+  10:Middlewares/Third_Party/FreeRTOS/Source/timers.c ****  * subject to the following conditions:
+  11:Middlewares/Third_Party/FreeRTOS/Source/timers.c ****  *
+  12:Middlewares/Third_Party/FreeRTOS/Source/timers.c ****  * The above copyright notice and this permission notice shall be included in all
+  13:Middlewares/Third_Party/FreeRTOS/Source/timers.c ****  * copies or substantial portions of the Software.
+  14:Middlewares/Third_Party/FreeRTOS/Source/timers.c ****  *
+  15:Middlewares/Third_Party/FreeRTOS/Source/timers.c ****  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  16:Middlewares/Third_Party/FreeRTOS/Source/timers.c ****  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+  17:Middlewares/Third_Party/FreeRTOS/Source/timers.c ****  * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+  18:Middlewares/Third_Party/FreeRTOS/Source/timers.c ****  * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+  19:Middlewares/Third_Party/FreeRTOS/Source/timers.c ****  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+  20:Middlewares/Third_Party/FreeRTOS/Source/timers.c ****  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+  21:Middlewares/Third_Party/FreeRTOS/Source/timers.c ****  *
+  22:Middlewares/Third_Party/FreeRTOS/Source/timers.c ****  * http://www.FreeRTOS.org
+  23:Middlewares/Third_Party/FreeRTOS/Source/timers.c ****  * http://aws.amazon.com/freertos
+  24:Middlewares/Third_Party/FreeRTOS/Source/timers.c ****  *
+  25:Middlewares/Third_Party/FreeRTOS/Source/timers.c ****  * 1 tab == 4 spaces!
+  26:Middlewares/Third_Party/FreeRTOS/Source/timers.c ****  */
+  27:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+  28:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** /* Standard includes. */
+  29:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** #include <stdlib.h>
+  30:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+  31:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** /* Defining MPU_WRAPPERS_INCLUDED_FROM_API_FILE prevents task.h from redefining
+  32:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** all the API functions to use the MPU wrappers.  That should only be done when
+  33:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** task.h is included from an application file. */
+  34:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** #define MPU_WRAPPERS_INCLUDED_FROM_API_FILE
+ARM GAS  /tmp/ccdaQvPI.s 			page 2
+
+
+  35:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+  36:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** #include "FreeRTOS.h"
+  37:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** #include "task.h"
+  38:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** #include "queue.h"
+  39:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** #include "timers.h"
+  40:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+  41:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** #if ( INCLUDE_xTimerPendFunctionCall == 1 ) && ( configUSE_TIMERS == 0 )
+  42:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	#error configUSE_TIMERS must be set to 1 to make the xTimerPendFunctionCall() function available.
+  43:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** #endif
+  44:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+  45:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** /* Lint e9021, e961 and e750 are suppressed as a MISRA exception justified
+  46:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** because the MPU ports require MPU_WRAPPERS_INCLUDED_FROM_API_FILE to be defined
+  47:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** for the header files above, but not in this file, in order to generate the
+  48:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** correct privileged Vs unprivileged linkage and placement. */
+  49:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** #undef MPU_WRAPPERS_INCLUDED_FROM_API_FILE /*lint !e9021 !e961 !e750. */
+  50:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+  51:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+  52:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** /* This entire source file will be skipped if the application is not configured
+  53:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** to include software timer functionality.  This #if is closed at the very bottom
+  54:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** of this file.  If you want to include software timer functionality then ensure
+  55:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** configUSE_TIMERS is set to 1 in FreeRTOSConfig.h. */
+  56:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** #if ( configUSE_TIMERS == 1 )
+  57:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+  58:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** /* Misc definitions. */
+  59:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** #define tmrNO_DELAY		( TickType_t ) 0U
+  60:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+  61:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** /* The name assigned to the timer service task.  This can be overridden by
+  62:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** defining trmTIMER_SERVICE_TASK_NAME in FreeRTOSConfig.h. */
+  63:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** #ifndef configTIMER_SERVICE_TASK_NAME
+  64:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	#define configTIMER_SERVICE_TASK_NAME "Tmr Svc"
+  65:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** #endif
+  66:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+  67:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** /* Bit definitions used in the ucStatus member of a timer structure. */
+  68:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** #define tmrSTATUS_IS_ACTIVE					( ( uint8_t ) 0x01 )
+  69:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** #define tmrSTATUS_IS_STATICALLY_ALLOCATED	( ( uint8_t ) 0x02 )
+  70:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** #define tmrSTATUS_IS_AUTORELOAD				( ( uint8_t ) 0x04 )
+  71:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+  72:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** /* The definition of the timers themselves. */
+  73:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** typedef struct tmrTimerControl /* The old naming convention is used to prevent breaking kernel awar
+  74:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** {
+  75:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	const char				*pcTimerName;		/*<< Text name.  This is not used by the kernel, it is included simpl
+  76:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	ListItem_t				xTimerListItem;		/*<< Standard linked list item as used by all kernel features for e
+  77:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	TickType_t				xTimerPeriodInTicks;/*<< How quickly and often the timer expires. */
+  78:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	void 					*pvTimerID;			/*<< An ID to identify the timer.  This allows the timer to be identified 
+  79:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	TimerCallbackFunction_t	pxCallbackFunction;	/*<< The function that will be called when the timer e
+  80:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	#if( configUSE_TRACE_FACILITY == 1 )
+  81:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		UBaseType_t			uxTimerNumber;		/*<< An ID assigned by trace tools such as FreeRTOS+Trace */
+  82:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	#endif
+  83:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	uint8_t 				ucStatus;			/*<< Holds bits to say if the timer was statically allocated or not, and i
+  84:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** } xTIMER;
+  85:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+  86:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** /* The old xTIMER name is maintained above then typedefed to the new Timer_t
+  87:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** name below to enable the use of older kernel aware debuggers. */
+  88:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** typedef xTIMER Timer_t;
+  89:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+  90:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** /* The definition of messages that can be sent and received on the timer queue.
+  91:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** Two types of message can be queued - messages that manipulate a software timer,
+ARM GAS  /tmp/ccdaQvPI.s 			page 3
+
+
+  92:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** and messages that request the execution of a non-timer related callback.  The
+  93:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** two message types are defined in two separate structures, xTimerParametersType
+  94:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** and xCallbackParametersType respectively. */
+  95:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** typedef struct tmrTimerParameters
+  96:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** {
+  97:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	TickType_t			xMessageValue;		/*<< An optional value used by a subset of commands, for example, whe
+  98:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	Timer_t *			pxTimer;			/*<< The timer to which the command will be applied. */
+  99:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** } TimerParameter_t;
+ 100:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 101:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 102:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** typedef struct tmrCallbackParameters
+ 103:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** {
+ 104:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	PendedFunction_t	pxCallbackFunction;	/* << The callback function to execute. */
+ 105:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	void *pvParameter1;						/* << The value that will be used as the callback functions first paramet
+ 106:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	uint32_t ulParameter2;					/* << The value that will be used as the callback functions second para
+ 107:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** } CallbackParameters_t;
+ 108:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 109:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** /* The structure that contains the two message types, along with an identifier
+ 110:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** that is used to determine which message type is valid. */
+ 111:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** typedef struct tmrTimerQueueMessage
+ 112:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** {
+ 113:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	BaseType_t			xMessageID;			/*<< The command being sent to the timer service task. */
+ 114:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	union
+ 115:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	{
+ 116:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		TimerParameter_t xTimerParameters;
+ 117:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 118:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		/* Don't include xCallbackParameters if it is not going to be used as
+ 119:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		it makes the structure (and therefore the timer queue) larger. */
+ 120:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		#if ( INCLUDE_xTimerPendFunctionCall == 1 )
+ 121:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			CallbackParameters_t xCallbackParameters;
+ 122:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		#endif /* INCLUDE_xTimerPendFunctionCall */
+ 123:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	} u;
+ 124:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** } DaemonTaskMessage_t;
+ 125:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 126:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** /*lint -save -e956 A manual analysis and inspection has been used to determine
+ 127:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** which static variables must be declared volatile. */
+ 128:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 129:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** /* The list in which active timers are stored.  Timers are referenced in expire
+ 130:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** time order, with the nearest expiry time at the front of the list.  Only the
+ 131:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** timer service task is allowed to access these lists.
+ 132:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** xActiveTimerList1 and xActiveTimerList2 could be at function scope but that
+ 133:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** breaks some kernel aware debuggers, and debuggers that reply on removing the
+ 134:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** static qualifier. */
+ 135:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** PRIVILEGED_DATA static List_t xActiveTimerList1;
+ 136:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** PRIVILEGED_DATA static List_t xActiveTimerList2;
+ 137:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** PRIVILEGED_DATA static List_t *pxCurrentTimerList;
+ 138:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** PRIVILEGED_DATA static List_t *pxOverflowTimerList;
+ 139:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 140:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** /* A queue that is used to send commands to the timer service task. */
+ 141:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** PRIVILEGED_DATA static QueueHandle_t xTimerQueue = NULL;
+ 142:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** PRIVILEGED_DATA static TaskHandle_t xTimerTaskHandle = NULL;
+ 143:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 144:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** /*lint -restore */
+ 145:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 146:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** /*-----------------------------------------------------------*/
+ 147:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 148:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** #if( configSUPPORT_STATIC_ALLOCATION == 1 )
+ARM GAS  /tmp/ccdaQvPI.s 			page 4
+
+
+ 149:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 150:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	/* If static allocation is supported then the application must provide the
+ 151:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	following callback function - which enables the application to optionally
+ 152:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	provide the memory that will be used by the timer task as the task's stack
+ 153:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	and TCB. */
+ 154:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	extern void vApplicationGetTimerTaskMemory( StaticTask_t **ppxTimerTaskTCBBuffer, StackType_t **pp
+ 155:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 156:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** #endif
+ 157:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 158:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** /*
+ 159:Middlewares/Third_Party/FreeRTOS/Source/timers.c ****  * Initialise the infrastructure used by the timer service task if it has not
+ 160:Middlewares/Third_Party/FreeRTOS/Source/timers.c ****  * been initialised already.
+ 161:Middlewares/Third_Party/FreeRTOS/Source/timers.c ****  */
+ 162:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** static void prvCheckForValidListAndQueue( void ) PRIVILEGED_FUNCTION;
+ 163:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 164:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** /*
+ 165:Middlewares/Third_Party/FreeRTOS/Source/timers.c ****  * The timer service task (daemon).  Timer functionality is controlled by this
+ 166:Middlewares/Third_Party/FreeRTOS/Source/timers.c ****  * task.  Other tasks communicate with the timer service task using the
+ 167:Middlewares/Third_Party/FreeRTOS/Source/timers.c ****  * xTimerQueue queue.
+ 168:Middlewares/Third_Party/FreeRTOS/Source/timers.c ****  */
+ 169:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** static portTASK_FUNCTION_PROTO( prvTimerTask, pvParameters ) PRIVILEGED_FUNCTION;
+ 170:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 171:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** /*
+ 172:Middlewares/Third_Party/FreeRTOS/Source/timers.c ****  * Called by the timer service task to interpret and process a command it
+ 173:Middlewares/Third_Party/FreeRTOS/Source/timers.c ****  * received on the timer queue.
+ 174:Middlewares/Third_Party/FreeRTOS/Source/timers.c ****  */
+ 175:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** static void prvProcessReceivedCommands( void ) PRIVILEGED_FUNCTION;
+ 176:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 177:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** /*
+ 178:Middlewares/Third_Party/FreeRTOS/Source/timers.c ****  * Insert the timer into either xActiveTimerList1, or xActiveTimerList2,
+ 179:Middlewares/Third_Party/FreeRTOS/Source/timers.c ****  * depending on if the expire time causes a timer counter overflow.
+ 180:Middlewares/Third_Party/FreeRTOS/Source/timers.c ****  */
+ 181:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** static BaseType_t prvInsertTimerInActiveList( Timer_t * const pxTimer, const TickType_t xNextExpiry
+ 182:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 183:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** /*
+ 184:Middlewares/Third_Party/FreeRTOS/Source/timers.c ****  * An active timer has reached its expire time.  Reload the timer if it is an
+ 185:Middlewares/Third_Party/FreeRTOS/Source/timers.c ****  * auto-reload timer, then call its callback.
+ 186:Middlewares/Third_Party/FreeRTOS/Source/timers.c ****  */
+ 187:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** static void prvProcessExpiredTimer( const TickType_t xNextExpireTime, const TickType_t xTimeNow ) P
+ 188:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 189:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** /*
+ 190:Middlewares/Third_Party/FreeRTOS/Source/timers.c ****  * The tick count has overflowed.  Switch the timer lists after ensuring the
+ 191:Middlewares/Third_Party/FreeRTOS/Source/timers.c ****  * current timer list does not still reference some timers.
+ 192:Middlewares/Third_Party/FreeRTOS/Source/timers.c ****  */
+ 193:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** static void prvSwitchTimerLists( void ) PRIVILEGED_FUNCTION;
+ 194:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 195:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** /*
+ 196:Middlewares/Third_Party/FreeRTOS/Source/timers.c ****  * Obtain the current tick count, setting *pxTimerListsWereSwitched to pdTRUE
+ 197:Middlewares/Third_Party/FreeRTOS/Source/timers.c ****  * if a tick count overflow occurred since prvSampleTimeNow() was last called.
+ 198:Middlewares/Third_Party/FreeRTOS/Source/timers.c ****  */
+ 199:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** static TickType_t prvSampleTimeNow( BaseType_t * const pxTimerListsWereSwitched ) PRIVILEGED_FUNCTI
+ 200:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 201:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** /*
+ 202:Middlewares/Third_Party/FreeRTOS/Source/timers.c ****  * If the timer list contains any active timers then return the expire time of
+ 203:Middlewares/Third_Party/FreeRTOS/Source/timers.c ****  * the timer that will expire first and set *pxListWasEmpty to false.  If the
+ 204:Middlewares/Third_Party/FreeRTOS/Source/timers.c ****  * timer list does not contain any timers then return 0 and set *pxListWasEmpty
+ 205:Middlewares/Third_Party/FreeRTOS/Source/timers.c ****  * to pdTRUE.
+ARM GAS  /tmp/ccdaQvPI.s 			page 5
+
+
+ 206:Middlewares/Third_Party/FreeRTOS/Source/timers.c ****  */
+ 207:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** static TickType_t prvGetNextExpireTime( BaseType_t * const pxListWasEmpty ) PRIVILEGED_FUNCTION;
+ 208:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 209:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** /*
+ 210:Middlewares/Third_Party/FreeRTOS/Source/timers.c ****  * If a timer has expired, process it.  Otherwise, block the timer service task
+ 211:Middlewares/Third_Party/FreeRTOS/Source/timers.c ****  * until either a timer does expire or a command is received.
+ 212:Middlewares/Third_Party/FreeRTOS/Source/timers.c ****  */
+ 213:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** static void prvProcessTimerOrBlockTask( const TickType_t xNextExpireTime, BaseType_t xListWasEmpty 
+ 214:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 215:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** /*
+ 216:Middlewares/Third_Party/FreeRTOS/Source/timers.c ****  * Called after a Timer_t structure has been allocated either statically or
+ 217:Middlewares/Third_Party/FreeRTOS/Source/timers.c ****  * dynamically to fill in the structure's members.
+ 218:Middlewares/Third_Party/FreeRTOS/Source/timers.c ****  */
+ 219:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** static void prvInitialiseNewTimer(	const char * const pcTimerName,			/*lint !e971 Unqualified char 
+ 220:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 									const TickType_t xTimerPeriodInTicks,
+ 221:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 									const UBaseType_t uxAutoReload,
+ 222:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 									void * const pvTimerID,
+ 223:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 									TimerCallbackFunction_t pxCallbackFunction,
+ 224:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 									Timer_t *pxNewTimer ) PRIVILEGED_FUNCTION;
+ 225:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** /*-----------------------------------------------------------*/
+ 226:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 227:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** BaseType_t xTimerCreateTimerTask( void )
+ 228:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** {
+ 229:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** BaseType_t xReturn = pdFAIL;
+ 230:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 231:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	/* This function is called when the scheduler is started if
+ 232:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	configUSE_TIMERS is set to 1.  Check that the infrastructure used by the
+ 233:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	timer service task has been created/initialised.  If timers have already
+ 234:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	been created then the initialisation will already have been performed. */
+ 235:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	prvCheckForValidListAndQueue();
+ 236:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 237:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	if( xTimerQueue != NULL )
+ 238:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	{
+ 239:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		#if( configSUPPORT_STATIC_ALLOCATION == 1 )
+ 240:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		{
+ 241:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			StaticTask_t *pxTimerTaskTCBBuffer = NULL;
+ 242:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			StackType_t *pxTimerTaskStackBuffer = NULL;
+ 243:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			uint32_t ulTimerTaskStackSize;
+ 244:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 245:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			vApplicationGetTimerTaskMemory( &pxTimerTaskTCBBuffer, &pxTimerTaskStackBuffer, &ulTimerTaskStac
+ 246:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			xTimerTaskHandle = xTaskCreateStatic(	prvTimerTask,
+ 247:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 													configTIMER_SERVICE_TASK_NAME,
+ 248:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 													ulTimerTaskStackSize,
+ 249:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 													NULL,
+ 250:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 													( ( UBaseType_t ) configTIMER_TASK_PRIORITY ) | portPRIVILEGE_BIT,
+ 251:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 													pxTimerTaskStackBuffer,
+ 252:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 													pxTimerTaskTCBBuffer );
+ 253:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 254:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			if( xTimerTaskHandle != NULL )
+ 255:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			{
+ 256:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				xReturn = pdPASS;
+ 257:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			}
+ 258:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		}
+ 259:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		#else
+ 260:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		{
+ 261:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			xReturn = xTaskCreate(	prvTimerTask,
+ 262:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 									configTIMER_SERVICE_TASK_NAME,
+ARM GAS  /tmp/ccdaQvPI.s 			page 6
+
+
+ 263:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 									configTIMER_TASK_STACK_DEPTH,
+ 264:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 									NULL,
+ 265:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 									( ( UBaseType_t ) configTIMER_TASK_PRIORITY ) | portPRIVILEGE_BIT,
+ 266:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 									&xTimerTaskHandle );
+ 267:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		}
+ 268:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		#endif /* configSUPPORT_STATIC_ALLOCATION */
+ 269:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	}
+ 270:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	else
+ 271:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	{
+ 272:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		mtCOVERAGE_TEST_MARKER();
+ 273:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	}
+ 274:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 275:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	configASSERT( xReturn );
+ 276:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	return xReturn;
+ 277:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** }
+ 278:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** /*-----------------------------------------------------------*/
+ 279:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 280:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** #if( configSUPPORT_DYNAMIC_ALLOCATION == 1 )
+ 281:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 282:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	TimerHandle_t xTimerCreate(	const char * const pcTimerName,			/*lint !e971 Unqualified char types 
+ 283:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 								const TickType_t xTimerPeriodInTicks,
+ 284:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 								const UBaseType_t uxAutoReload,
+ 285:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 								void * const pvTimerID,
+ 286:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 								TimerCallbackFunction_t pxCallbackFunction )
+ 287:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	{
+ 288:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	Timer_t *pxNewTimer;
+ 289:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 290:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		pxNewTimer = ( Timer_t * ) pvPortMalloc( sizeof( Timer_t ) ); /*lint !e9087 !e9079 All values ret
+ 291:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 292:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		if( pxNewTimer != NULL )
+ 293:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		{
+ 294:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			/* Status is thus far zero as the timer is not created statically
+ 295:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			and has not been started.  The auto-reload bit may get set in
+ 296:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			prvInitialiseNewTimer. */
+ 297:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			pxNewTimer->ucStatus = 0x00;
+ 298:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			prvInitialiseNewTimer( pcTimerName, xTimerPeriodInTicks, uxAutoReload, pvTimerID, pxCallbackFunc
+ 299:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		}
+ 300:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 301:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		return pxNewTimer;
+ 302:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	}
+ 303:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 304:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** #endif /* configSUPPORT_DYNAMIC_ALLOCATION */
+ 305:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** /*-----------------------------------------------------------*/
+ 306:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 307:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** #if( configSUPPORT_STATIC_ALLOCATION == 1 )
+ 308:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 309:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	TimerHandle_t xTimerCreateStatic(	const char * const pcTimerName,		/*lint !e971 Unqualified char t
+ 310:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 										const TickType_t xTimerPeriodInTicks,
+ 311:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 										const UBaseType_t uxAutoReload,
+ 312:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 										void * const pvTimerID,
+ 313:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 										TimerCallbackFunction_t pxCallbackFunction,
+ 314:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 										StaticTimer_t *pxTimerBuffer )
+ 315:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	{
+ 316:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	Timer_t *pxNewTimer;
+ 317:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 318:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		#if( configASSERT_DEFINED == 1 )
+ 319:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		{
+ARM GAS  /tmp/ccdaQvPI.s 			page 7
+
+
+ 320:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			/* Sanity check that the size of the structure used to declare a
+ 321:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			variable of type StaticTimer_t equals the size of the real timer
+ 322:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			structure. */
+ 323:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			volatile size_t xSize = sizeof( StaticTimer_t );
+ 324:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			configASSERT( xSize == sizeof( Timer_t ) );
+ 325:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			( void ) xSize; /* Keeps lint quiet when configASSERT() is not defined. */
+ 326:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		}
+ 327:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		#endif /* configASSERT_DEFINED */
+ 328:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 329:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		/* A pointer to a StaticTimer_t structure MUST be provided, use it. */
+ 330:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		configASSERT( pxTimerBuffer );
+ 331:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		pxNewTimer = ( Timer_t * ) pxTimerBuffer; /*lint !e740 !e9087 StaticTimer_t is a pointer to a Tim
+ 332:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 333:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		if( pxNewTimer != NULL )
+ 334:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		{
+ 335:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			/* Timers can be created statically or dynamically so note this
+ 336:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			timer was created statically in case it is later deleted.  The
+ 337:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			auto-reload bit may get set in prvInitialiseNewTimer(). */
+ 338:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			pxNewTimer->ucStatus = tmrSTATUS_IS_STATICALLY_ALLOCATED;
+ 339:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 340:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			prvInitialiseNewTimer( pcTimerName, xTimerPeriodInTicks, uxAutoReload, pvTimerID, pxCallbackFunc
+ 341:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		}
+ 342:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 343:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		return pxNewTimer;
+ 344:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	}
+ 345:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 346:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** #endif /* configSUPPORT_STATIC_ALLOCATION */
+ 347:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** /*-----------------------------------------------------------*/
+ 348:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 349:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** static void prvInitialiseNewTimer(	const char * const pcTimerName,			/*lint !e971 Unqualified char 
+ 350:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 									const TickType_t xTimerPeriodInTicks,
+ 351:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 									const UBaseType_t uxAutoReload,
+ 352:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 									void * const pvTimerID,
+ 353:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 									TimerCallbackFunction_t pxCallbackFunction,
+ 354:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 									Timer_t *pxNewTimer )
+ 355:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** {
+ 356:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	/* 0 is not a valid value for xTimerPeriodInTicks. */
+ 357:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	configASSERT( ( xTimerPeriodInTicks > 0 ) );
+ 358:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 359:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	if( pxNewTimer != NULL )
+ 360:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	{
+ 361:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		/* Ensure the infrastructure used by the timer service task has been
+ 362:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		created/initialised. */
+ 363:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		prvCheckForValidListAndQueue();
+ 364:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 365:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		/* Initialise the timer structure members using the function
+ 366:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		parameters. */
+ 367:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		pxNewTimer->pcTimerName = pcTimerName;
+ 368:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		pxNewTimer->xTimerPeriodInTicks = xTimerPeriodInTicks;
+ 369:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		pxNewTimer->pvTimerID = pvTimerID;
+ 370:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		pxNewTimer->pxCallbackFunction = pxCallbackFunction;
+ 371:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		vListInitialiseItem( &( pxNewTimer->xTimerListItem ) );
+ 372:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		if( uxAutoReload != pdFALSE )
+ 373:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		{
+ 374:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			pxNewTimer->ucStatus |= tmrSTATUS_IS_AUTORELOAD;
+ 375:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		}
+ 376:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		traceTIMER_CREATE( pxNewTimer );
+ARM GAS  /tmp/ccdaQvPI.s 			page 8
+
+
+ 377:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	}
+ 378:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** }
+ 379:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** /*-----------------------------------------------------------*/
+ 380:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 381:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** BaseType_t xTimerGenericCommand( TimerHandle_t xTimer, const BaseType_t xCommandID, const TickType_
+ 382:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** {
+ 383:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** BaseType_t xReturn = pdFAIL;
+ 384:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** DaemonTaskMessage_t xMessage;
+ 385:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 386:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	configASSERT( xTimer );
+ 387:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 388:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	/* Send a message to the timer service task to perform a particular action
+ 389:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	on a particular timer definition. */
+ 390:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	if( xTimerQueue != NULL )
+ 391:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	{
+ 392:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		/* Send a command to the timer service task to start the xTimer timer. */
+ 393:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		xMessage.xMessageID = xCommandID;
+ 394:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		xMessage.u.xTimerParameters.xMessageValue = xOptionalValue;
+ 395:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		xMessage.u.xTimerParameters.pxTimer = xTimer;
+ 396:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 397:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		if( xCommandID < tmrFIRST_FROM_ISR_COMMAND )
+ 398:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		{
+ 399:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			if( xTaskGetSchedulerState() == taskSCHEDULER_RUNNING )
+ 400:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			{
+ 401:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				xReturn = xQueueSendToBack( xTimerQueue, &xMessage, xTicksToWait );
+ 402:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			}
+ 403:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			else
+ 404:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			{
+ 405:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				xReturn = xQueueSendToBack( xTimerQueue, &xMessage, tmrNO_DELAY );
+ 406:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			}
+ 407:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		}
+ 408:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		else
+ 409:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		{
+ 410:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			xReturn = xQueueSendToBackFromISR( xTimerQueue, &xMessage, pxHigherPriorityTaskWoken );
+ 411:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		}
+ 412:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 413:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		traceTIMER_COMMAND_SEND( xTimer, xCommandID, xOptionalValue, xReturn );
+ 414:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	}
+ 415:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	else
+ 416:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	{
+ 417:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		mtCOVERAGE_TEST_MARKER();
+ 418:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	}
+ 419:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 420:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	return xReturn;
+ 421:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** }
+ 422:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** /*-----------------------------------------------------------*/
+ 423:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 424:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** TaskHandle_t xTimerGetTimerDaemonTaskHandle( void )
+ 425:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** {
+ 426:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	/* If xTimerGetTimerDaemonTaskHandle() is called before the scheduler has been
+ 427:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	started, then xTimerTaskHandle will be NULL. */
+ 428:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	configASSERT( ( xTimerTaskHandle != NULL ) );
+ 429:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	return xTimerTaskHandle;
+ 430:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** }
+ 431:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** /*-----------------------------------------------------------*/
+ 432:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 433:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** TickType_t xTimerGetPeriod( TimerHandle_t xTimer )
+ARM GAS  /tmp/ccdaQvPI.s 			page 9
+
+
+ 434:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** {
+ 435:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** Timer_t *pxTimer = xTimer;
+ 436:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 437:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	configASSERT( xTimer );
+ 438:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	return pxTimer->xTimerPeriodInTicks;
+ 439:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** }
+ 440:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** /*-----------------------------------------------------------*/
+ 441:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 442:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** void vTimerSetReloadMode( TimerHandle_t xTimer, const UBaseType_t uxAutoReload )
+ 443:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** {
+ 444:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** Timer_t * pxTimer =  xTimer;
+ 445:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 446:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	configASSERT( xTimer );
+ 447:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	taskENTER_CRITICAL();
+ 448:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	{
+ 449:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		if( uxAutoReload != pdFALSE )
+ 450:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		{
+ 451:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			pxTimer->ucStatus |= tmrSTATUS_IS_AUTORELOAD;
+ 452:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		}
+ 453:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		else
+ 454:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		{
+ 455:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			pxTimer->ucStatus &= ~tmrSTATUS_IS_AUTORELOAD;
+ 456:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		}
+ 457:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	}
+ 458:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	taskEXIT_CRITICAL();
+ 459:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** }
+ 460:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** /*-----------------------------------------------------------*/
+ 461:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 462:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** UBaseType_t uxTimerGetReloadMode( TimerHandle_t xTimer )
+ 463:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** {
+ 464:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** Timer_t * pxTimer =  xTimer;
+ 465:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** UBaseType_t uxReturn;
+ 466:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 467:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	configASSERT( xTimer );
+ 468:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	taskENTER_CRITICAL();
+ 469:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	{
+ 470:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		if( ( pxTimer->ucStatus & tmrSTATUS_IS_AUTORELOAD ) == 0 )
+ 471:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		{
+ 472:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			/* Not an auto-reload timer. */
+ 473:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			uxReturn = ( UBaseType_t ) pdFALSE;
+ 474:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		}
+ 475:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		else
+ 476:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		{
+ 477:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			/* Is an auto-reload timer. */
+ 478:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			uxReturn = ( UBaseType_t ) pdTRUE;
+ 479:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		}
+ 480:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	}
+ 481:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	taskEXIT_CRITICAL();
+ 482:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 483:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	return uxReturn;
+ 484:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** }
+ 485:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** /*-----------------------------------------------------------*/
+ 486:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 487:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** TickType_t xTimerGetExpiryTime( TimerHandle_t xTimer )
+ 488:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** {
+ 489:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** Timer_t * pxTimer =  xTimer;
+ 490:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** TickType_t xReturn;
+ARM GAS  /tmp/ccdaQvPI.s 			page 10
+
+
+ 491:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 492:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	configASSERT( xTimer );
+ 493:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	xReturn = listGET_LIST_ITEM_VALUE( &( pxTimer->xTimerListItem ) );
+ 494:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	return xReturn;
+ 495:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** }
+ 496:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** /*-----------------------------------------------------------*/
+ 497:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 498:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** const char * pcTimerGetName( TimerHandle_t xTimer ) /*lint !e971 Unqualified char types are allowed
+ 499:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** {
+ 500:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** Timer_t *pxTimer = xTimer;
+ 501:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 502:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	configASSERT( xTimer );
+ 503:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	return pxTimer->pcTimerName;
+ 504:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** }
+ 505:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** /*-----------------------------------------------------------*/
+ 506:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 507:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** static void prvProcessExpiredTimer( const TickType_t xNextExpireTime, const TickType_t xTimeNow )
+ 508:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** {
+ 509:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** BaseType_t xResult;
+ 510:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** Timer_t * const pxTimer = ( Timer_t * ) listGET_OWNER_OF_HEAD_ENTRY( pxCurrentTimerList ); /*lint !
+ 511:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 512:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	/* Remove the timer from the list of active timers.  A check has already
+ 513:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	been performed to ensure the list is not empty. */
+ 514:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	( void ) uxListRemove( &( pxTimer->xTimerListItem ) );
+ 515:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	traceTIMER_EXPIRED( pxTimer );
+ 516:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 517:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	/* If the timer is an auto-reload timer then calculate the next
+ 518:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	expiry time and re-insert the timer in the list of active timers. */
+ 519:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	if( ( pxTimer->ucStatus & tmrSTATUS_IS_AUTORELOAD ) != 0 )
+ 520:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	{
+ 521:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		/* The timer is inserted into a list using a time relative to anything
+ 522:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		other than the current time.  It will therefore be inserted into the
+ 523:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		correct list relative to the time this task thinks it is now. */
+ 524:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		if( prvInsertTimerInActiveList( pxTimer, ( xNextExpireTime + pxTimer->xTimerPeriodInTicks ), xTim
+ 525:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		{
+ 526:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			/* The timer expired before it was added to the active timer
+ 527:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			list.  Reload it now.  */
+ 528:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			xResult = xTimerGenericCommand( pxTimer, tmrCOMMAND_START_DONT_TRACE, xNextExpireTime, NULL, tmr
+ 529:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			configASSERT( xResult );
+ 530:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			( void ) xResult;
+ 531:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		}
+ 532:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		else
+ 533:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		{
+ 534:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			mtCOVERAGE_TEST_MARKER();
+ 535:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		}
+ 536:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	}
+ 537:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	else
+ 538:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	{
+ 539:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		pxTimer->ucStatus &= ~tmrSTATUS_IS_ACTIVE;
+ 540:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		mtCOVERAGE_TEST_MARKER();
+ 541:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	}
+ 542:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 543:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	/* Call the timer callback. */
+ 544:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	pxTimer->pxCallbackFunction( ( TimerHandle_t ) pxTimer );
+ 545:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** }
+ 546:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** /*-----------------------------------------------------------*/
+ 547:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ARM GAS  /tmp/ccdaQvPI.s 			page 11
+
+
+ 548:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** static portTASK_FUNCTION( prvTimerTask, pvParameters )
+ 549:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** {
+ 550:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** TickType_t xNextExpireTime;
+ 551:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** BaseType_t xListWasEmpty;
+ 552:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 553:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	/* Just to avoid compiler warnings. */
+ 554:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	( void ) pvParameters;
+ 555:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 556:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	#if( configUSE_DAEMON_TASK_STARTUP_HOOK == 1 )
+ 557:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	{
+ 558:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		extern void vApplicationDaemonTaskStartupHook( void );
+ 559:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 560:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		/* Allow the application writer to execute some code in the context of
+ 561:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		this task at the point the task starts executing.  This is useful if the
+ 562:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		application includes initialisation code that would benefit from
+ 563:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		executing after the scheduler has been started. */
+ 564:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		vApplicationDaemonTaskStartupHook();
+ 565:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	}
+ 566:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	#endif /* configUSE_DAEMON_TASK_STARTUP_HOOK */
+ 567:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 568:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	for( ;; )
+ 569:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	{
+ 570:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		/* Query the timers list to see if it contains any timers, and if so,
+ 571:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		obtain the time at which the next timer will expire. */
+ 572:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		xNextExpireTime = prvGetNextExpireTime( &xListWasEmpty );
+ 573:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 574:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		/* If a timer has expired, process it.  Otherwise, block this task
+ 575:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		until either a timer does expire, or a command is received. */
+ 576:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		prvProcessTimerOrBlockTask( xNextExpireTime, xListWasEmpty );
+ 577:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 578:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		/* Empty the command queue. */
+ 579:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		prvProcessReceivedCommands();
+ 580:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	}
+ 581:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** }
+ 582:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** /*-----------------------------------------------------------*/
+ 583:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 584:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** static void prvProcessTimerOrBlockTask( const TickType_t xNextExpireTime, BaseType_t xListWasEmpty 
+ 585:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** {
+ 586:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** TickType_t xTimeNow;
+ 587:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** BaseType_t xTimerListsWereSwitched;
+ 588:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 589:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	vTaskSuspendAll();
+ 590:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	{
+ 591:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		/* Obtain the time now to make an assessment as to whether the timer
+ 592:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		has expired or not.  If obtaining the time causes the lists to switch
+ 593:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		then don't process this timer as any timers that remained in the list
+ 594:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		when the lists were switched will have been processed within the
+ 595:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		prvSampleTimeNow() function. */
+ 596:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		xTimeNow = prvSampleTimeNow( &xTimerListsWereSwitched );
+ 597:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		if( xTimerListsWereSwitched == pdFALSE )
+ 598:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		{
+ 599:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			/* The tick count has not overflowed, has the timer expired? */
+ 600:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			if( ( xListWasEmpty == pdFALSE ) && ( xNextExpireTime <= xTimeNow ) )
+ 601:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			{
+ 602:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				( void ) xTaskResumeAll();
+ 603:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				prvProcessExpiredTimer( xNextExpireTime, xTimeNow );
+ 604:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			}
+ARM GAS  /tmp/ccdaQvPI.s 			page 12
+
+
+ 605:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			else
+ 606:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			{
+ 607:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				/* The tick count has not overflowed, and the next expire
+ 608:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				time has not been reached yet.  This task should therefore
+ 609:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				block to wait for the next expire time or a command to be
+ 610:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				received - whichever comes first.  The following line cannot
+ 611:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				be reached unless xNextExpireTime > xTimeNow, except in the
+ 612:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				case when the current timer list is empty. */
+ 613:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				if( xListWasEmpty != pdFALSE )
+ 614:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				{
+ 615:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 					/* The current timer list is empty - is the overflow list
+ 616:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 					also empty? */
+ 617:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 					xListWasEmpty = listLIST_IS_EMPTY( pxOverflowTimerList );
+ 618:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				}
+ 619:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 620:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				vQueueWaitForMessageRestricted( xTimerQueue, ( xNextExpireTime - xTimeNow ), xListWasEmpty );
+ 621:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 622:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				if( xTaskResumeAll() == pdFALSE )
+ 623:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				{
+ 624:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 					/* Yield to wait for either a command to arrive, or the
+ 625:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 					block time to expire.  If a command arrived between the
+ 626:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 					critical section being exited and this yield then the yield
+ 627:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 					will not cause the task to block. */
+ 628:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 					portYIELD_WITHIN_API();
+ 629:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				}
+ 630:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				else
+ 631:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				{
+ 632:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 					mtCOVERAGE_TEST_MARKER();
+ 633:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				}
+ 634:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			}
+ 635:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		}
+ 636:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		else
+ 637:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		{
+ 638:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			( void ) xTaskResumeAll();
+ 639:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		}
+ 640:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	}
+ 641:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** }
+ 642:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** /*-----------------------------------------------------------*/
+ 643:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 644:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** static TickType_t prvGetNextExpireTime( BaseType_t * const pxListWasEmpty )
+ 645:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** {
+ 646:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** TickType_t xNextExpireTime;
+ 647:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 648:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	/* Timers are listed in expiry time order, with the head of the list
+ 649:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	referencing the task that will expire first.  Obtain the time at which
+ 650:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	the timer with the nearest expiry time will expire.  If there are no
+ 651:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	active timers then just set the next expire time to 0.  That will cause
+ 652:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	this task to unblock when the tick count overflows, at which point the
+ 653:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	timer lists will be switched and the next expiry time can be
+ 654:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	re-assessed.  */
+ 655:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	*pxListWasEmpty = listLIST_IS_EMPTY( pxCurrentTimerList );
+ 656:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	if( *pxListWasEmpty == pdFALSE )
+ 657:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	{
+ 658:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		xNextExpireTime = listGET_ITEM_VALUE_OF_HEAD_ENTRY( pxCurrentTimerList );
+ 659:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	}
+ 660:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	else
+ 661:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	{
+ARM GAS  /tmp/ccdaQvPI.s 			page 13
+
+
+ 662:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		/* Ensure the task unblocks when the tick count rolls over. */
+ 663:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		xNextExpireTime = ( TickType_t ) 0U;
+ 664:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	}
+ 665:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 666:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	return xNextExpireTime;
+ 667:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** }
+ 668:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** /*-----------------------------------------------------------*/
+ 669:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 670:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** static TickType_t prvSampleTimeNow( BaseType_t * const pxTimerListsWereSwitched )
+ 671:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** {
+ 672:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** TickType_t xTimeNow;
+ 673:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** PRIVILEGED_DATA static TickType_t xLastTime = ( TickType_t ) 0U; /*lint !e956 Variable is only acce
+ 674:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 675:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	xTimeNow = xTaskGetTickCount();
+ 676:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 677:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	if( xTimeNow < xLastTime )
+ 678:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	{
+ 679:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		prvSwitchTimerLists();
+ 680:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		*pxTimerListsWereSwitched = pdTRUE;
+ 681:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	}
+ 682:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	else
+ 683:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	{
+ 684:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		*pxTimerListsWereSwitched = pdFALSE;
+ 685:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	}
+ 686:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 687:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	xLastTime = xTimeNow;
+ 688:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 689:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	return xTimeNow;
+ 690:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** }
+ 691:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** /*-----------------------------------------------------------*/
+ 692:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 693:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** static BaseType_t prvInsertTimerInActiveList( Timer_t * const pxTimer, const TickType_t xNextExpiry
+ 694:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** {
+ 695:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** BaseType_t xProcessTimerNow = pdFALSE;
+ 696:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 697:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	listSET_LIST_ITEM_VALUE( &( pxTimer->xTimerListItem ), xNextExpiryTime );
+ 698:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	listSET_LIST_ITEM_OWNER( &( pxTimer->xTimerListItem ), pxTimer );
+ 699:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 700:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	if( xNextExpiryTime <= xTimeNow )
+ 701:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	{
+ 702:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		/* Has the expiry time elapsed between the command to start/reset a
+ 703:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		timer was issued, and the time the command was processed? */
+ 704:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		if( ( ( TickType_t ) ( xTimeNow - xCommandTime ) ) >= pxTimer->xTimerPeriodInTicks ) /*lint !e961
+ 705:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		{
+ 706:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			/* The time between a command being issued and the command being
+ 707:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			processed actually exceeds the timers period.  */
+ 708:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			xProcessTimerNow = pdTRUE;
+ 709:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		}
+ 710:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		else
+ 711:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		{
+ 712:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			vListInsert( pxOverflowTimerList, &( pxTimer->xTimerListItem ) );
+ 713:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		}
+ 714:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	}
+ 715:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	else
+ 716:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	{
+ 717:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		if( ( xTimeNow < xCommandTime ) && ( xNextExpiryTime >= xCommandTime ) )
+ 718:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		{
+ARM GAS  /tmp/ccdaQvPI.s 			page 14
+
+
+ 719:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			/* If, since the command was issued, the tick count has overflowed
+ 720:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			but the expiry time has not, then the timer must have already passed
+ 721:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			its expiry time and should be processed immediately. */
+ 722:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			xProcessTimerNow = pdTRUE;
+ 723:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		}
+ 724:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		else
+ 725:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		{
+ 726:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			vListInsert( pxCurrentTimerList, &( pxTimer->xTimerListItem ) );
+ 727:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		}
+ 728:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	}
+ 729:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 730:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	return xProcessTimerNow;
+ 731:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** }
+ 732:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** /*-----------------------------------------------------------*/
+ 733:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 734:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** static void	prvProcessReceivedCommands( void )
+ 735:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** {
+ 736:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** DaemonTaskMessage_t xMessage;
+ 737:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** Timer_t *pxTimer;
+ 738:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** BaseType_t xTimerListsWereSwitched, xResult;
+ 739:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** TickType_t xTimeNow;
+ 740:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 741:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	while( xQueueReceive( xTimerQueue, &xMessage, tmrNO_DELAY ) != pdFAIL ) /*lint !e603 xMessage does
+ 742:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	{
+ 743:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		#if ( INCLUDE_xTimerPendFunctionCall == 1 )
+ 744:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		{
+ 745:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			/* Negative commands are pended function calls rather than timer
+ 746:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			commands. */
+ 747:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			if( xMessage.xMessageID < ( BaseType_t ) 0 )
+ 748:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			{
+ 749:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				const CallbackParameters_t * const pxCallback = &( xMessage.u.xCallbackParameters );
+ 750:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 751:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				/* The timer uses the xCallbackParameters member to request a
+ 752:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				callback be executed.  Check the callback is not NULL. */
+ 753:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				configASSERT( pxCallback );
+ 754:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 755:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				/* Call the function. */
+ 756:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				pxCallback->pxCallbackFunction( pxCallback->pvParameter1, pxCallback->ulParameter2 );
+ 757:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			}
+ 758:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			else
+ 759:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			{
+ 760:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				mtCOVERAGE_TEST_MARKER();
+ 761:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			}
+ 762:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		}
+ 763:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		#endif /* INCLUDE_xTimerPendFunctionCall */
+ 764:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 765:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		/* Commands that are positive are timer commands rather than pended
+ 766:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		function calls. */
+ 767:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		if( xMessage.xMessageID >= ( BaseType_t ) 0 )
+ 768:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		{
+ 769:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			/* The messages uses the xTimerParameters member to work on a
+ 770:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			software timer. */
+ 771:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			pxTimer = xMessage.u.xTimerParameters.pxTimer;
+ 772:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 773:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			if( listIS_CONTAINED_WITHIN( NULL, &( pxTimer->xTimerListItem ) ) == pdFALSE ) /*lint !e961. The
+ 774:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			{
+ 775:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				/* The timer is in a list, remove it. */
+ARM GAS  /tmp/ccdaQvPI.s 			page 15
+
+
+ 776:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				( void ) uxListRemove( &( pxTimer->xTimerListItem ) );
+ 777:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			}
+ 778:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			else
+ 779:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			{
+ 780:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				mtCOVERAGE_TEST_MARKER();
+ 781:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			}
+ 782:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 783:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			traceTIMER_COMMAND_RECEIVED( pxTimer, xMessage.xMessageID, xMessage.u.xTimerParameters.xMessageV
+ 784:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 785:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			/* In this case the xTimerListsWereSwitched parameter is not used, but
+ 786:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			it must be present in the function call.  prvSampleTimeNow() must be
+ 787:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			called after the message is received from xTimerQueue so there is no
+ 788:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			possibility of a higher priority task adding a message to the message
+ 789:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			queue with a time that is ahead of the timer daemon task (because it
+ 790:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			pre-empted the timer daemon task after the xTimeNow value was set). */
+ 791:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			xTimeNow = prvSampleTimeNow( &xTimerListsWereSwitched );
+ 792:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 793:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			switch( xMessage.xMessageID )
+ 794:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			{
+ 795:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				case tmrCOMMAND_START :
+ 796:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				case tmrCOMMAND_START_FROM_ISR :
+ 797:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				case tmrCOMMAND_RESET :
+ 798:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				case tmrCOMMAND_RESET_FROM_ISR :
+ 799:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				case tmrCOMMAND_START_DONT_TRACE :
+ 800:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 					/* Start or restart a timer. */
+ 801:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 					pxTimer->ucStatus |= tmrSTATUS_IS_ACTIVE;
+ 802:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 					if( prvInsertTimerInActiveList( pxTimer,  xMessage.u.xTimerParameters.xMessageValue + pxTimer-
+ 803:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 					{
+ 804:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 						/* The timer expired before it was added to the active
+ 805:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 						timer list.  Process it now. */
+ 806:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 						pxTimer->pxCallbackFunction( ( TimerHandle_t ) pxTimer );
+ 807:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 						traceTIMER_EXPIRED( pxTimer );
+ 808:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 809:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 						if( ( pxTimer->ucStatus & tmrSTATUS_IS_AUTORELOAD ) != 0 )
+ 810:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 						{
+ 811:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 							xResult = xTimerGenericCommand( pxTimer, tmrCOMMAND_START_DONT_TRACE, xMessage.u.xTimerParam
+ 812:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 							configASSERT( xResult );
+ 813:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 							( void ) xResult;
+ 814:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 						}
+ 815:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 						else
+ 816:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 						{
+ 817:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 							mtCOVERAGE_TEST_MARKER();
+ 818:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 						}
+ 819:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 					}
+ 820:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 					else
+ 821:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 					{
+ 822:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 						mtCOVERAGE_TEST_MARKER();
+ 823:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 					}
+ 824:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 					break;
+ 825:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 826:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				case tmrCOMMAND_STOP :
+ 827:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				case tmrCOMMAND_STOP_FROM_ISR :
+ 828:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 					/* The timer has already been removed from the active list. */
+ 829:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 					pxTimer->ucStatus &= ~tmrSTATUS_IS_ACTIVE;
+ 830:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 					break;
+ 831:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 832:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				case tmrCOMMAND_CHANGE_PERIOD :
+ARM GAS  /tmp/ccdaQvPI.s 			page 16
+
+
+ 833:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				case tmrCOMMAND_CHANGE_PERIOD_FROM_ISR :
+ 834:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 					pxTimer->ucStatus |= tmrSTATUS_IS_ACTIVE;
+ 835:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 					pxTimer->xTimerPeriodInTicks = xMessage.u.xTimerParameters.xMessageValue;
+ 836:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 					configASSERT( ( pxTimer->xTimerPeriodInTicks > 0 ) );
+ 837:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 838:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 					/* The new period does not really have a reference, and can
+ 839:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 					be longer or shorter than the old one.  The command time is
+ 840:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 					therefore set to the current time, and as the period cannot
+ 841:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 					be zero the next expiry time can only be in the future,
+ 842:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 					meaning (unlike for the xTimerStart() case above) there is
+ 843:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 					no fail case that needs to be handled here. */
+ 844:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 					( void ) prvInsertTimerInActiveList( pxTimer, ( xTimeNow + pxTimer->xTimerPeriodInTicks ), xTi
+ 845:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 					break;
+ 846:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 847:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				case tmrCOMMAND_DELETE :
+ 848:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 					#if ( configSUPPORT_DYNAMIC_ALLOCATION == 1 )
+ 849:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 					{
+ 850:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 						/* The timer has already been removed from the active list,
+ 851:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 						just free up the memory if the memory was dynamically
+ 852:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 						allocated. */
+ 853:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 						if( ( pxTimer->ucStatus & tmrSTATUS_IS_STATICALLY_ALLOCATED ) == ( uint8_t ) 0 )
+ 854:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 						{
+ 855:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 							vPortFree( pxTimer );
+ 856:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 						}
+ 857:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 						else
+ 858:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 						{
+ 859:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 							pxTimer->ucStatus &= ~tmrSTATUS_IS_ACTIVE;
+ 860:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 						}
+ 861:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 					}
+ 862:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 					#else
+ 863:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 					{
+ 864:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 						/* If dynamic allocation is not enabled, the memory
+ 865:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 						could not have been dynamically allocated. So there is
+ 866:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 						no need to free the memory - just mark the timer as
+ 867:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 						"not active". */
+ 868:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 						pxTimer->ucStatus &= ~tmrSTATUS_IS_ACTIVE;
+ 869:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 					}
+ 870:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 					#endif /* configSUPPORT_DYNAMIC_ALLOCATION */
+ 871:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 					break;
+ 872:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 873:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				default	:
+ 874:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 					/* Don't expect to get here. */
+ 875:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 					break;
+ 876:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			}
+ 877:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		}
+ 878:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	}
+ 879:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** }
+ 880:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** /*-----------------------------------------------------------*/
+ 881:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 882:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** static void prvSwitchTimerLists( void )
+ 883:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** {
+ 884:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** TickType_t xNextExpireTime, xReloadTime;
+ 885:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** List_t *pxTemp;
+ 886:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** Timer_t *pxTimer;
+ 887:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** BaseType_t xResult;
+ 888:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 889:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	/* The tick count has overflowed.  The timer lists must be switched.
+ARM GAS  /tmp/ccdaQvPI.s 			page 17
+
+
+ 890:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	If there are any timers still referenced from the current timer list
+ 891:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	then they must have expired and should be processed before the lists
+ 892:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	are switched. */
+ 893:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	while( listLIST_IS_EMPTY( pxCurrentTimerList ) == pdFALSE )
+ 894:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	{
+ 895:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		xNextExpireTime = listGET_ITEM_VALUE_OF_HEAD_ENTRY( pxCurrentTimerList );
+ 896:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 897:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		/* Remove the timer from the list. */
+ 898:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		pxTimer = ( Timer_t * ) listGET_OWNER_OF_HEAD_ENTRY( pxCurrentTimerList ); /*lint !e9087 !e9079 v
+ 899:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		( void ) uxListRemove( &( pxTimer->xTimerListItem ) );
+ 900:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		traceTIMER_EXPIRED( pxTimer );
+ 901:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 902:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		/* Execute its callback, then send a command to restart the timer if
+ 903:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		it is an auto-reload timer.  It cannot be restarted here as the lists
+ 904:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		have not yet been switched. */
+ 905:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		pxTimer->pxCallbackFunction( ( TimerHandle_t ) pxTimer );
+ 906:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 907:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		if( ( pxTimer->ucStatus & tmrSTATUS_IS_AUTORELOAD ) != 0 )
+ 908:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		{
+ 909:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			/* Calculate the reload value, and if the reload value results in
+ 910:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			the timer going into the same timer list then it has already expired
+ 911:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			and the timer should be re-inserted into the current list so it is
+ 912:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			processed again within this loop.  Otherwise a command should be sent
+ 913:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			to restart the timer to ensure it is only inserted into a list after
+ 914:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			the lists have been swapped. */
+ 915:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			xReloadTime = ( xNextExpireTime + pxTimer->xTimerPeriodInTicks );
+ 916:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			if( xReloadTime > xNextExpireTime )
+ 917:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			{
+ 918:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				listSET_LIST_ITEM_VALUE( &( pxTimer->xTimerListItem ), xReloadTime );
+ 919:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				listSET_LIST_ITEM_OWNER( &( pxTimer->xTimerListItem ), pxTimer );
+ 920:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				vListInsert( pxCurrentTimerList, &( pxTimer->xTimerListItem ) );
+ 921:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			}
+ 922:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			else
+ 923:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			{
+ 924:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				xResult = xTimerGenericCommand( pxTimer, tmrCOMMAND_START_DONT_TRACE, xNextExpireTime, NULL, tm
+ 925:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				configASSERT( xResult );
+ 926:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				( void ) xResult;
+ 927:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			}
+ 928:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		}
+ 929:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		else
+ 930:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		{
+ 931:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			mtCOVERAGE_TEST_MARKER();
+ 932:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		}
+ 933:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	}
+ 934:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 935:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	pxTemp = pxCurrentTimerList;
+ 936:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	pxCurrentTimerList = pxOverflowTimerList;
+ 937:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	pxOverflowTimerList = pxTemp;
+ 938:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** }
+ 939:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** /*-----------------------------------------------------------*/
+ 940:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 941:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** static void prvCheckForValidListAndQueue( void )
+ 942:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** {
+  25              		.loc 1 942 0
+  26              		.cfi_startproc
+  27              		@ args = 0, pretend = 0, frame = 0
+  28              		@ frame_needed = 0, uses_anonymous_args = 0
+ARM GAS  /tmp/ccdaQvPI.s 			page 18
+
+
+  29 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+  30              	.LCFI0:
+  31              		.cfi_def_cfa_offset 24
+  32              		.cfi_offset 3, -24
+  33              		.cfi_offset 4, -20
+  34              		.cfi_offset 5, -16
+  35              		.cfi_offset 6, -12
+  36              		.cfi_offset 7, -8
+  37              		.cfi_offset 14, -4
+ 943:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	/* Check that the list from which active timers are referenced, and the
+ 944:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	queue used to communicate with the timer service, have been
+ 945:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	initialised. */
+ 946:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	taskENTER_CRITICAL();
+  38              		.loc 1 946 0
+  39 0002 FFF7FEFF 		bl	vPortEnterCritical
+  40              	.LVL0:
+ 947:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	{
+ 948:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		if( xTimerQueue == NULL )
+  41              		.loc 1 948 0
+  42 0006 0F4C     		ldr	r4, .L8
+  43 0008 2568     		ldr	r5, [r4]
+  44 000a 002D     		cmp	r5, #0
+  45 000c 16D1     		bne	.L3
+ 949:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		{
+ 950:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			vListInitialise( &xActiveTimerList1 );
+  46              		.loc 1 950 0
+  47 000e 0E4F     		ldr	r7, .L8+4
+  48 0010 3800     		movs	r0, r7
+  49 0012 FFF7FEFF 		bl	vListInitialise
+  50              	.LVL1:
+ 951:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			vListInitialise( &xActiveTimerList2 );
+  51              		.loc 1 951 0
+  52 0016 0D4E     		ldr	r6, .L8+8
+  53 0018 3000     		movs	r0, r6
+  54 001a FFF7FEFF 		bl	vListInitialise
+  55              	.LVL2:
+ 952:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			pxCurrentTimerList = &xActiveTimerList1;
+  56              		.loc 1 952 0
+  57 001e 0C4B     		ldr	r3, .L8+12
+ 953:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			pxOverflowTimerList = &xActiveTimerList2;
+ 954:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 955:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			#if( configSUPPORT_STATIC_ALLOCATION == 1 )
+ 956:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			{
+ 957:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				/* The timer queue is allocated statically in case
+ 958:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				configSUPPORT_DYNAMIC_ALLOCATION is 0. */
+ 959:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				static StaticQueue_t xStaticTimerQueue; /*lint !e956 Ok to declare in this manner to prevent ad
+ 960:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				static uint8_t ucStaticTimerQueueStorage[ ( size_t ) configTIMER_QUEUE_LENGTH * sizeof( DaemonT
+ 961:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 962:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				xTimerQueue = xQueueCreateStatic( ( UBaseType_t ) configTIMER_QUEUE_LENGTH, ( UBaseType_t ) siz
+ 963:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			}
+ 964:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			#else
+ 965:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			{
+ 966:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				xTimerQueue = xQueueCreate( ( UBaseType_t ) configTIMER_QUEUE_LENGTH, sizeof( DaemonTaskMessage
+  58              		.loc 1 966 0
+  59 0020 2A00     		movs	r2, r5
+ 952:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			pxCurrentTimerList = &xActiveTimerList1;
+  60              		.loc 1 952 0
+ARM GAS  /tmp/ccdaQvPI.s 			page 19
+
+
+  61 0022 1F60     		str	r7, [r3]
+ 953:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			pxOverflowTimerList = &xActiveTimerList2;
+  62              		.loc 1 953 0
+  63 0024 0B4B     		ldr	r3, .L8+16
+  64              		.loc 1 966 0
+  65 0026 0C21     		movs	r1, #12
+  66 0028 1420     		movs	r0, #20
+ 953:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			pxOverflowTimerList = &xActiveTimerList2;
+  67              		.loc 1 953 0
+  68 002a 1E60     		str	r6, [r3]
+  69              		.loc 1 966 0
+  70 002c FFF7FEFF 		bl	xQueueGenericCreate
+  71              	.LVL3:
+  72 0030 2060     		str	r0, [r4]
+ 967:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			}
+ 968:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			#endif
+ 969:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 970:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			#if ( configQUEUE_REGISTRY_SIZE > 0 )
+ 971:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			{
+ 972:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				if( xTimerQueue != NULL )
+  73              		.loc 1 972 0
+  74 0032 0028     		cmp	r0, #0
+  75 0034 02D0     		beq	.L3
+ 973:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				{
+ 974:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 					vQueueAddToRegistry( xTimerQueue, "TmrQ" );
+  76              		.loc 1 974 0
+  77 0036 0849     		ldr	r1, .L8+20
+  78 0038 FFF7FEFF 		bl	vQueueAddToRegistry
+  79              	.LVL4:
+  80              	.L3:
+ 975:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				}
+ 976:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				else
+ 977:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				{
+ 978:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 					mtCOVERAGE_TEST_MARKER();
+ 979:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				}
+ 980:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			}
+ 981:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			#endif /* configQUEUE_REGISTRY_SIZE */
+ 982:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		}
+ 983:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		else
+ 984:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		{
+ 985:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			mtCOVERAGE_TEST_MARKER();
+ 986:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		}
+ 987:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	}
+ 988:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	taskEXIT_CRITICAL();
+  81              		.loc 1 988 0
+  82 003c FFF7FEFF 		bl	vPortExitCritical
+  83              	.LVL5:
+ 989:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** }
+  84              		.loc 1 989 0
+  85              		@ sp needed
+  86 0040 F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+  87              	.L9:
+  88 0042 C046     		.align	2
+  89              	.L8:
+  90 0044 00000000 		.word	.LANCHOR0
+  91 0048 00000000 		.word	.LANCHOR1
+  92 004c 00000000 		.word	.LANCHOR2
+ARM GAS  /tmp/ccdaQvPI.s 			page 20
+
+
+  93 0050 00000000 		.word	.LANCHOR3
+  94 0054 00000000 		.word	.LANCHOR4
+  95 0058 00000000 		.word	.LC5
+  96              		.cfi_endproc
+  97              	.LFE18:
+  99              		.section	.text.prvInsertTimerInActiveList,"ax",%progbits
+ 100              		.align	1
+ 101              		.syntax unified
+ 102              		.code	16
+ 103              		.thumb_func
+ 104              		.fpu softvfp
+ 106              	prvInsertTimerInActiveList:
+ 107              	.LFB15:
+ 694:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** BaseType_t xProcessTimerNow = pdFALSE;
+ 108              		.loc 1 694 0
+ 109              		.cfi_startproc
+ 110              		@ args = 0, pretend = 0, frame = 0
+ 111              		@ frame_needed = 0, uses_anonymous_args = 0
+ 112              	.LVL6:
+ 113 0000 10B5     		push	{r4, lr}
+ 114              	.LCFI1:
+ 115              		.cfi_def_cfa_offset 8
+ 116              		.cfi_offset 4, -8
+ 117              		.cfi_offset 14, -4
+ 697:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	listSET_LIST_ITEM_OWNER( &( pxTimer->xTimerListItem ), pxTimer );
+ 118              		.loc 1 697 0
+ 119 0002 4160     		str	r1, [r0, #4]
+ 698:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 120              		.loc 1 698 0
+ 121 0004 0061     		str	r0, [r0, #16]
+ 700:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	{
+ 122              		.loc 1 700 0
+ 123 0006 9142     		cmp	r1, r2
+ 124 0008 0CD8     		bhi	.L11
+ 704:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		{
+ 125              		.loc 1 704 0
+ 126 000a D21A     		subs	r2, r2, r3
+ 127              	.LVL7:
+ 128 000c 8369     		ldr	r3, [r0, #24]
+ 129              	.LVL8:
+ 708:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		}
+ 130              		.loc 1 708 0
+ 131 000e 0124     		movs	r4, #1
+ 704:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		{
+ 132              		.loc 1 704 0
+ 133 0010 9A42     		cmp	r2, r3
+ 134 0012 05D2     		bcs	.L10
+ 135              	.LVL9:
+ 136              	.LBB4:
+ 137              	.LBB5:
+ 712:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		}
+ 138              		.loc 1 712 0
+ 139 0014 074B     		ldr	r3, .L17
+ 140 0016 011D     		adds	r1, r0, #4
+ 141              	.LVL10:
+ 142              	.L16:
+ 143              	.LBE5:
+ARM GAS  /tmp/ccdaQvPI.s 			page 21
+
+
+ 144              	.LBE4:
+ 726:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		}
+ 145              		.loc 1 726 0
+ 146 0018 1868     		ldr	r0, [r3]
+ 147              	.LVL11:
+ 148 001a FFF7FEFF 		bl	vListInsert
+ 149              	.LVL12:
+ 695:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 150              		.loc 1 695 0
+ 151 001e 0024     		movs	r4, #0
+ 152              	.L10:
+ 731:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** /*-----------------------------------------------------------*/
+ 153              		.loc 1 731 0
+ 154 0020 2000     		movs	r0, r4
+ 155              		@ sp needed
+ 156 0022 10BD     		pop	{r4, pc}
+ 157              	.LVL13:
+ 158              	.L11:
+ 717:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		{
+ 159              		.loc 1 717 0
+ 160 0024 9A42     		cmp	r2, r3
+ 161 0026 02D2     		bcs	.L13
+ 708:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		}
+ 162              		.loc 1 708 0 discriminator 1
+ 163 0028 0124     		movs	r4, #1
+ 717:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		{
+ 164              		.loc 1 717 0 discriminator 1
+ 165 002a 9942     		cmp	r1, r3
+ 166 002c F8D2     		bcs	.L10
+ 167              	.L13:
+ 726:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		}
+ 168              		.loc 1 726 0
+ 169 002e 011D     		adds	r1, r0, #4
+ 170              	.LVL14:
+ 171 0030 014B     		ldr	r3, .L17+4
+ 172              	.LVL15:
+ 173 0032 F1E7     		b	.L16
+ 174              	.L18:
+ 175              		.align	2
+ 176              	.L17:
+ 177 0034 00000000 		.word	.LANCHOR4
+ 178 0038 00000000 		.word	.LANCHOR3
+ 179              		.cfi_endproc
+ 180              	.LFE15:
+ 182              		.section	.text.xTimerCreateTimerTask,"ax",%progbits
+ 183              		.align	1
+ 184              		.global	xTimerCreateTimerTask
+ 185              		.syntax unified
+ 186              		.code	16
+ 187              		.thumb_func
+ 188              		.fpu softvfp
+ 190              	xTimerCreateTimerTask:
+ 191              	.LFB0:
+ 228:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** BaseType_t xReturn = pdFAIL;
+ 192              		.loc 1 228 0
+ 193              		.cfi_startproc
+ 194              		@ args = 0, pretend = 0, frame = 0
+ARM GAS  /tmp/ccdaQvPI.s 			page 22
+
+
+ 195              		@ frame_needed = 0, uses_anonymous_args = 0
+ 196              	.LVL16:
+ 197 0000 07B5     		push	{r0, r1, r2, lr}
+ 198              	.LCFI2:
+ 199              		.cfi_def_cfa_offset 16
+ 200              		.cfi_offset 0, -16
+ 201              		.cfi_offset 1, -12
+ 202              		.cfi_offset 2, -8
+ 203              		.cfi_offset 14, -4
+ 235:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 204              		.loc 1 235 0
+ 205 0002 FFF7FEFF 		bl	prvCheckForValidListAndQueue
+ 206              	.LVL17:
+ 237:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	{
+ 207              		.loc 1 237 0
+ 208 0006 0A4B     		ldr	r3, .L28
+ 209 0008 1B68     		ldr	r3, [r3]
+ 210 000a 002B     		cmp	r3, #0
+ 211 000c 01D1     		bne	.L20
+ 212              	.LVL18:
+ 213              	.L22:
+ 275:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	return xReturn;
+ 214              		.loc 1 275 0
+ 215              		.syntax divided
+ 216              	@ 275 "Middlewares/Third_Party/FreeRTOS/Source/timers.c" 1
+ 217 000e 72B6     		 cpsid i 
+ 218              	@ 0 "" 2
+ 219              		.thumb
+ 220              		.syntax unified
+ 221              	.L21:
+ 222 0010 FEE7     		b	.L21
+ 223              	.LVL19:
+ 224              	.L20:
+ 261:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 									configTIMER_SERVICE_TASK_NAME,
+ 225              		.loc 1 261 0
+ 226 0012 084B     		ldr	r3, .L28+4
+ 227 0014 8022     		movs	r2, #128
+ 228 0016 0193     		str	r3, [sp, #4]
+ 229 0018 0623     		movs	r3, #6
+ 230 001a D200     		lsls	r2, r2, #3
+ 231 001c 0093     		str	r3, [sp]
+ 232 001e 0649     		ldr	r1, .L28+8
+ 233 0020 0023     		movs	r3, #0
+ 234 0022 0648     		ldr	r0, .L28+12
+ 235 0024 FFF7FEFF 		bl	xTaskCreate
+ 236              	.LVL20:
+ 275:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	return xReturn;
+ 237              		.loc 1 275 0
+ 238 0028 0028     		cmp	r0, #0
+ 239 002a F0D0     		beq	.L22
+ 277:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** /*-----------------------------------------------------------*/
+ 240              		.loc 1 277 0
+ 241              		@ sp needed
+ 242 002c 0EBD     		pop	{r1, r2, r3, pc}
+ 243              	.L29:
+ 244 002e C046     		.align	2
+ 245              	.L28:
+ARM GAS  /tmp/ccdaQvPI.s 			page 23
+
+
+ 246 0030 00000000 		.word	.LANCHOR0
+ 247 0034 00000000 		.word	.LANCHOR5
+ 248 0038 00000000 		.word	.LC10
+ 249 003c 00000000 		.word	prvTimerTask
+ 250              		.cfi_endproc
+ 251              	.LFE0:
+ 253              		.section	.text.xTimerCreate,"ax",%progbits
+ 254              		.align	1
+ 255              		.global	xTimerCreate
+ 256              		.syntax unified
+ 257              		.code	16
+ 258              		.thumb_func
+ 259              		.fpu softvfp
+ 261              	xTimerCreate:
+ 262              	.LFB1:
+ 287:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	Timer_t *pxNewTimer;
+ 263              		.loc 1 287 0
+ 264              		.cfi_startproc
+ 265              		@ args = 4, pretend = 0, frame = 8
+ 266              		@ frame_needed = 0, uses_anonymous_args = 0
+ 267              	.LVL21:
+ 268 0000 F7B5     		push	{r0, r1, r2, r4, r5, r6, r7, lr}
+ 269              	.LCFI3:
+ 270              		.cfi_def_cfa_offset 32
+ 271              		.cfi_offset 0, -32
+ 272              		.cfi_offset 1, -28
+ 273              		.cfi_offset 2, -24
+ 274              		.cfi_offset 4, -20
+ 275              		.cfi_offset 5, -16
+ 276              		.cfi_offset 6, -12
+ 277              		.cfi_offset 7, -8
+ 278              		.cfi_offset 14, -4
+ 287:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	Timer_t *pxNewTimer;
+ 279              		.loc 1 287 0
+ 280 0002 0700     		movs	r7, r0
+ 290:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 281              		.loc 1 290 0
+ 282 0004 2820     		movs	r0, #40
+ 283              	.LVL22:
+ 287:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	Timer_t *pxNewTimer;
+ 284              		.loc 1 287 0
+ 285 0006 0E00     		movs	r6, r1
+ 286 0008 0092     		str	r2, [sp]
+ 287 000a 0193     		str	r3, [sp, #4]
+ 290:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 288              		.loc 1 290 0
+ 289 000c FFF7FEFF 		bl	pvPortMalloc
+ 290              	.LVL23:
+ 291 0010 041E     		subs	r4, r0, #0
+ 292              	.LVL24:
+ 292:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		{
+ 293              		.loc 1 292 0
+ 294 0012 18D0     		beq	.L30
+ 297:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			prvInitialiseNewTimer( pcTimerName, xTimerPeriodInTicks, uxAutoReload, pvTimerID, pxCallbackFunc
+ 295              		.loc 1 297 0
+ 296 0014 0023     		movs	r3, #0
+ 297 0016 451D     		adds	r5, r0, #5
+ARM GAS  /tmp/ccdaQvPI.s 			page 24
+
+
+ 298 0018 EB77     		strb	r3, [r5, #31]
+ 299              	.LVL25:
+ 300              	.LBB8:
+ 301              	.LBB9:
+ 357:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 302              		.loc 1 357 0
+ 303 001a 9E42     		cmp	r6, r3
+ 304 001c 01D1     		bne	.L33
+ 305              		.syntax divided
+ 306              	@ 357 "Middlewares/Third_Party/FreeRTOS/Source/timers.c" 1
+ 307 001e 72B6     		 cpsid i 
+ 308              	@ 0 "" 2
+ 309              		.thumb
+ 310              		.syntax unified
+ 311              	.L34:
+ 312 0020 FEE7     		b	.L34
+ 313              	.L33:
+ 363:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 314              		.loc 1 363 0
+ 315 0022 FFF7FEFF 		bl	prvCheckForValidListAndQueue
+ 316              	.LVL26:
+ 369:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		pxNewTimer->pxCallbackFunction = pxCallbackFunction;
+ 317              		.loc 1 369 0
+ 318 0026 019B     		ldr	r3, [sp, #4]
+ 367:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		pxNewTimer->xTimerPeriodInTicks = xTimerPeriodInTicks;
+ 319              		.loc 1 367 0
+ 320 0028 2760     		str	r7, [r4]
+ 369:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		pxNewTimer->pxCallbackFunction = pxCallbackFunction;
+ 321              		.loc 1 369 0
+ 322 002a E361     		str	r3, [r4, #28]
+ 370:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		vListInitialiseItem( &( pxNewTimer->xTimerListItem ) );
+ 323              		.loc 1 370 0
+ 324 002c 089B     		ldr	r3, [sp, #32]
+ 368:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		pxNewTimer->pvTimerID = pvTimerID;
+ 325              		.loc 1 368 0
+ 326 002e A661     		str	r6, [r4, #24]
+ 370:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		vListInitialiseItem( &( pxNewTimer->xTimerListItem ) );
+ 327              		.loc 1 370 0
+ 328 0030 2362     		str	r3, [r4, #32]
+ 371:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		if( uxAutoReload != pdFALSE )
+ 329              		.loc 1 371 0
+ 330 0032 201D     		adds	r0, r4, #4
+ 331 0034 FFF7FEFF 		bl	vListInitialiseItem
+ 332              	.LVL27:
+ 372:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		{
+ 333              		.loc 1 372 0
+ 334 0038 009B     		ldr	r3, [sp]
+ 335 003a 002B     		cmp	r3, #0
+ 336 003c 03D0     		beq	.L30
+ 374:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		}
+ 337              		.loc 1 374 0
+ 338 003e 0423     		movs	r3, #4
+ 339 0040 EA7F     		ldrb	r2, [r5, #31]
+ 340 0042 1343     		orrs	r3, r2
+ 341 0044 EB77     		strb	r3, [r5, #31]
+ 342              	.LVL28:
+ 343              	.L30:
+ARM GAS  /tmp/ccdaQvPI.s 			page 25
+
+
+ 344              	.LBE9:
+ 345              	.LBE8:
+ 302:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 346              		.loc 1 302 0
+ 347 0046 2000     		movs	r0, r4
+ 348              		@ sp needed
+ 349              	.LVL29:
+ 350              	.LVL30:
+ 351              	.LVL31:
+ 352 0048 FEBD     		pop	{r1, r2, r3, r4, r5, r6, r7, pc}
+ 353              		.cfi_endproc
+ 354              	.LFE1:
+ 356              		.section	.text.xTimerGenericCommand,"ax",%progbits
+ 357              		.align	1
+ 358              		.global	xTimerGenericCommand
+ 359              		.syntax unified
+ 360              		.code	16
+ 361              		.thumb_func
+ 362              		.fpu softvfp
+ 364              	xTimerGenericCommand:
+ 365              	.LFB3:
+ 382:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** BaseType_t xReturn = pdFAIL;
+ 366              		.loc 1 382 0
+ 367              		.cfi_startproc
+ 368              		@ args = 4, pretend = 0, frame = 16
+ 369              		@ frame_needed = 0, uses_anonymous_args = 0
+ 370              	.LVL32:
+ 371 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+ 372              	.LCFI4:
+ 373              		.cfi_def_cfa_offset 20
+ 374              		.cfi_offset 4, -20
+ 375              		.cfi_offset 5, -16
+ 376              		.cfi_offset 6, -12
+ 377              		.cfi_offset 7, -8
+ 378              		.cfi_offset 14, -4
+ 379 0002 1700     		movs	r7, r2
+ 380 0004 85B0     		sub	sp, sp, #20
+ 381              	.LCFI5:
+ 382              		.cfi_def_cfa_offset 40
+ 382:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** BaseType_t xReturn = pdFAIL;
+ 383              		.loc 1 382 0
+ 384 0006 0600     		movs	r6, r0
+ 385 0008 1A00     		movs	r2, r3
+ 386              	.LVL33:
+ 386:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 387              		.loc 1 386 0
+ 388 000a 0028     		cmp	r0, #0
+ 389 000c 01D1     		bne	.L40
+ 386:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 390              		.loc 1 386 0 is_stmt 0 discriminator 1
+ 391              		.syntax divided
+ 392              	@ 386 "Middlewares/Third_Party/FreeRTOS/Source/timers.c" 1
+ 393 000e 72B6     		 cpsid i 
+ 394              	@ 0 "" 2
+ 395              		.thumb
+ 396              		.syntax unified
+ 397              	.L41:
+ARM GAS  /tmp/ccdaQvPI.s 			page 26
+
+
+ 398 0010 FEE7     		b	.L41
+ 399              	.L40:
+ 390:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	{
+ 400              		.loc 1 390 0 is_stmt 1
+ 401 0012 0D4D     		ldr	r5, .L47
+ 402 0014 2C68     		ldr	r4, [r5]
+ 383:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** DaemonTaskMessage_t xMessage;
+ 403              		.loc 1 383 0
+ 404 0016 201E     		subs	r0, r4, #0
+ 405              	.LVL34:
+ 390:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	{
+ 406              		.loc 1 390 0
+ 407 0018 0FD0     		beq	.L39
+ 393:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		xMessage.u.xTimerParameters.xMessageValue = xOptionalValue;
+ 408              		.loc 1 393 0
+ 409 001a 0191     		str	r1, [sp, #4]
+ 394:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		xMessage.u.xTimerParameters.pxTimer = xTimer;
+ 410              		.loc 1 394 0
+ 411 001c 0297     		str	r7, [sp, #8]
+ 395:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 412              		.loc 1 395 0
+ 413 001e 0396     		str	r6, [sp, #12]
+ 397:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		{
+ 414              		.loc 1 397 0
+ 415 0020 0529     		cmp	r1, #5
+ 416 0022 0CDC     		bgt	.L43
+ 399:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			{
+ 417              		.loc 1 399 0
+ 418 0024 FFF7FEFF 		bl	xTaskGetSchedulerState
+ 419              	.LVL35:
+ 401:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			}
+ 420              		.loc 1 401 0
+ 421 0028 0023     		movs	r3, #0
+ 422 002a 0A9A     		ldr	r2, [sp, #40]
+ 399:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			{
+ 423              		.loc 1 399 0
+ 424 002c 0228     		cmp	r0, #2
+ 425 002e 00D0     		beq	.L46
+ 405:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			}
+ 426              		.loc 1 405 0
+ 427 0030 1A00     		movs	r2, r3
+ 428              	.L46:
+ 429 0032 01A9     		add	r1, sp, #4
+ 430 0034 2868     		ldr	r0, [r5]
+ 431 0036 FFF7FEFF 		bl	xQueueGenericSend
+ 432              	.LVL36:
+ 433              	.L39:
+ 421:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** /*-----------------------------------------------------------*/
+ 434              		.loc 1 421 0
+ 435 003a 05B0     		add	sp, sp, #20
+ 436              		@ sp needed
+ 437              	.LVL37:
+ 438              	.LVL38:
+ 439 003c F0BD     		pop	{r4, r5, r6, r7, pc}
+ 440              	.LVL39:
+ 441              	.L43:
+ 410:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		}
+ARM GAS  /tmp/ccdaQvPI.s 			page 27
+
+
+ 442              		.loc 1 410 0
+ 443 003e 0023     		movs	r3, #0
+ 444 0040 01A9     		add	r1, sp, #4
+ 445              	.LVL40:
+ 446 0042 FFF7FEFF 		bl	xQueueGenericSendFromISR
+ 447              	.LVL41:
+ 448 0046 F8E7     		b	.L39
+ 449              	.L48:
+ 450              		.align	2
+ 451              	.L47:
+ 452 0048 00000000 		.word	.LANCHOR0
+ 453              		.cfi_endproc
+ 454              	.LFE3:
+ 456              		.section	.text.prvSwitchTimerLists,"ax",%progbits
+ 457              		.align	1
+ 458              		.syntax unified
+ 459              		.code	16
+ 460              		.thumb_func
+ 461              		.fpu softvfp
+ 463              	prvSwitchTimerLists:
+ 464              	.LFB17:
+ 883:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** TickType_t xNextExpireTime, xReloadTime;
+ 465              		.loc 1 883 0
+ 466              		.cfi_startproc
+ 467              		@ args = 0, pretend = 0, frame = 0
+ 468              		@ frame_needed = 0, uses_anonymous_args = 0
+ 469 0000 F7B5     		push	{r0, r1, r2, r4, r5, r6, r7, lr}
+ 470              	.LCFI6:
+ 471              		.cfi_def_cfa_offset 32
+ 472              		.cfi_offset 0, -32
+ 473              		.cfi_offset 1, -28
+ 474              		.cfi_offset 2, -24
+ 475              		.cfi_offset 4, -20
+ 476              		.cfi_offset 5, -16
+ 477              		.cfi_offset 6, -12
+ 478              		.cfi_offset 7, -8
+ 479              		.cfi_offset 14, -4
+ 480              	.L51:
+ 893:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	{
+ 481              		.loc 1 893 0
+ 482 0002 174D     		ldr	r5, .L58
+ 483 0004 2B68     		ldr	r3, [r5]
+ 484 0006 1A68     		ldr	r2, [r3]
+ 485 0008 002A     		cmp	r2, #0
+ 486 000a 04D1     		bne	.L55
+ 487              	.LVL42:
+ 936:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	pxOverflowTimerList = pxTemp;
+ 488              		.loc 1 936 0
+ 489 000c 154A     		ldr	r2, .L58+4
+ 938:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** /*-----------------------------------------------------------*/
+ 490              		.loc 1 938 0
+ 491              		@ sp needed
+ 936:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	pxOverflowTimerList = pxTemp;
+ 492              		.loc 1 936 0
+ 493 000e 1168     		ldr	r1, [r2]
+ 937:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** }
+ 494              		.loc 1 937 0
+ARM GAS  /tmp/ccdaQvPI.s 			page 28
+
+
+ 495 0010 1360     		str	r3, [r2]
+ 936:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	pxOverflowTimerList = pxTemp;
+ 496              		.loc 1 936 0
+ 497 0012 2960     		str	r1, [r5]
+ 938:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** /*-----------------------------------------------------------*/
+ 498              		.loc 1 938 0
+ 499 0014 F7BD     		pop	{r0, r1, r2, r4, r5, r6, r7, pc}
+ 500              	.LVL43:
+ 501              	.L55:
+ 895:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 502              		.loc 1 895 0
+ 503 0016 DB68     		ldr	r3, [r3, #12]
+ 898:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		( void ) uxListRemove( &( pxTimer->xTimerListItem ) );
+ 504              		.loc 1 898 0
+ 505 0018 DC68     		ldr	r4, [r3, #12]
+ 895:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 506              		.loc 1 895 0
+ 507 001a 1E68     		ldr	r6, [r3]
+ 508              	.LVL44:
+ 899:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		traceTIMER_EXPIRED( pxTimer );
+ 509              		.loc 1 899 0
+ 510 001c 271D     		adds	r7, r4, #4
+ 511 001e 3800     		movs	r0, r7
+ 512 0020 FFF7FEFF 		bl	uxListRemove
+ 513              	.LVL45:
+ 905:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 514              		.loc 1 905 0
+ 515 0024 236A     		ldr	r3, [r4, #32]
+ 516 0026 2000     		movs	r0, r4
+ 517 0028 9847     		blx	r3
+ 518              	.LVL46:
+ 907:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		{
+ 519              		.loc 1 907 0
+ 520 002a 0422     		movs	r2, #4
+ 521 002c 631D     		adds	r3, r4, #5
+ 522 002e DB7F     		ldrb	r3, [r3, #31]
+ 523 0030 1342     		tst	r3, r2
+ 524 0032 E6D0     		beq	.L51
+ 915:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			if( xReloadTime > xNextExpireTime )
+ 525              		.loc 1 915 0
+ 526 0034 A369     		ldr	r3, [r4, #24]
+ 527 0036 F318     		adds	r3, r6, r3
+ 528              	.LVL47:
+ 916:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			{
+ 529              		.loc 1 916 0
+ 530 0038 9E42     		cmp	r6, r3
+ 531 003a 06D2     		bcs	.L52
+ 918:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				listSET_LIST_ITEM_OWNER( &( pxTimer->xTimerListItem ), pxTimer );
+ 532              		.loc 1 918 0
+ 533 003c 6360     		str	r3, [r4, #4]
+ 919:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				vListInsert( pxCurrentTimerList, &( pxTimer->xTimerListItem ) );
+ 534              		.loc 1 919 0
+ 535 003e 2461     		str	r4, [r4, #16]
+ 920:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			}
+ 536              		.loc 1 920 0
+ 537 0040 3900     		movs	r1, r7
+ 538 0042 2868     		ldr	r0, [r5]
+ARM GAS  /tmp/ccdaQvPI.s 			page 29
+
+
+ 539 0044 FFF7FEFF 		bl	vListInsert
+ 540              	.LVL48:
+ 541 0048 DBE7     		b	.L51
+ 542              	.LVL49:
+ 543              	.L52:
+ 924:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				configASSERT( xResult );
+ 544              		.loc 1 924 0
+ 545 004a 0021     		movs	r1, #0
+ 546 004c 3200     		movs	r2, r6
+ 547 004e 0091     		str	r1, [sp]
+ 548 0050 0B00     		movs	r3, r1
+ 549              	.LVL50:
+ 550 0052 2000     		movs	r0, r4
+ 551 0054 FFF7FEFF 		bl	xTimerGenericCommand
+ 552              	.LVL51:
+ 925:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				( void ) xResult;
+ 553              		.loc 1 925 0
+ 554 0058 0028     		cmp	r0, #0
+ 555 005a D2D1     		bne	.L51
+ 925:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				( void ) xResult;
+ 556              		.loc 1 925 0 is_stmt 0 discriminator 1
+ 557              		.syntax divided
+ 558              	@ 925 "Middlewares/Third_Party/FreeRTOS/Source/timers.c" 1
+ 559 005c 72B6     		 cpsid i 
+ 560              	@ 0 "" 2
+ 561              		.thumb
+ 562              		.syntax unified
+ 563              	.L54:
+ 564 005e FEE7     		b	.L54
+ 565              	.L59:
+ 566              		.align	2
+ 567              	.L58:
+ 568 0060 00000000 		.word	.LANCHOR3
+ 569 0064 00000000 		.word	.LANCHOR4
+ 570              		.cfi_endproc
+ 571              	.LFE17:
+ 573              		.section	.text.prvTimerTask,"ax",%progbits
+ 574              		.align	1
+ 575              		.syntax unified
+ 576              		.code	16
+ 577              		.thumb_func
+ 578              		.fpu softvfp
+ 580              	prvTimerTask:
+ 581              	.LFB11:
+ 549:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** TickType_t xNextExpireTime;
+ 582              		.loc 1 549 0 is_stmt 1
+ 583              		.cfi_startproc
+ 584              		@ args = 0, pretend = 0, frame = 24
+ 585              		@ frame_needed = 0, uses_anonymous_args = 0
+ 586              	.LVL52:
+ 587 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+ 588              	.LCFI7:
+ 589              		.cfi_def_cfa_offset 20
+ 590              		.cfi_offset 4, -20
+ 591              		.cfi_offset 5, -16
+ 592              		.cfi_offset 6, -12
+ 593              		.cfi_offset 7, -8
+ARM GAS  /tmp/ccdaQvPI.s 			page 30
+
+
+ 594              		.cfi_offset 14, -4
+ 595 0002 89B0     		sub	sp, sp, #36
+ 596              	.LCFI8:
+ 597              		.cfi_def_cfa_offset 56
+ 598              	.LVL53:
+ 599              	.L89:
+ 600              	.LBB22:
+ 601              	.LBB23:
+ 655:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	if( *pxListWasEmpty == pdFALSE )
+ 602              		.loc 1 655 0 discriminator 1
+ 603 0004 5E4C     		ldr	r4, .L104
+ 604 0006 2368     		ldr	r3, [r4]
+ 605 0008 1968     		ldr	r1, [r3]
+ 606 000a 0029     		cmp	r1, #0
+ 607 000c 21D0     		beq	.L90
+ 608              	.LVL54:
+ 655:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	if( *pxListWasEmpty == pdFALSE )
+ 609              		.loc 1 655 0 is_stmt 0
+ 610 000e 0026     		movs	r6, #0
+ 658:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	}
+ 611              		.loc 1 658 0 is_stmt 1
+ 612 0010 DB68     		ldr	r3, [r3, #12]
+ 613 0012 1B68     		ldr	r3, [r3]
+ 614 0014 0393     		str	r3, [sp, #12]
+ 615              	.LVL55:
+ 616              	.L61:
+ 617              	.LBE23:
+ 618              	.LBE22:
+ 619              	.LBB25:
+ 620              	.LBB26:
+ 589:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	{
+ 621              		.loc 1 589 0
+ 622 0016 FFF7FEFF 		bl	vTaskSuspendAll
+ 623              	.LVL56:
+ 624              	.LBB27:
+ 625              	.LBB28:
+ 675:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 626              		.loc 1 675 0
+ 627 001a FFF7FEFF 		bl	xTaskGetTickCount
+ 628              	.LVL57:
+ 677:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	{
+ 629              		.loc 1 677 0
+ 630 001e 594F     		ldr	r7, .L104+4
+ 675:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 631              		.loc 1 675 0
+ 632 0020 0500     		movs	r5, r0
+ 633              	.LVL58:
+ 677:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	{
+ 634              		.loc 1 677 0
+ 635 0022 3B68     		ldr	r3, [r7]
+ 636 0024 9842     		cmp	r0, r3
+ 637 0026 17D3     		bcc	.L62
+ 638              	.LVL59:
+ 687:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 639              		.loc 1 687 0
+ 640 0028 3860     		str	r0, [r7]
+ 641              	.LVL60:
+ARM GAS  /tmp/ccdaQvPI.s 			page 31
+
+
+ 642              	.LBE28:
+ 643              	.LBE27:
+ 600:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			{
+ 644              		.loc 1 600 0
+ 645 002a 002E     		cmp	r6, #0
+ 646 002c 40D0     		beq	.L63
+ 617:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				}
+ 647              		.loc 1 617 0
+ 648 002e 564B     		ldr	r3, .L104+8
+ 649 0030 1B68     		ldr	r3, [r3]
+ 650 0032 1A68     		ldr	r2, [r3]
+ 651 0034 5342     		rsbs	r3, r2, #0
+ 652 0036 5A41     		adcs	r2, r2, r3
+ 653              	.L66:
+ 654              	.LVL61:
+ 620:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 655              		.loc 1 620 0
+ 656 0038 039B     		ldr	r3, [sp, #12]
+ 657 003a 591B     		subs	r1, r3, r5
+ 658 003c 534B     		ldr	r3, .L104+12
+ 659 003e 1868     		ldr	r0, [r3]
+ 660 0040 FFF7FEFF 		bl	vQueueWaitForMessageRestricted
+ 661              	.LVL62:
+ 622:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				{
+ 662              		.loc 1 622 0
+ 663 0044 FFF7FEFF 		bl	xTaskResumeAll
+ 664              	.LVL63:
+ 665 0048 0028     		cmp	r0, #0
+ 666 004a 0AD1     		bne	.L72
+ 628:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				}
+ 667              		.loc 1 628 0
+ 668 004c FFF7FEFF 		bl	vPortYield
+ 669              	.LVL64:
+ 670 0050 07E0     		b	.L72
+ 671              	.LVL65:
+ 672              	.L90:
+ 673              	.LBE26:
+ 674              	.LBE25:
+ 675              	.LBB35:
+ 676              	.LBB24:
+ 655:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	if( *pxListWasEmpty == pdFALSE )
+ 677              		.loc 1 655 0
+ 678 0052 0126     		movs	r6, #1
+ 663:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	}
+ 679              		.loc 1 663 0
+ 680 0054 0391     		str	r1, [sp, #12]
+ 681 0056 DEE7     		b	.L61
+ 682              	.LVL66:
+ 683              	.L62:
+ 684              	.LBE24:
+ 685              	.LBE35:
+ 686              	.LBB36:
+ 687              	.LBB33:
+ 688              	.LBB30:
+ 689              	.LBB29:
+ 679:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		*pxTimerListsWereSwitched = pdTRUE;
+ 690              		.loc 1 679 0
+ARM GAS  /tmp/ccdaQvPI.s 			page 32
+
+
+ 691 0058 FFF7FEFF 		bl	prvSwitchTimerLists
+ 692              	.LVL67:
+ 687:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 693              		.loc 1 687 0
+ 694 005c 3D60     		str	r5, [r7]
+ 695              	.LVL68:
+ 696              	.LBE29:
+ 697              	.LBE30:
+ 638:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		}
+ 698              		.loc 1 638 0
+ 699 005e FFF7FEFF 		bl	xTaskResumeAll
+ 700              	.LVL69:
+ 701              	.L72:
+ 702              	.LBE33:
+ 703              	.LBE36:
+ 704              	.LBB37:
+ 705              	.LBB38:
+ 741:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	{
+ 706              		.loc 1 741 0
+ 707 0062 4A4B     		ldr	r3, .L104+12
+ 708 0064 0022     		movs	r2, #0
+ 709 0066 05A9     		add	r1, sp, #20
+ 710 0068 1868     		ldr	r0, [r3]
+ 711 006a FFF7FEFF 		bl	xQueueReceive
+ 712              	.LVL70:
+ 713 006e 0028     		cmp	r0, #0
+ 714 0070 C8D0     		beq	.L89
+ 767:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		{
+ 715              		.loc 1 767 0
+ 716 0072 059B     		ldr	r3, [sp, #20]
+ 717 0074 002B     		cmp	r3, #0
+ 718 0076 F4DB     		blt	.L72
+ 771:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 719              		.loc 1 771 0
+ 720 0078 079C     		ldr	r4, [sp, #28]
+ 721              	.LVL71:
+ 773:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			{
+ 722              		.loc 1 773 0
+ 723 007a 6369     		ldr	r3, [r4, #20]
+ 724 007c 002B     		cmp	r3, #0
+ 725 007e 02D0     		beq	.L73
+ 776:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			}
+ 726              		.loc 1 776 0
+ 727 0080 201D     		adds	r0, r4, #4
+ 728 0082 FFF7FEFF 		bl	uxListRemove
+ 729              	.LVL72:
+ 730              	.L73:
+ 731              	.LBB39:
+ 732              	.LBB40:
+ 675:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 733              		.loc 1 675 0
+ 734 0086 FFF7FEFF 		bl	xTaskGetTickCount
+ 735              	.LVL73:
+ 677:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	{
+ 736              		.loc 1 677 0
+ 737 008a 3B68     		ldr	r3, [r7]
+ 675:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ARM GAS  /tmp/ccdaQvPI.s 			page 33
+
+
+ 738              		.loc 1 675 0
+ 739 008c 0600     		movs	r6, r0
+ 740              	.LVL74:
+ 677:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	{
+ 741              		.loc 1 677 0
+ 742 008e 9842     		cmp	r0, r3
+ 743 0090 01D2     		bcs	.L74
+ 679:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		*pxTimerListsWereSwitched = pdTRUE;
+ 744              		.loc 1 679 0
+ 745 0092 FFF7FEFF 		bl	prvSwitchTimerLists
+ 746              	.LVL75:
+ 747              	.L74:
+ 748              	.LBE40:
+ 749              	.LBE39:
+ 793:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			{
+ 750              		.loc 1 793 0
+ 751 0096 0598     		ldr	r0, [sp, #20]
+ 752              	.LBB42:
+ 753              	.LBB41:
+ 687:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 754              		.loc 1 687 0
+ 755 0098 3E60     		str	r6, [r7]
+ 756              	.LVL76:
+ 757              	.LBE41:
+ 758              	.LBE42:
+ 793:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			{
+ 759              		.loc 1 793 0
+ 760 009a 0928     		cmp	r0, #9
+ 761 009c E1D8     		bhi	.L72
+ 762 009e 651D     		adds	r5, r4, #5
+ 853:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 						{
+ 763              		.loc 1 853 0
+ 764 00a0 EB7F     		ldrb	r3, [r5, #31]
+ 793:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			{
+ 765              		.loc 1 793 0
+ 766 00a2 FFF7FEFF 		bl	__gnu_thumb1_case_uqi
+ 767              	.L77:
+ 768 00a6 31       		.byte	(.L76-.L77)/2
+ 769 00a7 31       		.byte	(.L76-.L77)/2
+ 770 00a8 31       		.byte	(.L76-.L77)/2
+ 771 00a9 69       		.byte	(.L86-.L77)/2
+ 772 00aa 52       		.byte	(.L79-.L77)/2
+ 773 00ab 62       		.byte	(.L80-.L77)/2
+ 774 00ac 31       		.byte	(.L76-.L77)/2
+ 775 00ad 31       		.byte	(.L76-.L77)/2
+ 776 00ae 69       		.byte	(.L86-.L77)/2
+ 777 00af 52       		.byte	(.L79-.L77)/2
+ 778              	.LVL77:
+ 779              		.p2align 1
+ 780              	.L63:
+ 781              	.LBE38:
+ 782              	.LBE37:
+ 783              	.LBB44:
+ 784              	.LBB34:
+ 600:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			{
+ 785              		.loc 1 600 0
+ 786 00b0 039B     		ldr	r3, [sp, #12]
+ARM GAS  /tmp/ccdaQvPI.s 			page 34
+
+
+ 787 00b2 3200     		movs	r2, r6
+ 788 00b4 8342     		cmp	r3, r0
+ 789 00b6 BFD8     		bhi	.L66
+ 790              	.LVL78:
+ 602:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 				prvProcessExpiredTimer( xNextExpireTime, xTimeNow );
+ 791              		.loc 1 602 0
+ 792 00b8 FFF7FEFF 		bl	xTaskResumeAll
+ 793              	.LVL79:
+ 794              	.LBB31:
+ 795              	.LBB32:
+ 510:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 796              		.loc 1 510 0
+ 797 00bc 2368     		ldr	r3, [r4]
+ 798 00be DB68     		ldr	r3, [r3, #12]
+ 799 00c0 DC68     		ldr	r4, [r3, #12]
+ 800              	.LVL80:
+ 514:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	traceTIMER_EXPIRED( pxTimer );
+ 801              		.loc 1 514 0
+ 802 00c2 201D     		adds	r0, r4, #4
+ 803 00c4 FFF7FEFF 		bl	uxListRemove
+ 804              	.LVL81:
+ 519:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	{
+ 805              		.loc 1 519 0
+ 806 00c8 0421     		movs	r1, #4
+ 807 00ca 621D     		adds	r2, r4, #5
+ 808 00cc D37F     		ldrb	r3, [r2, #31]
+ 809 00ce 0B42     		tst	r3, r1
+ 810 00d0 13D0     		beq	.L67
+ 524:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		{
+ 811              		.loc 1 524 0
+ 812 00d2 A269     		ldr	r2, [r4, #24]
+ 813 00d4 039B     		ldr	r3, [sp, #12]
+ 814 00d6 2000     		movs	r0, r4
+ 815 00d8 9918     		adds	r1, r3, r2
+ 816 00da 2A00     		movs	r2, r5
+ 817 00dc FFF7FEFF 		bl	prvInsertTimerInActiveList
+ 818              	.LVL82:
+ 819 00e0 0028     		cmp	r0, #0
+ 820 00e2 0DD0     		beq	.L69
+ 528:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			configASSERT( xResult );
+ 821              		.loc 1 528 0
+ 822 00e4 0096     		str	r6, [sp]
+ 823 00e6 3300     		movs	r3, r6
+ 824 00e8 039A     		ldr	r2, [sp, #12]
+ 825 00ea 3100     		movs	r1, r6
+ 826 00ec 2000     		movs	r0, r4
+ 827 00ee FFF7FEFF 		bl	xTimerGenericCommand
+ 828              	.LVL83:
+ 529:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			( void ) xResult;
+ 829              		.loc 1 529 0
+ 830 00f2 0028     		cmp	r0, #0
+ 831 00f4 04D1     		bne	.L69
+ 832              		.syntax divided
+ 833              	@ 529 "Middlewares/Third_Party/FreeRTOS/Source/timers.c" 1
+ 834 00f6 72B6     		 cpsid i 
+ 835              	@ 0 "" 2
+ 836              		.thumb
+ARM GAS  /tmp/ccdaQvPI.s 			page 35
+
+
+ 837              		.syntax unified
+ 838              	.L71:
+ 839 00f8 FEE7     		b	.L71
+ 840              	.LVL84:
+ 841              	.L67:
+ 539:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		mtCOVERAGE_TEST_MARKER();
+ 842              		.loc 1 539 0
+ 843 00fa 0121     		movs	r1, #1
+ 844 00fc 8B43     		bics	r3, r1
+ 845 00fe D377     		strb	r3, [r2, #31]
+ 846              	.L69:
+ 544:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** }
+ 847              		.loc 1 544 0
+ 848 0100 236A     		ldr	r3, [r4, #32]
+ 849 0102 2000     		movs	r0, r4
+ 850 0104 9847     		blx	r3
+ 851              	.LVL85:
+ 852 0106 ACE7     		b	.L72
+ 853              	.LVL86:
+ 854              	.L76:
+ 855              	.LBE32:
+ 856              	.LBE31:
+ 857              	.LBE34:
+ 858              	.LBE44:
+ 859              	.LBB45:
+ 860              	.LBB43:
+ 801:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 					if( prvInsertTimerInActiveList( pxTimer,  xMessage.u.xTimerParameters.xMessageValue + pxTimer-
+ 861              		.loc 1 801 0
+ 862 0108 0122     		movs	r2, #1
+ 863 010a 1343     		orrs	r3, r2
+ 864 010c EB77     		strb	r3, [r5, #31]
+ 802:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 					{
+ 865              		.loc 1 802 0
+ 866 010e A269     		ldr	r2, [r4, #24]
+ 867 0110 069B     		ldr	r3, [sp, #24]
+ 868 0112 2000     		movs	r0, r4
+ 869 0114 9918     		adds	r1, r3, r2
+ 870 0116 3200     		movs	r2, r6
+ 871 0118 0393     		str	r3, [sp, #12]
+ 872 011a FFF7FEFF 		bl	prvInsertTimerInActiveList
+ 873              	.LVL87:
+ 874 011e 0028     		cmp	r0, #0
+ 875 0120 9FD0     		beq	.L72
+ 806:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 						traceTIMER_EXPIRED( pxTimer );
+ 876              		.loc 1 806 0
+ 877 0122 236A     		ldr	r3, [r4, #32]
+ 878 0124 2000     		movs	r0, r4
+ 879 0126 9847     		blx	r3
+ 880              	.LVL88:
+ 809:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 						{
+ 881              		.loc 1 809 0
+ 882 0128 0422     		movs	r2, #4
+ 883 012a EB7F     		ldrb	r3, [r5, #31]
+ 884 012c 1342     		tst	r3, r2
+ 885 012e 98D0     		beq	.L72
+ 811:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 							configASSERT( xResult );
+ 886              		.loc 1 811 0
+ARM GAS  /tmp/ccdaQvPI.s 			page 36
+
+
+ 887 0130 0021     		movs	r1, #0
+ 888 0132 A369     		ldr	r3, [r4, #24]
+ 889 0134 069A     		ldr	r2, [sp, #24]
+ 890 0136 0091     		str	r1, [sp]
+ 891 0138 D218     		adds	r2, r2, r3
+ 892 013a 2000     		movs	r0, r4
+ 893 013c 0B00     		movs	r3, r1
+ 894 013e FFF7FEFF 		bl	xTimerGenericCommand
+ 895              	.LVL89:
+ 812:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 							( void ) xResult;
+ 896              		.loc 1 812 0
+ 897 0142 0028     		cmp	r0, #0
+ 898 0144 8DD1     		bne	.L72
+ 899              		.syntax divided
+ 900              	@ 812 "Middlewares/Third_Party/FreeRTOS/Source/timers.c" 1
+ 901 0146 72B6     		 cpsid i 
+ 902              	@ 0 "" 2
+ 903              		.thumb
+ 904              		.syntax unified
+ 905              	.L82:
+ 906 0148 FEE7     		b	.L82
+ 907              	.LVL90:
+ 908              	.L79:
+ 834:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 					pxTimer->xTimerPeriodInTicks = xMessage.u.xTimerParameters.xMessageValue;
+ 909              		.loc 1 834 0
+ 910 014a 0122     		movs	r2, #1
+ 835:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 					configASSERT( ( pxTimer->xTimerPeriodInTicks > 0 ) );
+ 911              		.loc 1 835 0
+ 912 014c 0699     		ldr	r1, [sp, #24]
+ 834:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 					pxTimer->xTimerPeriodInTicks = xMessage.u.xTimerParameters.xMessageValue;
+ 913              		.loc 1 834 0
+ 914 014e 1343     		orrs	r3, r2
+ 915 0150 EB77     		strb	r3, [r5, #31]
+ 835:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 					configASSERT( ( pxTimer->xTimerPeriodInTicks > 0 ) );
+ 916              		.loc 1 835 0
+ 917 0152 A161     		str	r1, [r4, #24]
+ 836:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 918              		.loc 1 836 0
+ 919 0154 0029     		cmp	r1, #0
+ 920 0156 01D1     		bne	.L84
+ 921              		.syntax divided
+ 922              	@ 836 "Middlewares/Third_Party/FreeRTOS/Source/timers.c" 1
+ 923 0158 72B6     		 cpsid i 
+ 924              	@ 0 "" 2
+ 925              		.thumb
+ 926              		.syntax unified
+ 927              	.L85:
+ 928 015a FEE7     		b	.L85
+ 929              	.L84:
+ 844:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 					break;
+ 930              		.loc 1 844 0
+ 931 015c 8919     		adds	r1, r1, r6
+ 932 015e 3300     		movs	r3, r6
+ 933 0160 3200     		movs	r2, r6
+ 934 0162 2000     		movs	r0, r4
+ 935 0164 FFF7FEFF 		bl	prvInsertTimerInActiveList
+ 936              	.LVL91:
+ARM GAS  /tmp/ccdaQvPI.s 			page 37
+
+
+ 937 0168 7BE7     		b	.L72
+ 938              	.L80:
+ 853:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 						{
+ 939              		.loc 1 853 0
+ 940 016a 0222     		movs	r2, #2
+ 941 016c 1342     		tst	r3, r2
+ 942 016e 03D1     		bne	.L86
+ 855:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 						}
+ 943              		.loc 1 855 0
+ 944 0170 2000     		movs	r0, r4
+ 945 0172 FFF7FEFF 		bl	vPortFree
+ 946              	.LVL92:
+ 947 0176 74E7     		b	.L72
+ 948              	.L86:
+ 859:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 						}
+ 949              		.loc 1 859 0
+ 950 0178 0122     		movs	r2, #1
+ 951 017a 9343     		bics	r3, r2
+ 952 017c EB77     		strb	r3, [r5, #31]
+ 953 017e 70E7     		b	.L72
+ 954              	.L105:
+ 955              		.align	2
+ 956              	.L104:
+ 957 0180 00000000 		.word	.LANCHOR3
+ 958 0184 00000000 		.word	.LANCHOR6
+ 959 0188 00000000 		.word	.LANCHOR4
+ 960 018c 00000000 		.word	.LANCHOR0
+ 961              	.LBE43:
+ 962              	.LBE45:
+ 963              		.cfi_endproc
+ 964              	.LFE11:
+ 966              		.section	.text.xTimerGetTimerDaemonTaskHandle,"ax",%progbits
+ 967              		.align	1
+ 968              		.global	xTimerGetTimerDaemonTaskHandle
+ 969              		.syntax unified
+ 970              		.code	16
+ 971              		.thumb_func
+ 972              		.fpu softvfp
+ 974              	xTimerGetTimerDaemonTaskHandle:
+ 975              	.LFB4:
+ 425:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	/* If xTimerGetTimerDaemonTaskHandle() is called before the scheduler has been
+ 976              		.loc 1 425 0
+ 977              		.cfi_startproc
+ 978              		@ args = 0, pretend = 0, frame = 0
+ 979              		@ frame_needed = 0, uses_anonymous_args = 0
+ 980              		@ link register save eliminated.
+ 428:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	return xTimerTaskHandle;
+ 981              		.loc 1 428 0
+ 982 0000 034B     		ldr	r3, .L109
+ 983 0002 1868     		ldr	r0, [r3]
+ 984 0004 0028     		cmp	r0, #0
+ 985 0006 01D1     		bne	.L106
+ 428:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	return xTimerTaskHandle;
+ 986              		.loc 1 428 0 is_stmt 0 discriminator 1
+ 987              		.syntax divided
+ 988              	@ 428 "Middlewares/Third_Party/FreeRTOS/Source/timers.c" 1
+ 989 0008 72B6     		 cpsid i 
+ARM GAS  /tmp/ccdaQvPI.s 			page 38
+
+
+ 990              	@ 0 "" 2
+ 991              		.thumb
+ 992              		.syntax unified
+ 993              	.L108:
+ 994 000a FEE7     		b	.L108
+ 995              	.L106:
+ 430:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** /*-----------------------------------------------------------*/
+ 996              		.loc 1 430 0 is_stmt 1
+ 997              		@ sp needed
+ 998 000c 7047     		bx	lr
+ 999              	.L110:
+ 1000 000e C046     		.align	2
+ 1001              	.L109:
+ 1002 0010 00000000 		.word	.LANCHOR5
+ 1003              		.cfi_endproc
+ 1004              	.LFE4:
+ 1006              		.section	.text.xTimerGetPeriod,"ax",%progbits
+ 1007              		.align	1
+ 1008              		.global	xTimerGetPeriod
+ 1009              		.syntax unified
+ 1010              		.code	16
+ 1011              		.thumb_func
+ 1012              		.fpu softvfp
+ 1014              	xTimerGetPeriod:
+ 1015              	.LFB5:
+ 434:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** Timer_t *pxTimer = xTimer;
+ 1016              		.loc 1 434 0
+ 1017              		.cfi_startproc
+ 1018              		@ args = 0, pretend = 0, frame = 0
+ 1019              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1020              		@ link register save eliminated.
+ 1021              	.LVL93:
+ 437:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	return pxTimer->xTimerPeriodInTicks;
+ 1022              		.loc 1 437 0
+ 1023 0000 0028     		cmp	r0, #0
+ 1024 0002 01D1     		bne	.L112
+ 437:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	return pxTimer->xTimerPeriodInTicks;
+ 1025              		.loc 1 437 0 is_stmt 0 discriminator 1
+ 1026              		.syntax divided
+ 1027              	@ 437 "Middlewares/Third_Party/FreeRTOS/Source/timers.c" 1
+ 1028 0004 72B6     		 cpsid i 
+ 1029              	@ 0 "" 2
+ 1030              		.thumb
+ 1031              		.syntax unified
+ 1032              	.L113:
+ 1033 0006 FEE7     		b	.L113
+ 1034              	.L112:
+ 438:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** }
+ 1035              		.loc 1 438 0 is_stmt 1
+ 1036 0008 8069     		ldr	r0, [r0, #24]
+ 1037              	.LVL94:
+ 439:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** /*-----------------------------------------------------------*/
+ 1038              		.loc 1 439 0
+ 1039              		@ sp needed
+ 1040 000a 7047     		bx	lr
+ 1041              		.cfi_endproc
+ 1042              	.LFE5:
+ARM GAS  /tmp/ccdaQvPI.s 			page 39
+
+
+ 1044              		.section	.text.vTimerSetReloadMode,"ax",%progbits
+ 1045              		.align	1
+ 1046              		.global	vTimerSetReloadMode
+ 1047              		.syntax unified
+ 1048              		.code	16
+ 1049              		.thumb_func
+ 1050              		.fpu softvfp
+ 1052              	vTimerSetReloadMode:
+ 1053              	.LFB6:
+ 443:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** Timer_t * pxTimer =  xTimer;
+ 1054              		.loc 1 443 0
+ 1055              		.cfi_startproc
+ 1056              		@ args = 0, pretend = 0, frame = 0
+ 1057              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1058              	.LVL95:
+ 1059 0000 70B5     		push	{r4, r5, r6, lr}
+ 1060              	.LCFI9:
+ 1061              		.cfi_def_cfa_offset 16
+ 1062              		.cfi_offset 4, -16
+ 1063              		.cfi_offset 5, -12
+ 1064              		.cfi_offset 6, -8
+ 1065              		.cfi_offset 14, -4
+ 443:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** Timer_t * pxTimer =  xTimer;
+ 1066              		.loc 1 443 0
+ 1067 0002 0400     		movs	r4, r0
+ 1068 0004 0D00     		movs	r5, r1
+ 446:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	taskENTER_CRITICAL();
+ 1069              		.loc 1 446 0
+ 1070 0006 0028     		cmp	r0, #0
+ 1071 0008 01D1     		bne	.L115
+ 446:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	taskENTER_CRITICAL();
+ 1072              		.loc 1 446 0 is_stmt 0 discriminator 1
+ 1073              		.syntax divided
+ 1074              	@ 446 "Middlewares/Third_Party/FreeRTOS/Source/timers.c" 1
+ 1075 000a 72B6     		 cpsid i 
+ 1076              	@ 0 "" 2
+ 1077              		.thumb
+ 1078              		.syntax unified
+ 1079              	.L116:
+ 1080 000c FEE7     		b	.L116
+ 1081              	.L115:
+ 1082 000e 0534     		adds	r4, r4, #5
+ 447:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	{
+ 1083              		.loc 1 447 0 is_stmt 1
+ 1084 0010 FFF7FEFF 		bl	vPortEnterCritical
+ 1085              	.LVL96:
+ 1086 0014 0423     		movs	r3, #4
+ 451:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		}
+ 1087              		.loc 1 451 0
+ 1088 0016 E27F     		ldrb	r2, [r4, #31]
+ 449:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		{
+ 1089              		.loc 1 449 0
+ 1090 0018 002D     		cmp	r5, #0
+ 1091 001a 04D0     		beq	.L117
+ 451:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		}
+ 1092              		.loc 1 451 0
+ 1093 001c 1343     		orrs	r3, r2
+ARM GAS  /tmp/ccdaQvPI.s 			page 40
+
+
+ 1094 001e E377     		strb	r3, [r4, #31]
+ 1095              	.L118:
+ 458:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** }
+ 1096              		.loc 1 458 0
+ 1097 0020 FFF7FEFF 		bl	vPortExitCritical
+ 1098              	.LVL97:
+ 459:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** /*-----------------------------------------------------------*/
+ 1099              		.loc 1 459 0
+ 1100              		@ sp needed
+ 1101              	.LVL98:
+ 1102              	.LVL99:
+ 1103 0024 70BD     		pop	{r4, r5, r6, pc}
+ 1104              	.LVL100:
+ 1105              	.L117:
+ 455:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		}
+ 1106              		.loc 1 455 0
+ 1107 0026 9A43     		bics	r2, r3
+ 1108 0028 E277     		strb	r2, [r4, #31]
+ 1109 002a F9E7     		b	.L118
+ 1110              		.cfi_endproc
+ 1111              	.LFE6:
+ 1113              		.section	.text.uxTimerGetReloadMode,"ax",%progbits
+ 1114              		.align	1
+ 1115              		.global	uxTimerGetReloadMode
+ 1116              		.syntax unified
+ 1117              		.code	16
+ 1118              		.thumb_func
+ 1119              		.fpu softvfp
+ 1121              	uxTimerGetReloadMode:
+ 1122              	.LFB7:
+ 463:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** Timer_t * pxTimer =  xTimer;
+ 1123              		.loc 1 463 0
+ 1124              		.cfi_startproc
+ 1125              		@ args = 0, pretend = 0, frame = 0
+ 1126              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1127              	.LVL101:
+ 1128 0000 10B5     		push	{r4, lr}
+ 1129              	.LCFI10:
+ 1130              		.cfi_def_cfa_offset 8
+ 1131              		.cfi_offset 4, -8
+ 1132              		.cfi_offset 14, -4
+ 463:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** Timer_t * pxTimer =  xTimer;
+ 1133              		.loc 1 463 0
+ 1134 0002 041E     		subs	r4, r0, #0
+ 467:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	taskENTER_CRITICAL();
+ 1135              		.loc 1 467 0
+ 1136 0004 01D1     		bne	.L120
+ 467:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	taskENTER_CRITICAL();
+ 1137              		.loc 1 467 0 is_stmt 0 discriminator 1
+ 1138              		.syntax divided
+ 1139              	@ 467 "Middlewares/Third_Party/FreeRTOS/Source/timers.c" 1
+ 1140 0006 72B6     		 cpsid i 
+ 1141              	@ 0 "" 2
+ 1142              		.thumb
+ 1143              		.syntax unified
+ 1144              	.L121:
+ 1145 0008 FEE7     		b	.L121
+ARM GAS  /tmp/ccdaQvPI.s 			page 41
+
+
+ 1146              	.L120:
+ 470:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		{
+ 1147              		.loc 1 470 0 is_stmt 1
+ 1148 000a 0534     		adds	r4, r4, #5
+ 468:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	{
+ 1149              		.loc 1 468 0
+ 1150 000c FFF7FEFF 		bl	vPortEnterCritical
+ 1151              	.LVL102:
+ 470:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		{
+ 1152              		.loc 1 470 0
+ 1153 0010 E47F     		ldrb	r4, [r4, #31]
+ 1154              	.LVL103:
+ 484:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** /*-----------------------------------------------------------*/
+ 1155              		.loc 1 484 0
+ 1156              		@ sp needed
+ 470:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		{
+ 1157              		.loc 1 470 0
+ 1158 0012 6407     		lsls	r4, r4, #29
+ 1159 0014 E40F     		lsrs	r4, r4, #31
+ 1160              	.LVL104:
+ 481:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 1161              		.loc 1 481 0
+ 1162 0016 FFF7FEFF 		bl	vPortExitCritical
+ 1163              	.LVL105:
+ 484:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** /*-----------------------------------------------------------*/
+ 1164              		.loc 1 484 0
+ 1165 001a 2000     		movs	r0, r4
+ 1166              	.LVL106:
+ 1167 001c 10BD     		pop	{r4, pc}
+ 1168              		.cfi_endproc
+ 1169              	.LFE7:
+ 1171              		.section	.text.xTimerGetExpiryTime,"ax",%progbits
+ 1172              		.align	1
+ 1173              		.global	xTimerGetExpiryTime
+ 1174              		.syntax unified
+ 1175              		.code	16
+ 1176              		.thumb_func
+ 1177              		.fpu softvfp
+ 1179              	xTimerGetExpiryTime:
+ 1180              	.LFB8:
+ 488:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** Timer_t * pxTimer =  xTimer;
+ 1181              		.loc 1 488 0
+ 1182              		.cfi_startproc
+ 1183              		@ args = 0, pretend = 0, frame = 0
+ 1184              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1185              		@ link register save eliminated.
+ 1186              	.LVL107:
+ 492:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	xReturn = listGET_LIST_ITEM_VALUE( &( pxTimer->xTimerListItem ) );
+ 1187              		.loc 1 492 0
+ 1188 0000 0028     		cmp	r0, #0
+ 1189 0002 01D1     		bne	.L123
+ 492:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	xReturn = listGET_LIST_ITEM_VALUE( &( pxTimer->xTimerListItem ) );
+ 1190              		.loc 1 492 0 is_stmt 0 discriminator 1
+ 1191              		.syntax divided
+ 1192              	@ 492 "Middlewares/Third_Party/FreeRTOS/Source/timers.c" 1
+ 1193 0004 72B6     		 cpsid i 
+ 1194              	@ 0 "" 2
+ARM GAS  /tmp/ccdaQvPI.s 			page 42
+
+
+ 1195              		.thumb
+ 1196              		.syntax unified
+ 1197              	.L124:
+ 1198 0006 FEE7     		b	.L124
+ 1199              	.L123:
+ 1200              	.LVL108:
+ 494:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** }
+ 1201              		.loc 1 494 0 is_stmt 1
+ 1202 0008 4068     		ldr	r0, [r0, #4]
+ 1203              	.LVL109:
+ 495:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** /*-----------------------------------------------------------*/
+ 1204              		.loc 1 495 0
+ 1205              		@ sp needed
+ 1206 000a 7047     		bx	lr
+ 1207              		.cfi_endproc
+ 1208              	.LFE8:
+ 1210              		.section	.text.pcTimerGetName,"ax",%progbits
+ 1211              		.align	1
+ 1212              		.global	pcTimerGetName
+ 1213              		.syntax unified
+ 1214              		.code	16
+ 1215              		.thumb_func
+ 1216              		.fpu softvfp
+ 1218              	pcTimerGetName:
+ 1219              	.LFB9:
+ 499:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** Timer_t *pxTimer = xTimer;
+ 1220              		.loc 1 499 0
+ 1221              		.cfi_startproc
+ 1222              		@ args = 0, pretend = 0, frame = 0
+ 1223              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1224              		@ link register save eliminated.
+ 1225              	.LVL110:
+ 502:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	return pxTimer->pcTimerName;
+ 1226              		.loc 1 502 0
+ 1227 0000 0028     		cmp	r0, #0
+ 1228 0002 01D1     		bne	.L126
+ 502:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	return pxTimer->pcTimerName;
+ 1229              		.loc 1 502 0 is_stmt 0 discriminator 1
+ 1230              		.syntax divided
+ 1231              	@ 502 "Middlewares/Third_Party/FreeRTOS/Source/timers.c" 1
+ 1232 0004 72B6     		 cpsid i 
+ 1233              	@ 0 "" 2
+ 1234              		.thumb
+ 1235              		.syntax unified
+ 1236              	.L127:
+ 1237 0006 FEE7     		b	.L127
+ 1238              	.L126:
+ 503:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** }
+ 1239              		.loc 1 503 0 is_stmt 1
+ 1240 0008 0068     		ldr	r0, [r0]
+ 1241              	.LVL111:
+ 504:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** /*-----------------------------------------------------------*/
+ 1242              		.loc 1 504 0
+ 1243              		@ sp needed
+ 1244 000a 7047     		bx	lr
+ 1245              		.cfi_endproc
+ 1246              	.LFE9:
+ARM GAS  /tmp/ccdaQvPI.s 			page 43
+
+
+ 1248              		.section	.text.xTimerIsTimerActive,"ax",%progbits
+ 1249              		.align	1
+ 1250              		.global	xTimerIsTimerActive
+ 1251              		.syntax unified
+ 1252              		.code	16
+ 1253              		.thumb_func
+ 1254              		.fpu softvfp
+ 1256              	xTimerIsTimerActive:
+ 1257              	.LFB19:
+ 990:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** /*-----------------------------------------------------------*/
+ 991:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 992:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** BaseType_t xTimerIsTimerActive( TimerHandle_t xTimer )
+ 993:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** {
+ 1258              		.loc 1 993 0
+ 1259              		.cfi_startproc
+ 1260              		@ args = 0, pretend = 0, frame = 0
+ 1261              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1262              	.LVL112:
+ 1263 0000 10B5     		push	{r4, lr}
+ 1264              	.LCFI11:
+ 1265              		.cfi_def_cfa_offset 8
+ 1266              		.cfi_offset 4, -8
+ 1267              		.cfi_offset 14, -4
+ 1268              		.loc 1 993 0
+ 1269 0002 041E     		subs	r4, r0, #0
+ 994:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** BaseType_t xReturn;
+ 995:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** Timer_t *pxTimer = xTimer;
+ 996:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 997:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	configASSERT( xTimer );
+ 1270              		.loc 1 997 0
+ 1271 0004 01D1     		bne	.L129
+ 1272              		.loc 1 997 0 is_stmt 0 discriminator 1
+ 1273              		.syntax divided
+ 1274              	@ 997 "Middlewares/Third_Party/FreeRTOS/Source/timers.c" 1
+ 1275 0006 72B6     		 cpsid i 
+ 1276              	@ 0 "" 2
+ 1277              		.thumb
+ 1278              		.syntax unified
+ 1279              	.L130:
+ 1280 0008 FEE7     		b	.L130
+ 1281              	.L129:
+ 998:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 999:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	/* Is the timer in the list of active timers? */
+1000:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	taskENTER_CRITICAL();
+ 1282              		.loc 1 1000 0 is_stmt 1
+ 1283 000a FFF7FEFF 		bl	vPortEnterCritical
+ 1284              	.LVL113:
+1001:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	{
+1002:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		if( ( pxTimer->ucStatus & tmrSTATUS_IS_ACTIVE ) == 0 )
+1003:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		{
+1004:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			xReturn = pdFALSE;
+ 1285              		.loc 1 1004 0
+ 1286 000e 0123     		movs	r3, #1
+1002:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		{
+ 1287              		.loc 1 1002 0
+ 1288 0010 0534     		adds	r4, r4, #5
+ 1289              	.LVL114:
+ARM GAS  /tmp/ccdaQvPI.s 			page 44
+
+
+ 1290 0012 E47F     		ldrb	r4, [r4, #31]
+ 1291              	.LVL115:
+1005:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		}
+1006:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		else
+1007:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		{
+1008:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 			xReturn = pdTRUE;
+1009:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		}
+1010:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	}
+1011:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	taskEXIT_CRITICAL();
+1012:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+1013:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	return xReturn;
+1014:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** } /*lint !e818 Can't be pointer to const due to the typedef. */
+ 1292              		.loc 1 1014 0
+ 1293              		@ sp needed
+1004:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		}
+ 1294              		.loc 1 1004 0
+ 1295 0014 1C40     		ands	r4, r3
+ 1296              	.LVL116:
+1011:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 1297              		.loc 1 1011 0
+ 1298 0016 FFF7FEFF 		bl	vPortExitCritical
+ 1299              	.LVL117:
+ 1300              		.loc 1 1014 0
+ 1301 001a 2000     		movs	r0, r4
+ 1302              	.LVL118:
+ 1303 001c 10BD     		pop	{r4, pc}
+ 1304              		.cfi_endproc
+ 1305              	.LFE19:
+ 1307              		.section	.text.pvTimerGetTimerID,"ax",%progbits
+ 1308              		.align	1
+ 1309              		.global	pvTimerGetTimerID
+ 1310              		.syntax unified
+ 1311              		.code	16
+ 1312              		.thumb_func
+ 1313              		.fpu softvfp
+ 1315              	pvTimerGetTimerID:
+ 1316              	.LFB20:
+1015:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** /*-----------------------------------------------------------*/
+1016:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+1017:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** void *pvTimerGetTimerID( const TimerHandle_t xTimer )
+1018:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** {
+ 1317              		.loc 1 1018 0
+ 1318              		.cfi_startproc
+ 1319              		@ args = 0, pretend = 0, frame = 0
+ 1320              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1321              	.LVL119:
+ 1322 0000 10B5     		push	{r4, lr}
+ 1323              	.LCFI12:
+ 1324              		.cfi_def_cfa_offset 8
+ 1325              		.cfi_offset 4, -8
+ 1326              		.cfi_offset 14, -4
+ 1327              		.loc 1 1018 0
+ 1328 0002 041E     		subs	r4, r0, #0
+1019:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** Timer_t * const pxTimer = xTimer;
+1020:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** void *pvReturn;
+1021:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+1022:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	configASSERT( xTimer );
+ARM GAS  /tmp/ccdaQvPI.s 			page 45
+
+
+ 1329              		.loc 1 1022 0
+ 1330 0004 01D1     		bne	.L132
+ 1331              		.loc 1 1022 0 is_stmt 0 discriminator 1
+ 1332              		.syntax divided
+ 1333              	@ 1022 "Middlewares/Third_Party/FreeRTOS/Source/timers.c" 1
+ 1334 0006 72B6     		 cpsid i 
+ 1335              	@ 0 "" 2
+ 1336              		.thumb
+ 1337              		.syntax unified
+ 1338              	.L133:
+ 1339 0008 FEE7     		b	.L133
+ 1340              	.L132:
+1023:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+1024:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	taskENTER_CRITICAL();
+ 1341              		.loc 1 1024 0 is_stmt 1
+ 1342 000a FFF7FEFF 		bl	vPortEnterCritical
+ 1343              	.LVL120:
+1025:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	{
+1026:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		pvReturn = pxTimer->pvTimerID;
+ 1344              		.loc 1 1026 0
+ 1345 000e E469     		ldr	r4, [r4, #28]
+ 1346              	.LVL121:
+1027:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	}
+1028:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	taskEXIT_CRITICAL();
+1029:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+1030:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	return pvReturn;
+1031:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** }
+ 1347              		.loc 1 1031 0
+ 1348              		@ sp needed
+1028:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+ 1349              		.loc 1 1028 0
+ 1350 0010 FFF7FEFF 		bl	vPortExitCritical
+ 1351              	.LVL122:
+ 1352              		.loc 1 1031 0
+ 1353 0014 2000     		movs	r0, r4
+ 1354              	.LVL123:
+ 1355 0016 10BD     		pop	{r4, pc}
+ 1356              		.cfi_endproc
+ 1357              	.LFE20:
+ 1359              		.section	.text.vTimerSetTimerID,"ax",%progbits
+ 1360              		.align	1
+ 1361              		.global	vTimerSetTimerID
+ 1362              		.syntax unified
+ 1363              		.code	16
+ 1364              		.thumb_func
+ 1365              		.fpu softvfp
+ 1367              	vTimerSetTimerID:
+ 1368              	.LFB21:
+1032:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** /*-----------------------------------------------------------*/
+1033:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+1034:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** void vTimerSetTimerID( TimerHandle_t xTimer, void *pvNewID )
+1035:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** {
+ 1369              		.loc 1 1035 0
+ 1370              		.cfi_startproc
+ 1371              		@ args = 0, pretend = 0, frame = 0
+ 1372              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1373              	.LVL124:
+ARM GAS  /tmp/ccdaQvPI.s 			page 46
+
+
+ 1374 0000 70B5     		push	{r4, r5, r6, lr}
+ 1375              	.LCFI13:
+ 1376              		.cfi_def_cfa_offset 16
+ 1377              		.cfi_offset 4, -16
+ 1378              		.cfi_offset 5, -12
+ 1379              		.cfi_offset 6, -8
+ 1380              		.cfi_offset 14, -4
+ 1381              		.loc 1 1035 0
+ 1382 0002 0400     		movs	r4, r0
+ 1383 0004 0D00     		movs	r5, r1
+1036:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** Timer_t * const pxTimer = xTimer;
+1037:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+1038:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	configASSERT( xTimer );
+ 1384              		.loc 1 1038 0
+ 1385 0006 0028     		cmp	r0, #0
+ 1386 0008 01D1     		bne	.L135
+ 1387              		.loc 1 1038 0 is_stmt 0 discriminator 1
+ 1388              		.syntax divided
+ 1389              	@ 1038 "Middlewares/Third_Party/FreeRTOS/Source/timers.c" 1
+ 1390 000a 72B6     		 cpsid i 
+ 1391              	@ 0 "" 2
+ 1392              		.thumb
+ 1393              		.syntax unified
+ 1394              	.L136:
+ 1395 000c FEE7     		b	.L136
+ 1396              	.L135:
+1039:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 
+1040:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	taskENTER_CRITICAL();
+ 1397              		.loc 1 1040 0 is_stmt 1
+ 1398 000e FFF7FEFF 		bl	vPortEnterCritical
+ 1399              	.LVL125:
+1041:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	{
+1042:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 		pxTimer->pvTimerID = pvNewID;
+ 1400              		.loc 1 1042 0
+ 1401 0012 E561     		str	r5, [r4, #28]
+1043:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	}
+1044:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** 	taskEXIT_CRITICAL();
+ 1402              		.loc 1 1044 0
+ 1403 0014 FFF7FEFF 		bl	vPortExitCritical
+ 1404              	.LVL126:
+1045:Middlewares/Third_Party/FreeRTOS/Source/timers.c **** }
+ 1405              		.loc 1 1045 0
+ 1406              		@ sp needed
+ 1407              	.LVL127:
+ 1408              	.LVL128:
+ 1409 0018 70BD     		pop	{r4, r5, r6, pc}
+ 1410              		.cfi_endproc
+ 1411              	.LFE21:
+ 1413              		.section	.bss.pxCurrentTimerList,"aw",%nobits
+ 1414              		.align	2
+ 1415              		.set	.LANCHOR3,. + 0
+ 1418              	pxCurrentTimerList:
+ 1419 0000 00000000 		.space	4
+ 1420              		.section	.bss.pxOverflowTimerList,"aw",%nobits
+ 1421              		.align	2
+ 1422              		.set	.LANCHOR4,. + 0
+ 1425              	pxOverflowTimerList:
+ARM GAS  /tmp/ccdaQvPI.s 			page 47
+
+
+ 1426 0000 00000000 		.space	4
+ 1427              		.section	.bss.xActiveTimerList1,"aw",%nobits
+ 1428              		.align	2
+ 1429              		.set	.LANCHOR1,. + 0
+ 1432              	xActiveTimerList1:
+ 1433 0000 00000000 		.space	20
+ 1433      00000000 
+ 1433      00000000 
+ 1433      00000000 
+ 1433      00000000 
+ 1434              		.section	.bss.xActiveTimerList2,"aw",%nobits
+ 1435              		.align	2
+ 1436              		.set	.LANCHOR2,. + 0
+ 1439              	xActiveTimerList2:
+ 1440 0000 00000000 		.space	20
+ 1440      00000000 
+ 1440      00000000 
+ 1440      00000000 
+ 1440      00000000 
+ 1441              		.section	.bss.xLastTime.5435,"aw",%nobits
+ 1442              		.align	2
+ 1443              		.set	.LANCHOR6,. + 0
+ 1446              	xLastTime.5435:
+ 1447 0000 00000000 		.space	4
+ 1448              		.section	.bss.xTimerQueue,"aw",%nobits
+ 1449              		.align	2
+ 1450              		.set	.LANCHOR0,. + 0
+ 1453              	xTimerQueue:
+ 1454 0000 00000000 		.space	4
+ 1455              		.section	.bss.xTimerTaskHandle,"aw",%nobits
+ 1456              		.align	2
+ 1457              		.set	.LANCHOR5,. + 0
+ 1460              	xTimerTaskHandle:
+ 1461 0000 00000000 		.space	4
+ 1462              		.section	.rodata.prvCheckForValidListAndQueue.str1.1,"aMS",%progbits,1
+ 1463              	.LC5:
+ 1464 0000 546D7251 		.ascii	"TmrQ\000"
+ 1464      00
+ 1465              		.section	.rodata.xTimerCreateTimerTask.str1.1,"aMS",%progbits,1
+ 1466              	.LC10:
+ 1467 0000 546D7220 		.ascii	"Tmr Svc\000"
+ 1467      53766300 
+ 1468              		.text
+ 1469              	.Letext0:
+ 1470              		.file 2 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/machine/_default_types.h"
+ 1471              		.file 3 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/lock.h"
+ 1472              		.file 4 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_types.h"
+ 1473              		.file 5 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/lib/gcc/arm-none-eabi/7.3.1/include/stddef.h"
+ 1474              		.file 6 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/reent.h"
+ 1475              		.file 7 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/stdlib.h"
+ 1476              		.file 8 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_stdint.h"
+ 1477              		.file 9 "Core/Inc/FreeRTOSConfig.h"
+ 1478              		.file 10 "Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM0/portmacro.h"
+ 1479              		.file 11 "Middlewares/Third_Party/FreeRTOS/Source/include/list.h"
+ 1480              		.file 12 "Middlewares/Third_Party/FreeRTOS/Source/include/task.h"
+ 1481              		.file 13 "Middlewares/Third_Party/FreeRTOS/Source/include/queue.h"
+ 1482              		.file 14 "Middlewares/Third_Party/FreeRTOS/Source/include/timers.h"
+ARM GAS  /tmp/ccdaQvPI.s 			page 48
+
+
+ 1483              		.file 15 "Middlewares/Third_Party/FreeRTOS/Source/include/portable.h"
+ARM GAS  /tmp/ccdaQvPI.s 			page 49
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 timers.c
+     /tmp/ccdaQvPI.s:16     .text.prvCheckForValidListAndQueue:0000000000000000 $t
+     /tmp/ccdaQvPI.s:22     .text.prvCheckForValidListAndQueue:0000000000000000 prvCheckForValidListAndQueue
+     /tmp/ccdaQvPI.s:90     .text.prvCheckForValidListAndQueue:0000000000000044 $d
+     /tmp/ccdaQvPI.s:100    .text.prvInsertTimerInActiveList:0000000000000000 $t
+     /tmp/ccdaQvPI.s:106    .text.prvInsertTimerInActiveList:0000000000000000 prvInsertTimerInActiveList
+     /tmp/ccdaQvPI.s:177    .text.prvInsertTimerInActiveList:0000000000000034 $d
+     /tmp/ccdaQvPI.s:183    .text.xTimerCreateTimerTask:0000000000000000 $t
+     /tmp/ccdaQvPI.s:190    .text.xTimerCreateTimerTask:0000000000000000 xTimerCreateTimerTask
+     /tmp/ccdaQvPI.s:246    .text.xTimerCreateTimerTask:0000000000000030 $d
+     /tmp/ccdaQvPI.s:580    .text.prvTimerTask:0000000000000000 prvTimerTask
+     /tmp/ccdaQvPI.s:254    .text.xTimerCreate:0000000000000000 $t
+     /tmp/ccdaQvPI.s:261    .text.xTimerCreate:0000000000000000 xTimerCreate
+     /tmp/ccdaQvPI.s:357    .text.xTimerGenericCommand:0000000000000000 $t
+     /tmp/ccdaQvPI.s:364    .text.xTimerGenericCommand:0000000000000000 xTimerGenericCommand
+     /tmp/ccdaQvPI.s:452    .text.xTimerGenericCommand:0000000000000048 $d
+     /tmp/ccdaQvPI.s:457    .text.prvSwitchTimerLists:0000000000000000 $t
+     /tmp/ccdaQvPI.s:463    .text.prvSwitchTimerLists:0000000000000000 prvSwitchTimerLists
+     /tmp/ccdaQvPI.s:568    .text.prvSwitchTimerLists:0000000000000060 $d
+     /tmp/ccdaQvPI.s:574    .text.prvTimerTask:0000000000000000 $t
+     /tmp/ccdaQvPI.s:768    .text.prvTimerTask:00000000000000a6 $d
+     /tmp/ccdaQvPI.s:779    .text.prvTimerTask:00000000000000b0 $t
+     /tmp/ccdaQvPI.s:957    .text.prvTimerTask:0000000000000180 $d
+     /tmp/ccdaQvPI.s:967    .text.xTimerGetTimerDaemonTaskHandle:0000000000000000 $t
+     /tmp/ccdaQvPI.s:974    .text.xTimerGetTimerDaemonTaskHandle:0000000000000000 xTimerGetTimerDaemonTaskHandle
+     /tmp/ccdaQvPI.s:1002   .text.xTimerGetTimerDaemonTaskHandle:0000000000000010 $d
+     /tmp/ccdaQvPI.s:1007   .text.xTimerGetPeriod:0000000000000000 $t
+     /tmp/ccdaQvPI.s:1014   .text.xTimerGetPeriod:0000000000000000 xTimerGetPeriod
+     /tmp/ccdaQvPI.s:1045   .text.vTimerSetReloadMode:0000000000000000 $t
+     /tmp/ccdaQvPI.s:1052   .text.vTimerSetReloadMode:0000000000000000 vTimerSetReloadMode
+     /tmp/ccdaQvPI.s:1114   .text.uxTimerGetReloadMode:0000000000000000 $t
+     /tmp/ccdaQvPI.s:1121   .text.uxTimerGetReloadMode:0000000000000000 uxTimerGetReloadMode
+     /tmp/ccdaQvPI.s:1172   .text.xTimerGetExpiryTime:0000000000000000 $t
+     /tmp/ccdaQvPI.s:1179   .text.xTimerGetExpiryTime:0000000000000000 xTimerGetExpiryTime
+     /tmp/ccdaQvPI.s:1211   .text.pcTimerGetName:0000000000000000 $t
+     /tmp/ccdaQvPI.s:1218   .text.pcTimerGetName:0000000000000000 pcTimerGetName
+     /tmp/ccdaQvPI.s:1249   .text.xTimerIsTimerActive:0000000000000000 $t
+     /tmp/ccdaQvPI.s:1256   .text.xTimerIsTimerActive:0000000000000000 xTimerIsTimerActive
+     /tmp/ccdaQvPI.s:1308   .text.pvTimerGetTimerID:0000000000000000 $t
+     /tmp/ccdaQvPI.s:1315   .text.pvTimerGetTimerID:0000000000000000 pvTimerGetTimerID
+     /tmp/ccdaQvPI.s:1360   .text.vTimerSetTimerID:0000000000000000 $t
+     /tmp/ccdaQvPI.s:1367   .text.vTimerSetTimerID:0000000000000000 vTimerSetTimerID
+     /tmp/ccdaQvPI.s:1414   .bss.pxCurrentTimerList:0000000000000000 $d
+     /tmp/ccdaQvPI.s:1418   .bss.pxCurrentTimerList:0000000000000000 pxCurrentTimerList
+     /tmp/ccdaQvPI.s:1421   .bss.pxOverflowTimerList:0000000000000000 $d
+     /tmp/ccdaQvPI.s:1425   .bss.pxOverflowTimerList:0000000000000000 pxOverflowTimerList
+     /tmp/ccdaQvPI.s:1428   .bss.xActiveTimerList1:0000000000000000 $d
+     /tmp/ccdaQvPI.s:1432   .bss.xActiveTimerList1:0000000000000000 xActiveTimerList1
+     /tmp/ccdaQvPI.s:1435   .bss.xActiveTimerList2:0000000000000000 $d
+     /tmp/ccdaQvPI.s:1439   .bss.xActiveTimerList2:0000000000000000 xActiveTimerList2
+     /tmp/ccdaQvPI.s:1442   .bss.xLastTime.5435:0000000000000000 $d
+     /tmp/ccdaQvPI.s:1446   .bss.xLastTime.5435:0000000000000000 xLastTime.5435
+     /tmp/ccdaQvPI.s:1449   .bss.xTimerQueue:0000000000000000 $d
+     /tmp/ccdaQvPI.s:1453   .bss.xTimerQueue:0000000000000000 xTimerQueue
+     /tmp/ccdaQvPI.s:1456   .bss.xTimerTaskHandle:0000000000000000 $d
+     /tmp/ccdaQvPI.s:1460   .bss.xTimerTaskHandle:0000000000000000 xTimerTaskHandle
+ARM GAS  /tmp/ccdaQvPI.s 			page 50
+
+
+
+UNDEFINED SYMBOLS
+vPortEnterCritical
+vListInitialise
+xQueueGenericCreate
+vQueueAddToRegistry
+vPortExitCritical
+vListInsert
+xTaskCreate
+pvPortMalloc
+vListInitialiseItem
+xTaskGetSchedulerState
+xQueueGenericSend
+xQueueGenericSendFromISR
+uxListRemove
+vTaskSuspendAll
+xTaskGetTickCount
+vQueueWaitForMessageRestricted
+xTaskResumeAll
+vPortYield
+xQueueReceive
+__gnu_thumb1_case_uqi
+vPortFree

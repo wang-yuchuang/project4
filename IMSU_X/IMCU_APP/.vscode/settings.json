@@ -1,0 +1,20 @@
+{
+    "files.associations": {
+        "main.h": "c",
+        "interface.h": "c",
+        "*.def": "c",
+        "ff.h": "c",
+        "espcu.h": "c",
+        "chargeprotocolmng.h": "c",
+        "powermoduleupgrade.h": "c",
+        "typeinfo": "c",
+        "secondary_upgrade.h": "c",
+        "stm32f4xx_hal_gpio.h": "c",
+        "abu.h": "c",
+        "can_ring.h": "c",
+        "setdata.h": "c"
+    },
+    "files.encoding": "gb18030",
+    "files.autoGuessEncoding": true,
+    "todo-tree.tree.scanMode": "open files"
+}

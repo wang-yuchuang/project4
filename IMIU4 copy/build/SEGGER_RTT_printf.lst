@@ -1,0 +1,1662 @@
+ARM GAS  /tmp/ccuXyH6z.s 			page 1
+
+
+   1              		.cpu cortex-m0plus
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 4
+   9              		.eabi_attribute 34, 0
+  10              		.eabi_attribute 18, 4
+  11              		.file	"SEGGER_RTT_printf.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text._StoreChar,"ax",%progbits
+  16              		.align	1
+  17              		.syntax unified
+  18              		.code	16
+  19              		.thumb_func
+  20              		.fpu softvfp
+  22              	_StoreChar:
+  23              	.LFB0:
+  24              		.file 1 "./Application/Addition/RTT/SEGGER_RTT_printf.c"
+   1:./Application/Addition/RTT/SEGGER_RTT_printf.c **** /*********************************************************************
+   2:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *                    SEGGER Microcontroller GmbH                     *
+   3:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *                        The Embedded Experts                        *
+   4:./Application/Addition/RTT/SEGGER_RTT_printf.c **** **********************************************************************
+   5:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *                                                                    *
+   6:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *            (c) 1995 - 2021 SEGGER Microcontroller GmbH             *
+   7:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *                                                                    *
+   8:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *       www.segger.com     Support: support@segger.com               *
+   9:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *                                                                    *
+  10:./Application/Addition/RTT/SEGGER_RTT_printf.c **** **********************************************************************
+  11:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *                                                                    *
+  12:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *       SEGGER RTT * Real Time Transfer for embedded targets         *
+  13:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *                                                                    *
+  14:./Application/Addition/RTT/SEGGER_RTT_printf.c **** **********************************************************************
+  15:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *                                                                    *
+  16:./Application/Addition/RTT/SEGGER_RTT_printf.c **** * All rights reserved.                                               *
+  17:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *                                                                    *
+  18:./Application/Addition/RTT/SEGGER_RTT_printf.c **** * SEGGER strongly recommends to not make any changes                 *
+  19:./Application/Addition/RTT/SEGGER_RTT_printf.c **** * to or modify the source code of this software in order to stay     *
+  20:./Application/Addition/RTT/SEGGER_RTT_printf.c **** * compatible with the RTT protocol and J-Link.                       *
+  21:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *                                                                    *
+  22:./Application/Addition/RTT/SEGGER_RTT_printf.c **** * Redistribution and use in source and binary forms, with or         *
+  23:./Application/Addition/RTT/SEGGER_RTT_printf.c **** * without modification, are permitted provided that the following    *
+  24:./Application/Addition/RTT/SEGGER_RTT_printf.c **** * condition is met:                                                  *
+  25:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *                                                                    *
+  26:./Application/Addition/RTT/SEGGER_RTT_printf.c **** * o Redistributions of source code must retain the above copyright   *
+  27:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *   notice, this condition and the following disclaimer.             *
+  28:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *                                                                    *
+  29:./Application/Addition/RTT/SEGGER_RTT_printf.c **** * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND             *
+  30:./Application/Addition/RTT/SEGGER_RTT_printf.c **** * CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,        *
+  31:./Application/Addition/RTT/SEGGER_RTT_printf.c **** * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF           *
+  32:./Application/Addition/RTT/SEGGER_RTT_printf.c **** * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE           *
+  33:./Application/Addition/RTT/SEGGER_RTT_printf.c **** * DISCLAIMED. IN NO EVENT SHALL SEGGER Microcontroller BE LIABLE FOR *
+  34:./Application/Addition/RTT/SEGGER_RTT_printf.c **** * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR           *
+ARM GAS  /tmp/ccuXyH6z.s 			page 2
+
+
+  35:./Application/Addition/RTT/SEGGER_RTT_printf.c **** * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT  *
+  36:./Application/Addition/RTT/SEGGER_RTT_printf.c **** * OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;    *
+  37:./Application/Addition/RTT/SEGGER_RTT_printf.c **** * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF      *
+  38:./Application/Addition/RTT/SEGGER_RTT_printf.c **** * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT          *
+  39:./Application/Addition/RTT/SEGGER_RTT_printf.c **** * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE  *
+  40:./Application/Addition/RTT/SEGGER_RTT_printf.c **** * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH   *
+  41:./Application/Addition/RTT/SEGGER_RTT_printf.c **** * DAMAGE.                                                            *
+  42:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *                                                                    *
+  43:./Application/Addition/RTT/SEGGER_RTT_printf.c **** **********************************************************************
+  44:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *                                                                    *
+  45:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *       RTT version: 7.80                                           *
+  46:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *                                                                    *
+  47:./Application/Addition/RTT/SEGGER_RTT_printf.c **** **********************************************************************
+  48:./Application/Addition/RTT/SEGGER_RTT_printf.c **** 
+  49:./Application/Addition/RTT/SEGGER_RTT_printf.c **** ---------------------------END-OF-HEADER------------------------------
+  50:./Application/Addition/RTT/SEGGER_RTT_printf.c **** File    : SEGGER_RTT_printf.c
+  51:./Application/Addition/RTT/SEGGER_RTT_printf.c **** Purpose : Replacement for printf to write formatted data via RTT
+  52:./Application/Addition/RTT/SEGGER_RTT_printf.c **** Revision: $Rev: 17697 $
+  53:./Application/Addition/RTT/SEGGER_RTT_printf.c **** ----------------------------------------------------------------------
+  54:./Application/Addition/RTT/SEGGER_RTT_printf.c **** */
+  55:./Application/Addition/RTT/SEGGER_RTT_printf.c **** #include "SEGGER_RTT.h"
+  56:./Application/Addition/RTT/SEGGER_RTT_printf.c **** #include "SEGGER_RTT_Conf.h"
+  57:./Application/Addition/RTT/SEGGER_RTT_printf.c **** 
+  58:./Application/Addition/RTT/SEGGER_RTT_printf.c **** /*********************************************************************
+  59:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *
+  60:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *       Defines, configurable
+  61:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *
+  62:./Application/Addition/RTT/SEGGER_RTT_printf.c **** **********************************************************************
+  63:./Application/Addition/RTT/SEGGER_RTT_printf.c **** */
+  64:./Application/Addition/RTT/SEGGER_RTT_printf.c **** 
+  65:./Application/Addition/RTT/SEGGER_RTT_printf.c **** #ifndef SEGGER_RTT_PRINTF_BUFFER_SIZE
+  66:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   #define SEGGER_RTT_PRINTF_BUFFER_SIZE (64)
+  67:./Application/Addition/RTT/SEGGER_RTT_printf.c **** #endif
+  68:./Application/Addition/RTT/SEGGER_RTT_printf.c **** 
+  69:./Application/Addition/RTT/SEGGER_RTT_printf.c **** #include <stdlib.h>
+  70:./Application/Addition/RTT/SEGGER_RTT_printf.c **** #include <stdarg.h>
+  71:./Application/Addition/RTT/SEGGER_RTT_printf.c **** 
+  72:./Application/Addition/RTT/SEGGER_RTT_printf.c **** 
+  73:./Application/Addition/RTT/SEGGER_RTT_printf.c **** #define FORMAT_FLAG_LEFT_JUSTIFY   (1u << 0)
+  74:./Application/Addition/RTT/SEGGER_RTT_printf.c **** #define FORMAT_FLAG_PAD_ZERO       (1u << 1)
+  75:./Application/Addition/RTT/SEGGER_RTT_printf.c **** #define FORMAT_FLAG_PRINT_SIGN     (1u << 2)
+  76:./Application/Addition/RTT/SEGGER_RTT_printf.c **** #define FORMAT_FLAG_ALTERNATE      (1u << 3)
+  77:./Application/Addition/RTT/SEGGER_RTT_printf.c **** 
+  78:./Application/Addition/RTT/SEGGER_RTT_printf.c **** /*********************************************************************
+  79:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *
+  80:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *       Types
+  81:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *
+  82:./Application/Addition/RTT/SEGGER_RTT_printf.c **** **********************************************************************
+  83:./Application/Addition/RTT/SEGGER_RTT_printf.c **** */
+  84:./Application/Addition/RTT/SEGGER_RTT_printf.c **** 
+  85:./Application/Addition/RTT/SEGGER_RTT_printf.c **** typedef struct {
+  86:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   char*     pBuffer;
+  87:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   unsigned  BufferSize;
+  88:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   unsigned  Cnt;
+  89:./Application/Addition/RTT/SEGGER_RTT_printf.c **** 
+  90:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   int   ReturnValue;
+  91:./Application/Addition/RTT/SEGGER_RTT_printf.c **** 
+ARM GAS  /tmp/ccuXyH6z.s 			page 3
+
+
+  92:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   unsigned RTTBufferIndex;
+  93:./Application/Addition/RTT/SEGGER_RTT_printf.c **** } SEGGER_RTT_PRINTF_DESC;
+  94:./Application/Addition/RTT/SEGGER_RTT_printf.c **** 
+  95:./Application/Addition/RTT/SEGGER_RTT_printf.c **** /*********************************************************************
+  96:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *
+  97:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *       Function prototypes
+  98:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *
+  99:./Application/Addition/RTT/SEGGER_RTT_printf.c **** **********************************************************************
+ 100:./Application/Addition/RTT/SEGGER_RTT_printf.c **** */
+ 101:./Application/Addition/RTT/SEGGER_RTT_printf.c **** 
+ 102:./Application/Addition/RTT/SEGGER_RTT_printf.c **** /*********************************************************************
+ 103:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *
+ 104:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *       Static code
+ 105:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *
+ 106:./Application/Addition/RTT/SEGGER_RTT_printf.c **** **********************************************************************
+ 107:./Application/Addition/RTT/SEGGER_RTT_printf.c **** */
+ 108:./Application/Addition/RTT/SEGGER_RTT_printf.c **** /*********************************************************************
+ 109:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *
+ 110:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *       _StoreChar
+ 111:./Application/Addition/RTT/SEGGER_RTT_printf.c **** */
+ 112:./Application/Addition/RTT/SEGGER_RTT_printf.c **** static void _StoreChar(SEGGER_RTT_PRINTF_DESC * p, char c) {
+  25              		.loc 1 112 0
+  26              		.cfi_startproc
+  27              		@ args = 0, pretend = 0, frame = 0
+  28              		@ frame_needed = 0, uses_anonymous_args = 0
+  29              	.LVL0:
+ 113:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   unsigned Cnt;
+ 114:./Application/Addition/RTT/SEGGER_RTT_printf.c **** 
+ 115:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   Cnt = p->Cnt;
+  30              		.loc 1 115 0
+  31 0000 8268     		ldr	r2, [r0, #8]
+  32              	.LVL1:
+ 112:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   unsigned Cnt;
+  33              		.loc 1 112 0
+  34 0002 10B5     		push	{r4, lr}
+  35              	.LCFI0:
+  36              		.cfi_def_cfa_offset 8
+  37              		.cfi_offset 4, -8
+  38              		.cfi_offset 14, -4
+ 112:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   unsigned Cnt;
+  39              		.loc 1 112 0
+  40 0004 0400     		movs	r4, r0
+ 116:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   if ((Cnt + 1u) <= p->BufferSize) {
+  41              		.loc 1 116 0
+  42 0006 4068     		ldr	r0, [r0, #4]
+  43              	.LVL2:
+  44 0008 531C     		adds	r3, r2, #1
+  45 000a 8342     		cmp	r3, r0
+  46 000c 05D8     		bhi	.L2
+ 117:./Application/Addition/RTT/SEGGER_RTT_printf.c ****     *(p->pBuffer + Cnt) = c;
+  47              		.loc 1 117 0
+  48 000e 2068     		ldr	r0, [r4]
+  49 0010 8154     		strb	r1, [r0, r2]
+ 118:./Application/Addition/RTT/SEGGER_RTT_printf.c ****     p->Cnt = Cnt + 1u;
+  50              		.loc 1 118 0
+  51 0012 A360     		str	r3, [r4, #8]
+ 119:./Application/Addition/RTT/SEGGER_RTT_printf.c ****     p->ReturnValue++;
+ARM GAS  /tmp/ccuXyH6z.s 			page 4
+
+
+  52              		.loc 1 119 0
+  53 0014 E368     		ldr	r3, [r4, #12]
+  54 0016 0133     		adds	r3, r3, #1
+  55 0018 E360     		str	r3, [r4, #12]
+  56              	.L2:
+ 120:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   }
+ 121:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   //
+ 122:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   // Write part of string, when the buffer is full
+ 123:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   //
+ 124:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   if (p->Cnt == p->BufferSize) {
+  57              		.loc 1 124 0
+  58 001a A268     		ldr	r2, [r4, #8]
+  59              	.LVL3:
+  60 001c 6368     		ldr	r3, [r4, #4]
+  61 001e 9A42     		cmp	r2, r3
+  62 0020 09D1     		bne	.L1
+ 125:./Application/Addition/RTT/SEGGER_RTT_printf.c ****     if (SEGGER_RTT_Write(p->RTTBufferIndex, p->pBuffer, p->Cnt) != p->Cnt) {
+  63              		.loc 1 125 0
+  64 0022 2168     		ldr	r1, [r4]
+  65              	.LVL4:
+  66 0024 2069     		ldr	r0, [r4, #16]
+  67 0026 FFF7FEFF 		bl	SEGGER_RTT_Write
+  68              	.LVL5:
+  69 002a A368     		ldr	r3, [r4, #8]
+  70 002c 9842     		cmp	r0, r3
+  71 002e 03D0     		beq	.L4
+ 126:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       p->ReturnValue = -1;
+  72              		.loc 1 126 0
+  73 0030 0123     		movs	r3, #1
+  74 0032 5B42     		rsbs	r3, r3, #0
+  75 0034 E360     		str	r3, [r4, #12]
+  76              	.L1:
+ 127:./Application/Addition/RTT/SEGGER_RTT_printf.c ****     } else {
+ 128:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       p->Cnt = 0u;
+ 129:./Application/Addition/RTT/SEGGER_RTT_printf.c ****     }
+ 130:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   }
+ 131:./Application/Addition/RTT/SEGGER_RTT_printf.c **** }
+  77              		.loc 1 131 0
+  78              		@ sp needed
+  79              	.LVL6:
+  80 0036 10BD     		pop	{r4, pc}
+  81              	.LVL7:
+  82              	.L4:
+ 128:./Application/Addition/RTT/SEGGER_RTT_printf.c ****     }
+  83              		.loc 1 128 0
+  84 0038 0023     		movs	r3, #0
+  85 003a A360     		str	r3, [r4, #8]
+  86              		.loc 1 131 0
+  87 003c FBE7     		b	.L1
+  88              		.cfi_endproc
+  89              	.LFE0:
+  91              		.global	__aeabi_uidiv
+  92              		.global	__aeabi_uidivmod
+  93              		.section	.text._PrintUnsigned,"ax",%progbits
+  94              		.align	1
+  95              		.syntax unified
+  96              		.code	16
+ARM GAS  /tmp/ccuXyH6z.s 			page 5
+
+
+  97              		.thumb_func
+  98              		.fpu softvfp
+ 100              	_PrintUnsigned:
+ 101              	.LFB1:
+ 132:./Application/Addition/RTT/SEGGER_RTT_printf.c **** 
+ 133:./Application/Addition/RTT/SEGGER_RTT_printf.c **** /*********************************************************************
+ 134:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *
+ 135:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *       _PrintUnsigned
+ 136:./Application/Addition/RTT/SEGGER_RTT_printf.c **** */
+ 137:./Application/Addition/RTT/SEGGER_RTT_printf.c **** static void _PrintUnsigned(SEGGER_RTT_PRINTF_DESC * pBufferDesc, unsigned v, unsigned Base, unsigne
+ 102              		.loc 1 137 0
+ 103              		.cfi_startproc
+ 104              		@ args = 8, pretend = 0, frame = 16
+ 105              		@ frame_needed = 0, uses_anonymous_args = 0
+ 106              	.LVL8:
+ 107 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+ 108              	.LCFI1:
+ 109              		.cfi_def_cfa_offset 20
+ 110              		.cfi_offset 4, -20
+ 111              		.cfi_offset 5, -16
+ 112              		.cfi_offset 6, -12
+ 113              		.cfi_offset 7, -8
+ 114              		.cfi_offset 14, -4
+ 115 0002 0500     		movs	r5, r0
+ 116 0004 1F00     		movs	r7, r3
+ 138:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   static const char _aV2C[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', '
+ 139:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   unsigned Div;
+ 140:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   unsigned Digit;
+ 141:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   unsigned Number;
+ 142:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   unsigned Width;
+ 143:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   char c;
+ 144:./Application/Addition/RTT/SEGGER_RTT_printf.c **** 
+ 145:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   Number = v;
+ 117              		.loc 1 145 0
+ 118 0006 0800     		movs	r0, r1
+ 119              	.LVL9:
+ 146:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   Digit = 1u;
+ 147:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   //
+ 148:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   // Get actual field width
+ 149:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   //
+ 150:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   Width = 1u;
+ 120              		.loc 1 150 0
+ 121 0008 0126     		movs	r6, #1
+ 137:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   static const char _aV2C[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', '
+ 122              		.loc 1 137 0
+ 123 000a 85B0     		sub	sp, sp, #20
+ 124              	.LCFI2:
+ 125              		.cfi_def_cfa_offset 40
+ 126              	.LVL10:
+ 137:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   static const char _aV2C[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', '
+ 127              		.loc 1 137 0
+ 128 000c 0A9C     		ldr	r4, [sp, #40]
+ 129 000e 0291     		str	r1, [sp, #8]
+ 130              	.LVL11:
+ 131 0010 0092     		str	r2, [sp]
+ 132              	.LVL12:
+ 133              	.L6:
+ARM GAS  /tmp/ccuXyH6z.s 			page 6
+
+
+ 151:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   while (Number >= Base) {
+ 134              		.loc 1 151 0
+ 135 0012 009B     		ldr	r3, [sp]
+ 136 0014 9842     		cmp	r0, r3
+ 137 0016 1AD2     		bcs	.L7
+ 138 0018 0196     		str	r6, [sp, #4]
+ 139 001a BE42     		cmp	r6, r7
+ 140 001c 00D2     		bcs	.L8
+ 141 001e 0197     		str	r7, [sp, #4]
+ 142              	.L8:
+ 143              	.LVL13:
+ 152:./Application/Addition/RTT/SEGGER_RTT_printf.c ****     Number = (Number / Base);
+ 153:./Application/Addition/RTT/SEGGER_RTT_printf.c ****     Width++;
+ 154:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   }
+ 155:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   if (NumDigits > Width) {
+ 156:./Application/Addition/RTT/SEGGER_RTT_printf.c ****     Width = NumDigits;
+ 157:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   }
+ 158:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   //
+ 159:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   // Print leading chars if necessary
+ 160:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   //
+ 161:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   if ((FormatFlags & FORMAT_FLAG_LEFT_JUSTIFY) == 0u) {
+ 144              		.loc 1 161 0
+ 145 0020 0123     		movs	r3, #1
+ 146 0022 0B9A     		ldr	r2, [sp, #44]
+ 147 0024 1A40     		ands	r2, r3
+ 148 0026 0392     		str	r2, [sp, #12]
+ 149 0028 0CD1     		bne	.L9
+ 162:./Application/Addition/RTT/SEGGER_RTT_printf.c ****     if (FieldWidth != 0u) {
+ 150              		.loc 1 162 0
+ 151 002a 002C     		cmp	r4, #0
+ 152 002c 0AD0     		beq	.L9
+ 163:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       if (((FormatFlags & FORMAT_FLAG_PAD_ZERO) == FORMAT_FLAG_PAD_ZERO) && (NumDigits == 0u)) {
+ 153              		.loc 1 163 0
+ 154 002e 0B9B     		ldr	r3, [sp, #44]
+ 164:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         c = '0';
+ 165:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       } else {
+ 166:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         c = ' ';
+ 155              		.loc 1 166 0
+ 156 0030 2026     		movs	r6, #32
+ 163:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       if (((FormatFlags & FORMAT_FLAG_PAD_ZERO) == FORMAT_FLAG_PAD_ZERO) && (NumDigits == 0u)) {
+ 157              		.loc 1 163 0
+ 158 0032 9B07     		lsls	r3, r3, #30
+ 159 0034 03D5     		bpl	.L12
+ 164:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         c = '0';
+ 160              		.loc 1 164 0 discriminator 1
+ 161 0036 1036     		adds	r6, r6, #16
+ 163:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       if (((FormatFlags & FORMAT_FLAG_PAD_ZERO) == FORMAT_FLAG_PAD_ZERO) && (NumDigits == 0u)) {
+ 162              		.loc 1 163 0 discriminator 1
+ 163 0038 002F     		cmp	r7, #0
+ 164 003a 00D0     		beq	.L12
+ 165              		.loc 1 166 0
+ 166 003c 103E     		subs	r6, r6, #16
+ 167              	.LVL14:
+ 168              	.L12:
+ 167:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       }
+ 168:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       while ((FieldWidth != 0u) && (Width < FieldWidth)) {
+ 169              		.loc 1 168 0 discriminator 1
+ARM GAS  /tmp/ccuXyH6z.s 			page 7
+
+
+ 170 003e 019B     		ldr	r3, [sp, #4]
+ 171 0040 A342     		cmp	r3, r4
+ 172 0042 09D3     		bcc	.L14
+ 173              	.LVL15:
+ 174              	.L9:
+ 169:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         FieldWidth--;
+ 170:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         _StoreChar(pBufferDesc, c);
+ 171:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         if (pBufferDesc->ReturnValue < 0) {
+ 172:./Application/Addition/RTT/SEGGER_RTT_printf.c ****           break;
+ 173:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         }
+ 174:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       }
+ 175:./Application/Addition/RTT/SEGGER_RTT_printf.c ****     }
+ 176:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   }
+ 177:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   if (pBufferDesc->ReturnValue >= 0) {
+ 175              		.loc 1 177 0
+ 176 0044 EB68     		ldr	r3, [r5, #12]
+ 177 0046 002B     		cmp	r3, #0
+ 178 0048 10DA     		bge	.L13
+ 179              	.LVL16:
+ 180              	.L5:
+ 178:./Application/Addition/RTT/SEGGER_RTT_printf.c ****     //
+ 179:./Application/Addition/RTT/SEGGER_RTT_printf.c ****     // Compute Digit.
+ 180:./Application/Addition/RTT/SEGGER_RTT_printf.c ****     // Loop until Digit has the value of the highest digit required.
+ 181:./Application/Addition/RTT/SEGGER_RTT_printf.c ****     // Example: If the output is 345 (Base 10), loop 2 times until Digit is 100.
+ 182:./Application/Addition/RTT/SEGGER_RTT_printf.c ****     //
+ 183:./Application/Addition/RTT/SEGGER_RTT_printf.c ****     while (1) {
+ 184:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       if (NumDigits > 1u) {       // User specified a min number of digits to print? => Make sure w
+ 185:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         NumDigits--;
+ 186:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       } else {
+ 187:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         Div = v / Digit;
+ 188:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         if (Div < Base) {        // Is our divider big enough to extract the highest digit from val
+ 189:./Application/Addition/RTT/SEGGER_RTT_printf.c ****           break;
+ 190:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         }
+ 191:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       }
+ 192:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       Digit *= Base;
+ 193:./Application/Addition/RTT/SEGGER_RTT_printf.c ****     }
+ 194:./Application/Addition/RTT/SEGGER_RTT_printf.c ****     //
+ 195:./Application/Addition/RTT/SEGGER_RTT_printf.c ****     // Output digits
+ 196:./Application/Addition/RTT/SEGGER_RTT_printf.c ****     //
+ 197:./Application/Addition/RTT/SEGGER_RTT_printf.c ****     do {
+ 198:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       Div = v / Digit;
+ 199:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       v -= Div * Digit;
+ 200:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       _StoreChar(pBufferDesc, _aV2C[Div]);
+ 201:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       if (pBufferDesc->ReturnValue < 0) {
+ 202:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         break;
+ 203:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       }
+ 204:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       Digit /= Base;
+ 205:./Application/Addition/RTT/SEGGER_RTT_printf.c ****     } while (Digit);
+ 206:./Application/Addition/RTT/SEGGER_RTT_printf.c ****     //
+ 207:./Application/Addition/RTT/SEGGER_RTT_printf.c ****     // Print trailing spaces if necessary
+ 208:./Application/Addition/RTT/SEGGER_RTT_printf.c ****     //
+ 209:./Application/Addition/RTT/SEGGER_RTT_printf.c ****     if ((FormatFlags & FORMAT_FLAG_LEFT_JUSTIFY) == FORMAT_FLAG_LEFT_JUSTIFY) {
+ 210:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       if (FieldWidth != 0u) {
+ 211:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         while ((FieldWidth != 0u) && (Width < FieldWidth)) {
+ 212:./Application/Addition/RTT/SEGGER_RTT_printf.c ****           FieldWidth--;
+ 213:./Application/Addition/RTT/SEGGER_RTT_printf.c ****           _StoreChar(pBufferDesc, ' ');
+ 214:./Application/Addition/RTT/SEGGER_RTT_printf.c ****           if (pBufferDesc->ReturnValue < 0) {
+ARM GAS  /tmp/ccuXyH6z.s 			page 8
+
+
+ 215:./Application/Addition/RTT/SEGGER_RTT_printf.c ****             break;
+ 216:./Application/Addition/RTT/SEGGER_RTT_printf.c ****           }
+ 217:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         }
+ 218:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       }
+ 219:./Application/Addition/RTT/SEGGER_RTT_printf.c ****     }
+ 220:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   }
+ 221:./Application/Addition/RTT/SEGGER_RTT_printf.c **** }
+ 181              		.loc 1 221 0
+ 182 004a 05B0     		add	sp, sp, #20
+ 183              	.LVL17:
+ 184              		@ sp needed
+ 185              	.LVL18:
+ 186              	.LVL19:
+ 187              	.LVL20:
+ 188 004c F0BD     		pop	{r4, r5, r6, r7, pc}
+ 189              	.LVL21:
+ 190              	.L7:
+ 152:./Application/Addition/RTT/SEGGER_RTT_printf.c ****     Width++;
+ 191              		.loc 1 152 0
+ 192 004e 0099     		ldr	r1, [sp]
+ 193 0050 FFF7FEFF 		bl	__aeabi_uidiv
+ 194              	.LVL22:
+ 153:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   }
+ 195              		.loc 1 153 0
+ 196 0054 0136     		adds	r6, r6, #1
+ 197              	.LVL23:
+ 198 0056 DCE7     		b	.L6
+ 199              	.LVL24:
+ 200              	.L14:
+ 170:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         if (pBufferDesc->ReturnValue < 0) {
+ 201              		.loc 1 170 0
+ 202 0058 3100     		movs	r1, r6
+ 203 005a 2800     		movs	r0, r5
+ 204 005c FFF7FEFF 		bl	_StoreChar
+ 205              	.LVL25:
+ 171:./Application/Addition/RTT/SEGGER_RTT_printf.c ****           break;
+ 206              		.loc 1 171 0
+ 207 0060 EB68     		ldr	r3, [r5, #12]
+ 169:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         _StoreChar(pBufferDesc, c);
+ 208              		.loc 1 169 0
+ 209 0062 013C     		subs	r4, r4, #1
+ 210              	.LVL26:
+ 171:./Application/Addition/RTT/SEGGER_RTT_printf.c ****           break;
+ 211              		.loc 1 171 0
+ 212 0064 002B     		cmp	r3, #0
+ 213 0066 EDDB     		blt	.L9
+ 168:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         FieldWidth--;
+ 214              		.loc 1 168 0
+ 215 0068 002C     		cmp	r4, #0
+ 216 006a E8D1     		bne	.L12
+ 217              	.LVL27:
+ 218              	.L13:
+ 166:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       }
+ 219              		.loc 1 166 0
+ 220 006c 0126     		movs	r6, #1
+ 221              	.LVL28:
+ 222              	.L18:
+ARM GAS  /tmp/ccuXyH6z.s 			page 9
+
+
+ 184:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         NumDigits--;
+ 223              		.loc 1 184 0
+ 224 006e 012F     		cmp	r7, #1
+ 225 0070 03D9     		bls	.L15
+ 185:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       } else {
+ 226              		.loc 1 185 0
+ 227 0072 013F     		subs	r7, r7, #1
+ 228              	.LVL29:
+ 229              	.L16:
+ 192:./Application/Addition/RTT/SEGGER_RTT_printf.c ****     }
+ 230              		.loc 1 192 0
+ 231 0074 009B     		ldr	r3, [sp]
+ 232 0076 5E43     		muls	r6, r3
+ 233              	.LVL30:
+ 184:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         NumDigits--;
+ 234              		.loc 1 184 0
+ 235 0078 F9E7     		b	.L18
+ 236              	.L15:
+ 237              	.LVL31:
+ 187:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         if (Div < Base) {        // Is our divider big enough to extract the highest digit from val
+ 238              		.loc 1 187 0
+ 239 007a 3100     		movs	r1, r6
+ 240 007c 0298     		ldr	r0, [sp, #8]
+ 241 007e FFF7FEFF 		bl	__aeabi_uidiv
+ 242              	.LVL32:
+ 188:./Application/Addition/RTT/SEGGER_RTT_printf.c ****           break;
+ 243              		.loc 1 188 0
+ 244 0082 009B     		ldr	r3, [sp]
+ 245 0084 8342     		cmp	r3, r0
+ 246 0086 F5D9     		bls	.L16
+ 247              	.LVL33:
+ 248              	.L17:
+ 249 0088 0298     		ldr	r0, [sp, #8]
+ 250 008a 3100     		movs	r1, r6
+ 251 008c FFF7FEFF 		bl	__aeabi_uidivmod
+ 252              	.LVL34:
+ 200:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       if (pBufferDesc->ReturnValue < 0) {
+ 253              		.loc 1 200 0
+ 254 0090 0F4B     		ldr	r3, .L43
+ 255 0092 0291     		str	r1, [sp, #8]
+ 256              	.LVL35:
+ 257 0094 195C     		ldrb	r1, [r3, r0]
+ 258              	.LVL36:
+ 259 0096 2800     		movs	r0, r5
+ 260              	.LVL37:
+ 261 0098 FFF7FEFF 		bl	_StoreChar
+ 262              	.LVL38:
+ 201:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         break;
+ 263              		.loc 1 201 0
+ 264 009c EB68     		ldr	r3, [r5, #12]
+ 265 009e 002B     		cmp	r3, #0
+ 266 00a0 05DB     		blt	.L19
+ 204:./Application/Addition/RTT/SEGGER_RTT_printf.c ****     } while (Digit);
+ 267              		.loc 1 204 0
+ 268 00a2 3000     		movs	r0, r6
+ 269 00a4 0099     		ldr	r1, [sp]
+ 270 00a6 FFF7FEFF 		bl	__aeabi_uidiv
+ARM GAS  /tmp/ccuXyH6z.s 			page 10
+
+
+ 271              	.LVL39:
+ 272 00aa 061E     		subs	r6, r0, #0
+ 273              	.LVL40:
+ 205:./Application/Addition/RTT/SEGGER_RTT_printf.c ****     //
+ 274              		.loc 1 205 0
+ 275 00ac ECD1     		bne	.L17
+ 276              	.LVL41:
+ 277              	.L19:
+ 209:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       if (FieldWidth != 0u) {
+ 278              		.loc 1 209 0
+ 279 00ae 039B     		ldr	r3, [sp, #12]
+ 280 00b0 002B     		cmp	r3, #0
+ 281 00b2 CAD0     		beq	.L5
+ 282              	.L42:
+ 211:./Application/Addition/RTT/SEGGER_RTT_printf.c ****           FieldWidth--;
+ 283              		.loc 1 211 0
+ 284 00b4 002C     		cmp	r4, #0
+ 285 00b6 C8D0     		beq	.L5
+ 211:./Application/Addition/RTT/SEGGER_RTT_printf.c ****           FieldWidth--;
+ 286              		.loc 1 211 0 is_stmt 0 discriminator 1
+ 287 00b8 019B     		ldr	r3, [sp, #4]
+ 288 00ba A342     		cmp	r3, r4
+ 289 00bc C5D2     		bcs	.L5
+ 213:./Application/Addition/RTT/SEGGER_RTT_printf.c ****           if (pBufferDesc->ReturnValue < 0) {
+ 290              		.loc 1 213 0 is_stmt 1
+ 291 00be 2021     		movs	r1, #32
+ 292 00c0 2800     		movs	r0, r5
+ 293 00c2 FFF7FEFF 		bl	_StoreChar
+ 294              	.LVL42:
+ 214:./Application/Addition/RTT/SEGGER_RTT_printf.c ****             break;
+ 295              		.loc 1 214 0
+ 296 00c6 EB68     		ldr	r3, [r5, #12]
+ 212:./Application/Addition/RTT/SEGGER_RTT_printf.c ****           _StoreChar(pBufferDesc, ' ');
+ 297              		.loc 1 212 0
+ 298 00c8 013C     		subs	r4, r4, #1
+ 299              	.LVL43:
+ 214:./Application/Addition/RTT/SEGGER_RTT_printf.c ****             break;
+ 300              		.loc 1 214 0
+ 301 00ca 002B     		cmp	r3, #0
+ 302 00cc F2DA     		bge	.L42
+ 303 00ce BCE7     		b	.L5
+ 304              	.L44:
+ 305              		.align	2
+ 306              	.L43:
+ 307 00d0 00000000 		.word	.LANCHOR0
+ 308              		.cfi_endproc
+ 309              	.LFE1:
+ 311              		.global	__aeabi_idiv
+ 312              		.section	.text.SEGGER_RTT_vprintf,"ax",%progbits
+ 313              		.align	1
+ 314              		.global	SEGGER_RTT_vprintf
+ 315              		.syntax unified
+ 316              		.code	16
+ 317              		.thumb_func
+ 318              		.fpu softvfp
+ 320              	SEGGER_RTT_vprintf:
+ 321              	.LFB3:
+ARM GAS  /tmp/ccuXyH6z.s 			page 11
+
+
+ 222:./Application/Addition/RTT/SEGGER_RTT_printf.c **** 
+ 223:./Application/Addition/RTT/SEGGER_RTT_printf.c **** /*********************************************************************
+ 224:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *
+ 225:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *       _PrintInt
+ 226:./Application/Addition/RTT/SEGGER_RTT_printf.c **** */
+ 227:./Application/Addition/RTT/SEGGER_RTT_printf.c **** static void _PrintInt(SEGGER_RTT_PRINTF_DESC * pBufferDesc, int v, unsigned Base, unsigned NumDigit
+ 228:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   unsigned Width;
+ 229:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   int Number;
+ 230:./Application/Addition/RTT/SEGGER_RTT_printf.c **** 
+ 231:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   Number = (v < 0) ? -v : v;
+ 232:./Application/Addition/RTT/SEGGER_RTT_printf.c **** 
+ 233:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   //
+ 234:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   // Get actual field width
+ 235:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   //
+ 236:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   Width = 1u;
+ 237:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   while (Number >= (int)Base) {
+ 238:./Application/Addition/RTT/SEGGER_RTT_printf.c ****     Number = (Number / (int)Base);
+ 239:./Application/Addition/RTT/SEGGER_RTT_printf.c ****     Width++;
+ 240:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   }
+ 241:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   if (NumDigits > Width) {
+ 242:./Application/Addition/RTT/SEGGER_RTT_printf.c ****     Width = NumDigits;
+ 243:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   }
+ 244:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   if ((FieldWidth > 0u) && ((v < 0) || ((FormatFlags & FORMAT_FLAG_PRINT_SIGN) == FORMAT_FLAG_PRINT
+ 245:./Application/Addition/RTT/SEGGER_RTT_printf.c ****     FieldWidth--;
+ 246:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   }
+ 247:./Application/Addition/RTT/SEGGER_RTT_printf.c **** 
+ 248:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   //
+ 249:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   // Print leading spaces if necessary
+ 250:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   //
+ 251:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   if ((((FormatFlags & FORMAT_FLAG_PAD_ZERO) == 0u) || (NumDigits != 0u)) && ((FormatFlags & FORMAT
+ 252:./Application/Addition/RTT/SEGGER_RTT_printf.c ****     if (FieldWidth != 0u) {
+ 253:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       while ((FieldWidth != 0u) && (Width < FieldWidth)) {
+ 254:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         FieldWidth--;
+ 255:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         _StoreChar(pBufferDesc, ' ');
+ 256:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         if (pBufferDesc->ReturnValue < 0) {
+ 257:./Application/Addition/RTT/SEGGER_RTT_printf.c ****           break;
+ 258:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         }
+ 259:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       }
+ 260:./Application/Addition/RTT/SEGGER_RTT_printf.c ****     }
+ 261:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   }
+ 262:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   //
+ 263:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   // Print sign if necessary
+ 264:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   //
+ 265:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   if (pBufferDesc->ReturnValue >= 0) {
+ 266:./Application/Addition/RTT/SEGGER_RTT_printf.c ****     if (v < 0) {
+ 267:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       v = -v;
+ 268:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       _StoreChar(pBufferDesc, '-');
+ 269:./Application/Addition/RTT/SEGGER_RTT_printf.c ****     } else if ((FormatFlags & FORMAT_FLAG_PRINT_SIGN) == FORMAT_FLAG_PRINT_SIGN) {
+ 270:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       _StoreChar(pBufferDesc, '+');
+ 271:./Application/Addition/RTT/SEGGER_RTT_printf.c ****     } else {
+ 272:./Application/Addition/RTT/SEGGER_RTT_printf.c **** 
+ 273:./Application/Addition/RTT/SEGGER_RTT_printf.c ****     }
+ 274:./Application/Addition/RTT/SEGGER_RTT_printf.c ****     if (pBufferDesc->ReturnValue >= 0) {
+ 275:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       //
+ 276:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       // Print leading zeros if necessary
+ 277:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       //
+ 278:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       if (((FormatFlags & FORMAT_FLAG_PAD_ZERO) == FORMAT_FLAG_PAD_ZERO) && ((FormatFlags & FORMAT_
+ARM GAS  /tmp/ccuXyH6z.s 			page 12
+
+
+ 279:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         if (FieldWidth != 0u) {
+ 280:./Application/Addition/RTT/SEGGER_RTT_printf.c ****           while ((FieldWidth != 0u) && (Width < FieldWidth)) {
+ 281:./Application/Addition/RTT/SEGGER_RTT_printf.c ****             FieldWidth--;
+ 282:./Application/Addition/RTT/SEGGER_RTT_printf.c ****             _StoreChar(pBufferDesc, '0');
+ 283:./Application/Addition/RTT/SEGGER_RTT_printf.c ****             if (pBufferDesc->ReturnValue < 0) {
+ 284:./Application/Addition/RTT/SEGGER_RTT_printf.c ****               break;
+ 285:./Application/Addition/RTT/SEGGER_RTT_printf.c ****             }
+ 286:./Application/Addition/RTT/SEGGER_RTT_printf.c ****           }
+ 287:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         }
+ 288:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       }
+ 289:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       if (pBufferDesc->ReturnValue >= 0) {
+ 290:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         //
+ 291:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         // Print number without sign
+ 292:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         //
+ 293:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         _PrintUnsigned(pBufferDesc, (unsigned)v, Base, NumDigits, FieldWidth, FormatFlags);
+ 294:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       }
+ 295:./Application/Addition/RTT/SEGGER_RTT_printf.c ****     }
+ 296:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   }
+ 297:./Application/Addition/RTT/SEGGER_RTT_printf.c **** }
+ 298:./Application/Addition/RTT/SEGGER_RTT_printf.c **** 
+ 299:./Application/Addition/RTT/SEGGER_RTT_printf.c **** /*********************************************************************
+ 300:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *
+ 301:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *       Public code
+ 302:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *
+ 303:./Application/Addition/RTT/SEGGER_RTT_printf.c **** **********************************************************************
+ 304:./Application/Addition/RTT/SEGGER_RTT_printf.c **** */
+ 305:./Application/Addition/RTT/SEGGER_RTT_printf.c **** /*********************************************************************
+ 306:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *
+ 307:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *       SEGGER_RTT_vprintf
+ 308:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *
+ 309:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *  Function description
+ 310:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *    Stores a formatted string in SEGGER RTT control block.
+ 311:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *    This data is read by the host.
+ 312:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *
+ 313:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *  Parameters
+ 314:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *    BufferIndex  Index of "Up"-buffer to be used. (e.g. 0 for "Terminal")
+ 315:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *    sFormat      Pointer to format string
+ 316:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *    pParamList   Pointer to the list of arguments for the format string
+ 317:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *
+ 318:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *  Return values
+ 319:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *    >= 0:  Number of bytes which have been stored in the "Up"-buffer.
+ 320:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *     < 0:  Error
+ 321:./Application/Addition/RTT/SEGGER_RTT_printf.c **** */
+ 322:./Application/Addition/RTT/SEGGER_RTT_printf.c **** int SEGGER_RTT_vprintf(unsigned BufferIndex, const char * sFormat, va_list * pParamList) {
+ 322              		.loc 1 322 0
+ 323              		.cfi_startproc
+ 324              		@ args = 0, pretend = 0, frame = 112
+ 325              		@ frame_needed = 0, uses_anonymous_args = 0
+ 326              	.LVL44:
+ 327 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+ 328              	.LCFI3:
+ 329              		.cfi_def_cfa_offset 20
+ 330              		.cfi_offset 4, -20
+ 331              		.cfi_offset 5, -16
+ 332              		.cfi_offset 6, -12
+ 333              		.cfi_offset 7, -8
+ 334              		.cfi_offset 14, -4
+ARM GAS  /tmp/ccuXyH6z.s 			page 13
+
+
+ 335 0002 9FB0     		sub	sp, sp, #124
+ 336              	.LCFI4:
+ 337              		.cfi_def_cfa_offset 144
+ 323:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   char c;
+ 324:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   SEGGER_RTT_PRINTF_DESC BufferDesc;
+ 325:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   int v;
+ 326:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   unsigned NumDigits;
+ 327:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   unsigned FormatFlags;
+ 328:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   unsigned FieldWidth;
+ 329:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   char acBuffer[SEGGER_RTT_PRINTF_BUFFER_SIZE];
+ 330:./Application/Addition/RTT/SEGGER_RTT_printf.c **** 
+ 331:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   BufferDesc.pBuffer        = acBuffer;
+ 338              		.loc 1 331 0
+ 339 0004 0EAB     		add	r3, sp, #56
+ 340 0006 0993     		str	r3, [sp, #36]
+ 332:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   BufferDesc.BufferSize     = SEGGER_RTT_PRINTF_BUFFER_SIZE;
+ 341              		.loc 1 332 0
+ 342 0008 4023     		movs	r3, #64
+ 343 000a 0A93     		str	r3, [sp, #40]
+ 333:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   BufferDesc.Cnt            = 0u;
+ 344              		.loc 1 333 0
+ 345 000c 0023     		movs	r3, #0
+ 322:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   char c;
+ 346              		.loc 1 322 0
+ 347 000e 0E00     		movs	r6, r1
+ 348 0010 1500     		movs	r5, r2
+ 349 0012 0790     		str	r0, [sp, #28]
+ 350              		.loc 1 333 0
+ 351 0014 0B93     		str	r3, [sp, #44]
+ 334:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   BufferDesc.RTTBufferIndex = BufferIndex;
+ 352              		.loc 1 334 0
+ 353 0016 0D90     		str	r0, [sp, #52]
+ 335:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   BufferDesc.ReturnValue    = 0;
+ 354              		.loc 1 335 0
+ 355 0018 0C93     		str	r3, [sp, #48]
+ 356              	.LVL45:
+ 357              	.L90:
+ 336:./Application/Addition/RTT/SEGGER_RTT_printf.c **** 
+ 337:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   do {
+ 338:./Application/Addition/RTT/SEGGER_RTT_printf.c ****     c = *sFormat;
+ 358              		.loc 1 338 0
+ 359 001a 3178     		ldrb	r1, [r6]
+ 360              	.LVL46:
+ 339:./Application/Addition/RTT/SEGGER_RTT_printf.c ****     sFormat++;
+ 361              		.loc 1 339 0
+ 362 001c 0136     		adds	r6, r6, #1
+ 363              	.LVL47:
+ 340:./Application/Addition/RTT/SEGGER_RTT_printf.c ****     if (c == 0u) {
+ 364              		.loc 1 340 0
+ 365 001e 0029     		cmp	r1, #0
+ 366 0020 57D0     		beq	.L46
+ 341:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       break;
+ 342:./Application/Addition/RTT/SEGGER_RTT_printf.c ****     }
+ 343:./Application/Addition/RTT/SEGGER_RTT_printf.c ****     if (c == '%') {
+ 367              		.loc 1 343 0
+ 368 0022 2529     		cmp	r1, #37
+ 369 0024 47D1     		bne	.L137
+ARM GAS  /tmp/ccuXyH6z.s 			page 14
+
+
+ 344:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       //
+ 345:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       // Filter out flags
+ 346:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       //
+ 347:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       FormatFlags = 0u;
+ 370              		.loc 1 347 0
+ 371 0026 0027     		movs	r7, #0
+ 348:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       v = 1;
+ 349:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       do {
+ 350:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         c = *sFormat;
+ 351:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         switch (c) {
+ 352:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         case '-': FormatFlags |= FORMAT_FLAG_LEFT_JUSTIFY; sFormat++; break;
+ 353:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         case '0': FormatFlags |= FORMAT_FLAG_PAD_ZERO;     sFormat++; break;
+ 372              		.loc 1 353 0
+ 373 0028 0220     		movs	r0, #2
+ 354:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         case '+': FormatFlags |= FORMAT_FLAG_PRINT_SIGN;   sFormat++; break;
+ 355:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         case '#': FormatFlags |= FORMAT_FLAG_ALTERNATE;    sFormat++; break;
+ 374              		.loc 1 355 0
+ 375 002a 0822     		movs	r2, #8
+ 376 002c 05E0     		b	.L47
+ 377              	.LVL48:
+ 378              	.L51:
+ 351:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         case '-': FormatFlags |= FORMAT_FLAG_LEFT_JUSTIFY; sFormat++; break;
+ 379              		.loc 1 351 0
+ 380 002e 2D2B     		cmp	r3, #45
+ 381 0030 17D0     		beq	.L53
+ 382 0032 302B     		cmp	r3, #48
+ 383 0034 08D1     		bne	.L95
+ 353:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         case '+': FormatFlags |= FORMAT_FLAG_PRINT_SIGN;   sFormat++; break;
+ 384              		.loc 1 353 0
+ 385 0036 0743     		orrs	r7, r0
+ 386              	.LVL49:
+ 387              	.L55:
+ 322:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   char c;
+ 388              		.loc 1 322 0
+ 389 0038 0E00     		movs	r6, r1
+ 390              	.LVL50:
+ 391              	.L47:
+ 351:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         case '-': FormatFlags |= FORMAT_FLAG_LEFT_JUSTIFY; sFormat++; break;
+ 392              		.loc 1 351 0
+ 393 003a 3378     		ldrb	r3, [r6]
+ 394 003c 711C     		adds	r1, r6, #1
+ 395 003e 2B2B     		cmp	r3, #43
+ 396 0040 12D0     		beq	.L50
+ 397 0042 F4D8     		bhi	.L51
+ 398 0044 232B     		cmp	r3, #35
+ 399 0046 11D0     		beq	.L52
+ 400              	.L95:
+ 356:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         default:  v = 0; break;
+ 357:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         }
+ 358:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       } while (v);
+ 359:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       //
+ 360:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       // filter out field with
+ 361:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       //
+ 362:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       FieldWidth = 0u;
+ 401              		.loc 1 362 0
+ 402 0048 0024     		movs	r4, #0
+ 363:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       do {
+ARM GAS  /tmp/ccuXyH6z.s 			page 15
+
+
+ 364:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         c = *sFormat;
+ 365:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         if ((c < '0') || (c > '9')) {
+ 366:./Application/Addition/RTT/SEGGER_RTT_printf.c ****           break;
+ 367:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         }
+ 368:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         sFormat++;
+ 369:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         FieldWidth = (FieldWidth * 10u) + ((unsigned)c - '0');
+ 403              		.loc 1 369 0
+ 404 004a 0A21     		movs	r1, #10
+ 405              	.LVL51:
+ 406              	.L49:
+ 364:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         if ((c < '0') || (c > '9')) {
+ 407              		.loc 1 364 0
+ 408 004c 3378     		ldrb	r3, [r6]
+ 409              	.LVL52:
+ 410 004e 721C     		adds	r2, r6, #1
+ 365:./Application/Addition/RTT/SEGGER_RTT_printf.c ****           break;
+ 411              		.loc 1 365 0
+ 412 0050 1800     		movs	r0, r3
+ 413 0052 3038     		subs	r0, r0, #48
+ 414 0054 0928     		cmp	r0, #9
+ 415 0056 0BD8     		bhi	.L56
+ 416              	.LVL53:
+ 417              		.loc 1 369 0
+ 418 0058 4C43     		muls	r4, r1
+ 419              	.LVL54:
+ 420 005a 303C     		subs	r4, r4, #48
+ 421 005c 1C19     		adds	r4, r3, r4
+ 422              	.LVL55:
+ 364:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         if ((c < '0') || (c > '9')) {
+ 423              		.loc 1 364 0
+ 424 005e 1600     		movs	r6, r2
+ 425 0060 F4E7     		b	.L49
+ 426              	.LVL56:
+ 427              	.L53:
+ 352:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         case '0': FormatFlags |= FORMAT_FLAG_PAD_ZERO;     sFormat++; break;
+ 428              		.loc 1 352 0
+ 429 0062 0123     		movs	r3, #1
+ 430              	.L139:
+ 354:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         case '#': FormatFlags |= FORMAT_FLAG_ALTERNATE;    sFormat++; break;
+ 431              		.loc 1 354 0
+ 432 0064 1F43     		orrs	r7, r3
+ 433              	.LVL57:
+ 434 0066 E7E7     		b	.L55
+ 435              	.LVL58:
+ 436              	.L50:
+ 437 0068 0423     		movs	r3, #4
+ 438 006a FBE7     		b	.L139
+ 439              	.L52:
+ 355:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         default:  v = 0; break;
+ 440              		.loc 1 355 0
+ 441 006c 1743     		orrs	r7, r2
+ 442              	.LVL59:
+ 443 006e E3E7     		b	.L55
+ 444              	.LVL60:
+ 445              	.L56:
+ 370:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       } while (1);
+ 371:./Application/Addition/RTT/SEGGER_RTT_printf.c **** 
+ARM GAS  /tmp/ccuXyH6z.s 			page 16
+
+
+ 372:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       //
+ 373:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       // Filter out precision (number of digits to display)
+ 374:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       //
+ 375:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       NumDigits = 0u;
+ 446              		.loc 1 375 0
+ 447 0070 0021     		movs	r1, #0
+ 448 0072 0391     		str	r1, [sp, #12]
+ 376:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       c = *sFormat;
+ 377:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       if (c == '.') {
+ 449              		.loc 1 377 0
+ 450 0074 2E2B     		cmp	r3, #46
+ 451 0076 0ED1     		bne	.L57
+ 452              	.LVL61:
+ 453 0078 1600     		movs	r6, r2
+ 378:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         sFormat++;
+ 379:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         do {
+ 380:./Application/Addition/RTT/SEGGER_RTT_printf.c ****           c = *sFormat;
+ 381:./Application/Addition/RTT/SEGGER_RTT_printf.c ****           if ((c < '0') || (c > '9')) {
+ 382:./Application/Addition/RTT/SEGGER_RTT_printf.c ****             break;
+ 383:./Application/Addition/RTT/SEGGER_RTT_printf.c ****           }
+ 384:./Application/Addition/RTT/SEGGER_RTT_printf.c ****           sFormat++;
+ 385:./Application/Addition/RTT/SEGGER_RTT_printf.c ****           NumDigits = NumDigits * 10u + ((unsigned)c - '0');
+ 454              		.loc 1 385 0
+ 455 007a 0A20     		movs	r0, #10
+ 456              	.LVL62:
+ 457              	.L58:
+ 380:./Application/Addition/RTT/SEGGER_RTT_printf.c ****           if ((c < '0') || (c > '9')) {
+ 458              		.loc 1 380 0
+ 459 007c 3278     		ldrb	r2, [r6]
+ 460              	.LVL63:
+ 461 007e 711C     		adds	r1, r6, #1
+ 381:./Application/Addition/RTT/SEGGER_RTT_printf.c ****             break;
+ 462              		.loc 1 381 0
+ 463 0080 1300     		movs	r3, r2
+ 464 0082 303B     		subs	r3, r3, #48
+ 465 0084 092B     		cmp	r3, #9
+ 466 0086 06D8     		bhi	.L57
+ 467              	.LVL64:
+ 468              		.loc 1 385 0
+ 469 0088 039B     		ldr	r3, [sp, #12]
+ 384:./Application/Addition/RTT/SEGGER_RTT_printf.c ****           NumDigits = NumDigits * 10u + ((unsigned)c - '0');
+ 470              		.loc 1 384 0
+ 471 008a 0E00     		movs	r6, r1
+ 472              	.LVL65:
+ 473              		.loc 1 385 0
+ 474 008c 4343     		muls	r3, r0
+ 475 008e 303B     		subs	r3, r3, #48
+ 476 0090 D318     		adds	r3, r2, r3
+ 477 0092 0393     		str	r3, [sp, #12]
+ 478              	.LVL66:
+ 380:./Application/Addition/RTT/SEGGER_RTT_printf.c ****           if ((c < '0') || (c > '9')) {
+ 479              		.loc 1 380 0
+ 480 0094 F2E7     		b	.L58
+ 481              	.LVL67:
+ 482              	.L57:
+ 386:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         } while (1);
+ 387:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       }
+ARM GAS  /tmp/ccuXyH6z.s 			page 17
+
+
+ 388:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       //
+ 389:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       // Filter out length modifier
+ 390:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       //
+ 391:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       c = *sFormat;
+ 483              		.loc 1 391 0
+ 484 0096 3178     		ldrb	r1, [r6]
+ 485              	.LVL68:
+ 392:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       do {
+ 393:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         if ((c == 'l') || (c == 'h')) {
+ 486              		.loc 1 393 0
+ 487 0098 0422     		movs	r2, #4
+ 488 009a 0B00     		movs	r3, r1
+ 489 009c 0136     		adds	r6, r6, #1
+ 490              	.LVL69:
+ 491 009e 9343     		bics	r3, r2
+ 492 00a0 682B     		cmp	r3, #104
+ 493 00a2 F8D0     		beq	.L57
+ 394:./Application/Addition/RTT/SEGGER_RTT_printf.c ****           sFormat++;
+ 395:./Application/Addition/RTT/SEGGER_RTT_printf.c ****           c = *sFormat;
+ 396:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         } else {
+ 397:./Application/Addition/RTT/SEGGER_RTT_printf.c ****           break;
+ 398:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         }
+ 399:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       } while (1);
+ 400:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       //
+ 401:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       // Handle specifiers
+ 402:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       //
+ 403:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       switch (c) {
+ 494              		.loc 1 403 0
+ 495 00a4 6429     		cmp	r1, #100
+ 496 00a6 3DD0     		beq	.L62
+ 497 00a8 09D8     		bhi	.L63
+ 498 00aa 5829     		cmp	r1, #88
+ 499 00ac 2CD0     		beq	.L64
+ 500 00ae 6329     		cmp	r1, #99
+ 501 00b0 32D0     		beq	.L65
+ 502 00b2 2529     		cmp	r1, #37
+ 503 00b4 0AD1     		bne	.L89
+ 504              	.LVL70:
+ 505              	.L137:
+ 404:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       case 'c': {
+ 405:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         char c0;
+ 406:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         v = va_arg(*pParamList, int);
+ 407:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         c0 = (char)v;
+ 408:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         _StoreChar(&BufferDesc, c0);
+ 409:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         break;
+ 410:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       }
+ 411:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       case 'd':
+ 412:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         v = va_arg(*pParamList, int);
+ 413:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         _PrintInt(&BufferDesc, v, 10u, NumDigits, FieldWidth, FormatFlags);
+ 414:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         break;
+ 415:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       case 'u':
+ 416:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         v = va_arg(*pParamList, int);
+ 417:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         _PrintUnsigned(&BufferDesc, (unsigned)v, 10u, NumDigits, FieldWidth, FormatFlags);
+ 418:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         break;
+ 419:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       case 'x':
+ 420:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       case 'X':
+ 421:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         v = va_arg(*pParamList, int);
+ARM GAS  /tmp/ccuXyH6z.s 			page 18
+
+
+ 422:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         _PrintUnsigned(&BufferDesc, (unsigned)v, 16u, NumDigits, FieldWidth, FormatFlags);
+ 423:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         break;
+ 424:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       case 's':
+ 425:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         {
+ 426:./Application/Addition/RTT/SEGGER_RTT_printf.c ****           const char * s = va_arg(*pParamList, const char *);
+ 427:./Application/Addition/RTT/SEGGER_RTT_printf.c ****           do {
+ 428:./Application/Addition/RTT/SEGGER_RTT_printf.c ****             c = *s;
+ 429:./Application/Addition/RTT/SEGGER_RTT_printf.c ****             s++;
+ 430:./Application/Addition/RTT/SEGGER_RTT_printf.c ****             if (c == '\0') {
+ 431:./Application/Addition/RTT/SEGGER_RTT_printf.c ****               break;
+ 432:./Application/Addition/RTT/SEGGER_RTT_printf.c ****             }
+ 433:./Application/Addition/RTT/SEGGER_RTT_printf.c ****            _StoreChar(&BufferDesc, c);
+ 434:./Application/Addition/RTT/SEGGER_RTT_printf.c ****           } while (BufferDesc.ReturnValue >= 0);
+ 435:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         }
+ 436:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         break;
+ 437:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       case 'p':
+ 438:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         v = va_arg(*pParamList, int);
+ 439:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         _PrintUnsigned(&BufferDesc, (unsigned)v, 16u, 8u, 8u, 0u);
+ 440:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         break;
+ 441:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       case '%':
+ 442:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         _StoreChar(&BufferDesc, '%');
+ 443:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         break;
+ 444:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       default:
+ 445:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         break;
+ 446:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       }
+ 447:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       sFormat++;
+ 448:./Application/Addition/RTT/SEGGER_RTT_printf.c ****     } else {
+ 449:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       _StoreChar(&BufferDesc, c);
+ 506              		.loc 1 449 0
+ 507 00b6 09A8     		add	r0, sp, #36
+ 508 00b8 FFF7FEFF 		bl	_StoreChar
+ 509              	.LVL71:
+ 510 00bc 06E0     		b	.L89
+ 511              	.LVL72:
+ 512              	.L63:
+ 403:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       case 'c': {
+ 513              		.loc 1 403 0
+ 514 00be 7329     		cmp	r1, #115
+ 515 00c0 00D1     		bne	.LCB578
+ 516 00c2 A6E0     		b	.L67	@long jump
+ 517              	.LCB578:
+ 518 00c4 1CD8     		bhi	.L68
+ 519 00c6 7029     		cmp	r1, #112
+ 520 00c8 00D1     		bne	.LCB582
+ 521 00ca B3E0     		b	.L69	@long jump
+ 522              	.LCB582:
+ 523              	.LVL73:
+ 524              	.L89:
+ 450:./Application/Addition/RTT/SEGGER_RTT_printf.c ****     }
+ 451:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   } while (BufferDesc.ReturnValue >= 0);
+ 525              		.loc 1 451 0
+ 526 00cc 0C9B     		ldr	r3, [sp, #48]
+ 527 00ce 002B     		cmp	r3, #0
+ 528 00d0 A3DA     		bge	.L90
+ 529              	.L46:
+ 452:./Application/Addition/RTT/SEGGER_RTT_printf.c **** 
+ 453:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   if (BufferDesc.ReturnValue > 0) {
+ARM GAS  /tmp/ccuXyH6z.s 			page 19
+
+
+ 530              		.loc 1 453 0
+ 531 00d2 0C9B     		ldr	r3, [sp, #48]
+ 532 00d4 0393     		str	r3, [sp, #12]
+ 533 00d6 002B     		cmp	r3, #0
+ 534 00d8 0FDD     		ble	.L91
+ 454:./Application/Addition/RTT/SEGGER_RTT_printf.c ****     //
+ 455:./Application/Addition/RTT/SEGGER_RTT_printf.c ****     // Write remaining data, if any
+ 456:./Application/Addition/RTT/SEGGER_RTT_printf.c ****     //
+ 457:./Application/Addition/RTT/SEGGER_RTT_printf.c ****     if (BufferDesc.Cnt != 0u) {
+ 535              		.loc 1 457 0
+ 536 00da 0B9A     		ldr	r2, [sp, #44]
+ 537 00dc 002A     		cmp	r2, #0
+ 538 00de 03D0     		beq	.L92
+ 458:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       SEGGER_RTT_Write(BufferIndex, acBuffer, BufferDesc.Cnt);
+ 539              		.loc 1 458 0
+ 540 00e0 0EA9     		add	r1, sp, #56
+ 541 00e2 0798     		ldr	r0, [sp, #28]
+ 542 00e4 FFF7FEFF 		bl	SEGGER_RTT_Write
+ 543              	.LVL74:
+ 544              	.L92:
+ 459:./Application/Addition/RTT/SEGGER_RTT_printf.c ****     }
+ 460:./Application/Addition/RTT/SEGGER_RTT_printf.c ****     BufferDesc.ReturnValue += (int)BufferDesc.Cnt;
+ 545              		.loc 1 460 0
+ 546 00e8 0C9B     		ldr	r3, [sp, #48]
+ 547 00ea 0393     		str	r3, [sp, #12]
+ 548 00ec 0B9B     		ldr	r3, [sp, #44]
+ 549 00ee 0493     		str	r3, [sp, #16]
+ 550 00f0 049A     		ldr	r2, [sp, #16]
+ 551 00f2 039B     		ldr	r3, [sp, #12]
+ 552 00f4 9446     		mov	ip, r2
+ 553 00f6 6344     		add	r3, r3, ip
+ 554 00f8 0C93     		str	r3, [sp, #48]
+ 555              	.L91:
+ 461:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   }
+ 462:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   return BufferDesc.ReturnValue;
+ 556              		.loc 1 462 0
+ 557 00fa 0C98     		ldr	r0, [sp, #48]
+ 463:./Application/Addition/RTT/SEGGER_RTT_printf.c **** }
+ 558              		.loc 1 463 0
+ 559 00fc 1FB0     		add	sp, sp, #124
+ 560              		@ sp needed
+ 561              	.LVL75:
+ 562              	.LVL76:
+ 563 00fe F0BD     		pop	{r4, r5, r6, r7, pc}
+ 564              	.LVL77:
+ 565              	.L68:
+ 403:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       case 'c': {
+ 566              		.loc 1 403 0
+ 567 0100 7529     		cmp	r1, #117
+ 568 0102 7DD0     		beq	.L70
+ 569 0104 7829     		cmp	r1, #120
+ 570 0106 E1D1     		bne	.L89
+ 571              	.L64:
+ 421:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         _PrintUnsigned(&BufferDesc, (unsigned)v, 16u, NumDigits, FieldWidth, FormatFlags);
+ 572              		.loc 1 421 0
+ 573 0108 2968     		ldr	r1, [r5]
+ 574              	.LVL78:
+ARM GAS  /tmp/ccuXyH6z.s 			page 20
+
+
+ 422:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         break;
+ 575              		.loc 1 422 0
+ 576 010a 0197     		str	r7, [sp, #4]
+ 577              	.LVL79:
+ 421:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         _PrintUnsigned(&BufferDesc, (unsigned)v, 16u, NumDigits, FieldWidth, FormatFlags);
+ 578              		.loc 1 421 0
+ 579 010c 0B1D     		adds	r3, r1, #4
+ 580 010e 2B60     		str	r3, [r5]
+ 581              	.LVL80:
+ 422:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         break;
+ 582              		.loc 1 422 0
+ 583 0110 039B     		ldr	r3, [sp, #12]
+ 584 0112 0094     		str	r4, [sp]
+ 585              	.L143:
+ 439:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         break;
+ 586              		.loc 1 439 0
+ 587 0114 1022     		movs	r2, #16
+ 588 0116 7AE0     		b	.L145
+ 589              	.LVL81:
+ 590              	.L65:
+ 591              	.LBB6:
+ 406:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         c0 = (char)v;
+ 592              		.loc 1 406 0
+ 593 0118 2B68     		ldr	r3, [r5]
+ 407:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         _StoreChar(&BufferDesc, c0);
+ 594              		.loc 1 407 0
+ 595 011a 1968     		ldr	r1, [r3]
+ 596              	.LVL82:
+ 406:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         c0 = (char)v;
+ 597              		.loc 1 406 0
+ 598 011c 1A1D     		adds	r2, r3, #4
+ 599 011e 2A60     		str	r2, [r5]
+ 600              	.LVL83:
+ 408:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         break;
+ 601              		.loc 1 408 0
+ 602 0120 C9B2     		uxtb	r1, r1
+ 603 0122 C8E7     		b	.L137
+ 604              	.LVL84:
+ 605              	.L62:
+ 606              	.LBE6:
+ 412:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         _PrintInt(&BufferDesc, v, 10u, NumDigits, FieldWidth, FormatFlags);
+ 607              		.loc 1 412 0
+ 608 0124 2B68     		ldr	r3, [r5]
+ 609 0126 1A1D     		adds	r2, r3, #4
+ 610 0128 1B68     		ldr	r3, [r3]
+ 611 012a 2A60     		str	r2, [r5]
+ 612              	.LBB7:
+ 613              	.LBB8:
+ 231:./Application/Addition/RTT/SEGGER_RTT_printf.c **** 
+ 614              		.loc 1 231 0
+ 615 012c DA17     		asrs	r2, r3, #31
+ 616 012e 9818     		adds	r0, r3, r2
+ 617              	.LBE8:
+ 618              	.LBE7:
+ 412:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         _PrintInt(&BufferDesc, v, 10u, NumDigits, FieldWidth, FormatFlags);
+ 619              		.loc 1 412 0
+ 620 0130 0493     		str	r3, [sp, #16]
+ARM GAS  /tmp/ccuXyH6z.s 			page 21
+
+
+ 621              	.LVL85:
+ 622              	.LBB12:
+ 623              	.LBB9:
+ 236:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   while (Number >= (int)Base) {
+ 624              		.loc 1 236 0
+ 625 0132 0123     		movs	r3, #1
+ 231:./Application/Addition/RTT/SEGGER_RTT_printf.c **** 
+ 626              		.loc 1 231 0
+ 627 0134 5040     		eors	r0, r2
+ 628              	.LVL86:
+ 629              	.L140:
+ 239:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   }
+ 630              		.loc 1 239 0
+ 631 0136 0593     		str	r3, [sp, #20]
+ 632              	.LVL87:
+ 237:./Application/Addition/RTT/SEGGER_RTT_printf.c ****     Number = (Number / (int)Base);
+ 633              		.loc 1 237 0
+ 634 0138 0928     		cmp	r0, #9
+ 635 013a 48DC     		bgt	.L72
+ 636 013c 039B     		ldr	r3, [sp, #12]
+ 637              	.LVL88:
+ 638 013e 059A     		ldr	r2, [sp, #20]
+ 639 0140 0693     		str	r3, [sp, #24]
+ 640 0142 9342     		cmp	r3, r2
+ 641 0144 00D2     		bcs	.L73
+ 642 0146 0692     		str	r2, [sp, #24]
+ 643              	.LVL89:
+ 644              	.L73:
+ 244:./Application/Addition/RTT/SEGGER_RTT_printf.c ****     FieldWidth--;
+ 645              		.loc 1 244 0
+ 646 0148 002C     		cmp	r4, #0
+ 647 014a 06D0     		beq	.L74
+ 648 014c 049B     		ldr	r3, [sp, #16]
+ 649 014e 002B     		cmp	r3, #0
+ 650 0150 02DB     		blt	.L75
+ 651 0152 0423     		movs	r3, #4
+ 652 0154 1F42     		tst	r7, r3
+ 653 0156 00D0     		beq	.L74
+ 654              	.L75:
+ 245:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   }
+ 655              		.loc 1 245 0
+ 656 0158 013C     		subs	r4, r4, #1
+ 657              	.LVL90:
+ 658              	.L74:
+ 251:./Application/Addition/RTT/SEGGER_RTT_printf.c ****     if (FieldWidth != 0u) {
+ 659              		.loc 1 251 0
+ 660 015a BB07     		lsls	r3, r7, #30
+ 661 015c 02D5     		bpl	.L76
+ 662 015e 039B     		ldr	r3, [sp, #12]
+ 663 0160 002B     		cmp	r3, #0
+ 664 0162 04D0     		beq	.L77
+ 665              	.L76:
+ 666 0164 0123     		movs	r3, #1
+ 667 0166 1F42     		tst	r7, r3
+ 668 0168 01D1     		bne	.L77
+ 252:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       while ((FieldWidth != 0u) && (Width < FieldWidth)) {
+ 669              		.loc 1 252 0
+ARM GAS  /tmp/ccuXyH6z.s 			page 22
+
+
+ 670 016a 002C     		cmp	r4, #0
+ 671 016c 3FD1     		bne	.L78
+ 672              	.LVL91:
+ 673              	.L77:
+ 265:./Application/Addition/RTT/SEGGER_RTT_printf.c ****     if (v < 0) {
+ 674              		.loc 1 265 0
+ 675 016e 0C9B     		ldr	r3, [sp, #48]
+ 676 0170 002B     		cmp	r3, #0
+ 677 0172 ABDB     		blt	.L89
+ 678              	.L79:
+ 266:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       v = -v;
+ 679              		.loc 1 266 0
+ 680 0174 049B     		ldr	r3, [sp, #16]
+ 681 0176 002B     		cmp	r3, #0
+ 682 0178 3DDA     		bge	.L81
+ 268:./Application/Addition/RTT/SEGGER_RTT_printf.c ****     } else if ((FormatFlags & FORMAT_FLAG_PRINT_SIGN) == FORMAT_FLAG_PRINT_SIGN) {
+ 683              		.loc 1 268 0
+ 684 017a 2D21     		movs	r1, #45
+ 267:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       _StoreChar(pBufferDesc, '-');
+ 685              		.loc 1 267 0
+ 686 017c 5B42     		rsbs	r3, r3, #0
+ 687 017e 0493     		str	r3, [sp, #16]
+ 688              	.LVL92:
+ 689              	.L141:
+ 270:./Application/Addition/RTT/SEGGER_RTT_printf.c ****     } else {
+ 690              		.loc 1 270 0
+ 691 0180 09A8     		add	r0, sp, #36
+ 692              	.LVL93:
+ 693 0182 FFF7FEFF 		bl	_StoreChar
+ 694              	.LVL94:
+ 695              	.L82:
+ 274:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       //
+ 696              		.loc 1 274 0
+ 697 0186 0C9B     		ldr	r3, [sp, #48]
+ 698 0188 002B     		cmp	r3, #0
+ 699 018a 9FDB     		blt	.L89
+ 278:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         if (FieldWidth != 0u) {
+ 700              		.loc 1 278 0
+ 701 018c 0323     		movs	r3, #3
+ 702 018e 3B40     		ands	r3, r7
+ 703 0190 022B     		cmp	r3, #2
+ 704 0192 0FD1     		bne	.L84
+ 705 0194 039B     		ldr	r3, [sp, #12]
+ 706 0196 002B     		cmp	r3, #0
+ 707 0198 0CD1     		bne	.L84
+ 708              	.L142:
+ 280:./Application/Addition/RTT/SEGGER_RTT_printf.c ****             FieldWidth--;
+ 709              		.loc 1 280 0
+ 710 019a 002C     		cmp	r4, #0
+ 711 019c 52D0     		beq	.L86
+ 712 019e 069B     		ldr	r3, [sp, #24]
+ 713 01a0 A342     		cmp	r3, r4
+ 714 01a2 07D2     		bcs	.L84
+ 282:./Application/Addition/RTT/SEGGER_RTT_printf.c ****             if (pBufferDesc->ReturnValue < 0) {
+ 715              		.loc 1 282 0
+ 716 01a4 3021     		movs	r1, #48
+ 717 01a6 09A8     		add	r0, sp, #36
+ARM GAS  /tmp/ccuXyH6z.s 			page 23
+
+
+ 718              	.LVL95:
+ 719 01a8 FFF7FEFF 		bl	_StoreChar
+ 720              	.LVL96:
+ 283:./Application/Addition/RTT/SEGGER_RTT_printf.c ****               break;
+ 721              		.loc 1 283 0
+ 722 01ac 0C9B     		ldr	r3, [sp, #48]
+ 281:./Application/Addition/RTT/SEGGER_RTT_printf.c ****             _StoreChar(pBufferDesc, '0');
+ 723              		.loc 1 281 0
+ 724 01ae 013C     		subs	r4, r4, #1
+ 725              	.LVL97:
+ 283:./Application/Addition/RTT/SEGGER_RTT_printf.c ****               break;
+ 726              		.loc 1 283 0
+ 727 01b0 002B     		cmp	r3, #0
+ 728 01b2 F2DA     		bge	.L142
+ 729              	.L84:
+ 289:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         //
+ 730              		.loc 1 289 0
+ 731 01b4 0C9B     		ldr	r3, [sp, #48]
+ 732 01b6 002B     		cmp	r3, #0
+ 733 01b8 00DA     		bge	.LCB848
+ 734 01ba 87E7     		b	.L89	@long jump
+ 735              	.LCB848:
+ 736              	.LVL98:
+ 737              	.L93:
+ 293:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       }
+ 738              		.loc 1 293 0
+ 739 01bc 0A22     		movs	r2, #10
+ 740 01be 039B     		ldr	r3, [sp, #12]
+ 741 01c0 0499     		ldr	r1, [sp, #16]
+ 742 01c2 0197     		str	r7, [sp, #4]
+ 743 01c4 0094     		str	r4, [sp]
+ 744              	.LVL99:
+ 745              	.L144:
+ 746              	.LBE9:
+ 747              	.LBE12:
+ 439:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         break;
+ 748              		.loc 1 439 0
+ 749 01c6 09A8     		add	r0, sp, #36
+ 750 01c8 FFF7FEFF 		bl	_PrintUnsigned
+ 751              	.LVL100:
+ 440:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       case '%':
+ 752              		.loc 1 440 0
+ 753 01cc 7EE7     		b	.L89
+ 754              	.LVL101:
+ 755              	.L72:
+ 756              	.LBB13:
+ 757              	.LBB10:
+ 238:./Application/Addition/RTT/SEGGER_RTT_printf.c ****     Width++;
+ 758              		.loc 1 238 0
+ 759 01ce 0A21     		movs	r1, #10
+ 760 01d0 FFF7FEFF 		bl	__aeabi_idiv
+ 761              	.LVL102:
+ 239:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   }
+ 762              		.loc 1 239 0
+ 763 01d4 059B     		ldr	r3, [sp, #20]
+ 764 01d6 0133     		adds	r3, r3, #1
+ 765 01d8 ADE7     		b	.L140
+ARM GAS  /tmp/ccuXyH6z.s 			page 24
+
+
+ 766              	.LVL103:
+ 767              	.L80:
+ 255:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         if (pBufferDesc->ReturnValue < 0) {
+ 768              		.loc 1 255 0
+ 769 01da 2021     		movs	r1, #32
+ 770 01dc 09A8     		add	r0, sp, #36
+ 771              	.LVL104:
+ 772 01de FFF7FEFF 		bl	_StoreChar
+ 773              	.LVL105:
+ 256:./Application/Addition/RTT/SEGGER_RTT_printf.c ****           break;
+ 774              		.loc 1 256 0
+ 775 01e2 0C9B     		ldr	r3, [sp, #48]
+ 254:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         _StoreChar(pBufferDesc, ' ');
+ 776              		.loc 1 254 0
+ 777 01e4 013C     		subs	r4, r4, #1
+ 778              	.LVL106:
+ 256:./Application/Addition/RTT/SEGGER_RTT_printf.c ****           break;
+ 779              		.loc 1 256 0
+ 780 01e6 002B     		cmp	r3, #0
+ 781 01e8 C1DB     		blt	.L77
+ 253:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         FieldWidth--;
+ 782              		.loc 1 253 0
+ 783 01ea 002C     		cmp	r4, #0
+ 784 01ec C2D0     		beq	.L79
+ 785              	.L78:
+ 786 01ee 069B     		ldr	r3, [sp, #24]
+ 787 01f0 A342     		cmp	r3, r4
+ 788 01f2 F2D3     		bcc	.L80
+ 789 01f4 BBE7     		b	.L77
+ 790              	.L81:
+ 269:./Application/Addition/RTT/SEGGER_RTT_printf.c ****       _StoreChar(pBufferDesc, '+');
+ 791              		.loc 1 269 0
+ 792 01f6 0423     		movs	r3, #4
+ 793 01f8 1F42     		tst	r7, r3
+ 794 01fa C4D0     		beq	.L82
+ 270:./Application/Addition/RTT/SEGGER_RTT_printf.c ****     } else {
+ 795              		.loc 1 270 0
+ 796 01fc 2B21     		movs	r1, #43
+ 797 01fe BFE7     		b	.L141
+ 798              	.LVL107:
+ 799              	.L70:
+ 800              	.LBE10:
+ 801              	.LBE13:
+ 417:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         break;
+ 802              		.loc 1 417 0
+ 803 0200 0A22     		movs	r2, #10
+ 416:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         _PrintUnsigned(&BufferDesc, (unsigned)v, 10u, NumDigits, FieldWidth, FormatFlags);
+ 804              		.loc 1 416 0
+ 805 0202 2968     		ldr	r1, [r5]
+ 806              	.LVL108:
+ 417:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         break;
+ 807              		.loc 1 417 0
+ 808 0204 0197     		str	r7, [sp, #4]
+ 809              	.LVL109:
+ 416:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         _PrintUnsigned(&BufferDesc, (unsigned)v, 10u, NumDigits, FieldWidth, FormatFlags);
+ 810              		.loc 1 416 0
+ 811 0206 0B1D     		adds	r3, r1, #4
+ARM GAS  /tmp/ccuXyH6z.s 			page 25
+
+
+ 812 0208 2B60     		str	r3, [r5]
+ 813              	.LVL110:
+ 417:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         break;
+ 814              		.loc 1 417 0
+ 815 020a 039B     		ldr	r3, [sp, #12]
+ 816 020c 0094     		str	r4, [sp]
+ 817              	.L145:
+ 439:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         break;
+ 818              		.loc 1 439 0
+ 819 020e 0968     		ldr	r1, [r1]
+ 820 0210 D9E7     		b	.L144
+ 821              	.LVL111:
+ 822              	.L67:
+ 823              	.LBB14:
+ 426:./Application/Addition/RTT/SEGGER_RTT_printf.c ****           do {
+ 824              		.loc 1 426 0
+ 825 0212 2B68     		ldr	r3, [r5]
+ 826 0214 1A1D     		adds	r2, r3, #4
+ 827 0216 2A60     		str	r2, [r5]
+ 828 0218 1C68     		ldr	r4, [r3]
+ 829              	.LVL112:
+ 830              	.L88:
+ 428:./Application/Addition/RTT/SEGGER_RTT_printf.c ****             s++;
+ 831              		.loc 1 428 0
+ 832 021a 2178     		ldrb	r1, [r4]
+ 833              	.LVL113:
+ 429:./Application/Addition/RTT/SEGGER_RTT_printf.c ****             if (c == '\0') {
+ 834              		.loc 1 429 0
+ 835 021c 0134     		adds	r4, r4, #1
+ 836              	.LVL114:
+ 430:./Application/Addition/RTT/SEGGER_RTT_printf.c ****               break;
+ 837              		.loc 1 430 0
+ 838 021e 0029     		cmp	r1, #0
+ 839 0220 00D1     		bne	.LCB997
+ 840 0222 53E7     		b	.L89	@long jump
+ 841              	.LCB997:
+ 433:./Application/Addition/RTT/SEGGER_RTT_printf.c ****           } while (BufferDesc.ReturnValue >= 0);
+ 842              		.loc 1 433 0
+ 843 0224 09A8     		add	r0, sp, #36
+ 844 0226 FFF7FEFF 		bl	_StoreChar
+ 845              	.LVL115:
+ 434:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         }
+ 846              		.loc 1 434 0
+ 847 022a 0C9B     		ldr	r3, [sp, #48]
+ 848 022c 0393     		str	r3, [sp, #12]
+ 849 022e 002B     		cmp	r3, #0
+ 850 0230 F3DA     		bge	.L88
+ 851 0232 4BE7     		b	.L89
+ 852              	.LVL116:
+ 853              	.L69:
+ 854              	.LBE14:
+ 438:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         _PrintUnsigned(&BufferDesc, (unsigned)v, 16u, 8u, 8u, 0u);
+ 855              		.loc 1 438 0
+ 856 0234 2968     		ldr	r1, [r5]
+ 857              	.LVL117:
+ 858 0236 0B1D     		adds	r3, r1, #4
+ 859 0238 2B60     		str	r3, [r5]
+ARM GAS  /tmp/ccuXyH6z.s 			page 26
+
+
+ 860              	.LVL118:
+ 439:./Application/Addition/RTT/SEGGER_RTT_printf.c ****         break;
+ 861              		.loc 1 439 0
+ 862 023a 0023     		movs	r3, #0
+ 863 023c 0193     		str	r3, [sp, #4]
+ 864 023e 0833     		adds	r3, r3, #8
+ 865 0240 0093     		str	r3, [sp]
+ 866 0242 67E7     		b	.L143
+ 867              	.LVL119:
+ 868              	.L86:
+ 869              	.LBB15:
+ 870              	.LBB11:
+ 236:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   while (Number >= (int)Base) {
+ 871              		.loc 1 236 0
+ 872 0244 0024     		movs	r4, #0
+ 873 0246 B9E7     		b	.L93
+ 874              	.LBE11:
+ 875              	.LBE15:
+ 876              		.cfi_endproc
+ 877              	.LFE3:
+ 879              		.section	.text.SEGGER_RTT_printf,"ax",%progbits
+ 880              		.align	1
+ 881              		.global	SEGGER_RTT_printf
+ 882              		.syntax unified
+ 883              		.code	16
+ 884              		.thumb_func
+ 885              		.fpu softvfp
+ 887              	SEGGER_RTT_printf:
+ 888              	.LFB4:
+ 464:./Application/Addition/RTT/SEGGER_RTT_printf.c **** 
+ 465:./Application/Addition/RTT/SEGGER_RTT_printf.c **** /*********************************************************************
+ 466:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *
+ 467:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *       SEGGER_RTT_printf
+ 468:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *
+ 469:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *  Function description
+ 470:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *    Stores a formatted string in SEGGER RTT control block.
+ 471:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *    This data is read by the host.
+ 472:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *
+ 473:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *  Parameters
+ 474:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *    BufferIndex  Index of "Up"-buffer to be used. (e.g. 0 for "Terminal")
+ 475:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *    sFormat      Pointer to format string, followed by the arguments for conversion
+ 476:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *
+ 477:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *  Return values
+ 478:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *    >= 0:  Number of bytes which have been stored in the "Up"-buffer.
+ 479:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *     < 0:  Error
+ 480:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *
+ 481:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *  Notes
+ 482:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *    (1) Conversion specifications have following syntax:
+ 483:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *          %[flags][FieldWidth][.Precision]ConversionSpecifier
+ 484:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *    (2) Supported flags:
+ 485:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *          -: Left justify within the field width
+ 486:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *          +: Always print sign extension for signed conversions
+ 487:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *          0: Pad with 0 instead of spaces. Ignored when using '-'-flag or precision
+ 488:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *        Supported conversion specifiers:
+ 489:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *          c: Print the argument as one char
+ 490:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *          d: Print the argument as a signed integer
+ 491:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *          u: Print the argument as an unsigned integer
+ARM GAS  /tmp/ccuXyH6z.s 			page 27
+
+
+ 492:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *          x: Print the argument as an hexadecimal integer
+ 493:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *          s: Print the string pointed to by the argument
+ 494:./Application/Addition/RTT/SEGGER_RTT_printf.c **** *          p: Print the argument as an 8-digit hexadecimal integer. (Argument shall be a pointer to
+ 495:./Application/Addition/RTT/SEGGER_RTT_printf.c **** */
+ 496:./Application/Addition/RTT/SEGGER_RTT_printf.c **** int SEGGER_RTT_printf(unsigned BufferIndex, const char * sFormat, ...) {
+ 889              		.loc 1 496 0
+ 890              		.cfi_startproc
+ 891              		@ args = 4, pretend = 12, frame = 8
+ 892              		@ frame_needed = 0, uses_anonymous_args = 1
+ 893              	.LVL120:
+ 894 0000 0EB4     		push	{r1, r2, r3}
+ 895              	.LCFI5:
+ 896              		.cfi_def_cfa_offset 12
+ 897 0002 03B5     		push	{r0, r1, lr}
+ 898              	.LCFI6:
+ 899              		.cfi_def_cfa_offset 24
+ 900              		.cfi_offset 0, -24
+ 901              		.cfi_offset 1, -20
+ 902              		.cfi_offset 14, -16
+ 903              		.loc 1 496 0
+ 904 0004 03AB     		add	r3, sp, #12
+ 905 0006 02CB     		ldmia	r3!, {r1}
+ 497:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   int r;
+ 498:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   va_list ParamList;
+ 499:./Application/Addition/RTT/SEGGER_RTT_printf.c **** 
+ 500:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   va_start(ParamList, sFormat);
+ 501:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   r = SEGGER_RTT_vprintf(BufferIndex, sFormat, &ParamList);
+ 906              		.loc 1 501 0
+ 907 0008 01AA     		add	r2, sp, #4
+ 500:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   r = SEGGER_RTT_vprintf(BufferIndex, sFormat, &ParamList);
+ 908              		.loc 1 500 0
+ 909 000a 0193     		str	r3, [sp, #4]
+ 910              		.loc 1 501 0
+ 911 000c FFF7FEFF 		bl	SEGGER_RTT_vprintf
+ 912              	.LVL121:
+ 502:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   va_end(ParamList);
+ 503:./Application/Addition/RTT/SEGGER_RTT_printf.c ****   return r;
+ 504:./Application/Addition/RTT/SEGGER_RTT_printf.c **** }
+ 913              		.loc 1 504 0
+ 914 0010 02B0     		add	sp, sp, #8
+ 915              		@ sp needed
+ 916 0012 08BC     		pop	{r3}
+ 917 0014 03B0     		add	sp, sp, #12
+ 918 0016 1847     		bx	r3
+ 919              		.cfi_endproc
+ 920              	.LFE4:
+ 922              		.section	.rodata._aV2C.4901,"a",%progbits
+ 923              		.set	.LANCHOR0,. + 0
+ 926              	_aV2C.4901:
+ 927 0000 30       		.byte	48
+ 928 0001 31       		.byte	49
+ 929 0002 32       		.byte	50
+ 930 0003 33       		.byte	51
+ 931 0004 34       		.byte	52
+ 932 0005 35       		.byte	53
+ 933 0006 36       		.byte	54
+ 934 0007 37       		.byte	55
+ARM GAS  /tmp/ccuXyH6z.s 			page 28
+
+
+ 935 0008 38       		.byte	56
+ 936 0009 39       		.byte	57
+ 937 000a 41       		.byte	65
+ 938 000b 42       		.byte	66
+ 939 000c 43       		.byte	67
+ 940 000d 44       		.byte	68
+ 941 000e 45       		.byte	69
+ 942 000f 46       		.byte	70
+ 943              		.text
+ 944              	.Letext0:
+ 945              		.file 2 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/lock.h"
+ 946              		.file 3 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_types.h"
+ 947              		.file 4 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/lib/gcc/arm-none-eabi/7.3.1/include/stddef.h"
+ 948              		.file 5 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/reent.h"
+ 949              		.file 6 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/stdlib.h"
+ 950              		.file 7 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/lib/gcc/arm-none-eabi/7.3.1/include/stdarg.h"
+ 951              		.file 8 "<built-in>"
+ 952              		.file 9 "./Application/Addition/RTT/SEGGER_RTT.h"
+ARM GAS  /tmp/ccuXyH6z.s 			page 29
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 SEGGER_RTT_printf.c
+     /tmp/ccuXyH6z.s:16     .text._StoreChar:0000000000000000 $t
+     /tmp/ccuXyH6z.s:22     .text._StoreChar:0000000000000000 _StoreChar
+     /tmp/ccuXyH6z.s:94     .text._PrintUnsigned:0000000000000000 $t
+     /tmp/ccuXyH6z.s:100    .text._PrintUnsigned:0000000000000000 _PrintUnsigned
+     /tmp/ccuXyH6z.s:307    .text._PrintUnsigned:00000000000000d0 $d
+     /tmp/ccuXyH6z.s:313    .text.SEGGER_RTT_vprintf:0000000000000000 $t
+     /tmp/ccuXyH6z.s:320    .text.SEGGER_RTT_vprintf:0000000000000000 SEGGER_RTT_vprintf
+     /tmp/ccuXyH6z.s:880    .text.SEGGER_RTT_printf:0000000000000000 $t
+     /tmp/ccuXyH6z.s:887    .text.SEGGER_RTT_printf:0000000000000000 SEGGER_RTT_printf
+     /tmp/ccuXyH6z.s:926    .rodata._aV2C.4901:0000000000000000 _aV2C.4901
+
+UNDEFINED SYMBOLS
+SEGGER_RTT_Write
+__aeabi_uidiv
+__aeabi_uidivmod
+__aeabi_idiv

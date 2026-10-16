@@ -1,0 +1,1763 @@
+ARM GAS  /tmp/cc4cBozH.s 			page 1
+
+
+   1              		.cpu cortex-m0plus
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 4
+   9              		.eabi_attribute 34, 0
+  10              		.eabi_attribute 18, 4
+  11              		.file	"SystemPara.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.InitParameterArray,"ax",%progbits
+  16              		.align	1
+  17              		.global	InitParameterArray
+  18              		.syntax unified
+  19              		.code	16
+  20              		.thumb_func
+  21              		.fpu softvfp
+  23              	InitParameterArray:
+  24              	.LFB493:
+  25              		.file 1 "./Application/Funtion/SystemPara/SystemPara.c"
+   1:./Application/Funtion/SystemPara/SystemPara.c **** /*==========================================Copyright(c)=======================================
+   2:./Application/Funtion/SystemPara/SystemPara.c **** **                                  Shenzhen Infypower Co., Ltd.
+   3:./Application/Funtion/SystemPara/SystemPara.c **** **                                  Power conversion Department
+   4:./Application/Funtion/SystemPara/SystemPara.c **** **                                       BMS Product Line
+   5:./Application/Funtion/SystemPara/SystemPara.c **** **
+   6:./Application/Funtion/SystemPara/SystemPara.c **** **---------------------------------------File Information--------------------------------------
+   7:./Application/Funtion/SystemPara/SystemPara.c **** ** @File Name    : Parameter.c
+   8:./Application/Funtion/SystemPara/SystemPara.c **** ** @Founder      : WYC834
+   9:./Application/Funtion/SystemPara/SystemPara.c **** ** @Date         : 2025.11.3
+  10:./Application/Funtion/SystemPara/SystemPara.c **** ** @Function     : 自身参数模块
+  11:./Application/Funtion/SystemPara/SystemPara.c **** ** @Instructions : 系统自身所有参数
+  12:./Application/Funtion/SystemPara/SystemPara.c **** **===========================================================================================*/
+  13:./Application/Funtion/SystemPara/SystemPara.c **** 
+  14:./Application/Funtion/SystemPara/SystemPara.c **** /*=============================================================================================
+  15:./Application/Funtion/SystemPara/SystemPara.c **** ** @Header file definition
+  16:./Application/Funtion/SystemPara/SystemPara.c **** **===========================================================================================*/
+  17:./Application/Funtion/SystemPara/SystemPara.c **** #include "SystemPara.h"
+  18:./Application/Funtion/SystemPara/SystemPara.c **** #include "SystemInfo.h"
+  19:./Application/Funtion/SystemPara/SystemPara.c **** #include "BSPGD25Q32E.h"
+  20:./Application/Funtion/SystemPara/SystemPara.c **** #include "SystemData.h"
+  21:./Application/Funtion/SystemPara/SystemPara.c **** #include "SystemPara.h"
+  22:./Application/Funtion/SystemPara/SystemPara.c **** #include "EEPROM.h"
+  23:./Application/Funtion/SystemPara/SystemPara.c **** #include "ToolingCheck.h"
+  24:./Application/Funtion/SystemPara/SystemPara.c **** /*=============================================================================================
+  25:./Application/Funtion/SystemPara/SystemPara.c **** ** @Global variable definition
+  26:./Application/Funtion/SystemPara/SystemPara.c **** **===========================================================================================*/
+  27:./Application/Funtion/SystemPara/SystemPara.c **** Parameter_TypeDef stParameter;
+  28:./Application/Funtion/SystemPara/SystemPara.c **** u16 ParameterNow_102[Parameter_Len];
+  29:./Application/Funtion/SystemPara/SystemPara.c **** u16 ParameterSet_107[Parameter_Len];
+  30:./Application/Funtion/SystemPara/SystemPara.c **** /*=======================================序列号信息===========================================
+  31:./Application/Funtion/SystemPara/SystemPara.c **** u8 SystemSerialNum_2[SerialNum_len] =
+  32:./Application/Funtion/SystemPara/SystemPara.c **** {
+  33:./Application/Funtion/SystemPara/SystemPara.c ****     0x0                             /*设备序列号信息(最高字符在低位)*/
+ARM GAS  /tmp/cc4cBozH.s 			page 2
+
+
+  34:./Application/Funtion/SystemPara/SystemPara.c **** };
+  35:./Application/Funtion/SystemPara/SystemPara.c **** /*=============================================================================================
+  36:./Application/Funtion/SystemPara/SystemPara.c **** ** @Static function declaration
+  37:./Application/Funtion/SystemPara/SystemPara.c **** **===========================================================================================*/
+  38:./Application/Funtion/SystemPara/SystemPara.c **** 
+  39:./Application/Funtion/SystemPara/SystemPara.c **** /*=============================================================================================
+  40:./Application/Funtion/SystemPara/SystemPara.c **** ** @Interface function definition
+  41:./Application/Funtion/SystemPara/SystemPara.c **** **===========================================================================================*/
+  42:./Application/Funtion/SystemPara/SystemPara.c **** void InitParameterArray(void)
+  43:./Application/Funtion/SystemPara/SystemPara.c **** {
+  26              		.loc 1 43 0
+  27              		.cfi_startproc
+  28              		@ args = 0, pretend = 0, frame = 8
+  29              		@ frame_needed = 0, uses_anonymous_args = 0
+  30 0000 F7B5     		push	{r0, r1, r2, r4, r5, r6, r7, lr}
+  31              	.LCFI0:
+  32              		.cfi_def_cfa_offset 32
+  33              		.cfi_offset 0, -32
+  34              		.cfi_offset 1, -28
+  35              		.cfi_offset 2, -24
+  36              		.cfi_offset 4, -20
+  37              		.cfi_offset 5, -16
+  38              		.cfi_offset 6, -12
+  39              		.cfi_offset 7, -8
+  40              		.cfi_offset 14, -4
+  44:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.u16ArraySet[ParameterCigFlag] = 23131;
+  41              		.loc 1 44 0
+  42 0002 7A4B     		ldr	r3, .L15
+  43 0004 7A4C     		ldr	r4, .L15+4
+  45:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.u16ArraySet[CanComRate] = 3;
+  46:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.u16ArraySet[RS485ComRate] = 0;
+  47:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.u16ArraySet[CanCrolVersion] = 1;
+  48:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.u16ArraySet[CurrentSampChannel] = 2;
+  49:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.u16ArraySet[ShuntVoltSampRange] = 75;//单位1mv
+  50:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.u16ArraySet[ShuntCurrentSampRange] = 40;//单位10A
+  51:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.u16ArraySet[HallSignalZeroVolt] = 25;//单位0.1V
+  52:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.u16ArraySet[HallVoltSampRange] = 20;//单位0.1V
+  53:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.u16ArraySet[HallCurrentSampRange] = 40;//单位10A
+  44              		.loc 1 53 0
+  45 0006 0026     		movs	r6, #0
+  44:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.u16ArraySet[ParameterCigFlag] = 23131;
+  46              		.loc 1 44 0
+  47 0008 2362     		str	r3, [r4, #32]
+  45:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.u16ArraySet[CanComRate] = 3;
+  48              		.loc 1 45 0
+  49 000a 8023     		movs	r3, #128
+  50 000c 5B02     		lsls	r3, r3, #9
+  51 000e 6362     		str	r3, [r4, #36]
+  47:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.u16ArraySet[CurrentSampChannel] = 2;
+  52              		.loc 1 47 0
+  53 0010 784B     		ldr	r3, .L15+8
+  54:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.u16ArraySet[CurrentFilterMethod] = 0;
+  55:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.u16ArraySet[CurrentFilterTimes] = 0;
+  56:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.u16ArraySet[AfterInsuPeRlyState] = 1;
+  57:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.u16ArraySet[InsuSampPeriod] = 21600;//s
+  58:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.u16ArraySet[InsuTimeLimit] = 5;//工装代码未写入此参数 以及FREERTOS栈�
+  59:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.u16ArraySet[RlySwiftInterTime] = 500;//单位MS
+ARM GAS  /tmp/cc4cBozH.s 			page 3
+
+
+  60:./Application/Funtion/SystemPara/SystemPara.c **** 
+  61:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.BatVoltKBFlag = 0;
+  62:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.fBatVoltK = 1.0f;
+  63:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.fBatVoltB = 0.0f;
+  64:./Application/Funtion/SystemPara/SystemPara.c **** 
+  65:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.PeVoltKBFlag = 0;
+  66:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.fPeVoltK = 1.0f;
+  67:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.fPeVoltB = 0.0f;
+  68:./Application/Funtion/SystemPara/SystemPara.c **** 
+  69:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.LinkVoltKBFlag = 0;
+  70:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.fLinkVoltK = 1.0f;
+  71:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.fLinkVoltB= 0.0f;
+  72:./Application/Funtion/SystemPara/SystemPara.c **** 
+  73:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.HallCurrKBFlag = 0;
+  74:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.fHallCurrentK = 1.0f;
+  75:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.fHallCurrentB= 0.0f;
+  76:./Application/Funtion/SystemPara/SystemPara.c **** 
+  77:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.BatShuntChgKBFlag = 0;
+  78:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.fBatShuntCurrentChgK = 1.0f;
+  79:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.fBatShuntCurrentChgB= 0.0f;
+  80:./Application/Funtion/SystemPara/SystemPara.c **** 
+  81:./Application/Funtion/SystemPara/SystemPara.c **** 
+  82:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.BatShuntDhgKBFlag = 0;
+  54              		.loc 1 82 0
+  55 0012 221D     		adds	r2, r4, #4
+  47:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.u16ArraySet[CurrentSampChannel] = 2;
+  56              		.loc 1 47 0
+  57 0014 A362     		str	r3, [r4, #40]
+  49:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.u16ArraySet[ShuntCurrentSampRange] = 40;//单位10A
+  58              		.loc 1 49 0
+  59 0016 784B     		ldr	r3, .L15+12
+  53:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.u16ArraySet[CurrentFilterMethod] = 0;
+  60              		.loc 1 53 0
+  61 0018 6663     		str	r6, [r4, #52]
+  49:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.u16ArraySet[ShuntCurrentSampRange] = 40;//单位10A
+  62              		.loc 1 49 0
+  63 001a E362     		str	r3, [r4, #44]
+  51:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.u16ArraySet[HallVoltSampRange] = 20;//单位0.1V
+  64              		.loc 1 51 0
+  65 001c 774B     		ldr	r3, .L15+16
+  59:./Application/Funtion/SystemPara/SystemPara.c **** 
+  66              		.loc 1 59 0
+  67 001e 2664     		str	r6, [r4, #64]
+  51:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.u16ArraySet[HallVoltSampRange] = 20;//单位0.1V
+  68              		.loc 1 51 0
+  69 0020 2363     		str	r3, [r4, #48]
+  55:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.u16ArraySet[AfterInsuPeRlyState] = 1;
+  70              		.loc 1 55 0
+  71 0022 774B     		ldr	r3, .L15+20
+  62:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.fBatVoltB = 0.0f;
+  72              		.loc 1 62 0
+  73 0024 A664     		str	r6, [r4, #72]
+  55:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.u16ArraySet[AfterInsuPeRlyState] = 1;
+  74              		.loc 1 55 0
+  75 0026 A363     		str	r3, [r4, #56]
+  57:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.u16ArraySet[InsuTimeLimit] = 5;//工装代码未写入此参数 以及FREERTOS栈�
+  76              		.loc 1 57 0
+ARM GAS  /tmp/cc4cBozH.s 			page 4
+
+
+  77 0028 764B     		ldr	r3, .L15+24
+  63:./Application/Funtion/SystemPara/SystemPara.c **** 
+  78              		.loc 1 63 0
+  79 002a E664     		str	r6, [r4, #76]
+  57:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.u16ArraySet[InsuTimeLimit] = 5;//工装代码未写入此参数 以及FREERTOS栈�
+  80              		.loc 1 57 0
+  81 002c E363     		str	r3, [r4, #60]
+  61:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.fBatVoltK = 1.0f;
+  82              		.loc 1 61 0
+  83 002e FE23     		movs	r3, #254
+  84 0030 9B05     		lsls	r3, r3, #22
+  85              		.loc 1 82 0
+  86 0032 D367     		str	r3, [r2, #124]
+  83:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.fBatShuntCurrentDhgK = 1.0f;
+  87              		.loc 1 83 0
+  88 0034 2200     		movs	r2, r4
+  89 0036 0832     		adds	r2, r2, #8
+  90 0038 D667     		str	r6, [r2, #124]
+  84:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.fBatShuntCurrentDhgB= 0.0f;
+  91              		.loc 1 84 0
+  92 003a 2200     		movs	r2, r4
+  93 003c 8832     		adds	r2, r2, #136
+  94 003e 1660     		str	r6, [r2]
+  85:./Application/Funtion/SystemPara/SystemPara.c ****   
+  86:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.BatShuntDhgKBFlag = 0;
+  87:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.fBatShuntCurrentDhgK = 1.0f;
+  88:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.fBatShuntCurrentDhgB= 0.0f;
+  89:./Application/Funtion/SystemPara/SystemPara.c ****     
+  90:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.LinkShuntChgKBFlag = 0;
+  95              		.loc 1 90 0
+  96 0040 2200     		movs	r2, r4
+  97 0042 8C32     		adds	r2, r2, #140
+  98 0044 1360     		str	r3, [r2]
+  91:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.fLinkShuntCurrentChgK = 1.0f;
+  99              		.loc 1 91 0
+ 100 0046 2200     		movs	r2, r4
+ 101 0048 9032     		adds	r2, r2, #144
+ 102 004a 1660     		str	r6, [r2]
+  92:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.fLinkShuntCurrentChgB= 0.0f;
+ 103              		.loc 1 92 0
+ 104 004c 2200     		movs	r2, r4
+ 105 004e 9432     		adds	r2, r2, #148
+ 106 0050 1660     		str	r6, [r2]
+  93:./Application/Funtion/SystemPara/SystemPara.c ****    
+  94:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.LinkShuntDhgKBFlag = 0;
+ 107              		.loc 1 94 0
+ 108 0052 2200     		movs	r2, r4
+ 109 0054 9832     		adds	r2, r2, #152
+  61:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.fBatVoltK = 1.0f;
+ 110              		.loc 1 61 0
+ 111 0056 6364     		str	r3, [r4, #68]
+  65:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.fPeVoltK = 1.0f;
+ 112              		.loc 1 65 0
+ 113 0058 2365     		str	r3, [r4, #80]
+  69:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.fLinkVoltK = 1.0f;
+ 114              		.loc 1 69 0
+ 115 005a E365     		str	r3, [r4, #92]
+ARM GAS  /tmp/cc4cBozH.s 			page 5
+
+
+  73:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.fHallCurrentK = 1.0f;
+ 116              		.loc 1 73 0
+ 117 005c A366     		str	r3, [r4, #104]
+  77:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.fBatShuntCurrentChgK = 1.0f;
+ 118              		.loc 1 77 0
+ 119 005e 6367     		str	r3, [r4, #116]
+  66:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.fPeVoltB = 0.0f;
+ 120              		.loc 1 66 0
+ 121 0060 6665     		str	r6, [r4, #84]
+  67:./Application/Funtion/SystemPara/SystemPara.c **** 
+ 122              		.loc 1 67 0
+ 123 0062 A665     		str	r6, [r4, #88]
+  70:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.fLinkVoltB= 0.0f;
+ 124              		.loc 1 70 0
+ 125 0064 2666     		str	r6, [r4, #96]
+  71:./Application/Funtion/SystemPara/SystemPara.c **** 
+ 126              		.loc 1 71 0
+ 127 0066 6666     		str	r6, [r4, #100]
+  74:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.fHallCurrentB= 0.0f;
+ 128              		.loc 1 74 0
+ 129 0068 E666     		str	r6, [r4, #108]
+  75:./Application/Funtion/SystemPara/SystemPara.c **** 
+ 130              		.loc 1 75 0
+ 131 006a 2667     		str	r6, [r4, #112]
+  78:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.fBatShuntCurrentChgB= 0.0f;
+ 132              		.loc 1 78 0
+ 133 006c A667     		str	r6, [r4, #120]
+  79:./Application/Funtion/SystemPara/SystemPara.c **** 
+ 134              		.loc 1 79 0
+ 135 006e E667     		str	r6, [r4, #124]
+ 136              		.loc 1 94 0
+ 137 0070 1360     		str	r3, [r2]
+  95:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.fLinkShuntCurrentDhgK = 1.0f;
+ 138              		.loc 1 95 0
+ 139 0072 2300     		movs	r3, r4
+ 140 0074 9C33     		adds	r3, r3, #156
+ 141 0076 1E60     		str	r6, [r3]
+  96:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.fLinkShuntCurrentDhgB= 0.0f;
+ 142              		.loc 1 96 0
+ 143 0078 2300     		movs	r3, r4
+ 144 007a A033     		adds	r3, r3, #160
+ 145 007c 1E60     		str	r6, [r3]
+  97:./Application/Funtion/SystemPara/SystemPara.c ****   
+  98:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.HallZeroCorrFlag = 0;
+ 146              		.loc 1 98 0
+ 147 007e 2300     		movs	r3, r4
+ 148 0080 A433     		adds	r3, r3, #164
+  99:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.fHallZeroCorr= 0.0f;
+ 100:./Application/Funtion/SystemPara/SystemPara.c **** 
+ 101:./Application/Funtion/SystemPara/SystemPara.c ****     //init ParameterNow_102
+ 102:./Application/Funtion/SystemPara/SystemPara.c ****     ParameterNow_102[ParameterCigFlag] = 23131;
+ 149              		.loc 1 102 0
+ 150 0082 614D     		ldr	r5, .L15+28
+  98:./Application/Funtion/SystemPara/SystemPara.c ****     stParameter.fHallZeroCorr= 0.0f;
+ 151              		.loc 1 98 0
+ 152 0084 1E60     		str	r6, [r3]
+ 153              		.loc 1 102 0
+ARM GAS  /tmp/cc4cBozH.s 			page 6
+
+
+ 154 0086 614B     		ldr	r3, .L15+32
+ 103:./Application/Funtion/SystemPara/SystemPara.c ****     ParameterNow_102[CanComRate] = 3;
+ 104:./Application/Funtion/SystemPara/SystemPara.c ****     ParameterNow_102[RS485ComRate] = 0;
+ 105:./Application/Funtion/SystemPara/SystemPara.c ****     ParameterNow_102[CanCrolVersion] = 1;
+ 106:./Application/Funtion/SystemPara/SystemPara.c ****     ParameterNow_102[CurrentSampChannel] = 2;
+ 107:./Application/Funtion/SystemPara/SystemPara.c ****     ParameterNow_102[ShuntVoltSampRange] = 75;//单位1mv
+ 108:./Application/Funtion/SystemPara/SystemPara.c ****     ParameterNow_102[ShuntCurrentSampRange] = 40;//单位10A
+ 109:./Application/Funtion/SystemPara/SystemPara.c ****     ParameterNow_102[HallSignalZeroVolt] = 25;//单位0.1V
+ 155              		.loc 1 109 0
+ 156 0088 1922     		movs	r2, #25
+ 102:./Application/Funtion/SystemPara/SystemPara.c ****     ParameterNow_102[CanComRate] = 3;
+ 157              		.loc 1 102 0
+ 158 008a 2B80     		strh	r3, [r5]
+ 103:./Application/Funtion/SystemPara/SystemPara.c ****     ParameterNow_102[CanComRate] = 3;
+ 159              		.loc 1 103 0
+ 160 008c 0323     		movs	r3, #3
+ 161 008e 6B80     		strh	r3, [r5, #2]
+ 106:./Application/Funtion/SystemPara/SystemPara.c ****     ParameterNow_102[ShuntVoltSampRange] = 75;//单位1mv
+ 162              		.loc 1 106 0
+ 163 0090 0223     		movs	r3, #2
+ 164 0092 2B81     		strh	r3, [r5, #8]
+ 107:./Application/Funtion/SystemPara/SystemPara.c ****     ParameterNow_102[ShuntCurrentSampRange] = 40;//单位10A
+ 165              		.loc 1 107 0
+ 166 0094 4933     		adds	r3, r3, #73
+ 167 0096 6B81     		strh	r3, [r5, #10]
+ 108:./Application/Funtion/SystemPara/SystemPara.c ****     ParameterNow_102[HallSignalZeroVolt] = 25;//单位0.1V
+ 168              		.loc 1 108 0
+ 169 0098 233B     		subs	r3, r3, #35
+ 170 009a AB81     		strh	r3, [r5, #12]
+ 110:./Application/Funtion/SystemPara/SystemPara.c ****     ParameterNow_102[HallVoltSampRange] = 20;//单位0.1V
+ 111:./Application/Funtion/SystemPara/SystemPara.c ****     ParameterNow_102[HallCurrentSampRange] = 40;//单位10A
+ 171              		.loc 1 111 0
+ 172 009c 6B82     		strh	r3, [r5, #18]
+ 112:./Application/Funtion/SystemPara/SystemPara.c ****     ParameterNow_102[CurrentFilterMethod] = 0;
+ 113:./Application/Funtion/SystemPara/SystemPara.c ****     ParameterNow_102[CurrentFilterTimes] = 0;
+ 114:./Application/Funtion/SystemPara/SystemPara.c ****     ParameterNow_102[AfterInsuPeRlyState] = 1;
+ 115:./Application/Funtion/SystemPara/SystemPara.c ****     ParameterNow_102[InsuSampPeriod] = 21600;
+ 173              		.loc 1 115 0
+ 174 009e 5C4B     		ldr	r3, .L15+36
+ 105:./Application/Funtion/SystemPara/SystemPara.c ****     ParameterNow_102[CurrentSampChannel] = 2;
+ 175              		.loc 1 105 0
+ 176 00a0 0121     		movs	r1, #1
+ 177              		.loc 1 115 0
+ 178 00a2 6B83     		strh	r3, [r5, #26]
+ 116:./Application/Funtion/SystemPara/SystemPara.c ****     ParameterNow_102[InsuTimeLimit] = 5;
+ 179              		.loc 1 116 0
+ 180 00a4 0523     		movs	r3, #5
+ 117:./Application/Funtion/SystemPara/SystemPara.c ****     ParameterNow_102[RlySwiftInterTime] = 500;//单位MS
+ 118:./Application/Funtion/SystemPara/SystemPara.c **** 
+ 119:./Application/Funtion/SystemPara/SystemPara.c **** 
+ 120:./Application/Funtion/SystemPara/SystemPara.c **** 
+ 121:./Application/Funtion/SystemPara/SystemPara.c ****     static Parameter_TypeDef gSystemParaBuff;
+ 122:./Application/Funtion/SystemPara/SystemPara.c ****     u8* rbuff = (u8 *) &gSystemParaBuff;
+ 123:./Application/Funtion/SystemPara/SystemPara.c ****     u8* parabuff = (u8 *) &stParameter;
+ 124:./Application/Funtion/SystemPara/SystemPara.c ****     I2C_EE_BufferRead(rbuff,Eeprom_ParaAddress_Start,sizeof(stParameter));//读取eeprom中数据
+ 181              		.loc 1 124 0
+ 182 00a6 5B4F     		ldr	r7, .L15+40
+ARM GAS  /tmp/cc4cBozH.s 			page 7
+
+
+ 109:./Application/Funtion/SystemPara/SystemPara.c ****     ParameterNow_102[HallVoltSampRange] = 20;//单位0.1V
+ 183              		.loc 1 109 0
+ 184 00a8 EA81     		strh	r2, [r5, #14]
+ 116:./Application/Funtion/SystemPara/SystemPara.c ****     ParameterNow_102[InsuTimeLimit] = 5;
+ 185              		.loc 1 116 0
+ 186 00aa AB83     		strh	r3, [r5, #28]
+ 110:./Application/Funtion/SystemPara/SystemPara.c ****     ParameterNow_102[HallCurrentSampRange] = 40;//单位10A
+ 187              		.loc 1 110 0
+ 188 00ac 053A     		subs	r2, r2, #5
+ 117:./Application/Funtion/SystemPara/SystemPara.c ****     ParameterNow_102[RlySwiftInterTime] = 500;//单位MS
+ 189              		.loc 1 117 0
+ 190 00ae F033     		adds	r3, r3, #240
+ 191 00b0 FF33     		adds	r3, r3, #255
+ 105:./Application/Funtion/SystemPara/SystemPara.c ****     ParameterNow_102[CurrentSampChannel] = 2;
+ 192              		.loc 1 105 0
+ 193 00b2 E980     		strh	r1, [r5, #6]
+ 110:./Application/Funtion/SystemPara/SystemPara.c ****     ParameterNow_102[HallCurrentSampRange] = 40;//单位10A
+ 194              		.loc 1 110 0
+ 195 00b4 2A82     		strh	r2, [r5, #16]
+ 114:./Application/Funtion/SystemPara/SystemPara.c ****     ParameterNow_102[InsuSampPeriod] = 21600;
+ 196              		.loc 1 114 0
+ 197 00b6 2983     		strh	r1, [r5, #24]
+ 198              		.loc 1 124 0
+ 199 00b8 9432     		adds	r2, r2, #148
+ 200 00ba 3100     		movs	r1, r6
+ 201 00bc 3800     		movs	r0, r7
+ 117:./Application/Funtion/SystemPara/SystemPara.c **** 
+ 202              		.loc 1 117 0
+ 203 00be EB83     		strh	r3, [r5, #30]
+ 204              	.LVL0:
+ 104:./Application/Funtion/SystemPara/SystemPara.c ****     ParameterNow_102[CanCrolVersion] = 1;
+ 205              		.loc 1 104 0
+ 206 00c0 AE80     		strh	r6, [r5, #4]
+ 112:./Application/Funtion/SystemPara/SystemPara.c ****     ParameterNow_102[CurrentFilterTimes] = 0;
+ 207              		.loc 1 112 0
+ 208 00c2 AE82     		strh	r6, [r5, #20]
+ 113:./Application/Funtion/SystemPara/SystemPara.c ****     ParameterNow_102[AfterInsuPeRlyState] = 1;
+ 209              		.loc 1 113 0
+ 210 00c4 EE82     		strh	r6, [r5, #22]
+ 211              		.loc 1 124 0
+ 212 00c6 FFF7FEFF 		bl	I2C_EE_BufferRead
+ 213              	.LVL1:
+ 125:./Application/Funtion/SystemPara/SystemPara.c ****     if(gSystemParaBuff.WriteFlag == 0x5a)//eeprom中有数据，读取
+ 214              		.loc 1 125 0
+ 215 00ca 3B78     		ldrb	r3, [r7]
+ 216 00cc 5A2B     		cmp	r3, #90
+ 217 00ce 00D0     		beq	.LCB121
+ 218 00d0 6FE0     		b	.L2	@long jump
+ 219              	.LCB121:
+ 126:./Application/Funtion/SystemPara/SystemPara.c ****     {
+ 127:./Application/Funtion/SystemPara/SystemPara.c ****         //读取eeprom中配置系统信息
+ 128:./Application/Funtion/SystemPara/SystemPara.c ****         I2C_EE_BufferRead(parabuff,Eeprom_ParaAddress_Start,sizeof(stParameter));//读取eeprom中�
+ 220              		.loc 1 128 0
+ 221 00d2 3100     		movs	r1, r6
+ 222 00d4 A822     		movs	r2, #168
+ 223 00d6 2000     		movs	r0, r4
+ 224 00d8 FFF7FEFF 		bl	I2C_EE_BufferRead
+ARM GAS  /tmp/cc4cBozH.s 			page 8
+
+
+ 225              	.LVL2:
+ 226 00dc 0123     		movs	r3, #1
+ 227              	.LBB4:
+ 129:./Application/Funtion/SystemPara/SystemPara.c ****         for(int i = 0;i<SerialNum_len;i++)
+ 130:./Application/Funtion/SystemPara/SystemPara.c ****         {
+ 131:./Application/Funtion/SystemPara/SystemPara.c ****             SystemSerialNum_2[i] = stParameter.SerialNumber[i];//初始化条码当前值
+ 228              		.loc 1 131 0
+ 229 00de 4E49     		ldr	r1, .L15+44
+ 230              	.LVL3:
+ 231              	.L3:
+ 232              		.loc 1 131 0 is_stmt 0 discriminator 3
+ 233 00e0 E05C     		ldrb	r0, [r4, r3]
+ 234 00e2 5A1E     		subs	r2, r3, #1
+ 235              	.LVL4:
+ 236 00e4 0133     		adds	r3, r3, #1
+ 237 00e6 8854     		strb	r0, [r1, r2]
+ 238              	.LVL5:
+ 129:./Application/Funtion/SystemPara/SystemPara.c ****         for(int i = 0;i<SerialNum_len;i++)
+ 239              		.loc 1 129 0 is_stmt 1 discriminator 3
+ 240 00e8 182B     		cmp	r3, #24
+ 241 00ea F9D1     		bne	.L3
+ 242              	.L4:
+ 243              	.LBE4:
+ 132:./Application/Funtion/SystemPara/SystemPara.c ****         }
+ 133:./Application/Funtion/SystemPara/SystemPara.c ****     }else//eeprom无数据，尝试从外部flash读取备份
+ 134:./Application/Funtion/SystemPara/SystemPara.c ****     {
+ 135:./Application/Funtion/SystemPara/SystemPara.c ****         u8 flashid[2] = {0,0};
+ 136:./Application/Funtion/SystemPara/SystemPara.c ****         BSP_GD25Qx_Read_ID(flashid);
+ 137:./Application/Funtion/SystemPara/SystemPara.c ****         //读flah配置系统信息
+ 138:./Application/Funtion/SystemPara/SystemPara.c ****         BSP_GD25Qx_Read(rbuff,FlashMap_Sysmsy,sizeof(stParameter));
+ 139:./Application/Funtion/SystemPara/SystemPara.c ****         if(gSystemParaBuff.WriteFlag == 0x5a)//外部flash中有数据，读取
+ 140:./Application/Funtion/SystemPara/SystemPara.c ****         {
+ 141:./Application/Funtion/SystemPara/SystemPara.c ****             BSP_GD25Qx_Read(parabuff,FlashMap_Sysmsy,sizeof(stParameter));
+ 142:./Application/Funtion/SystemPara/SystemPara.c ****             
+ 143:./Application/Funtion/SystemPara/SystemPara.c ****             for(int i = 0;i<SerialNum_len;i++)
+ 144:./Application/Funtion/SystemPara/SystemPara.c ****             {
+ 145:./Application/Funtion/SystemPara/SystemPara.c ****                 SystemSerialNum_2[i] = stParameter.SerialNumber[i];//初始化条码当前值
+ 146:./Application/Funtion/SystemPara/SystemPara.c ****             }
+ 147:./Application/Funtion/SystemPara/SystemPara.c ****         }
+ 148:./Application/Funtion/SystemPara/SystemPara.c ****     }
+ 149:./Application/Funtion/SystemPara/SystemPara.c **** //数据同步
+ 150:./Application/Funtion/SystemPara/SystemPara.c ****         ParameterNow_102[ParameterCigFlag] = stParameter.u16ArraySet[ParameterCigFlag];
+ 244              		.loc 1 150 0
+ 245 00ec 238C     		ldrh	r3, [r4, #32]
+ 246 00ee 2B80     		strh	r3, [r5]
+ 151:./Application/Funtion/SystemPara/SystemPara.c ****         ParameterNow_102[CanComRate] = stParameter.u16ArraySet[CanComRate];
+ 247              		.loc 1 151 0
+ 248 00f0 638C     		ldrh	r3, [r4, #34]
+ 249 00f2 6B80     		strh	r3, [r5, #2]
+ 152:./Application/Funtion/SystemPara/SystemPara.c ****         ParameterNow_102[RS485ComRate] = stParameter.u16ArraySet[RS485ComRate];
+ 250              		.loc 1 152 0
+ 251 00f4 A38C     		ldrh	r3, [r4, #36]
+ 252 00f6 AB80     		strh	r3, [r5, #4]
+ 153:./Application/Funtion/SystemPara/SystemPara.c ****         ParameterNow_102[CanCrolVersion] = stParameter.u16ArraySet[CanCrolVersion]; 
+ 253              		.loc 1 153 0
+ 254 00f8 E38C     		ldrh	r3, [r4, #38]
+ 255 00fa EB80     		strh	r3, [r5, #6]
+ARM GAS  /tmp/cc4cBozH.s 			page 9
+
+
+ 154:./Application/Funtion/SystemPara/SystemPara.c ****         ParameterNow_102[CurrentSampChannel] = stParameter.u16ArraySet[CurrentSampChannel];
+ 256              		.loc 1 154 0
+ 257 00fc 238D     		ldrh	r3, [r4, #40]
+ 258 00fe 2B81     		strh	r3, [r5, #8]
+ 155:./Application/Funtion/SystemPara/SystemPara.c ****         ParameterNow_102[ShuntVoltSampRange] = stParameter.u16ArraySet[ShuntVoltSampRange];//单位
+ 259              		.loc 1 155 0
+ 260 0100 638D     		ldrh	r3, [r4, #42]
+ 261 0102 6B81     		strh	r3, [r5, #10]
+ 156:./Application/Funtion/SystemPara/SystemPara.c ****         ParameterNow_102[ShuntCurrentSampRange] = stParameter.u16ArraySet[ShuntCurrentSampRange];//
+ 262              		.loc 1 156 0
+ 263 0104 A38D     		ldrh	r3, [r4, #44]
+ 264 0106 AB81     		strh	r3, [r5, #12]
+ 157:./Application/Funtion/SystemPara/SystemPara.c ****         ParameterNow_102[HallSignalZeroVolt] = stParameter.u16ArraySet[HallSignalZeroVolt];//单位
+ 265              		.loc 1 157 0
+ 266 0108 E38D     		ldrh	r3, [r4, #46]
+ 267 010a EB81     		strh	r3, [r5, #14]
+ 158:./Application/Funtion/SystemPara/SystemPara.c ****         ParameterNow_102[HallVoltSampRange] = stParameter.u16ArraySet[HallVoltSampRange];//单位0.
+ 268              		.loc 1 158 0
+ 269 010c 238E     		ldrh	r3, [r4, #48]
+ 270 010e 2B82     		strh	r3, [r5, #16]
+ 159:./Application/Funtion/SystemPara/SystemPara.c ****         ParameterNow_102[HallCurrentSampRange] = stParameter.u16ArraySet[HallCurrentSampRange];//�
+ 271              		.loc 1 159 0
+ 272 0110 638E     		ldrh	r3, [r4, #50]
+ 273 0112 6B82     		strh	r3, [r5, #18]
+ 160:./Application/Funtion/SystemPara/SystemPara.c ****         ParameterNow_102[CurrentFilterMethod] = stParameter.u16ArraySet[CurrentFilterMethod];
+ 274              		.loc 1 160 0
+ 275 0114 A38E     		ldrh	r3, [r4, #52]
+ 276 0116 AB82     		strh	r3, [r5, #20]
+ 161:./Application/Funtion/SystemPara/SystemPara.c ****         ParameterNow_102[CurrentFilterTimes] = stParameter.u16ArraySet[CurrentFilterTimes];
+ 277              		.loc 1 161 0
+ 278 0118 E38E     		ldrh	r3, [r4, #54]
+ 279 011a EB82     		strh	r3, [r5, #22]
+ 162:./Application/Funtion/SystemPara/SystemPara.c ****         ParameterNow_102[AfterInsuPeRlyState] = stParameter.u16ArraySet[AfterInsuPeRlyState];
+ 280              		.loc 1 162 0
+ 281 011c 238F     		ldrh	r3, [r4, #56]
+ 282 011e 2B83     		strh	r3, [r5, #24]
+ 163:./Application/Funtion/SystemPara/SystemPara.c ****         ParameterNow_102[InsuSampPeriod] = stParameter.u16ArraySet[InsuSampPeriod];
+ 283              		.loc 1 163 0
+ 284 0120 638F     		ldrh	r3, [r4, #58]
+ 285 0122 6B83     		strh	r3, [r5, #26]
+ 164:./Application/Funtion/SystemPara/SystemPara.c ****         ParameterNow_102[InsuTimeLimit] = stParameter.u16ArraySet[InsuTimeLimit];
+ 286              		.loc 1 164 0
+ 287 0124 A38F     		ldrh	r3, [r4, #60]
+ 288 0126 AB83     		strh	r3, [r5, #28]
+ 165:./Application/Funtion/SystemPara/SystemPara.c ****         ParameterNow_102[RlySwiftInterTime] = stParameter.u16ArraySet[RlySwiftInterTime];//单位MS
+ 289              		.loc 1 165 0
+ 290 0128 E38F     		ldrh	r3, [r4, #62]
+ 291 012a EB83     		strh	r3, [r5, #30]
+ 166:./Application/Funtion/SystemPara/SystemPara.c **** 
+ 167:./Application/Funtion/SystemPara/SystemPara.c **** //软件版本检测
+ 168:./Application/Funtion/SystemPara/SystemPara.c ****     if(((stParameter.u16AppVersion & 0xff) != SOFTWARE_VERSIONL) || (((stParameter.u16AppVersion >>
+ 292              		.loc 1 168 0
+ 293 012c A38B     		ldrh	r3, [r4, #28]
+ 294 012e DAB2     		uxtb	r2, r3
+ 295 0130 012A     		cmp	r2, #1
+ 296 0132 02D1     		bne	.L7
+ 297              		.loc 1 168 0 is_stmt 0 discriminator 1
+ARM GAS  /tmp/cc4cBozH.s 			page 10
+
+
+ 298 0134 1B0A     		lsrs	r3, r3, #8
+ 299 0136 012B     		cmp	r3, #1
+ 300 0138 1BD0     		beq	.L8
+ 301              	.L7:
+ 302              	.LVL6:
+ 303              	.LBB5:
+ 169:./Application/Funtion/SystemPara/SystemPara.c ****     {
+ 170:./Application/Funtion/SystemPara/SystemPara.c ****         u16 AppSoftVersion = (SOFTWARE_VERSIONH << 8)|SOFTWARE_VERSIONL;
+ 171:./Application/Funtion/SystemPara/SystemPara.c ****         stParameter.u16AppVersion = AppSoftVersion;
+ 304              		.loc 1 171 0 is_stmt 1
+ 305 013a 0223     		movs	r3, #2
+ 172:./Application/Funtion/SystemPara/SystemPara.c ****         I2C_EE_BufferWrite(parabuff,Eeprom_ParaAddress_Start,sizeof(stParameter));//版本号存于
+ 306              		.loc 1 172 0
+ 307 013c A822     		movs	r2, #168
+ 171:./Application/Funtion/SystemPara/SystemPara.c ****         I2C_EE_BufferWrite(parabuff,Eeprom_ParaAddress_Start,sizeof(stParameter));//版本号存于
+ 308              		.loc 1 171 0
+ 309 013e FF33     		adds	r3, r3, #255
+ 310              		.loc 1 172 0
+ 311 0140 0021     		movs	r1, #0
+ 312 0142 2000     		movs	r0, r4
+ 171:./Application/Funtion/SystemPara/SystemPara.c ****         I2C_EE_BufferWrite(parabuff,Eeprom_ParaAddress_Start,sizeof(stParameter));//版本号存于
+ 313              		.loc 1 171 0
+ 314 0144 A383     		strh	r3, [r4, #28]
+ 315              		.loc 1 172 0
+ 316 0146 FFF7FEFF 		bl	I2C_EE_BufferWrite
+ 317              	.LVL7:
+ 173:./Application/Funtion/SystemPara/SystemPara.c ****         
+ 174:./Application/Funtion/SystemPara/SystemPara.c ****         
+ 175:./Application/Funtion/SystemPara/SystemPara.c ****         if(0 == BSP_GD25Qx_Erase_Block(FlashMap_Sysmsy))
+ 318              		.loc 1 175 0
+ 319 014a FC20     		movs	r0, #252
+ 320 014c 8003     		lsls	r0, r0, #14
+ 321 014e FFF7FEFF 		bl	BSP_GD25Qx_Erase_Block
+ 322              	.LVL8:
+ 323 0152 0028     		cmp	r0, #0
+ 324 0154 0DD1     		bne	.L8
+ 176:./Application/Funtion/SystemPara/SystemPara.c ****         {
+ 177:./Application/Funtion/SystemPara/SystemPara.c ****             if(0 == BSP_GD25Qx_Write(parabuff,FlashMap_Sysmsy,sizeof(stParameter)))//版本号存�
+ 325              		.loc 1 177 0
+ 326 0156 FC21     		movs	r1, #252
+ 327 0158 A822     		movs	r2, #168
+ 328 015a 8903     		lsls	r1, r1, #14
+ 329 015c 2000     		movs	r0, r4
+ 330 015e FFF7FEFF 		bl	BSP_GD25Qx_Write
+ 331              	.LVL9:
+ 332 0162 0028     		cmp	r0, #0
+ 333 0164 05D1     		bne	.L8
+ 178:./Application/Funtion/SystemPara/SystemPara.c ****             {
+ 179:./Application/Funtion/SystemPara/SystemPara.c ****                 if(0 == BSP_GD25Qx_Read(parabuff,FlashMap_Sysmsy,sizeof(stParameter)))
+ 334              		.loc 1 179 0
+ 335 0166 FC21     		movs	r1, #252
+ 336 0168 A822     		movs	r2, #168
+ 337 016a 8903     		lsls	r1, r1, #14
+ 338 016c 2000     		movs	r0, r4
+ 339 016e FFF7FEFF 		bl	BSP_GD25Qx_Read
+ 340              	.LVL10:
+ 341              	.L8:
+ARM GAS  /tmp/cc4cBozH.s 			page 11
+
+
+ 342              	.LBE5:
+ 180:./Application/Funtion/SystemPara/SystemPara.c ****                 {
+ 181:./Application/Funtion/SystemPara/SystemPara.c ****                         
+ 182:./Application/Funtion/SystemPara/SystemPara.c ****                 }
+ 183:./Application/Funtion/SystemPara/SystemPara.c ****             }
+ 184:./Application/Funtion/SystemPara/SystemPara.c ****         }
+ 185:./Application/Funtion/SystemPara/SystemPara.c ****     }
+ 186:./Application/Funtion/SystemPara/SystemPara.c **** 
+ 187:./Application/Funtion/SystemPara/SystemPara.c **** //硬件版本检测
+ 188:./Application/Funtion/SystemPara/SystemPara.c ****     if (SystemInfo_1[HardwareVersion] != (stParameter.u16HardwareVersion & 0xff))
+ 343              		.loc 1 188 0
+ 344 0172 2A4B     		ldr	r3, .L15+48
+ 345 0174 A27E     		ldrb	r2, [r4, #26]
+ 346 0176 9B88     		ldrh	r3, [r3, #4]
+ 347 0178 9342     		cmp	r3, r2
+ 348 017a 19D0     		beq	.L1
+ 349              	.LVL11:
+ 350              	.LBB6:
+ 189:./Application/Funtion/SystemPara/SystemPara.c ****     {
+ 190:./Application/Funtion/SystemPara/SystemPara.c ****         u16 HwVersion = SystemInfo_1[HardwareVersion];
+ 191:./Application/Funtion/SystemPara/SystemPara.c ****         stParameter.u16HardwareVersion = HwVersion;
+ 192:./Application/Funtion/SystemPara/SystemPara.c **** 
+ 193:./Application/Funtion/SystemPara/SystemPara.c ****         I2C_EE_BufferWrite(parabuff,Eeprom_ParaAddress_Start,sizeof(stParameter));//版本号存于
+ 351              		.loc 1 193 0
+ 352 017c A822     		movs	r2, #168
+ 353 017e 0021     		movs	r1, #0
+ 354 0180 2000     		movs	r0, r4
+ 191:./Application/Funtion/SystemPara/SystemPara.c **** 
+ 355              		.loc 1 191 0
+ 356 0182 6383     		strh	r3, [r4, #26]
+ 357              		.loc 1 193 0
+ 358 0184 FFF7FEFF 		bl	I2C_EE_BufferWrite
+ 359              	.LVL12:
+ 194:./Application/Funtion/SystemPara/SystemPara.c **** 
+ 195:./Application/Funtion/SystemPara/SystemPara.c ****         if (0 == BSP_GD25Qx_Erase_Block(FlashMap_Sysmsy))
+ 360              		.loc 1 195 0
+ 361 0188 FC20     		movs	r0, #252
+ 362 018a 8003     		lsls	r0, r0, #14
+ 363 018c FFF7FEFF 		bl	BSP_GD25Qx_Erase_Block
+ 364              	.LVL13:
+ 365 0190 0028     		cmp	r0, #0
+ 366 0192 0DD1     		bne	.L1
+ 196:./Application/Funtion/SystemPara/SystemPara.c ****         {
+ 197:./Application/Funtion/SystemPara/SystemPara.c ****             if (0 == BSP_GD25Qx_Write(parabuff,FlashMap_Sysmsy,sizeof(stParameter)))//版本号存�
+ 367              		.loc 1 197 0
+ 368 0194 FC21     		movs	r1, #252
+ 369 0196 A822     		movs	r2, #168
+ 370 0198 8903     		lsls	r1, r1, #14
+ 371 019a 2000     		movs	r0, r4
+ 372 019c FFF7FEFF 		bl	BSP_GD25Qx_Write
+ 373              	.LVL14:
+ 374 01a0 0028     		cmp	r0, #0
+ 375 01a2 05D1     		bne	.L1
+ 198:./Application/Funtion/SystemPara/SystemPara.c ****             {
+ 199:./Application/Funtion/SystemPara/SystemPara.c ****                 if(0 == BSP_GD25Qx_Read(parabuff,FlashMap_Sysmsy,sizeof(stParameter)))
+ 376              		.loc 1 199 0
+ 377 01a4 FC21     		movs	r1, #252
+ARM GAS  /tmp/cc4cBozH.s 			page 12
+
+
+ 378 01a6 A822     		movs	r2, #168
+ 379 01a8 8903     		lsls	r1, r1, #14
+ 380 01aa 2000     		movs	r0, r4
+ 381 01ac FFF7FEFF 		bl	BSP_GD25Qx_Read
+ 382              	.LVL15:
+ 383              	.L1:
+ 384              	.LBE6:
+ 200:./Application/Funtion/SystemPara/SystemPara.c ****                 {
+ 201:./Application/Funtion/SystemPara/SystemPara.c ****                         
+ 202:./Application/Funtion/SystemPara/SystemPara.c ****                 }
+ 203:./Application/Funtion/SystemPara/SystemPara.c ****             }
+ 204:./Application/Funtion/SystemPara/SystemPara.c ****             
+ 205:./Application/Funtion/SystemPara/SystemPara.c ****         }
+ 206:./Application/Funtion/SystemPara/SystemPara.c ****         
+ 207:./Application/Funtion/SystemPara/SystemPara.c ****     }
+ 208:./Application/Funtion/SystemPara/SystemPara.c **** //     //工装参数错误写入修正
+ 209:./Application/Funtion/SystemPara/SystemPara.c **** // //工装代码未写入此参数 以及FREERTOS栈空间过小 can测试项更改拨码值
+ 210:./Application/Funtion/SystemPara/SystemPara.c **** // stParameter.u16ArraySet[InsuSampPeriod] = 21600;
+ 211:./Application/Funtion/SystemPara/SystemPara.c **** // stParameter.u16ArraySet[InsuTimeLimit] = 5;//工装代码未写入此参数 以及FREERTOS栈空
+ 212:./Application/Funtion/SystemPara/SystemPara.c **** // stParameter.u16ArraySet[RlySwiftInterTime] = 500;//单位MS
+ 213:./Application/Funtion/SystemPara/SystemPara.c ****  //ParameterNow_102[InsuSampPeriod] = 21600;
+ 214:./Application/Funtion/SystemPara/SystemPara.c ****  //ParameterNow_102[InsuTimeLimit] = 20;
+ 215:./Application/Funtion/SystemPara/SystemPara.c ****  //ParameterNow_102[RlySwiftInterTime] = 500;
+ 216:./Application/Funtion/SystemPara/SystemPara.c **** 
+ 217:./Application/Funtion/SystemPara/SystemPara.c ****    // stParameter.BatShuntChgKBFlag = 1;
+ 218:./Application/Funtion/SystemPara/SystemPara.c ****     //stParameter.fBatShuntCurrentChgK = 0.99720707f;
+ 219:./Application/Funtion/SystemPara/SystemPara.c ****     //stParameter.fBatShuntCurrentChgB= -0.1844978f;
+ 220:./Application/Funtion/SystemPara/SystemPara.c ****     //stParameter.BatShuntDhgKBFlag = 0;
+ 221:./Application/Funtion/SystemPara/SystemPara.c ****     //stParameter.fBatShuntCurrentDhgK = 0.99720707f;
+ 222:./Application/Funtion/SystemPara/SystemPara.c ****     //stParameter.fBatShuntCurrentDhgB=  -0.1844978f;
+ 223:./Application/Funtion/SystemPara/SystemPara.c ****     
+ 224:./Application/Funtion/SystemPara/SystemPara.c ****   //   stParameter.HallCurrKBFlag = 0;
+ 225:./Application/Funtion/SystemPara/SystemPara.c ****    //  stParameter.fHallCurrentK = 1.0f;
+ 226:./Application/Funtion/SystemPara/SystemPara.c ****    //  stParameter.fHallCurrentB= 0.0f;
+ 227:./Application/Funtion/SystemPara/SystemPara.c **** 
+ 228:./Application/Funtion/SystemPara/SystemPara.c ****    //  stParameter.HallZeroCorrFlag = 0;
+ 229:./Application/Funtion/SystemPara/SystemPara.c ****    // stParameter.fHallZeroCorr= 0.0f;
+ 230:./Application/Funtion/SystemPara/SystemPara.c ****  
+ 231:./Application/Funtion/SystemPara/SystemPara.c ****     //stParameter.LinkShuntChgKBFlag = 0;
+ 232:./Application/Funtion/SystemPara/SystemPara.c ****     //stParameter.fLinkShuntCurrentChgK = 1.0f;
+ 233:./Application/Funtion/SystemPara/SystemPara.c ****     //stParameter.fLinkShuntCurrentChgB= 0.0f;
+ 234:./Application/Funtion/SystemPara/SystemPara.c ****    
+ 235:./Application/Funtion/SystemPara/SystemPara.c ****   // stParameter.LinkShuntDhgKBFlag = 0;
+ 236:./Application/Funtion/SystemPara/SystemPara.c ****    //stParameter.fLinkShuntCurrentDhgK = 1.0f;
+ 237:./Application/Funtion/SystemPara/SystemPara.c ****    //stParameter.fLinkShuntCurrentDhgB= 0.0f;
+ 238:./Application/Funtion/SystemPara/SystemPara.c ****    
+ 239:./Application/Funtion/SystemPara/SystemPara.c **** }  
+ 385              		.loc 1 239 0
+ 386              		@ sp needed
+ 387 01b0 F7BD     		pop	{r0, r1, r2, r4, r5, r6, r7, pc}
+ 388              	.L2:
+ 389              	.LBB7:
+ 135:./Application/Funtion/SystemPara/SystemPara.c ****         BSP_GD25Qx_Read_ID(flashid);
+ 390              		.loc 1 135 0
+ 391 01b2 01A8     		add	r0, sp, #4
+ 392 01b4 0680     		strh	r6, [r0]
+ 136:./Application/Funtion/SystemPara/SystemPara.c ****         //读flah配置系统信息
+ARM GAS  /tmp/cc4cBozH.s 			page 13
+
+
+ 393              		.loc 1 136 0
+ 394 01b6 FFF7FEFF 		bl	BSP_GD25Qx_Read_ID
+ 395              	.LVL16:
+ 138:./Application/Funtion/SystemPara/SystemPara.c ****         if(gSystemParaBuff.WriteFlag == 0x5a)//外部flash中有数据，读取
+ 396              		.loc 1 138 0
+ 397 01ba FC21     		movs	r1, #252
+ 398 01bc A822     		movs	r2, #168
+ 399 01be 8903     		lsls	r1, r1, #14
+ 400 01c0 3800     		movs	r0, r7
+ 401 01c2 FFF7FEFF 		bl	BSP_GD25Qx_Read
+ 402              	.LVL17:
+ 139:./Application/Funtion/SystemPara/SystemPara.c ****         {
+ 403              		.loc 1 139 0
+ 404 01c6 3B78     		ldrb	r3, [r7]
+ 405 01c8 5A2B     		cmp	r3, #90
+ 406 01ca 00D0     		beq	.LCB289
+ 407 01cc 8EE7     		b	.L4	@long jump
+ 408              	.LCB289:
+ 141:./Application/Funtion/SystemPara/SystemPara.c ****             
+ 409              		.loc 1 141 0
+ 410 01ce FC21     		movs	r1, #252
+ 411 01d0 A822     		movs	r2, #168
+ 412 01d2 8903     		lsls	r1, r1, #14
+ 413 01d4 2000     		movs	r0, r4
+ 414 01d6 FFF7FEFF 		bl	BSP_GD25Qx_Read
+ 415              	.LVL18:
+ 416 01da 0123     		movs	r3, #1
+ 417              	.LBB8:
+ 145:./Application/Funtion/SystemPara/SystemPara.c ****             }
+ 418              		.loc 1 145 0
+ 419 01dc 0E49     		ldr	r1, .L15+44
+ 420              	.LVL19:
+ 421              	.L6:
+ 145:./Application/Funtion/SystemPara/SystemPara.c ****             }
+ 422              		.loc 1 145 0 is_stmt 0 discriminator 3
+ 423 01de E05C     		ldrb	r0, [r4, r3]
+ 424 01e0 5A1E     		subs	r2, r3, #1
+ 425              	.LVL20:
+ 426 01e2 0133     		adds	r3, r3, #1
+ 427 01e4 8854     		strb	r0, [r1, r2]
+ 428              	.LVL21:
+ 143:./Application/Funtion/SystemPara/SystemPara.c ****             {
+ 429              		.loc 1 143 0 is_stmt 1 discriminator 3
+ 430 01e6 182B     		cmp	r3, #24
+ 431 01e8 F9D1     		bne	.L6
+ 432 01ea 7FE7     		b	.L4
+ 433              	.L16:
+ 434              		.align	2
+ 435              	.L15:
+ 436 01ec 5B5A0300 		.word	219739
+ 437 01f0 00000000 		.word	stParameter
+ 438 01f4 02004B00 		.word	4915202
+ 439 01f8 28001900 		.word	1638440
+ 440 01fc 14002800 		.word	2621460
+ 441 0200 01006054 		.word	1415577601
+ 442 0204 0500F401 		.word	32768005
+ 443 0208 00000000 		.word	ParameterNow_102
+ARM GAS  /tmp/cc4cBozH.s 			page 14
+
+
+ 444 020c 5B5A0000 		.word	23131
+ 445 0210 60540000 		.word	21600
+ 446 0214 00000000 		.word	gSystemParaBuff.11464
+ 447 0218 00000000 		.word	.LANCHOR0
+ 448 021c 00000000 		.word	SystemInfo_1
+ 449              	.LBE8:
+ 450              	.LBE7:
+ 451              		.cfi_endproc
+ 452              	.LFE493:
+ 454              		.section	.text.RcvParaSetFlashSaveAPI,"ax",%progbits
+ 455              		.align	1
+ 456              		.global	RcvParaSetFlashSaveAPI
+ 457              		.syntax unified
+ 458              		.code	16
+ 459              		.thumb_func
+ 460              		.fpu softvfp
+ 462              	RcvParaSetFlashSaveAPI:
+ 463              	.LFB494:
+ 240:./Application/Funtion/SystemPara/SystemPara.c **** /* ================================================================================================
+ 241:./Application/Funtion/SystemPara/SystemPara.c **** ** @Name      : u8 RcvParaSetFlashSaveAPI()
+ 242:./Application/Funtion/SystemPara/SystemPara.c **** ** @Input     : 
+ 243:./Application/Funtion/SystemPara/SystemPara.c **** ** @Output    : 设置成功或失败
+ 244:./Application/Funtion/SystemPara/SystemPara.c **** ** @Function  : 参数设置外部flash保存处理函数
+ 245:./Application/Funtion/SystemPara/SystemPara.c **** ** @The notes : 
+ 246:./Application/Funtion/SystemPara/SystemPara.c **** **===============================================================================================*/
+ 247:./Application/Funtion/SystemPara/SystemPara.c **** u8 RcvParaSetFlashSaveAPI()
+ 248:./Application/Funtion/SystemPara/SystemPara.c **** {
+ 464              		.loc 1 248 0
+ 465              		.cfi_startproc
+ 466              		@ args = 0, pretend = 0, frame = 0
+ 467              		@ frame_needed = 0, uses_anonymous_args = 0
+ 468              	.LVL22:
+ 469 0000 0023     		movs	r3, #0
+ 470 0002 10B5     		push	{r4, lr}
+ 471              	.LCFI1:
+ 472              		.cfi_def_cfa_offset 8
+ 473              		.cfi_offset 4, -8
+ 474              		.cfi_offset 14, -4
+ 475              	.LBB9:
+ 249:./Application/Funtion/SystemPara/SystemPara.c ****     for(int j = 0;j<Parameter_Len;j++)
+ 250:./Application/Funtion/SystemPara/SystemPara.c ****     {
+ 251:./Application/Funtion/SystemPara/SystemPara.c ****         stParameter.u16ArraySet[j] = ParameterNow_102[j];
+ 476              		.loc 1 251 0
+ 477 0004 0C48     		ldr	r0, .L23
+ 478 0006 0D4C     		ldr	r4, .L23+4
+ 479              	.LVL23:
+ 480              	.L18:
+ 481              		.loc 1 251 0 is_stmt 0 discriminator 3
+ 482 0008 C15A     		ldrh	r1, [r0, r3]
+ 483 000a 1A19     		adds	r2, r3, r4
+ 484 000c 0233     		adds	r3, r3, #2
+ 485 000e 1184     		strh	r1, [r2, #32]
+ 249:./Application/Funtion/SystemPara/SystemPara.c ****     for(int j = 0;j<Parameter_Len;j++)
+ 486              		.loc 1 249 0 is_stmt 1 discriminator 3
+ 487 0010 202B     		cmp	r3, #32
+ 488 0012 F9D1     		bne	.L18
+ 489              	.LVL24:
+ARM GAS  /tmp/cc4cBozH.s 			page 15
+
+
+ 490              	.LBE9:
+ 252:./Application/Funtion/SystemPara/SystemPara.c ****     }
+ 253:./Application/Funtion/SystemPara/SystemPara.c ****     u8* parabuff = (u8 *) &stParameter;
+ 254:./Application/Funtion/SystemPara/SystemPara.c ****     if(0 == SafeFlash_Erase_Parameter())
+ 491              		.loc 1 254 0
+ 492 0014 FFF7FEFF 		bl	SafeFlash_Erase_Parameter
+ 493              	.LVL25:
+ 494 0018 0028     		cmp	r0, #0
+ 495 001a 01D0     		beq	.L19
+ 496              	.L21:
+ 255:./Application/Funtion/SystemPara/SystemPara.c ****     {
+ 256:./Application/Funtion/SystemPara/SystemPara.c ****         if(0 == SafeFlash_Write_Parameter(parabuff))
+ 257:./Application/Funtion/SystemPara/SystemPara.c ****         {
+ 258:./Application/Funtion/SystemPara/SystemPara.c ****             if(0 == SafeFlash_Read_Parameter(parabuff))
+ 259:./Application/Funtion/SystemPara/SystemPara.c ****             {
+ 260:./Application/Funtion/SystemPara/SystemPara.c ****                 return TRUE;
+ 261:./Application/Funtion/SystemPara/SystemPara.c ****             }else
+ 262:./Application/Funtion/SystemPara/SystemPara.c ****             {
+ 263:./Application/Funtion/SystemPara/SystemPara.c ****                 return FALSE;
+ 264:./Application/Funtion/SystemPara/SystemPara.c ****             }
+ 265:./Application/Funtion/SystemPara/SystemPara.c ****         }else
+ 266:./Application/Funtion/SystemPara/SystemPara.c ****         {
+ 267:./Application/Funtion/SystemPara/SystemPara.c ****             return FALSE;
+ 268:./Application/Funtion/SystemPara/SystemPara.c ****         }
+ 269:./Application/Funtion/SystemPara/SystemPara.c ****     }else 
+ 270:./Application/Funtion/SystemPara/SystemPara.c ****     {
+ 271:./Application/Funtion/SystemPara/SystemPara.c ****         return FALSE;
+ 497              		.loc 1 271 0
+ 498 001c 0020     		movs	r0, #0
+ 499              	.L20:
+ 272:./Application/Funtion/SystemPara/SystemPara.c ****     }
+ 273:./Application/Funtion/SystemPara/SystemPara.c **** 
+ 274:./Application/Funtion/SystemPara/SystemPara.c **** }
+ 500              		.loc 1 274 0
+ 501              		@ sp needed
+ 502 001e 10BD     		pop	{r4, pc}
+ 503              	.L19:
+ 256:./Application/Funtion/SystemPara/SystemPara.c ****         {
+ 504              		.loc 1 256 0
+ 505 0020 2000     		movs	r0, r4
+ 506 0022 FFF7FEFF 		bl	SafeFlash_Write_Parameter
+ 507              	.LVL26:
+ 508 0026 0028     		cmp	r0, #0
+ 509 0028 F8D1     		bne	.L21
+ 258:./Application/Funtion/SystemPara/SystemPara.c ****             {
+ 510              		.loc 1 258 0
+ 511 002a 2000     		movs	r0, r4
+ 512 002c FFF7FEFF 		bl	SafeFlash_Read_Parameter
+ 513              	.LVL27:
+ 514 0030 4342     		rsbs	r3, r0, #0
+ 515 0032 5841     		adcs	r0, r0, r3
+ 260:./Application/Funtion/SystemPara/SystemPara.c ****             }else
+ 516              		.loc 1 260 0
+ 517 0034 C0B2     		uxtb	r0, r0
+ 518 0036 F2E7     		b	.L20
+ 519              	.L24:
+ 520              		.align	2
+ARM GAS  /tmp/cc4cBozH.s 			page 16
+
+
+ 521              	.L23:
+ 522 0038 00000000 		.word	ParameterNow_102
+ 523 003c 00000000 		.word	stParameter
+ 524              		.cfi_endproc
+ 525              	.LFE494:
+ 527              		.section	.text.RcvDeviceSerialParaCfgAPI,"ax",%progbits
+ 528              		.align	1
+ 529              		.global	RcvDeviceSerialParaCfgAPI
+ 530              		.syntax unified
+ 531              		.code	16
+ 532              		.thumb_func
+ 533              		.fpu softvfp
+ 535              	RcvDeviceSerialParaCfgAPI:
+ 536              	.LFB495:
+ 275:./Application/Funtion/SystemPara/SystemPara.c **** 
+ 276:./Application/Funtion/SystemPara/SystemPara.c **** 
+ 277:./Application/Funtion/SystemPara/SystemPara.c **** 
+ 278:./Application/Funtion/SystemPara/SystemPara.c **** /*=================================================================================================
+ 279:./Application/Funtion/SystemPara/SystemPara.c **** ** @Name      : u8 RcvDeviceSerialParaCfgAPI()
+ 280:./Application/Funtion/SystemPara/SystemPara.c **** ** @Input     : 
+ 281:./Application/Funtion/SystemPara/SystemPara.c **** ** @Output    : 设置成功或失败
+ 282:./Application/Funtion/SystemPara/SystemPara.c **** ** @Function  : 设备序列号参数设置命令处理函数
+ 283:./Application/Funtion/SystemPara/SystemPara.c **** ** @The notes : 
+ 284:./Application/Funtion/SystemPara/SystemPara.c **** **===============================================================================================*/
+ 285:./Application/Funtion/SystemPara/SystemPara.c **** u8 RcvDeviceSerialParaCfgAPI()
+ 286:./Application/Funtion/SystemPara/SystemPara.c **** {
+ 537              		.loc 1 286 0
+ 538              		.cfi_startproc
+ 539              		@ args = 0, pretend = 0, frame = 0
+ 540              		@ frame_needed = 0, uses_anonymous_args = 0
+ 541              	.LVL28:
+ 542 0000 0123     		movs	r3, #1
+ 543 0002 70B5     		push	{r4, r5, r6, lr}
+ 544              	.LCFI2:
+ 545              		.cfi_def_cfa_offset 16
+ 546              		.cfi_offset 4, -16
+ 547              		.cfi_offset 5, -12
+ 548              		.cfi_offset 6, -8
+ 549              		.cfi_offset 14, -4
+ 550              	.LBB10:
+ 287:./Application/Funtion/SystemPara/SystemPara.c ****     u8 cfgResult = TRUE;
+ 288:./Application/Funtion/SystemPara/SystemPara.c ****     for(int i = 0;i<SerialNum_len;i++)
+ 289:./Application/Funtion/SystemPara/SystemPara.c ****     {
+ 290:./Application/Funtion/SystemPara/SystemPara.c ****         stParameter.SerialNumber[i] = SystemSerialNum_2[i];//当前值复制到设置值
+ 551              		.loc 1 290 0
+ 552 0004 164D     		ldr	r5, .L33
+ 553 0006 174E     		ldr	r6, .L33+4
+ 554              	.LVL29:
+ 555              	.L26:
+ 556              		.loc 1 290 0 is_stmt 0 discriminator 3
+ 557 0008 5A1E     		subs	r2, r3, #1
+ 558              	.LVL30:
+ 559 000a B25C     		ldrb	r2, [r6, r2]
+ 560              	.LVL31:
+ 561 000c EA54     		strb	r2, [r5, r3]
+ 562              	.LVL32:
+ 563 000e 0133     		adds	r3, r3, #1
+ARM GAS  /tmp/cc4cBozH.s 			page 17
+
+
+ 564              	.LVL33:
+ 288:./Application/Funtion/SystemPara/SystemPara.c ****     {
+ 565              		.loc 1 288 0 is_stmt 1 discriminator 3
+ 566 0010 182B     		cmp	r3, #24
+ 567 0012 F9D1     		bne	.L26
+ 568              	.LBE10:
+ 291:./Application/Funtion/SystemPara/SystemPara.c ****     }
+ 292:./Application/Funtion/SystemPara/SystemPara.c **** 
+ 293:./Application/Funtion/SystemPara/SystemPara.c ****     if(TRUE == I2C_EE_BufferWrite(SystemSerialNum_2,Eeprom_SerialNum_Add,sizeof(SystemSerialNum_2))
+ 569              		.loc 1 293 0
+ 570 0014 1722     		movs	r2, #23
+ 571 0016 0121     		movs	r1, #1
+ 572 0018 3000     		movs	r0, r6
+ 573 001a FFF7FEFF 		bl	I2C_EE_BufferWrite
+ 574              	.LVL34:
+ 575 001e 0400     		movs	r4, r0
+ 576 0020 0128     		cmp	r0, #1
+ 577 0022 1BD1     		bne	.L27
+ 578              	.LBB11:
+ 294:./Application/Funtion/SystemPara/SystemPara.c ****     {
+ 295:./Application/Funtion/SystemPara/SystemPara.c ****         stParameter.WriteFlag = 0x5a;
+ 579              		.loc 1 295 0
+ 580 0024 5A23     		movs	r3, #90
+ 581 0026 2B70     		strb	r3, [r5]
+ 582              	.LVL35:
+ 296:./Application/Funtion/SystemPara/SystemPara.c ****         u8* buff = (u8 *) &stParameter;//外部flash备份存储
+ 297:./Application/Funtion/SystemPara/SystemPara.c **** 
+ 298:./Application/Funtion/SystemPara/SystemPara.c ****         if(0 == SafeFlash_Erase_Parameter())
+ 583              		.loc 1 298 0
+ 584 0028 FFF7FEFF 		bl	SafeFlash_Erase_Parameter
+ 585              	.LVL36:
+ 586 002c 0028     		cmp	r0, #0
+ 587 002e 15D1     		bne	.L27
+ 299:./Application/Funtion/SystemPara/SystemPara.c ****         {
+ 300:./Application/Funtion/SystemPara/SystemPara.c ****             if(0 == SafeFlash_Write_Parameter(buff))
+ 588              		.loc 1 300 0
+ 589 0030 2800     		movs	r0, r5
+ 590 0032 FFF7FEFF 		bl	SafeFlash_Write_Parameter
+ 591              	.LVL37:
+ 592 0036 0028     		cmp	r0, #0
+ 593 0038 10D1     		bne	.L27
+ 301:./Application/Funtion/SystemPara/SystemPara.c ****             {
+ 302:./Application/Funtion/SystemPara/SystemPara.c ****                 if(0 == SafeFlash_Read_Parameter(buff))
+ 594              		.loc 1 302 0
+ 595 003a 2800     		movs	r0, r5
+ 596 003c FFF7FEFF 		bl	SafeFlash_Read_Parameter
+ 597              	.LVL38:
+ 598 0040 0028     		cmp	r0, #0
+ 599 0042 0BD1     		bne	.L27
+ 600 0044 2300     		movs	r3, r4
+ 601              	.LVL39:
+ 602              	.L29:
+ 603              	.LBB12:
+ 303:./Application/Funtion/SystemPara/SystemPara.c ****                 {
+ 304:./Application/Funtion/SystemPara/SystemPara.c ****                     for(int i = 0;i<SerialNum_len;i++)
+ 305:./Application/Funtion/SystemPara/SystemPara.c ****                     {
+ 306:./Application/Funtion/SystemPara/SystemPara.c ****                         if(stParameter.SerialNumber[i] != SystemSerialNum_2[i])
+ARM GAS  /tmp/cc4cBozH.s 			page 18
+
+
+ 604              		.loc 1 306 0
+ 605 0046 5A1E     		subs	r2, r3, #1
+ 606              	.LVL40:
+ 607 0048 E95C     		ldrb	r1, [r5, r3]
+ 608 004a B25C     		ldrb	r2, [r6, r2]
+ 609              	.LVL41:
+ 610 004c 9142     		cmp	r1, r2
+ 611 004e 00D0     		beq	.L28
+ 307:./Application/Funtion/SystemPara/SystemPara.c ****                         {
+ 308:./Application/Funtion/SystemPara/SystemPara.c ****                             cfgResult = FALSE;
+ 612              		.loc 1 308 0
+ 613 0050 0024     		movs	r4, #0
+ 614              	.LVL42:
+ 615              	.L28:
+ 616 0052 0133     		adds	r3, r3, #1
+ 617              	.LVL43:
+ 304:./Application/Funtion/SystemPara/SystemPara.c ****                     {
+ 618              		.loc 1 304 0 discriminator 2
+ 619 0054 182B     		cmp	r3, #24
+ 620 0056 F6D1     		bne	.L29
+ 621              	.LVL44:
+ 622              	.L30:
+ 623              	.LBE12:
+ 624              	.LBE11:
+ 309:./Application/Funtion/SystemPara/SystemPara.c ****                         }
+ 310:./Application/Funtion/SystemPara/SystemPara.c ****                     }
+ 311:./Application/Funtion/SystemPara/SystemPara.c ****                 }else
+ 312:./Application/Funtion/SystemPara/SystemPara.c ****                 {
+ 313:./Application/Funtion/SystemPara/SystemPara.c ****                     cfgResult = FALSE;   
+ 314:./Application/Funtion/SystemPara/SystemPara.c ****                 }
+ 315:./Application/Funtion/SystemPara/SystemPara.c ****             }else
+ 316:./Application/Funtion/SystemPara/SystemPara.c ****             {
+ 317:./Application/Funtion/SystemPara/SystemPara.c ****                 cfgResult = FALSE;
+ 318:./Application/Funtion/SystemPara/SystemPara.c ****             }
+ 319:./Application/Funtion/SystemPara/SystemPara.c ****         }else
+ 320:./Application/Funtion/SystemPara/SystemPara.c ****         {
+ 321:./Application/Funtion/SystemPara/SystemPara.c ****             cfgResult = FALSE;
+ 322:./Application/Funtion/SystemPara/SystemPara.c ****         }
+ 323:./Application/Funtion/SystemPara/SystemPara.c ****     }else
+ 324:./Application/Funtion/SystemPara/SystemPara.c ****     {
+ 325:./Application/Funtion/SystemPara/SystemPara.c ****         cfgResult = FALSE;
+ 326:./Application/Funtion/SystemPara/SystemPara.c ****     }
+ 327:./Application/Funtion/SystemPara/SystemPara.c **** 
+ 328:./Application/Funtion/SystemPara/SystemPara.c **** 
+ 329:./Application/Funtion/SystemPara/SystemPara.c ****     return(cfgResult);
+ 330:./Application/Funtion/SystemPara/SystemPara.c **** 
+ 331:./Application/Funtion/SystemPara/SystemPara.c **** }
+ 625              		.loc 1 331 0
+ 626 0058 2000     		movs	r0, r4
+ 627              		@ sp needed
+ 628              	.LVL45:
+ 629 005a 70BD     		pop	{r4, r5, r6, pc}
+ 630              	.LVL46:
+ 631              	.L27:
+ 325:./Application/Funtion/SystemPara/SystemPara.c ****     }
+ 632              		.loc 1 325 0
+ 633 005c 0024     		movs	r4, #0
+ARM GAS  /tmp/cc4cBozH.s 			page 19
+
+
+ 634 005e FBE7     		b	.L30
+ 635              	.L34:
+ 636              		.align	2
+ 637              	.L33:
+ 638 0060 00000000 		.word	stParameter
+ 639 0064 00000000 		.word	.LANCHOR0
+ 640              		.cfi_endproc
+ 641              	.LFE495:
+ 643              		.section	.text.ParaCheckSGenParaEffect,"ax",%progbits
+ 644              		.align	1
+ 645              		.global	ParaCheckSGenParaEffect
+ 646              		.syntax unified
+ 647              		.code	16
+ 648              		.thumb_func
+ 649              		.fpu softvfp
+ 651              	ParaCheckSGenParaEffect:
+ 652              	.LFB499:
+ 332:./Application/Funtion/SystemPara/SystemPara.c **** 
+ 333:./Application/Funtion/SystemPara/SystemPara.c **** /*=================================================================================================
+ 334:./Application/Funtion/SystemPara/SystemPara.c **** ** @Name      : u8 RcvSystemGenParaCfgAPI(u8 index, u8 port)
+ 335:./Application/Funtion/SystemPara/SystemPara.c **** ** @Input     : index:参数字段索引号 port:接收命令端口:[0,4]CAN口 [5,9]RS485口
+ 336:./Application/Funtion/SystemPara/SystemPara.c **** ** @Output    : 设置成功或失败
+ 337:./Application/Funtion/SystemPara/SystemPara.c **** ** @Function  : 系统通用参数设置命令处理函数
+ 338:./Application/Funtion/SystemPara/SystemPara.c **** ** @The notes : 通信口设置
+ 339:./Application/Funtion/SystemPara/SystemPara.c **** **===============================================================================================*/
+ 340:./Application/Funtion/SystemPara/SystemPara.c **** u8 RcvSystemGenParaCfgAPI(u8 index, u8 port)
+ 341:./Application/Funtion/SystemPara/SystemPara.c **** {
+ 342:./Application/Funtion/SystemPara/SystemPara.c ****     u16 para = 0;
+ 343:./Application/Funtion/SystemPara/SystemPara.c **** 
+ 344:./Application/Funtion/SystemPara/SystemPara.c ****     /*索引正确*/
+ 345:./Application/Funtion/SystemPara/SystemPara.c ****     if(index < Parameter_Len)
+ 346:./Application/Funtion/SystemPara/SystemPara.c ****     {
+ 347:./Application/Funtion/SystemPara/SystemPara.c ****     	para = ParameterSet_107[index];
+ 348:./Application/Funtion/SystemPara/SystemPara.c **** 
+ 349:./Application/Funtion/SystemPara/SystemPara.c ****         /*写入成功*/
+ 350:./Application/Funtion/SystemPara/SystemPara.c ****    	if(TRUE == ParaWriteStoreSystemGenParaInfo(index, para))
+ 351:./Application/Funtion/SystemPara/SystemPara.c ****        {
+ 352:./Application/Funtion/SystemPara/SystemPara.c ****    		/*显示区索引*/
+ 353:./Application/Funtion/SystemPara/SystemPara.c ****            if(index < Parameter_Len)
+ 354:./Application/Funtion/SystemPara/SystemPara.c ****            {
+ 355:./Application/Funtion/SystemPara/SystemPara.c ****                stParameter.u16ArraySet[index] = para;/*同步更新RAM参数*/
+ 356:./Application/Funtion/SystemPara/SystemPara.c ****            	   ParameterNow_102[index] = para;
+ 357:./Application/Funtion/SystemPara/SystemPara.c ****            }
+ 358:./Application/Funtion/SystemPara/SystemPara.c ****            else
+ 359:./Application/Funtion/SystemPara/SystemPara.c ****            {
+ 360:./Application/Funtion/SystemPara/SystemPara.c ****                 return(FALSE);
+ 361:./Application/Funtion/SystemPara/SystemPara.c ****            }
+ 362:./Application/Funtion/SystemPara/SystemPara.c **** 
+ 363:./Application/Funtion/SystemPara/SystemPara.c ****            return(TRUE);
+ 364:./Application/Funtion/SystemPara/SystemPara.c ****        }
+ 365:./Application/Funtion/SystemPara/SystemPara.c ****     }
+ 366:./Application/Funtion/SystemPara/SystemPara.c **** 
+ 367:./Application/Funtion/SystemPara/SystemPara.c ****     return(FALSE);
+ 368:./Application/Funtion/SystemPara/SystemPara.c **** }
+ 369:./Application/Funtion/SystemPara/SystemPara.c **** 
+ 370:./Application/Funtion/SystemPara/SystemPara.c **** /*=================================================================================================
+ 371:./Application/Funtion/SystemPara/SystemPara.c **** ** @Name      : u8 ParaWriteStoreSystemGenParaInfo(u8 index, u16 data)
+ARM GAS  /tmp/cc4cBozH.s 			page 20
+
+
+ 372:./Application/Funtion/SystemPara/SystemPara.c **** ** @Input     : index:参数索引 data:需要写入的数据 len:写入数据长度(个数)
+ 373:./Application/Funtion/SystemPara/SystemPara.c **** ** @Output    : 写入成功或失败
+ 374:./Application/Funtion/SystemPara/SystemPara.c **** ** @Function  : 向存储区写入系统设备通用参数信息
+ 375:./Application/Funtion/SystemPara/SystemPara.c **** ** @The notes : 写入内部EEPROM,请求备份到外部EEPROM和内部FLASH
+ 376:./Application/Funtion/SystemPara/SystemPara.c **** **===============================================================================================*/
+ 377:./Application/Funtion/SystemPara/SystemPara.c **** u8 ParaWriteStoreSystemGenParaInfo(u8 index, u16 data)
+ 378:./Application/Funtion/SystemPara/SystemPara.c **** {
+ 379:./Application/Funtion/SystemPara/SystemPara.c **** 	u8 result  = 0;
+ 380:./Application/Funtion/SystemPara/SystemPara.c **** 
+ 381:./Application/Funtion/SystemPara/SystemPara.c ****     /*直接写入内部EEPROM*/
+ 382:./Application/Funtion/SystemPara/SystemPara.c **** 	result = WriteIntEepSystemGenParaInfo(index, data);
+ 383:./Application/Funtion/SystemPara/SystemPara.c ****     return(result);
+ 384:./Application/Funtion/SystemPara/SystemPara.c **** }
+ 385:./Application/Funtion/SystemPara/SystemPara.c **** 
+ 386:./Application/Funtion/SystemPara/SystemPara.c **** /*=================================================================================================
+ 387:./Application/Funtion/SystemPara/SystemPara.c **** ** @Name      : u8 WriteIntEepSystemGenParaInfo(u8 index, u16 data)
+ 388:./Application/Funtion/SystemPara/SystemPara.c **** ** @Input     : index:参数索引 data:需要写入的数据 
+ 389:./Application/Funtion/SystemPara/SystemPara.c **** ** @Output    : 写入成功或失败
+ 390:./Application/Funtion/SystemPara/SystemPara.c **** ** @Function  : 向内部EEPROM写入系统设备通用参数信息,单个参数写入
+ 391:./Application/Funtion/SystemPara/SystemPara.c **** ** @The notes :
+ 392:./Application/Funtion/SystemPara/SystemPara.c **** **===============================================================================================*/
+ 393:./Application/Funtion/SystemPara/SystemPara.c **** u8 WriteIntEepSystemGenParaInfo(u8 index, u16 data)
+ 394:./Application/Funtion/SystemPara/SystemPara.c **** {
+ 395:./Application/Funtion/SystemPara/SystemPara.c ****         u8 databuff[2];
+ 396:./Application/Funtion/SystemPara/SystemPara.c ****         databuff[0] = (u8)data & 0xff;
+ 397:./Application/Funtion/SystemPara/SystemPara.c ****         databuff[1] = (u8)(data >> 8) & 0xff;
+ 398:./Application/Funtion/SystemPara/SystemPara.c **** 
+ 399:./Application/Funtion/SystemPara/SystemPara.c ****     /*输入参数无效*/
+ 400:./Application/Funtion/SystemPara/SystemPara.c ****     if((index > Parameter_Len))
+ 401:./Application/Funtion/SystemPara/SystemPara.c ****     {
+ 402:./Application/Funtion/SystemPara/SystemPara.c ****         return(FALSE);
+ 403:./Application/Funtion/SystemPara/SystemPara.c ****     }
+ 404:./Application/Funtion/SystemPara/SystemPara.c **** 
+ 405:./Application/Funtion/SystemPara/SystemPara.c **** 	/*检测参数有效性*/
+ 406:./Application/Funtion/SystemPara/SystemPara.c ****     /*参数非有效值*/
+ 407:./Application/Funtion/SystemPara/SystemPara.c ****     if(FALSE == ParaCheckSGenParaEffect(ParameterCigFlag + index, data))
+ 408:./Application/Funtion/SystemPara/SystemPara.c ****     {
+ 409:./Application/Funtion/SystemPara/SystemPara.c ****         return(FALSE);
+ 410:./Application/Funtion/SystemPara/SystemPara.c ****     }
+ 411:./Application/Funtion/SystemPara/SystemPara.c ****     
+ 412:./Application/Funtion/SystemPara/SystemPara.c **** 	/*向内部EEPROM写入参数值*/
+ 413:./Application/Funtion/SystemPara/SystemPara.c **** 	(void)I2C_EE_BufferWrite(databuff, Eeprom_Parameter_Add + (2 * index), 2);
+ 414:./Application/Funtion/SystemPara/SystemPara.c **** 
+ 415:./Application/Funtion/SystemPara/SystemPara.c ****     return(TRUE);
+ 416:./Application/Funtion/SystemPara/SystemPara.c **** }
+ 417:./Application/Funtion/SystemPara/SystemPara.c **** 
+ 418:./Application/Funtion/SystemPara/SystemPara.c **** /*=================================================================================================
+ 419:./Application/Funtion/SystemPara/SystemPara.c **** ** @Name      : u8 ParaCheckSGenParaEffect(u32 addr, u32 para)
+ 420:./Application/Funtion/SystemPara/SystemPara.c **** ** @Input     : addr:参数地址 para:参数值
+ 421:./Application/Funtion/SystemPara/SystemPara.c **** ** @Output    : TRUE:有效合法 FALSE:非法无效
+ 422:./Application/Funtion/SystemPara/SystemPara.c **** ** @Function  : 检测系统通用参数值是否有效
+ 423:./Application/Funtion/SystemPara/SystemPara.c **** ** @The notes : U16
+ 424:./Application/Funtion/SystemPara/SystemPara.c **** **===============================================================================================*/
+ 425:./Application/Funtion/SystemPara/SystemPara.c **** u8 ParaCheckSGenParaEffect(u32 addr, u32 para)
+ 426:./Application/Funtion/SystemPara/SystemPara.c **** {
+ 653              		.loc 1 426 0
+ 654              		.cfi_startproc
+ARM GAS  /tmp/cc4cBozH.s 			page 21
+
+
+ 655              		@ args = 0, pretend = 0, frame = 0
+ 656              		@ frame_needed = 0, uses_anonymous_args = 0
+ 657              	.LVL47:
+ 658 0000 00B5     		push	{lr}
+ 659              	.LCFI3:
+ 660              		.cfi_def_cfa_offset 4
+ 661              		.cfi_offset 14, -4
+ 427:./Application/Funtion/SystemPara/SystemPara.c ****     /*根据地址判断有效性*/
+ 428:./Application/Funtion/SystemPara/SystemPara.c **** 	switch(addr)
+ 429:./Application/Funtion/SystemPara/SystemPara.c **** 	{
+ 430:./Application/Funtion/SystemPara/SystemPara.c **** 		/*系统通用参数配置标志*/
+ 431:./Application/Funtion/SystemPara/SystemPara.c **** 		case ParameterCigFlag:
+ 432:./Application/Funtion/SystemPara/SystemPara.c **** 			/*不需检有效性*/
+ 433:./Application/Funtion/SystemPara/SystemPara.c **** 			return(TRUE);
+ 434:./Application/Funtion/SystemPara/SystemPara.c **** 
+ 435:./Application/Funtion/SystemPara/SystemPara.c **** 		
+ 436:./Application/Funtion/SystemPara/SystemPara.c **** 		case CanComRate:
+ 437:./Application/Funtion/SystemPara/SystemPara.c **** 			if(para <= 3)
+ 438:./Application/Funtion/SystemPara/SystemPara.c **** 			{
+ 439:./Application/Funtion/SystemPara/SystemPara.c **** 				/*参数合法*/
+ 440:./Application/Funtion/SystemPara/SystemPara.c **** 				return(TRUE);
+ 441:./Application/Funtion/SystemPara/SystemPara.c **** 			}
+ 442:./Application/Funtion/SystemPara/SystemPara.c **** 			break;
+ 443:./Application/Funtion/SystemPara/SystemPara.c **** 
+ 444:./Application/Funtion/SystemPara/SystemPara.c **** 		case RS485ComRate:
+ 445:./Application/Funtion/SystemPara/SystemPara.c **** 			if(para <= 4)
+ 446:./Application/Funtion/SystemPara/SystemPara.c **** 			{
+ 447:./Application/Funtion/SystemPara/SystemPara.c **** 				/*参数合法*/
+ 448:./Application/Funtion/SystemPara/SystemPara.c **** 				return(TRUE);
+ 449:./Application/Funtion/SystemPara/SystemPara.c **** 			}
+ 450:./Application/Funtion/SystemPara/SystemPara.c **** 			break;
+ 451:./Application/Funtion/SystemPara/SystemPara.c **** 
+ 452:./Application/Funtion/SystemPara/SystemPara.c **** 		case CanCrolVersion:
+ 453:./Application/Funtion/SystemPara/SystemPara.c **** 			if(para <= 1)
+ 454:./Application/Funtion/SystemPara/SystemPara.c **** 			{
+ 455:./Application/Funtion/SystemPara/SystemPara.c **** 				/*参数合法*/
+ 456:./Application/Funtion/SystemPara/SystemPara.c **** 				return(TRUE);
+ 457:./Application/Funtion/SystemPara/SystemPara.c **** 			}
+ 458:./Application/Funtion/SystemPara/SystemPara.c **** 			break;
+ 459:./Application/Funtion/SystemPara/SystemPara.c **** 
+ 460:./Application/Funtion/SystemPara/SystemPara.c **** 		case CurrentSampChannel:
+ 461:./Application/Funtion/SystemPara/SystemPara.c **** 			if(para <= 2)
+ 462:./Application/Funtion/SystemPara/SystemPara.c **** 			{
+ 463:./Application/Funtion/SystemPara/SystemPara.c **** 				/*参数合法*/
+ 464:./Application/Funtion/SystemPara/SystemPara.c **** 				return(TRUE);
+ 465:./Application/Funtion/SystemPara/SystemPara.c **** 			}
+ 466:./Application/Funtion/SystemPara/SystemPara.c **** 			break;
+ 467:./Application/Funtion/SystemPara/SystemPara.c **** 
+ 468:./Application/Funtion/SystemPara/SystemPara.c **** 		case ShuntVoltSampRange:
+ 469:./Application/Funtion/SystemPara/SystemPara.c **** 			if(para <= 200 && para >= 1)
+ 470:./Application/Funtion/SystemPara/SystemPara.c **** 			{
+ 471:./Application/Funtion/SystemPara/SystemPara.c **** 				/*参数合法*/
+ 472:./Application/Funtion/SystemPara/SystemPara.c **** 				return(TRUE);
+ 473:./Application/Funtion/SystemPara/SystemPara.c **** 			}
+ 474:./Application/Funtion/SystemPara/SystemPara.c **** 			break;
+ 475:./Application/Funtion/SystemPara/SystemPara.c **** 		case ShuntCurrentSampRange:
+ 476:./Application/Funtion/SystemPara/SystemPara.c **** 			if(para <= 200 && para >= 1)
+ARM GAS  /tmp/cc4cBozH.s 			page 22
+
+
+ 477:./Application/Funtion/SystemPara/SystemPara.c **** 			{
+ 478:./Application/Funtion/SystemPara/SystemPara.c **** 				/*参数合法*/
+ 479:./Application/Funtion/SystemPara/SystemPara.c **** 				return(TRUE);
+ 480:./Application/Funtion/SystemPara/SystemPara.c **** 			}
+ 481:./Application/Funtion/SystemPara/SystemPara.c **** 			break;
+ 482:./Application/Funtion/SystemPara/SystemPara.c **** 
+ 483:./Application/Funtion/SystemPara/SystemPara.c ****         case HallSignalZeroVolt:
+ 484:./Application/Funtion/SystemPara/SystemPara.c **** 			if(para <= 200 && para >= 1)
+ 485:./Application/Funtion/SystemPara/SystemPara.c **** 			{
+ 486:./Application/Funtion/SystemPara/SystemPara.c **** 				/*参数合法*/
+ 487:./Application/Funtion/SystemPara/SystemPara.c **** 				return(TRUE);
+ 488:./Application/Funtion/SystemPara/SystemPara.c **** 			}
+ 489:./Application/Funtion/SystemPara/SystemPara.c **** 			break;
+ 490:./Application/Funtion/SystemPara/SystemPara.c **** 
+ 491:./Application/Funtion/SystemPara/SystemPara.c ****         case HallVoltSampRange:
+ 492:./Application/Funtion/SystemPara/SystemPara.c **** 			if(para <= 200 && para >= 1)
+ 493:./Application/Funtion/SystemPara/SystemPara.c **** 			{
+ 494:./Application/Funtion/SystemPara/SystemPara.c **** 				/*参数合法*/
+ 495:./Application/Funtion/SystemPara/SystemPara.c **** 				return(TRUE);
+ 496:./Application/Funtion/SystemPara/SystemPara.c **** 			}
+ 497:./Application/Funtion/SystemPara/SystemPara.c **** 			break;
+ 498:./Application/Funtion/SystemPara/SystemPara.c **** 
+ 499:./Application/Funtion/SystemPara/SystemPara.c ****         case HallCurrentSampRange:
+ 500:./Application/Funtion/SystemPara/SystemPara.c **** 			if(para <= 200 && para >= 1)
+ 501:./Application/Funtion/SystemPara/SystemPara.c **** 			{
+ 502:./Application/Funtion/SystemPara/SystemPara.c **** 				/*参数合法*/
+ 503:./Application/Funtion/SystemPara/SystemPara.c **** 				return(TRUE);
+ 504:./Application/Funtion/SystemPara/SystemPara.c **** 			}
+ 505:./Application/Funtion/SystemPara/SystemPara.c **** 			break;
+ 506:./Application/Funtion/SystemPara/SystemPara.c **** 
+ 507:./Application/Funtion/SystemPara/SystemPara.c ****         case CurrentFilterMethod:
+ 508:./Application/Funtion/SystemPara/SystemPara.c **** 			if(para <= 3)
+ 509:./Application/Funtion/SystemPara/SystemPara.c **** 			{
+ 510:./Application/Funtion/SystemPara/SystemPara.c **** 				/*参数合法*/
+ 511:./Application/Funtion/SystemPara/SystemPara.c **** 				return(TRUE);
+ 512:./Application/Funtion/SystemPara/SystemPara.c **** 			}
+ 513:./Application/Funtion/SystemPara/SystemPara.c **** 			break;
+ 514:./Application/Funtion/SystemPara/SystemPara.c **** 
+ 515:./Application/Funtion/SystemPara/SystemPara.c ****         case CurrentFilterTimes:
+ 516:./Application/Funtion/SystemPara/SystemPara.c **** 			if(para <= 200 && para >= 1)
+ 517:./Application/Funtion/SystemPara/SystemPara.c **** 			{
+ 518:./Application/Funtion/SystemPara/SystemPara.c **** 				/*参数合法*/
+ 519:./Application/Funtion/SystemPara/SystemPara.c **** 				return(TRUE);
+ 520:./Application/Funtion/SystemPara/SystemPara.c **** 			}
+ 521:./Application/Funtion/SystemPara/SystemPara.c **** 			break;
+ 522:./Application/Funtion/SystemPara/SystemPara.c **** 
+ 523:./Application/Funtion/SystemPara/SystemPara.c ****         case AfterInsuPeRlyState:
+ 524:./Application/Funtion/SystemPara/SystemPara.c **** 			if(para <= 1)
+ 525:./Application/Funtion/SystemPara/SystemPara.c **** 			{
+ 526:./Application/Funtion/SystemPara/SystemPara.c **** 				/*参数合法*/
+ 527:./Application/Funtion/SystemPara/SystemPara.c **** 				return(TRUE);
+ 528:./Application/Funtion/SystemPara/SystemPara.c **** 			}
+ 529:./Application/Funtion/SystemPara/SystemPara.c **** 			break;
+ 530:./Application/Funtion/SystemPara/SystemPara.c ****         
+ 531:./Application/Funtion/SystemPara/SystemPara.c ****         case InsuSampPeriod:
+ 532:./Application/Funtion/SystemPara/SystemPara.c **** 			if(para <= 64800 && para >= 1)
+ 533:./Application/Funtion/SystemPara/SystemPara.c **** 			{
+ARM GAS  /tmp/cc4cBozH.s 			page 23
+
+
+ 534:./Application/Funtion/SystemPara/SystemPara.c **** 				/*参数合法*/
+ 535:./Application/Funtion/SystemPara/SystemPara.c **** 				return(TRUE);
+ 536:./Application/Funtion/SystemPara/SystemPara.c **** 			}
+ 537:./Application/Funtion/SystemPara/SystemPara.c **** 			break;
+ 538:./Application/Funtion/SystemPara/SystemPara.c ****             
+ 539:./Application/Funtion/SystemPara/SystemPara.c ****         case InsuTimeLimit:
+ 540:./Application/Funtion/SystemPara/SystemPara.c ****             if (para <= 20 && para >= 1)
+ 541:./Application/Funtion/SystemPara/SystemPara.c ****             {
+ 542:./Application/Funtion/SystemPara/SystemPara.c ****                /*参数合法*/
+ 543:./Application/Funtion/SystemPara/SystemPara.c **** 				return(TRUE);
+ 544:./Application/Funtion/SystemPara/SystemPara.c ****             }
+ 545:./Application/Funtion/SystemPara/SystemPara.c ****             break;
+ 546:./Application/Funtion/SystemPara/SystemPara.c **** 
+ 547:./Application/Funtion/SystemPara/SystemPara.c ****         case RlySwiftInterTime:
+ 548:./Application/Funtion/SystemPara/SystemPara.c **** 			if(para <= 10000 && para >= 10)
+ 549:./Application/Funtion/SystemPara/SystemPara.c **** 			{
+ 550:./Application/Funtion/SystemPara/SystemPara.c **** 				/*参数合法*/
+ 551:./Application/Funtion/SystemPara/SystemPara.c **** 				return(TRUE);
+ 552:./Application/Funtion/SystemPara/SystemPara.c **** 			}
+ 553:./Application/Funtion/SystemPara/SystemPara.c **** 		default:
+ 554:./Application/Funtion/SystemPara/SystemPara.c **** 			break;
+ 555:./Application/Funtion/SystemPara/SystemPara.c **** 	}
+ 556:./Application/Funtion/SystemPara/SystemPara.c **** 
+ 557:./Application/Funtion/SystemPara/SystemPara.c ****     return(FALSE);
+ 662              		.loc 1 557 0
+ 663 0002 0023     		movs	r3, #0
+ 428:./Application/Funtion/SystemPara/SystemPara.c **** 	{
+ 664              		.loc 1 428 0
+ 665 0004 0F28     		cmp	r0, #15
+ 666 0006 0ED8     		bhi	.L37
+ 667 0008 FFF7FEFF 		bl	__gnu_thumb1_case_uqi
+ 668              	.L38:
+ 669 000c 28       		.byte	(.L47-.L38)/2
+ 670 000d 08       		.byte	(.L39-.L38)/2
+ 671 000e 0F       		.byte	(.L40-.L38)/2
+ 672 000f 12       		.byte	(.L41-.L38)/2
+ 673 0010 15       		.byte	(.L42-.L38)/2
+ 674 0011 18       		.byte	(.L43-.L38)/2
+ 675 0012 18       		.byte	(.L43-.L38)/2
+ 676 0013 18       		.byte	(.L43-.L38)/2
+ 677 0014 18       		.byte	(.L43-.L38)/2
+ 678 0015 18       		.byte	(.L43-.L38)/2
+ 679 0016 08       		.byte	(.L39-.L38)/2
+ 680 0017 18       		.byte	(.L43-.L38)/2
+ 681 0018 12       		.byte	(.L41-.L38)/2
+ 682 0019 1C       		.byte	(.L44-.L38)/2
+ 683 001a 20       		.byte	(.L45-.L38)/2
+ 684 001b 24       		.byte	(.L46-.L38)/2
+ 685              		.p2align 1
+ 686              	.L39:
+ 437:./Application/Funtion/SystemPara/SystemPara.c **** 			{
+ 687              		.loc 1 437 0
+ 688 001c 0023     		movs	r3, #0
+ 689 001e 0322     		movs	r2, #3
+ 690              	.LVL48:
+ 691              	.L48:
+ 445:./Application/Funtion/SystemPara/SystemPara.c **** 			{
+ARM GAS  /tmp/cc4cBozH.s 			page 24
+
+
+ 692              		.loc 1 445 0
+ 693 0020 8A42     		cmp	r2, r1
+ 694 0022 5B41     		adcs	r3, r3, r3
+ 433:./Application/Funtion/SystemPara/SystemPara.c **** 
+ 695              		.loc 1 433 0
+ 696 0024 DBB2     		uxtb	r3, r3
+ 697              	.L37:
+ 558:./Application/Funtion/SystemPara/SystemPara.c **** }
+ 698              		.loc 1 558 0
+ 699 0026 1800     		movs	r0, r3
+ 700              	.LVL49:
+ 701              		@ sp needed
+ 702 0028 00BD     		pop	{pc}
+ 703              	.LVL50:
+ 704              	.L40:
+ 445:./Application/Funtion/SystemPara/SystemPara.c **** 			{
+ 705              		.loc 1 445 0
+ 706 002a 0023     		movs	r3, #0
+ 707 002c 0422     		movs	r2, #4
+ 708 002e F7E7     		b	.L48
+ 709              	.L41:
+ 453:./Application/Funtion/SystemPara/SystemPara.c **** 			{
+ 710              		.loc 1 453 0
+ 711 0030 0023     		movs	r3, #0
+ 712 0032 0122     		movs	r2, #1
+ 713 0034 F4E7     		b	.L48
+ 714              	.L42:
+ 461:./Application/Funtion/SystemPara/SystemPara.c **** 			{
+ 715              		.loc 1 461 0
+ 716 0036 0023     		movs	r3, #0
+ 717 0038 0222     		movs	r2, #2
+ 718 003a F1E7     		b	.L48
+ 719              	.L43:
+ 469:./Application/Funtion/SystemPara/SystemPara.c **** 			{
+ 720              		.loc 1 469 0
+ 721 003c 0139     		subs	r1, r1, #1
+ 722              	.LVL51:
+ 723 003e 0023     		movs	r3, #0
+ 724 0040 C722     		movs	r2, #199
+ 725 0042 EDE7     		b	.L48
+ 726              	.LVL52:
+ 727              	.L44:
+ 532:./Application/Funtion/SystemPara/SystemPara.c **** 			{
+ 728              		.loc 1 532 0
+ 729 0044 0139     		subs	r1, r1, #1
+ 730              	.LVL53:
+ 731 0046 0023     		movs	r3, #0
+ 732 0048 054A     		ldr	r2, .L49
+ 733 004a E9E7     		b	.L48
+ 734              	.LVL54:
+ 735              	.L45:
+ 540:./Application/Funtion/SystemPara/SystemPara.c ****             {
+ 736              		.loc 1 540 0
+ 737 004c 0139     		subs	r1, r1, #1
+ 738              	.LVL55:
+ 739 004e 0023     		movs	r3, #0
+ 740 0050 1322     		movs	r2, #19
+ARM GAS  /tmp/cc4cBozH.s 			page 25
+
+
+ 741 0052 E5E7     		b	.L48
+ 742              	.LVL56:
+ 743              	.L46:
+ 548:./Application/Funtion/SystemPara/SystemPara.c **** 			{
+ 744              		.loc 1 548 0
+ 745 0054 0A39     		subs	r1, r1, #10
+ 746              	.LVL57:
+ 747 0056 0023     		movs	r3, #0
+ 748 0058 024A     		ldr	r2, .L49+4
+ 749 005a E1E7     		b	.L48
+ 750              	.LVL58:
+ 751              	.L47:
+ 433:./Application/Funtion/SystemPara/SystemPara.c **** 
+ 752              		.loc 1 433 0
+ 753 005c 0123     		movs	r3, #1
+ 754 005e E2E7     		b	.L37
+ 755              	.L50:
+ 756              		.align	2
+ 757              	.L49:
+ 758 0060 1FFD0000 		.word	64799
+ 759 0064 06270000 		.word	9990
+ 760              		.cfi_endproc
+ 761              	.LFE499:
+ 763              		.section	.text.WriteIntEepSystemGenParaInfo,"ax",%progbits
+ 764              		.align	1
+ 765              		.global	WriteIntEepSystemGenParaInfo
+ 766              		.syntax unified
+ 767              		.code	16
+ 768              		.thumb_func
+ 769              		.fpu softvfp
+ 771              	WriteIntEepSystemGenParaInfo:
+ 772              	.LFB498:
+ 394:./Application/Funtion/SystemPara/SystemPara.c ****         u8 databuff[2];
+ 773              		.loc 1 394 0
+ 774              		.cfi_startproc
+ 775              		@ args = 0, pretend = 0, frame = 8
+ 776              		@ frame_needed = 0, uses_anonymous_args = 0
+ 777              	.LVL59:
+ 778 0000 37B5     		push	{r0, r1, r2, r4, r5, lr}
+ 779              	.LCFI4:
+ 780              		.cfi_def_cfa_offset 24
+ 781              		.cfi_offset 0, -24
+ 782              		.cfi_offset 1, -20
+ 783              		.cfi_offset 2, -16
+ 784              		.cfi_offset 4, -12
+ 785              		.cfi_offset 5, -8
+ 786              		.cfi_offset 14, -4
+ 397:./Application/Funtion/SystemPara/SystemPara.c **** 
+ 787              		.loc 1 397 0
+ 788 0002 0B0A     		lsrs	r3, r1, #8
+ 396:./Application/Funtion/SystemPara/SystemPara.c ****         databuff[1] = (u8)(data >> 8) & 0xff;
+ 789              		.loc 1 396 0
+ 790 0004 01AD     		add	r5, sp, #4
+ 394:./Application/Funtion/SystemPara/SystemPara.c ****         u8 databuff[2];
+ 791              		.loc 1 394 0
+ 792 0006 0400     		movs	r4, r0
+ 396:./Application/Funtion/SystemPara/SystemPara.c ****         databuff[1] = (u8)(data >> 8) & 0xff;
+ARM GAS  /tmp/cc4cBozH.s 			page 26
+
+
+ 793              		.loc 1 396 0
+ 794 0008 2970     		strb	r1, [r5]
+ 397:./Application/Funtion/SystemPara/SystemPara.c **** 
+ 795              		.loc 1 397 0
+ 796 000a 6B70     		strb	r3, [r5, #1]
+ 402:./Application/Funtion/SystemPara/SystemPara.c ****     }
+ 797              		.loc 1 402 0
+ 798 000c 0020     		movs	r0, #0
+ 799              	.LVL60:
+ 400:./Application/Funtion/SystemPara/SystemPara.c ****     {
+ 800              		.loc 1 400 0
+ 801 000e 102C     		cmp	r4, #16
+ 802 0010 0CD8     		bhi	.L52
+ 407:./Application/Funtion/SystemPara/SystemPara.c ****     {
+ 803              		.loc 1 407 0
+ 804 0012 2000     		movs	r0, r4
+ 805 0014 FFF7FEFF 		bl	ParaCheckSGenParaEffect
+ 806              	.LVL61:
+ 807 0018 0028     		cmp	r0, #0
+ 808 001a 07D0     		beq	.L52
+ 413:./Application/Funtion/SystemPara/SystemPara.c **** 
+ 809              		.loc 1 413 0
+ 810 001c 2100     		movs	r1, r4
+ 811 001e 1031     		adds	r1, r1, #16
+ 812 0020 4900     		lsls	r1, r1, #1
+ 813 0022 0222     		movs	r2, #2
+ 814 0024 2800     		movs	r0, r5
+ 815 0026 FFF7FEFF 		bl	I2C_EE_BufferWrite
+ 816              	.LVL62:
+ 415:./Application/Funtion/SystemPara/SystemPara.c **** }
+ 817              		.loc 1 415 0
+ 818 002a 0120     		movs	r0, #1
+ 819              	.L52:
+ 416:./Application/Funtion/SystemPara/SystemPara.c **** 
+ 820              		.loc 1 416 0
+ 821              		@ sp needed
+ 822 002c 3EBD     		pop	{r1, r2, r3, r4, r5, pc}
+ 823              		.cfi_endproc
+ 824              	.LFE498:
+ 826              		.section	.text.ParaWriteStoreSystemGenParaInfo,"ax",%progbits
+ 827              		.align	1
+ 828              		.global	ParaWriteStoreSystemGenParaInfo
+ 829              		.syntax unified
+ 830              		.code	16
+ 831              		.thumb_func
+ 832              		.fpu softvfp
+ 834              	ParaWriteStoreSystemGenParaInfo:
+ 835              	.LFB497:
+ 378:./Application/Funtion/SystemPara/SystemPara.c **** 	u8 result  = 0;
+ 836              		.loc 1 378 0
+ 837              		.cfi_startproc
+ 838              		@ args = 0, pretend = 0, frame = 0
+ 839              		@ frame_needed = 0, uses_anonymous_args = 0
+ 840              	.LVL63:
+ 841 0000 10B5     		push	{r4, lr}
+ 842              	.LCFI5:
+ 843              		.cfi_def_cfa_offset 8
+ARM GAS  /tmp/cc4cBozH.s 			page 27
+
+
+ 844              		.cfi_offset 4, -8
+ 845              		.cfi_offset 14, -4
+ 382:./Application/Funtion/SystemPara/SystemPara.c ****     return(result);
+ 846              		.loc 1 382 0
+ 847 0002 FFF7FEFF 		bl	WriteIntEepSystemGenParaInfo
+ 848              	.LVL64:
+ 384:./Application/Funtion/SystemPara/SystemPara.c **** 
+ 849              		.loc 1 384 0
+ 850              		@ sp needed
+ 851 0006 10BD     		pop	{r4, pc}
+ 852              		.cfi_endproc
+ 853              	.LFE497:
+ 855              		.section	.text.RcvSystemGenParaCfgAPI,"ax",%progbits
+ 856              		.align	1
+ 857              		.global	RcvSystemGenParaCfgAPI
+ 858              		.syntax unified
+ 859              		.code	16
+ 860              		.thumb_func
+ 861              		.fpu softvfp
+ 863              	RcvSystemGenParaCfgAPI:
+ 864              	.LFB496:
+ 341:./Application/Funtion/SystemPara/SystemPara.c ****     u16 para = 0;
+ 865              		.loc 1 341 0
+ 866              		.cfi_startproc
+ 867              		@ args = 0, pretend = 0, frame = 0
+ 868              		@ frame_needed = 0, uses_anonymous_args = 0
+ 869              	.LVL65:
+ 870 0000 70B5     		push	{r4, r5, r6, lr}
+ 871              	.LCFI6:
+ 872              		.cfi_def_cfa_offset 16
+ 873              		.cfi_offset 4, -16
+ 874              		.cfi_offset 5, -12
+ 875              		.cfi_offset 6, -8
+ 876              		.cfi_offset 14, -4
+ 341:./Application/Funtion/SystemPara/SystemPara.c ****     u16 para = 0;
+ 877              		.loc 1 341 0
+ 878 0002 0400     		movs	r4, r0
+ 345:./Application/Funtion/SystemPara/SystemPara.c ****     {
+ 879              		.loc 1 345 0
+ 880 0004 0F28     		cmp	r0, #15
+ 881 0006 01D9     		bls	.L59
+ 882              	.LVL66:
+ 883              	.L61:
+ 367:./Application/Funtion/SystemPara/SystemPara.c **** }
+ 884              		.loc 1 367 0
+ 885 0008 0020     		movs	r0, #0
+ 886              	.L60:
+ 368:./Application/Funtion/SystemPara/SystemPara.c **** 
+ 887              		.loc 1 368 0
+ 888              		@ sp needed
+ 889 000a 70BD     		pop	{r4, r5, r6, pc}
+ 890              	.LVL67:
+ 891              	.L59:
+ 347:./Application/Funtion/SystemPara/SystemPara.c **** 
+ 892              		.loc 1 347 0
+ 893 000c 074B     		ldr	r3, .L62
+ 894 000e 4600     		lsls	r6, r0, #1
+ARM GAS  /tmp/cc4cBozH.s 			page 28
+
+
+ 895 0010 F55A     		ldrh	r5, [r6, r3]
+ 896              	.LVL68:
+ 897              	.LBB13:
+ 898              	.LBB14:
+ 382:./Application/Funtion/SystemPara/SystemPara.c ****     return(result);
+ 899              		.loc 1 382 0
+ 900 0012 2900     		movs	r1, r5
+ 901              	.LVL69:
+ 902 0014 FFF7FEFF 		bl	WriteIntEepSystemGenParaInfo
+ 903              	.LVL70:
+ 904              	.LBE14:
+ 905              	.LBE13:
+ 350:./Application/Funtion/SystemPara/SystemPara.c ****        {
+ 906              		.loc 1 350 0
+ 907 0018 0128     		cmp	r0, #1
+ 908 001a F5D1     		bne	.L61
+ 355:./Application/Funtion/SystemPara/SystemPara.c ****            	   ParameterNow_102[index] = para;
+ 909              		.loc 1 355 0
+ 910 001c 044B     		ldr	r3, .L62+4
+ 911 001e 1034     		adds	r4, r4, #16
+ 912 0020 6400     		lsls	r4, r4, #1
+ 913 0022 E552     		strh	r5, [r4, r3]
+ 356:./Application/Funtion/SystemPara/SystemPara.c ****            }
+ 914              		.loc 1 356 0
+ 915 0024 034B     		ldr	r3, .L62+8
+ 916 0026 F552     		strh	r5, [r6, r3]
+ 363:./Application/Funtion/SystemPara/SystemPara.c ****        }
+ 917              		.loc 1 363 0
+ 918 0028 EFE7     		b	.L60
+ 919              	.L63:
+ 920 002a C046     		.align	2
+ 921              	.L62:
+ 922 002c 00000000 		.word	ParameterSet_107
+ 923 0030 00000000 		.word	stParameter
+ 924 0034 00000000 		.word	ParameterNow_102
+ 925              		.cfi_endproc
+ 926              	.LFE496:
+ 928              		.global	SystemSerialNum_2
+ 929              		.comm	ParameterSet_107,32,2
+ 930              		.comm	ParameterNow_102,32,2
+ 931              		.comm	stParameter,168,4
+ 932              		.section	.bss.SystemSerialNum_2,"aw",%nobits
+ 933              		.set	.LANCHOR0,. + 0
+ 936              	SystemSerialNum_2:
+ 937 0000 00000000 		.space	23
+ 937      00000000 
+ 937      00000000 
+ 937      00000000 
+ 937      00000000 
+ 938              		.section	.bss.gSystemParaBuff.11464,"aw",%nobits
+ 939              		.align	2
+ 942              	gSystemParaBuff.11464:
+ 943 0000 00000000 		.space	168
+ 943      00000000 
+ 943      00000000 
+ 943      00000000 
+ 943      00000000 
+ARM GAS  /tmp/cc4cBozH.s 			page 29
+
+
+ 944              		.text
+ 945              	.Letext0:
+ 946              		.file 2 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/machine/_default_types.h"
+ 947              		.file 3 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/lock.h"
+ 948              		.file 4 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_types.h"
+ 949              		.file 5 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/lib/gcc/arm-none-eabi/7.3.1/include/stddef.h"
+ 950              		.file 6 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/reent.h"
+ 951              		.file 7 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/stdlib.h"
+ 952              		.file 8 "Application/BSPSys/Util/BSPTypeDef.h"
+ 953              		.file 9 "./Application/Funtion/SystemPara/SystemPara.h"
+ 954              		.file 10 "Application/Funtion/SystemInfo/SystemInfo.h"
+ 955              		.file 11 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_stdint.h"
+ 956              		.file 12 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/system_stm32g0xx.h"
+ 957              		.file 13 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/stm32g0b1xx.h"
+ 958              		.file 14 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/stm32g0xx.h"
+ 959              		.file 15 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_def.h"
+ 960              		.file 16 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_dma.h"
+ 961              		.file 17 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_flash.h"
+ 962              		.file 18 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_fdcan.h"
+ 963              		.file 19 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_spi.h"
+ 964              		.file 20 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_uart.h"
+ 965              		.file 21 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal.h"
+ 966              		.file 22 "Core/Inc/main.h"
+ 967              		.file 23 "Core/Inc/spi.h"
+ 968              		.file 24 "Application/BSPSys/BSPDevice/gd25q32e/BSPGD25Q32E.h"
+ 969              		.file 25 "Application/Funtion/SystemData/SystemData.h"
+ 970              		.file 26 "Core/Inc/fdcan.h"
+ 971              		.file 27 "Application/BSPSys/BSPDriver/BSPUSART.h"
+ 972              		.file 28 "Application/Addition/Modbus/Modbus.h"
+ 973              		.file 29 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_ll_dma.h"
+ 974              		.file 30 "Middlewares/Third_Party/FreeRTOS/Source/include/queue.h"
+ 975              		.file 31 "Middlewares/Third_Party/FreeRTOS/Source/include/semphr.h"
+ 976              		.file 32 "Application/Funtion/Usart/ToolingCheck.h"
+ 977              		.file 33 "Application/BSPSys/BSPDevice/eeprom/EEPROM.h"
+ARM GAS  /tmp/cc4cBozH.s 			page 30
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 SystemPara.c
+     /tmp/cc4cBozH.s:16     .text.InitParameterArray:0000000000000000 $t
+     /tmp/cc4cBozH.s:23     .text.InitParameterArray:0000000000000000 InitParameterArray
+     /tmp/cc4cBozH.s:436    .text.InitParameterArray:00000000000001ec $d
+                            *COM*:00000000000000a8 stParameter
+                            *COM*:0000000000000020 ParameterNow_102
+     /tmp/cc4cBozH.s:942    .bss.gSystemParaBuff.11464:0000000000000000 gSystemParaBuff.11464
+     /tmp/cc4cBozH.s:455    .text.RcvParaSetFlashSaveAPI:0000000000000000 $t
+     /tmp/cc4cBozH.s:462    .text.RcvParaSetFlashSaveAPI:0000000000000000 RcvParaSetFlashSaveAPI
+     /tmp/cc4cBozH.s:522    .text.RcvParaSetFlashSaveAPI:0000000000000038 $d
+     /tmp/cc4cBozH.s:528    .text.RcvDeviceSerialParaCfgAPI:0000000000000000 $t
+     /tmp/cc4cBozH.s:535    .text.RcvDeviceSerialParaCfgAPI:0000000000000000 RcvDeviceSerialParaCfgAPI
+     /tmp/cc4cBozH.s:638    .text.RcvDeviceSerialParaCfgAPI:0000000000000060 $d
+     /tmp/cc4cBozH.s:644    .text.ParaCheckSGenParaEffect:0000000000000000 $t
+     /tmp/cc4cBozH.s:651    .text.ParaCheckSGenParaEffect:0000000000000000 ParaCheckSGenParaEffect
+     /tmp/cc4cBozH.s:669    .text.ParaCheckSGenParaEffect:000000000000000c $d
+     /tmp/cc4cBozH.s:685    .text.ParaCheckSGenParaEffect:000000000000001c $t
+     /tmp/cc4cBozH.s:758    .text.ParaCheckSGenParaEffect:0000000000000060 $d
+     /tmp/cc4cBozH.s:764    .text.WriteIntEepSystemGenParaInfo:0000000000000000 $t
+     /tmp/cc4cBozH.s:771    .text.WriteIntEepSystemGenParaInfo:0000000000000000 WriteIntEepSystemGenParaInfo
+     /tmp/cc4cBozH.s:827    .text.ParaWriteStoreSystemGenParaInfo:0000000000000000 $t
+     /tmp/cc4cBozH.s:834    .text.ParaWriteStoreSystemGenParaInfo:0000000000000000 ParaWriteStoreSystemGenParaInfo
+     /tmp/cc4cBozH.s:856    .text.RcvSystemGenParaCfgAPI:0000000000000000 $t
+     /tmp/cc4cBozH.s:863    .text.RcvSystemGenParaCfgAPI:0000000000000000 RcvSystemGenParaCfgAPI
+     /tmp/cc4cBozH.s:922    .text.RcvSystemGenParaCfgAPI:000000000000002c $d
+                            *COM*:0000000000000020 ParameterSet_107
+     /tmp/cc4cBozH.s:936    .bss.SystemSerialNum_2:0000000000000000 SystemSerialNum_2
+     /tmp/cc4cBozH.s:937    .bss.SystemSerialNum_2:0000000000000000 $d
+     /tmp/cc4cBozH.s:939    .bss.gSystemParaBuff.11464:0000000000000000 $d
+
+UNDEFINED SYMBOLS
+I2C_EE_BufferRead
+I2C_EE_BufferWrite
+BSP_GD25Qx_Erase_Block
+BSP_GD25Qx_Write
+BSP_GD25Qx_Read
+BSP_GD25Qx_Read_ID
+SystemInfo_1
+SafeFlash_Erase_Parameter
+SafeFlash_Write_Parameter
+SafeFlash_Read_Parameter
+__gnu_thumb1_case_uqi

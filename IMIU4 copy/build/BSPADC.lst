@@ -1,0 +1,407 @@
+ARM GAS  /tmp/cc3v8oHQ.s 			page 1
+
+
+   1              		.cpu cortex-m0plus
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 4
+   9              		.eabi_attribute 34, 0
+  10              		.eabi_attribute 18, 4
+  11              		.file	"BSPADC.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.BSPADCInit,"ax",%progbits
+  16              		.align	1
+  17              		.global	BSPADCInit
+  18              		.syntax unified
+  19              		.code	16
+  20              		.thumb_func
+  21              		.fpu softvfp
+  23              	BSPADCInit:
+  24              	.LFB493:
+  25              		.file 1 "./Application/BSPSys/BSPDriver/BSPADC.c"
+   1:./Application/BSPSys/BSPDriver/BSPADC.c **** /*==========================================Copyright(c)=======================================
+   2:./Application/BSPSys/BSPDriver/BSPADC.c **** **                                  Shenzhen Infypower Co., Ltd.
+   3:./Application/BSPSys/BSPDriver/BSPADC.c **** **                                  Power conversion Department
+   4:./Application/BSPSys/BSPDriver/BSPADC.c **** **                                       BMS Product Line
+   5:./Application/BSPSys/BSPDriver/BSPADC.c **** **
+   6:./Application/BSPSys/BSPDriver/BSPADC.c **** **---------------------------------------File Information--------------------------------------
+   7:./Application/BSPSys/BSPDriver/BSPADC.c **** ** @File Name    : BSPADC.c
+   8:./Application/BSPSys/BSPDriver/BSPADC.c **** ** @Founder      : WYC834
+   9:./Application/BSPSys/BSPDriver/BSPADC.c **** ** @Date         : 2025.8.19
+  10:./Application/BSPSys/BSPDriver/BSPADC.c **** ** @Function     : ADC驱动函数模块
+  11:./Application/BSPSys/BSPDriver/BSPADC.c **** ** @Instructions :
+  12:./Application/BSPSys/BSPDriver/BSPADC.c **** **===========================================================================================*/
+  13:./Application/BSPSys/BSPDriver/BSPADC.c **** 
+  14:./Application/BSPSys/BSPDriver/BSPADC.c **** /*=============================================================================================
+  15:./Application/BSPSys/BSPDriver/BSPADC.c **** ** @Header file definition
+  16:./Application/BSPSys/BSPDriver/BSPADC.c **** **===========================================================================================*/
+  17:./Application/BSPSys/BSPDriver/BSPADC.c **** #include "main.h"
+  18:./Application/BSPSys/BSPDriver/BSPADC.c **** #include "BSPConfig.h"
+  19:./Application/BSPSys/BSPDriver/BSPADC.c **** #include "BSPADC.h"
+  20:./Application/BSPSys/BSPDriver/BSPADC.c **** #include "adc.h"
+  21:./Application/BSPSys/BSPDriver/BSPADC.c **** 
+  22:./Application/BSPSys/BSPDriver/BSPADC.c **** /*=============================================================================================
+  23:./Application/BSPSys/BSPDriver/BSPADC.c **** ** @Global variable definition
+  24:./Application/BSPSys/BSPDriver/BSPADC.c **** **===========================================================================================*/
+  25:./Application/BSPSys/BSPDriver/BSPADC.c **** // AdcSampleValue_TypeDef adc1 = {
+  26:./Application/BSPSys/BSPDriver/BSPADC.c **** //     .Ch8Value = 0,
+  27:./Application/BSPSys/BSPDriver/BSPADC.c **** //     .Ch9Value = 0,
+  28:./Application/BSPSys/BSPDriver/BSPADC.c **** //     .Ch10Value = 0,
+  29:./Application/BSPSys/BSPDriver/BSPADC.c **** //     .Ch11Value = 0,
+  30:./Application/BSPSys/BSPDriver/BSPADC.c **** //     .Ch15Value = 0
+  31:./Application/BSPSys/BSPDriver/BSPADC.c **** // };
+  32:./Application/BSPSys/BSPDriver/BSPADC.c **** /*=============================================================================================
+  33:./Application/BSPSys/BSPDriver/BSPADC.c **** ** @Static function declaration
+ARM GAS  /tmp/cc3v8oHQ.s 			page 2
+
+
+  34:./Application/BSPSys/BSPDriver/BSPADC.c **** **===========================================================================================*/
+  35:./Application/BSPSys/BSPDriver/BSPADC.c **** 
+  36:./Application/BSPSys/BSPDriver/BSPADC.c **** /*=============================================================================================
+  37:./Application/BSPSys/BSPDriver/BSPADC.c **** ** @Interface function definition
+  38:./Application/BSPSys/BSPDriver/BSPADC.c **** **===========================================================================================*/
+  39:./Application/BSPSys/BSPDriver/BSPADC.c **** /*=============================================================================================
+  40:./Application/BSPSys/BSPDriver/BSPADC.c **** ** @Name      : void BSPADCInit(e_ADCModule module)
+  41:./Application/BSPSys/BSPDriver/BSPADC.c **** ** @Input     : module: ADC模块 
+  42:./Application/BSPSys/BSPDriver/BSPADC.c **** ** @Output    : 初始化结果 TRUE:成功 FALSE:失败
+  43:./Application/BSPSys/BSPDriver/BSPADC.c **** ** @Function  : ADC驱动模块初始化(只初始化ADC模块，不初始化AD通道)
+  44:./Application/BSPSys/BSPDriver/BSPADC.c **** ** @The notes : 用户调用
+  45:./Application/BSPSys/BSPDriver/BSPADC.c **** **===========================================================================================*/
+  46:./Application/BSPSys/BSPDriver/BSPADC.c **** void BSPADCInit(e_ADCModule module)
+  47:./Application/BSPSys/BSPDriver/BSPADC.c **** {
+  26              		.loc 1 47 0
+  27              		.cfi_startproc
+  28              		@ args = 0, pretend = 0, frame = 0
+  29              		@ frame_needed = 0, uses_anonymous_args = 0
+  30              	.LVL0:
+  48:./Application/BSPSys/BSPDriver/BSPADC.c ****     if(1 != gBSPFunCfg.Bits.ADCEn)
+  31              		.loc 1 48 0
+  32 0000 044B     		ldr	r3, .L6
+  47:./Application/BSPSys/BSPDriver/BSPADC.c ****     if(1 != gBSPFunCfg.Bits.ADCEn)
+  33              		.loc 1 47 0
+  34 0002 10B5     		push	{r4, lr}
+  35              	.LCFI0:
+  36              		.cfi_def_cfa_offset 8
+  37              		.cfi_offset 4, -8
+  38              		.cfi_offset 14, -4
+  39              		.loc 1 48 0
+  40 0004 1B88     		ldrh	r3, [r3]
+  41 0006 5B06     		lsls	r3, r3, #25
+  42 0008 03D5     		bpl	.L1
+  49:./Application/BSPSys/BSPDriver/BSPADC.c ****     {
+  50:./Application/BSPSys/BSPDriver/BSPADC.c ****         return;
+  51:./Application/BSPSys/BSPDriver/BSPADC.c ****     }
+  52:./Application/BSPSys/BSPDriver/BSPADC.c ****     if(eADC_MOD1 == module)
+  43              		.loc 1 52 0
+  44 000a 0028     		cmp	r0, #0
+  45 000c 01D1     		bne	.L1
+  53:./Application/BSPSys/BSPDriver/BSPADC.c ****     {
+  54:./Application/BSPSys/BSPDriver/BSPADC.c ****         MX_ADC1_Init();
+  46              		.loc 1 54 0
+  47 000e FFF7FEFF 		bl	MX_ADC1_Init
+  48              	.LVL1:
+  49              	.L1:
+  55:./Application/BSPSys/BSPDriver/BSPADC.c ****     }
+  56:./Application/BSPSys/BSPDriver/BSPADC.c **** }
+  50              		.loc 1 56 0
+  51              		@ sp needed
+  52 0012 10BD     		pop	{r4, pc}
+  53              	.L7:
+  54              		.align	2
+  55              	.L6:
+  56 0014 00000000 		.word	gBSPFunCfg
+  57              		.cfi_endproc
+  58              	.LFE493:
+ARM GAS  /tmp/cc3v8oHQ.s 			page 3
+
+
+  60              		.section	.text.BSPADCGetWorkState,"ax",%progbits
+  61              		.align	1
+  62              		.global	BSPADCGetWorkState
+  63              		.syntax unified
+  64              		.code	16
+  65              		.thumb_func
+  66              		.fpu softvfp
+  68              	BSPADCGetWorkState:
+  69              	.LFB494:
+  57:./Application/BSPSys/BSPDriver/BSPADC.c **** 
+  58:./Application/BSPSys/BSPDriver/BSPADC.c **** /*=============================================================================================
+  59:./Application/BSPSys/BSPDriver/BSPADC.c **** ** @Name      : u32 BSPADCGetADCState(void)
+  60:./Application/BSPSys/BSPDriver/BSPADC.c **** ** @Input     : void
+  61:./Application/BSPSys/BSPDriver/BSPADC.c **** ** @Output    : 0:空闲 1:忙
+  62:./Application/BSPSys/BSPDriver/BSPADC.c **** ** @Function  : 获取ADC采样通道工作状态
+  63:./Application/BSPSys/BSPDriver/BSPADC.c **** ** @The notes : 用户调用
+  64:./Application/BSPSys/BSPDriver/BSPADC.c **** **===========================================================================================*/
+  65:./Application/BSPSys/BSPDriver/BSPADC.c **** u8 BSPADCGetWorkState(void)
+  66:./Application/BSPSys/BSPDriver/BSPADC.c **** {   
+  70              		.loc 1 66 0
+  71              		.cfi_startproc
+  72              		@ args = 0, pretend = 0, frame = 0
+  73              		@ frame_needed = 0, uses_anonymous_args = 0
+  67:./Application/BSPSys/BSPDriver/BSPADC.c ****     if(1 != gBSPFunCfg.Bits.ADCEn)
+  74              		.loc 1 67 0
+  75 0000 054B     		ldr	r3, .L12
+  66:./Application/BSPSys/BSPDriver/BSPADC.c ****     if(1 != gBSPFunCfg.Bits.ADCEn)
+  76              		.loc 1 66 0
+  77 0002 10B5     		push	{r4, lr}
+  78              	.LCFI1:
+  79              		.cfi_def_cfa_offset 8
+  80              		.cfi_offset 4, -8
+  81              		.cfi_offset 14, -4
+  82              		.loc 1 67 0
+  83 0004 1B88     		ldrh	r3, [r3]
+  68:./Application/BSPSys/BSPDriver/BSPADC.c ****     {
+  69:./Application/BSPSys/BSPDriver/BSPADC.c ****         return false;
+  84              		.loc 1 69 0
+  85 0006 0020     		movs	r0, #0
+  67:./Application/BSPSys/BSPDriver/BSPADC.c ****     {
+  86              		.loc 1 67 0
+  87 0008 5B06     		lsls	r3, r3, #25
+  88 000a 04D5     		bpl	.L9
+  89              	.LVL2:
+  70:./Application/BSPSys/BSPDriver/BSPADC.c ****     }
+  71:./Application/BSPSys/BSPDriver/BSPADC.c ****     u32 ret = 0;
+  72:./Application/BSPSys/BSPDriver/BSPADC.c ****     if ((HAL_ADC_GetState(&hadc1) & HAL_ADC_STATE_REG_BUSY) != 0UL)
+  90              		.loc 1 72 0
+  91 000c 0348     		ldr	r0, .L12+4
+  92 000e FFF7FEFF 		bl	HAL_ADC_GetState
+  93              	.LVL3:
+  94 0012 C005     		lsls	r0, r0, #23
+  95              	.LVL4:
+  73:./Application/BSPSys/BSPDriver/BSPADC.c ****     {
+  74:./Application/BSPSys/BSPDriver/BSPADC.c ****         ret = 1;
+  75:./Application/BSPSys/BSPDriver/BSPADC.c ****     }
+  76:./Application/BSPSys/BSPDriver/BSPADC.c ****     return ret;
+ARM GAS  /tmp/cc3v8oHQ.s 			page 4
+
+
+  96              		.loc 1 76 0
+  97 0014 C00F     		lsrs	r0, r0, #31
+  98              	.L9:
+  77:./Application/BSPSys/BSPDriver/BSPADC.c **** }
+  99              		.loc 1 77 0
+ 100              		@ sp needed
+ 101 0016 10BD     		pop	{r4, pc}
+ 102              	.L13:
+ 103              		.align	2
+ 104              	.L12:
+ 105 0018 00000000 		.word	gBSPFunCfg
+ 106 001c 00000000 		.word	hadc1
+ 107              		.cfi_endproc
+ 108              	.LFE494:
+ 110              		.section	.text.BSPADCGetSampData,"ax",%progbits
+ 111              		.align	1
+ 112              		.global	BSPADCGetSampData
+ 113              		.syntax unified
+ 114              		.code	16
+ 115              		.thumb_func
+ 116              		.fpu softvfp
+ 118              	BSPADCGetSampData:
+ 119              	.LFB495:
+  78:./Application/BSPSys/BSPDriver/BSPADC.c **** 
+  79:./Application/BSPSys/BSPDriver/BSPADC.c **** /*=============================================================================================
+  80:./Application/BSPSys/BSPDriver/BSPADC.c **** ** @Name      : u16 BSPADCGetSampData(void)
+  81:./Application/BSPSys/BSPDriver/BSPADC.c **** ** @Input     : void
+  82:./Application/BSPSys/BSPDriver/BSPADC.c **** ** @Output    : 从adc结构体中读取
+  83:./Application/BSPSys/BSPDriver/BSPADC.c **** ** @Function  : 获取ADC采样AD值
+  84:./Application/BSPSys/BSPDriver/BSPADC.c **** ** @The notes : 用户循环调用，该芯片由于使用了adc1的in15通道，不能使用指定
+  85:./Application/BSPSys/BSPDriver/BSPADC.c **** **===========================================================================================*/
+  86:./Application/BSPSys/BSPDriver/BSPADC.c **** #if 0 
+  87:./Application/BSPSys/BSPDriver/BSPADC.c **** void BSPADCGetSampData(void)
+  88:./Application/BSPSys/BSPDriver/BSPADC.c **** {
+  89:./Application/BSPSys/BSPDriver/BSPADC.c ****     if(1 != gBSPFunCfg.Bits.ADCEn)
+  90:./Application/BSPSys/BSPDriver/BSPADC.c ****     {
+  91:./Application/BSPSys/BSPDriver/BSPADC.c ****         return;
+  92:./Application/BSPSys/BSPDriver/BSPADC.c ****     }
+  93:./Application/BSPSys/BSPDriver/BSPADC.c ****     HAL_ADCEx_Calibration_Start(&hadc1);//adc校准
+  94:./Application/BSPSys/BSPDriver/BSPADC.c ****     HAL_ADC_Start(&hadc1);//开始adc检测
+  95:./Application/BSPSys/BSPDriver/BSPADC.c ****     if(HAL_ADC_PollForConversion(&hadc1,HAL_MAX_DELAY) == HAL_OK)
+  96:./Application/BSPSys/BSPDriver/BSPADC.c ****     {
+  97:./Application/BSPSys/BSPDriver/BSPADC.c ****         adc1.Ch8Value = HAL_ADC_GetValue(&hadc1);
+  98:./Application/BSPSys/BSPDriver/BSPADC.c ****     }   
+  99:./Application/BSPSys/BSPDriver/BSPADC.c **** 
+ 100:./Application/BSPSys/BSPDriver/BSPADC.c ****     if(HAL_ADC_PollForConversion(&hadc1,HAL_MAX_DELAY) == HAL_OK)
+ 101:./Application/BSPSys/BSPDriver/BSPADC.c ****     {
+ 102:./Application/BSPSys/BSPDriver/BSPADC.c ****         adc1.Ch9Value = HAL_ADC_GetValue(&hadc1);
+ 103:./Application/BSPSys/BSPDriver/BSPADC.c ****     }
+ 104:./Application/BSPSys/BSPDriver/BSPADC.c ****     if(HAL_ADC_PollForConversion(&hadc1,HAL_MAX_DELAY) == HAL_OK)
+ 105:./Application/BSPSys/BSPDriver/BSPADC.c ****     {
+ 106:./Application/BSPSys/BSPDriver/BSPADC.c ****         adc1.Ch10Value = HAL_ADC_GetValue(&hadc1);
+ 107:./Application/BSPSys/BSPDriver/BSPADC.c ****     }
+ 108:./Application/BSPSys/BSPDriver/BSPADC.c ****     if(HAL_ADC_PollForConversion(&hadc1,HAL_MAX_DELAY) == HAL_OK)
+ 109:./Application/BSPSys/BSPDriver/BSPADC.c ****     {
+ 110:./Application/BSPSys/BSPDriver/BSPADC.c ****         adc1.Ch11Value = HAL_ADC_GetValue(&hadc1);
+ 111:./Application/BSPSys/BSPDriver/BSPADC.c ****     }
+ARM GAS  /tmp/cc3v8oHQ.s 			page 5
+
+
+ 112:./Application/BSPSys/BSPDriver/BSPADC.c ****     if(HAL_ADC_PollForConversion(&hadc1,HAL_MAX_DELAY) == HAL_OK)
+ 113:./Application/BSPSys/BSPDriver/BSPADC.c ****     {
+ 114:./Application/BSPSys/BSPDriver/BSPADC.c ****         adc1.Ch15Value = HAL_ADC_GetValue(&hadc1);
+ 115:./Application/BSPSys/BSPDriver/BSPADC.c ****     }
+ 116:./Application/BSPSys/BSPDriver/BSPADC.c ****     HAL_ADC_Stop(&hadc1);//停止adc检测
+ 117:./Application/BSPSys/BSPDriver/BSPADC.c **** }
+ 118:./Application/BSPSys/BSPDriver/BSPADC.c **** 
+ 119:./Application/BSPSys/BSPDriver/BSPADC.c **** 
+ 120:./Application/BSPSys/BSPDriver/BSPADC.c **** 
+ 121:./Application/BSPSys/BSPDriver/BSPADC.c **** void BSPADCGetSampData(void)
+ 122:./Application/BSPSys/BSPDriver/BSPADC.c **** {
+ 123:./Application/BSPSys/BSPDriver/BSPADC.c **** 
+ 124:./Application/BSPSys/BSPDriver/BSPADC.c ****     if (1 != gBSPFunCfg.Bits.ADCEn)
+ 125:./Application/BSPSys/BSPDriver/BSPADC.c ****     {
+ 126:./Application/BSPSys/BSPDriver/BSPADC.c ****        return;
+ 127:./Application/BSPSys/BSPDriver/BSPADC.c ****     }
+ 128:./Application/BSPSys/BSPDriver/BSPADC.c **** 
+ 129:./Application/BSPSys/BSPDriver/BSPADC.c ****     
+ 130:./Application/BSPSys/BSPDriver/BSPADC.c ****     HAL_ADC_Start(&hadc1);
+ 131:./Application/BSPSys/BSPDriver/BSPADC.c ****     if (HAL_ADC_PollForConversion(&hadc1,HAL_MAX_DELAY) == HAL_OK)
+ 132:./Application/BSPSys/BSPDriver/BSPADC.c ****     {
+ 133:./Application/BSPSys/BSPDriver/BSPADC.c ****         adc1.Ch8Value = HAL_ADC_GetValue(&hadc1);
+ 134:./Application/BSPSys/BSPDriver/BSPADC.c ****     }
+ 135:./Application/BSPSys/BSPDriver/BSPADC.c ****     HAL_ADC_Stop(&hadc1);
+ 136:./Application/BSPSys/BSPDriver/BSPADC.c **** 
+ 137:./Application/BSPSys/BSPDriver/BSPADC.c ****     
+ 138:./Application/BSPSys/BSPDriver/BSPADC.c ****     HAL_ADC_Start(&hadc1);
+ 139:./Application/BSPSys/BSPDriver/BSPADC.c ****     if (HAL_ADC_PollForConversion(&hadc1,HAL_MAX_DELAY) == HAL_OK)
+ 140:./Application/BSPSys/BSPDriver/BSPADC.c ****     {
+ 141:./Application/BSPSys/BSPDriver/BSPADC.c ****         adc1.Ch9Value = HAL_ADC_GetValue(&hadc1);
+ 142:./Application/BSPSys/BSPDriver/BSPADC.c ****     }
+ 143:./Application/BSPSys/BSPDriver/BSPADC.c ****     HAL_ADC_Stop(&hadc1);
+ 144:./Application/BSPSys/BSPDriver/BSPADC.c **** 
+ 145:./Application/BSPSys/BSPDriver/BSPADC.c ****     
+ 146:./Application/BSPSys/BSPDriver/BSPADC.c ****     HAL_ADC_Start(&hadc1);
+ 147:./Application/BSPSys/BSPDriver/BSPADC.c ****     if (HAL_ADC_PollForConversion(&hadc1,HAL_MAX_DELAY) == HAL_OK)
+ 148:./Application/BSPSys/BSPDriver/BSPADC.c ****     {
+ 149:./Application/BSPSys/BSPDriver/BSPADC.c ****         adc1.Ch10Value = HAL_ADC_GetValue(&hadc1);
+ 150:./Application/BSPSys/BSPDriver/BSPADC.c ****     }
+ 151:./Application/BSPSys/BSPDriver/BSPADC.c ****     HAL_ADC_Stop(&hadc1);
+ 152:./Application/BSPSys/BSPDriver/BSPADC.c **** 
+ 153:./Application/BSPSys/BSPDriver/BSPADC.c **** 
+ 154:./Application/BSPSys/BSPDriver/BSPADC.c ****     
+ 155:./Application/BSPSys/BSPDriver/BSPADC.c ****     HAL_ADC_Start(&hadc1);
+ 156:./Application/BSPSys/BSPDriver/BSPADC.c ****     if (HAL_ADC_PollForConversion(&hadc1,HAL_MAX_DELAY) == HAL_OK)
+ 157:./Application/BSPSys/BSPDriver/BSPADC.c ****     {
+ 158:./Application/BSPSys/BSPDriver/BSPADC.c ****         adc1.Ch11Value = HAL_ADC_GetValue(&hadc1);
+ 159:./Application/BSPSys/BSPDriver/BSPADC.c ****     }
+ 160:./Application/BSPSys/BSPDriver/BSPADC.c ****     HAL_ADC_Stop(&hadc1);
+ 161:./Application/BSPSys/BSPDriver/BSPADC.c **** 
+ 162:./Application/BSPSys/BSPDriver/BSPADC.c **** 
+ 163:./Application/BSPSys/BSPDriver/BSPADC.c ****     
+ 164:./Application/BSPSys/BSPDriver/BSPADC.c ****     HAL_ADC_Start(&hadc1);
+ 165:./Application/BSPSys/BSPDriver/BSPADC.c ****     if (HAL_ADC_PollForConversion(&hadc1,HAL_MAX_DELAY) == HAL_OK)
+ 166:./Application/BSPSys/BSPDriver/BSPADC.c ****     {
+ 167:./Application/BSPSys/BSPDriver/BSPADC.c ****         adc1.Ch15Value = HAL_ADC_GetValue(&hadc1);
+ 168:./Application/BSPSys/BSPDriver/BSPADC.c ****     }
+ARM GAS  /tmp/cc3v8oHQ.s 			page 6
+
+
+ 169:./Application/BSPSys/BSPDriver/BSPADC.c ****     HAL_ADC_Stop(&hadc1);
+ 170:./Application/BSPSys/BSPDriver/BSPADC.c **** 
+ 171:./Application/BSPSys/BSPDriver/BSPADC.c **** }
+ 172:./Application/BSPSys/BSPDriver/BSPADC.c **** #endif
+ 173:./Application/BSPSys/BSPDriver/BSPADC.c **** 
+ 174:./Application/BSPSys/BSPDriver/BSPADC.c **** 
+ 175:./Application/BSPSys/BSPDriver/BSPADC.c **** volatile u16 adc_value_buffer[buffer_num];
+ 176:./Application/BSPSys/BSPDriver/BSPADC.c **** 
+ 177:./Application/BSPSys/BSPDriver/BSPADC.c **** void BSPADCGetSampData(void)
+ 178:./Application/BSPSys/BSPDriver/BSPADC.c **** {
+ 120              		.loc 1 178 0
+ 121              		.cfi_startproc
+ 122              		@ args = 0, pretend = 0, frame = 0
+ 123              		@ frame_needed = 0, uses_anonymous_args = 0
+ 179:./Application/BSPSys/BSPDriver/BSPADC.c ****     if (1 != gBSPFunCfg.Bits.ADCEn)
+ 124              		.loc 1 179 0
+ 125 0000 054B     		ldr	r3, .L19
+ 178:./Application/BSPSys/BSPDriver/BSPADC.c ****     if (1 != gBSPFunCfg.Bits.ADCEn)
+ 126              		.loc 1 178 0
+ 127 0002 10B5     		push	{r4, lr}
+ 128              	.LCFI2:
+ 129              		.cfi_def_cfa_offset 8
+ 130              		.cfi_offset 4, -8
+ 131              		.cfi_offset 14, -4
+ 132              		.loc 1 179 0
+ 133 0004 1B88     		ldrh	r3, [r3]
+ 134 0006 5B06     		lsls	r3, r3, #25
+ 135 0008 04D5     		bpl	.L14
+ 180:./Application/BSPSys/BSPDriver/BSPADC.c ****         return;
+ 181:./Application/BSPSys/BSPDriver/BSPADC.c ****     
+ 182:./Application/BSPSys/BSPDriver/BSPADC.c ****     
+ 183:./Application/BSPSys/BSPDriver/BSPADC.c ****     // 启动ADC DMA转换
+ 184:./Application/BSPSys/BSPDriver/BSPADC.c ****     HAL_ADC_Start_DMA(&hadc1, (uint32_t*)adc_value_buffer, buffer_num);
+ 136              		.loc 1 184 0
+ 137 000a 0522     		movs	r2, #5
+ 138 000c 0349     		ldr	r1, .L19+4
+ 139 000e 0448     		ldr	r0, .L19+8
+ 140 0010 FFF7FEFF 		bl	HAL_ADC_Start_DMA
+ 141              	.LVL5:
+ 142              	.L14:
+ 185:./Application/BSPSys/BSPDriver/BSPADC.c ****     
+ 186:./Application/BSPSys/BSPDriver/BSPADC.c ****     
+ 187:./Application/BSPSys/BSPDriver/BSPADC.c **** }...
+ 143              		.loc 1 187 0
+ 144              		@ sp needed
+ 145 0014 10BD     		pop	{r4, pc}
+ 146              	.L20:
+ 147 0016 C046     		.align	2
+ 148              	.L19:
+ 149 0018 00000000 		.word	gBSPFunCfg
+ 150 001c 00000000 		.word	adc_value_buffer
+ 151 0020 00000000 		.word	hadc1
+ 152              		.cfi_endproc
+ 153              	.LFE495:
+ 155              		.comm	adc_value_buffer,10,2
+ 156              		.text
+ 157              	.Letext0:
+ARM GAS  /tmp/cc3v8oHQ.s 			page 7
+
+
+ 158              		.file 2 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/machine/_default_types.h"
+ 159              		.file 3 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_stdint.h"
+ 160              		.file 4 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/system_stm32g0xx.h"
+ 161              		.file 5 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/stm32g0b1xx.h"
+ 162              		.file 6 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/stm32g0xx.h"
+ 163              		.file 7 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_def.h"
+ 164              		.file 8 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_dma.h"
+ 165              		.file 9 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_adc.h"
+ 166              		.file 10 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_flash.h"
+ 167              		.file 11 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_uart.h"
+ 168              		.file 12 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal.h"
+ 169              		.file 13 "Core/Inc/main.h"
+ 170              		.file 14 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/lock.h"
+ 171              		.file 15 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_types.h"
+ 172              		.file 16 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/lib/gcc/arm-none-eabi/7.3.1/include/stddef.h"
+ 173              		.file 17 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/reent.h"
+ 174              		.file 18 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/stdlib.h"
+ 175              		.file 19 "Application/BSPSys/Util/BSPTypeDef.h"
+ 176              		.file 20 "Application/BSPSys/BSPCfg/BSPConfig.h"
+ 177              		.file 21 "./Application/BSPSys/BSPDriver/BSPADC.h"
+ 178              		.file 22 "Core/Inc/adc.h"
+ 179              		.file 23 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_ll_dma.h"
+ARM GAS  /tmp/cc3v8oHQ.s 			page 8
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 BSPADC.c
+     /tmp/cc3v8oHQ.s:16     .text.BSPADCInit:0000000000000000 $t
+     /tmp/cc3v8oHQ.s:23     .text.BSPADCInit:0000000000000000 BSPADCInit
+     /tmp/cc3v8oHQ.s:56     .text.BSPADCInit:0000000000000014 $d
+     /tmp/cc3v8oHQ.s:61     .text.BSPADCGetWorkState:0000000000000000 $t
+     /tmp/cc3v8oHQ.s:68     .text.BSPADCGetWorkState:0000000000000000 BSPADCGetWorkState
+     /tmp/cc3v8oHQ.s:105    .text.BSPADCGetWorkState:0000000000000018 $d
+     /tmp/cc3v8oHQ.s:111    .text.BSPADCGetSampData:0000000000000000 $t
+     /tmp/cc3v8oHQ.s:118    .text.BSPADCGetSampData:0000000000000000 BSPADCGetSampData
+     /tmp/cc3v8oHQ.s:149    .text.BSPADCGetSampData:0000000000000018 $d
+                            *COM*:000000000000000a adc_value_buffer
+
+UNDEFINED SYMBOLS
+MX_ADC1_Init
+gBSPFunCfg
+HAL_ADC_GetState
+hadc1
+HAL_ADC_Start_DMA

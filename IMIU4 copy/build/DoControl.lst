@@ -1,0 +1,611 @@
+ARM GAS  /tmp/cc5WHSYN.s 			page 1
+
+
+   1              		.cpu cortex-m0plus
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 4
+   9              		.eabi_attribute 34, 0
+  10              		.eabi_attribute 18, 4
+  11              		.file	"DoControl.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.DoSelectCtrl,"ax",%progbits
+  16              		.align	1
+  17              		.global	DoSelectCtrl
+  18              		.syntax unified
+  19              		.code	16
+  20              		.thumb_func
+  21              		.fpu softvfp
+  23              	DoSelectCtrl:
+  24              	.LFB1:
+  25              		.file 1 "./Application/Funtion/DoControl/DoControl.c"
+   1:./Application/Funtion/DoControl/DoControl.c **** /*==========================================Copyright(c)=======================================
+   2:./Application/Funtion/DoControl/DoControl.c **** **                                  Shenzhen Infypower Co., Ltd.
+   3:./Application/Funtion/DoControl/DoControl.c **** **                                  Power conversion Department
+   4:./Application/Funtion/DoControl/DoControl.c **** **                                       BMS Product Line
+   5:./Application/Funtion/DoControl/DoControl.c **** **
+   6:./Application/Funtion/DoControl/DoControl.c **** **---------------------------------------File Information--------------------------------------
+   7:./Application/Funtion/DoControl/DoControl.c **** ** @File Name    : DoControl.c
+   8:./Application/Funtion/DoControl/DoControl.c **** ** @Founder      : WYC834
+   9:./Application/Funtion/DoControl/DoControl.c **** ** @Date         : 
+  10:./Application/Funtion/DoControl/DoControl.c **** ** @Function     : 外部控制函数模块
+  11:./Application/Funtion/DoControl/DoControl.c **** ** @Instructions :
+  12:./Application/Funtion/DoControl/DoControl.c **** **===========================================================================================*/
+  13:./Application/Funtion/DoControl/DoControl.c **** /*=============================================================================================
+  14:./Application/Funtion/DoControl/DoControl.c **** ** @Header file definition
+  15:./Application/Funtion/DoControl/DoControl.c **** **===========================================================================================*/
+  16:./Application/Funtion/DoControl/DoControl.c **** #include "DoControl.h"
+  17:./Application/Funtion/DoControl/DoControl.c **** #include "BSPDIDO.h"
+  18:./Application/Funtion/DoControl/DoControl.c **** #include "SystemData.h"
+  19:./Application/Funtion/DoControl/DoControl.c **** #include "FreeRTOS.h"
+  20:./Application/Funtion/DoControl/DoControl.c **** #include "task.h"
+  21:./Application/Funtion/DoControl/DoControl.c **** #include "cmsis_os.h"
+  22:./Application/Funtion/DoControl/DoControl.c **** #include "SystemInfo.h"
+  23:./Application/Funtion/DoControl/DoControl.c **** /*=============================================================================================
+  24:./Application/Funtion/DoControl/DoControl.c **** ** @Global variable definition
+  25:./Application/Funtion/DoControl/DoControl.c **** **===========================================================================================*/
+  26:./Application/Funtion/DoControl/DoControl.c **** Control_TypeDef gControl;//外部控制设置
+  27:./Application/Funtion/DoControl/DoControl.c **** /*=============================================================================================
+  28:./Application/Funtion/DoControl/DoControl.c **** ** @Static function declaration
+  29:./Application/Funtion/DoControl/DoControl.c **** **===========================================================================================*/
+  30:./Application/Funtion/DoControl/DoControl.c **** 
+  31:./Application/Funtion/DoControl/DoControl.c **** /*=============================================================================================
+  32:./Application/Funtion/DoControl/DoControl.c **** ** @Interface function definition
+  33:./Application/Funtion/DoControl/DoControl.c **** **===========================================================================================*/
+ARM GAS  /tmp/cc5WHSYN.s 			page 2
+
+
+  34:./Application/Funtion/DoControl/DoControl.c **** /*=============================================================================================
+  35:./Application/Funtion/DoControl/DoControl.c **** ** @Name      : void TASK_ControlProc (void)
+  36:./Application/Funtion/DoControl/DoControl.c **** ** @Input     : void
+  37:./Application/Funtion/DoControl/DoControl.c **** ** @Output    : void
+  38:./Application/Funtion/DoControl/DoControl.c **** ** @Function  : freeRtos控制任务
+  39:./Application/Funtion/DoControl/DoControl.c **** ** @The notes :
+  40:./Application/Funtion/DoControl/DoControl.c **** **===========================================================================================*/
+  41:./Application/Funtion/DoControl/DoControl.c **** void TASK_ControlProc (void)
+  42:./Application/Funtion/DoControl/DoControl.c **** {   
+  43:./Application/Funtion/DoControl/DoControl.c ****     if(SystemWorkState_50[WorkMode]!= eMODE_Tooling)
+  44:./Application/Funtion/DoControl/DoControl.c ****     {       
+  45:./Application/Funtion/DoControl/DoControl.c ****         DoSelectCtrl(DO_1,gControl.DOStateSet[DO_1]);
+  46:./Application/Funtion/DoControl/DoControl.c ****         DoSelectCtrl(DO_2,gControl.DOStateSet[DO_2]);
+  47:./Application/Funtion/DoControl/DoControl.c ****     }
+  48:./Application/Funtion/DoControl/DoControl.c **** }
+  49:./Application/Funtion/DoControl/DoControl.c **** /*=============================================================================================
+  50:./Application/Funtion/DoControl/DoControl.c **** ** @Name      : void DoSelectCtrl(u8 num ,u8 state)
+  51:./Application/Funtion/DoControl/DoControl.c **** ** @Input     : num：控制的DO序号1-2   state：承载控制DO输出状态 0：断开继电器
+  52:./Application/Funtion/DoControl/DoControl.c **** ** @Output    : 
+  53:./Application/Funtion/DoControl/DoControl.c **** ** @Function  : 控制DO1-DO24
+  54:./Application/Funtion/DoControl/DoControl.c **** ** @The notes : 用户调用
+  55:./Application/Funtion/DoControl/DoControl.c **** **===========================================================================================*/
+  56:./Application/Funtion/DoControl/DoControl.c **** void DoSelectCtrl(u8 num ,u8 state)
+  57:./Application/Funtion/DoControl/DoControl.c **** {
+  26              		.loc 1 57 0
+  27              		.cfi_startproc
+  28              		@ args = 0, pretend = 0, frame = 0
+  29              		@ frame_needed = 0, uses_anonymous_args = 0
+  30              	.LVL0:
+  31 0000 10B5     		push	{r4, lr}
+  32              	.LCFI0:
+  33              		.cfi_def_cfa_offset 8
+  34              		.cfi_offset 4, -8
+  35              		.cfi_offset 14, -4
+  58:./Application/Funtion/DoControl/DoControl.c ****     if(num > 2 || state > 1)
+  36              		.loc 1 58 0
+  37 0002 0228     		cmp	r0, #2
+  38 0004 07D8     		bhi	.L1
+  39              		.loc 1 58 0 is_stmt 0 discriminator 1
+  40 0006 0129     		cmp	r1, #1
+  41 0008 05D8     		bhi	.L1
+  59:./Application/Funtion/DoControl/DoControl.c ****     {
+  60:./Application/Funtion/DoControl/DoControl.c ****         return;
+  61:./Application/Funtion/DoControl/DoControl.c ****     }
+  62:./Application/Funtion/DoControl/DoControl.c ****     if(num == DO_1)
+  42              		.loc 1 62 0 is_stmt 1
+  43 000a 0028     		cmp	r0, #0
+  44 000c 07D1     		bne	.L3
+  63:./Application/Funtion/DoControl/DoControl.c ****     {
+  64:./Application/Funtion/DoControl/DoControl.c ****         if(state)
+  45              		.loc 1 64 0
+  46 000e 0029     		cmp	r1, #0
+  47 0010 02D0     		beq	.L4
+  65:./Application/Funtion/DoControl/DoControl.c ****         {
+  66:./Application/Funtion/DoControl/DoControl.c ****             CRELAY1_Contr_Close();
+  48              		.loc 1 66 0
+  49 0012 FFF7FEFF 		bl	CRELAY1_Contr_Close
+ARM GAS  /tmp/cc5WHSYN.s 			page 3
+
+
+  50              	.LVL1:
+  51              	.L1:
+  67:./Application/Funtion/DoControl/DoControl.c ****         }else
+  68:./Application/Funtion/DoControl/DoControl.c ****         {
+  69:./Application/Funtion/DoControl/DoControl.c ****             CRELAY1_Contr_Open();
+  70:./Application/Funtion/DoControl/DoControl.c ****         } 
+  71:./Application/Funtion/DoControl/DoControl.c ****     }else if(num == DO_2)
+  72:./Application/Funtion/DoControl/DoControl.c ****     {
+  73:./Application/Funtion/DoControl/DoControl.c ****         if(state)
+  74:./Application/Funtion/DoControl/DoControl.c ****         {
+  75:./Application/Funtion/DoControl/DoControl.c ****             CRELAY2_Contr_Close();
+  76:./Application/Funtion/DoControl/DoControl.c ****         }else
+  77:./Application/Funtion/DoControl/DoControl.c ****         {
+  78:./Application/Funtion/DoControl/DoControl.c ****             CRELAY2_Contr_Open();
+  79:./Application/Funtion/DoControl/DoControl.c ****         }   
+  80:./Application/Funtion/DoControl/DoControl.c ****     }
+  81:./Application/Funtion/DoControl/DoControl.c **** }
+  52              		.loc 1 81 0
+  53              		@ sp needed
+  54 0016 10BD     		pop	{r4, pc}
+  55              	.LVL2:
+  56              	.L4:
+  69:./Application/Funtion/DoControl/DoControl.c ****         } 
+  57              		.loc 1 69 0
+  58 0018 FFF7FEFF 		bl	CRELAY1_Contr_Open
+  59              	.LVL3:
+  60 001c FBE7     		b	.L1
+  61              	.LVL4:
+  62              	.L3:
+  71:./Application/Funtion/DoControl/DoControl.c ****     {
+  63              		.loc 1 71 0
+  64 001e 0128     		cmp	r0, #1
+  65 0020 F9D1     		bne	.L1
+  66              	.LVL5:
+  67              	.LBB8:
+  68              	.LBB9:
+  73:./Application/Funtion/DoControl/DoControl.c ****         {
+  69              		.loc 1 73 0
+  70 0022 0029     		cmp	r1, #0
+  71 0024 02D0     		beq	.L5
+  75:./Application/Funtion/DoControl/DoControl.c ****         }else
+  72              		.loc 1 75 0
+  73 0026 FFF7FEFF 		bl	CRELAY2_Contr_Close
+  74              	.LVL6:
+  75 002a F4E7     		b	.L1
+  76              	.LVL7:
+  77              	.L5:
+  78:./Application/Funtion/DoControl/DoControl.c ****         }   
+  78              		.loc 1 78 0
+  79 002c FFF7FEFF 		bl	CRELAY2_Contr_Open
+  80              	.LVL8:
+  81 0030 F1E7     		b	.L1
+  82              	.LBE9:
+  83              	.LBE8:
+  84              		.cfi_endproc
+  85              	.LFE1:
+  87              		.section	.text.TASK_ControlProc,"ax",%progbits
+ARM GAS  /tmp/cc5WHSYN.s 			page 4
+
+
+  88              		.align	1
+  89              		.global	TASK_ControlProc
+  90              		.syntax unified
+  91              		.code	16
+  92              		.thumb_func
+  93              		.fpu softvfp
+  95              	TASK_ControlProc:
+  96              	.LFB0:
+  42:./Application/Funtion/DoControl/DoControl.c ****     if(SystemWorkState_50[WorkMode]!= eMODE_Tooling)
+  97              		.loc 1 42 0
+  98              		.cfi_startproc
+  99              		@ args = 0, pretend = 0, frame = 0
+ 100              		@ frame_needed = 0, uses_anonymous_args = 0
+  43:./Application/Funtion/DoControl/DoControl.c ****     {       
+ 101              		.loc 1 43 0
+ 102 0000 074B     		ldr	r3, .L11
+  42:./Application/Funtion/DoControl/DoControl.c ****     if(SystemWorkState_50[WorkMode]!= eMODE_Tooling)
+ 103              		.loc 1 42 0
+ 104 0002 10B5     		push	{r4, lr}
+ 105              	.LCFI1:
+ 106              		.cfi_def_cfa_offset 8
+ 107              		.cfi_offset 4, -8
+ 108              		.cfi_offset 14, -4
+  43:./Application/Funtion/DoControl/DoControl.c ****     {       
+ 109              		.loc 1 43 0
+ 110 0004 1B88     		ldrh	r3, [r3]
+ 111 0006 012B     		cmp	r3, #1
+ 112 0008 08D0     		beq	.L6
+  45:./Application/Funtion/DoControl/DoControl.c ****         DoSelectCtrl(DO_2,gControl.DOStateSet[DO_2]);
+ 113              		.loc 1 45 0
+ 114 000a 064C     		ldr	r4, .L11+4
+ 115 000c 0020     		movs	r0, #0
+ 116 000e 2178     		ldrb	r1, [r4]
+ 117 0010 FFF7FEFF 		bl	DoSelectCtrl
+ 118              	.LVL9:
+  46:./Application/Funtion/DoControl/DoControl.c ****     }
+ 119              		.loc 1 46 0
+ 120 0014 6178     		ldrb	r1, [r4, #1]
+ 121 0016 0120     		movs	r0, #1
+ 122 0018 FFF7FEFF 		bl	DoSelectCtrl
+ 123              	.LVL10:
+ 124              	.L6:
+  48:./Application/Funtion/DoControl/DoControl.c **** /*=============================================================================================
+ 125              		.loc 1 48 0
+ 126              		@ sp needed
+ 127 001c 10BD     		pop	{r4, pc}
+ 128              	.L12:
+ 129 001e C046     		.align	2
+ 130              	.L11:
+ 131 0020 00000000 		.word	SystemWorkState_50
+ 132 0024 00000000 		.word	gControl
+ 133              		.cfi_endproc
+ 134              	.LFE0:
+ 136              		.section	.text.TASK_LedControl,"ax",%progbits
+ 137              		.align	1
+ 138              		.global	TASK_LedControl
+ 139              		.syntax unified
+ARM GAS  /tmp/cc5WHSYN.s 			page 5
+
+
+ 140              		.code	16
+ 141              		.thumb_func
+ 142              		.fpu softvfp
+ 144              	TASK_LedControl:
+ 145              	.LFB2:
+  82:./Application/Funtion/DoControl/DoControl.c **** /*=============================================================================================
+  83:./Application/Funtion/DoControl/DoControl.c **** ** @Name      : void TASK_LedControl(void)
+  84:./Application/Funtion/DoControl/DoControl.c **** ** @Input     : void
+  85:./Application/Funtion/DoControl/DoControl.c **** ** @Output    : void
+  86:./Application/Funtion/DoControl/DoControl.c **** ** @Function  : led定时控制任务
+  87:./Application/Funtion/DoControl/DoControl.c **** ** @The notes : 1s执行一次
+  88:./Application/Funtion/DoControl/DoControl.c **** **===========================================================================================*/
+  89:./Application/Funtion/DoControl/DoControl.c **** void TASK_LedControl(void)
+  90:./Application/Funtion/DoControl/DoControl.c **** {
+ 146              		.loc 1 90 0
+ 147              		.cfi_startproc
+ 148              		@ args = 0, pretend = 0, frame = 0
+ 149              		@ frame_needed = 0, uses_anonymous_args = 0
+ 150 0000 10B5     		push	{r4, lr}
+ 151              	.LCFI2:
+ 152              		.cfi_def_cfa_offset 8
+ 153              		.cfi_offset 4, -8
+ 154              		.cfi_offset 14, -4
+  91:./Application/Funtion/DoControl/DoControl.c ****     static u8 sStep = 0;
+  92:./Application/Funtion/DoControl/DoControl.c **** 
+  93:./Application/Funtion/DoControl/DoControl.c ****     if(0 == sStep)     
+ 155              		.loc 1 93 0
+ 156 0002 0D4B     		ldr	r3, .L17
+ 157 0004 0D4C     		ldr	r4, .L17+4
+ 158 0006 1A78     		ldrb	r2, [r3]
+ 159 0008 002A     		cmp	r2, #0
+ 160 000a 0AD1     		bne	.L14
+  94:./Application/Funtion/DoControl/DoControl.c ****     {
+  95:./Application/Funtion/DoControl/DoControl.c ****         sStep = 1;
+ 161              		.loc 1 95 0
+ 162 000c 0121     		movs	r1, #1
+  96:./Application/Funtion/DoControl/DoControl.c ****         LED_RUN_ON();
+ 163              		.loc 1 96 0
+ 164 000e 0220     		movs	r0, #2
+  95:./Application/Funtion/DoControl/DoControl.c ****         LED_RUN_ON();
+ 165              		.loc 1 95 0
+ 166 0010 1970     		strb	r1, [r3]
+ 167              		.loc 1 96 0
+ 168 0012 0831     		adds	r1, r1, #8
+ 169 0014 FFF7FEFF 		bl	BSPGPIOSetPortState
+ 170              	.LVL11:
+  97:./Application/Funtion/DoControl/DoControl.c ****         BitSet16(SystemData_51[DidoGpioState],RunLed);//记录状态
+ 171              		.loc 1 97 0
+ 172 0018 8023     		movs	r3, #128
+ 173 001a E28B     		ldrh	r2, [r4, #30]
+ 174 001c 1343     		orrs	r3, r2
+ 175              	.L16:
+  98:./Application/Funtion/DoControl/DoControl.c ****         
+  99:./Application/Funtion/DoControl/DoControl.c ****     }
+ 100:./Application/Funtion/DoControl/DoControl.c ****     else
+ 101:./Application/Funtion/DoControl/DoControl.c ****     {
+ 102:./Application/Funtion/DoControl/DoControl.c ****         sStep = 0;
+ARM GAS  /tmp/cc5WHSYN.s 			page 6
+
+
+ 103:./Application/Funtion/DoControl/DoControl.c ****         LED_RUN_OFF();
+ 104:./Application/Funtion/DoControl/DoControl.c ****         BitClr16(SystemData_51[DidoGpioState],RunLed);//记录状态
+ 176              		.loc 1 104 0
+ 177 001e E383     		strh	r3, [r4, #30]
+ 105:./Application/Funtion/DoControl/DoControl.c ****     }
+ 106:./Application/Funtion/DoControl/DoControl.c **** }
+ 178              		.loc 1 106 0
+ 179              		@ sp needed
+ 180 0020 10BD     		pop	{r4, pc}
+ 181              	.L14:
+ 102:./Application/Funtion/DoControl/DoControl.c ****         LED_RUN_OFF();
+ 182              		.loc 1 102 0
+ 183 0022 0022     		movs	r2, #0
+ 103:./Application/Funtion/DoControl/DoControl.c ****         BitClr16(SystemData_51[DidoGpioState],RunLed);//记录状态
+ 184              		.loc 1 103 0
+ 185 0024 0921     		movs	r1, #9
+ 102:./Application/Funtion/DoControl/DoControl.c ****         LED_RUN_OFF();
+ 186              		.loc 1 102 0
+ 187 0026 1A70     		strb	r2, [r3]
+ 103:./Application/Funtion/DoControl/DoControl.c ****         BitClr16(SystemData_51[DidoGpioState],RunLed);//记录状态
+ 188              		.loc 1 103 0
+ 189 0028 0220     		movs	r0, #2
+ 190 002a 0132     		adds	r2, r2, #1
+ 191 002c FFF7FEFF 		bl	BSPGPIOSetPortState
+ 192              	.LVL12:
+ 104:./Application/Funtion/DoControl/DoControl.c ****     }
+ 193              		.loc 1 104 0
+ 194 0030 8022     		movs	r2, #128
+ 195 0032 E38B     		ldrh	r3, [r4, #30]
+ 196 0034 9343     		bics	r3, r2
+ 197 0036 F2E7     		b	.L16
+ 198              	.L18:
+ 199              		.align	2
+ 200              	.L17:
+ 201 0038 00000000 		.word	.LANCHOR0
+ 202 003c 00000000 		.word	SystemData_51
+ 203              		.cfi_endproc
+ 204              	.LFE2:
+ 206              		.section	.text.TASK_ALM_LED_Control,"ax",%progbits
+ 207              		.align	1
+ 208              		.global	TASK_ALM_LED_Control
+ 209              		.syntax unified
+ 210              		.code	16
+ 211              		.thumb_func
+ 212              		.fpu softvfp
+ 214              	TASK_ALM_LED_Control:
+ 215              	.LFB3:
+ 107:./Application/Funtion/DoControl/DoControl.c **** 
+ 108:./Application/Funtion/DoControl/DoControl.c **** /*=============================================================================================
+ 109:./Application/Funtion/DoControl/DoControl.c **** ** @Name      : void TASK_ALM_LED_Control(void)
+ 110:./Application/Funtion/DoControl/DoControl.c **** ** @Input     : void
+ 111:./Application/Funtion/DoControl/DoControl.c **** ** @Output    : void
+ 112:./Application/Funtion/DoControl/DoControl.c **** ** @Function  : ALM led定时控制任务
+ 113:./Application/Funtion/DoControl/DoControl.c **** ** @The notes : 1s执行一次
+ 114:./Application/Funtion/DoControl/DoControl.c **** **===========================================================================================*/
+ 115:./Application/Funtion/DoControl/DoControl.c **** void TASK_ALM_LED_Control(void)
+ 116:./Application/Funtion/DoControl/DoControl.c **** {
+ARM GAS  /tmp/cc5WHSYN.s 			page 7
+
+
+ 216              		.loc 1 116 0
+ 217              		.cfi_startproc
+ 218              		@ args = 0, pretend = 0, frame = 0
+ 219              		@ frame_needed = 0, uses_anonymous_args = 0
+ 220 0000 10B5     		push	{r4, lr}
+ 221              	.LCFI3:
+ 222              		.cfi_def_cfa_offset 8
+ 223              		.cfi_offset 4, -8
+ 224              		.cfi_offset 14, -4
+ 117:./Application/Funtion/DoControl/DoControl.c ****     static u8 sStep = 0;
+ 118:./Application/Funtion/DoControl/DoControl.c **** 
+ 119:./Application/Funtion/DoControl/DoControl.c ****     if(0 == sStep)     
+ 225              		.loc 1 119 0
+ 226 0002 0D4B     		ldr	r3, .L23
+ 227 0004 0D4C     		ldr	r4, .L23+4
+ 228 0006 1978     		ldrb	r1, [r3]
+ 229 0008 0029     		cmp	r1, #0
+ 230 000a 0BD1     		bne	.L20
+ 120:./Application/Funtion/DoControl/DoControl.c ****     {
+ 121:./Application/Funtion/DoControl/DoControl.c ****         sStep = 1;
+ 231              		.loc 1 121 0
+ 232 000c 0122     		movs	r2, #1
+ 122:./Application/Funtion/DoControl/DoControl.c ****         IMD_ALM_ON();
+ 233              		.loc 1 122 0
+ 234 000e 0320     		movs	r0, #3
+ 121:./Application/Funtion/DoControl/DoControl.c ****         IMD_ALM_ON();
+ 235              		.loc 1 121 0
+ 236 0010 1A70     		strb	r2, [r3]
+ 237              		.loc 1 122 0
+ 238 0012 0A00     		movs	r2, r1
+ 239 0014 FFF7FEFF 		bl	BSPGPIOSetPortState
+ 240              	.LVL13:
+ 123:./Application/Funtion/DoControl/DoControl.c ****         BitSet16(SystemData_51[DidoGpioState],Almled);//记录状态
+ 241              		.loc 1 123 0
+ 242 0018 8023     		movs	r3, #128
+ 243 001a E28B     		ldrh	r2, [r4, #30]
+ 244 001c 5B00     		lsls	r3, r3, #1
+ 245 001e 1343     		orrs	r3, r2
+ 246              	.L22:
+ 124:./Application/Funtion/DoControl/DoControl.c ****         
+ 125:./Application/Funtion/DoControl/DoControl.c ****     }
+ 126:./Application/Funtion/DoControl/DoControl.c ****     else
+ 127:./Application/Funtion/DoControl/DoControl.c ****     {
+ 128:./Application/Funtion/DoControl/DoControl.c ****         sStep = 0;
+ 129:./Application/Funtion/DoControl/DoControl.c ****         IMD_ALM_OFF();
+ 130:./Application/Funtion/DoControl/DoControl.c ****         BitClr16(SystemData_51[DidoGpioState],Almled);//记录状态
+ 247              		.loc 1 130 0
+ 248 0020 E383     		strh	r3, [r4, #30]
+ 131:./Application/Funtion/DoControl/DoControl.c ****     }
+ 132:./Application/Funtion/DoControl/DoControl.c **** }
+ 249              		.loc 1 132 0
+ 250              		@ sp needed
+ 251 0022 10BD     		pop	{r4, pc}
+ 252              	.L20:
+ 128:./Application/Funtion/DoControl/DoControl.c ****         IMD_ALM_OFF();
+ 253              		.loc 1 128 0
+ 254 0024 0021     		movs	r1, #0
+ARM GAS  /tmp/cc5WHSYN.s 			page 8
+
+
+ 129:./Application/Funtion/DoControl/DoControl.c ****         BitClr16(SystemData_51[DidoGpioState],Almled);//记录状态
+ 255              		.loc 1 129 0
+ 256 0026 0122     		movs	r2, #1
+ 257 0028 0320     		movs	r0, #3
+ 128:./Application/Funtion/DoControl/DoControl.c ****         IMD_ALM_OFF();
+ 258              		.loc 1 128 0
+ 259 002a 1970     		strb	r1, [r3]
+ 129:./Application/Funtion/DoControl/DoControl.c ****         BitClr16(SystemData_51[DidoGpioState],Almled);//记录状态
+ 260              		.loc 1 129 0
+ 261 002c FFF7FEFF 		bl	BSPGPIOSetPortState
+ 262              	.LVL14:
+ 130:./Application/Funtion/DoControl/DoControl.c ****     }
+ 263              		.loc 1 130 0
+ 264 0030 E38B     		ldrh	r3, [r4, #30]
+ 265 0032 034A     		ldr	r2, .L23+8
+ 266 0034 1340     		ands	r3, r2
+ 267 0036 F3E7     		b	.L22
+ 268              	.L24:
+ 269              		.align	2
+ 270              	.L23:
+ 271 0038 00000000 		.word	.LANCHOR1
+ 272 003c 00000000 		.word	SystemData_51
+ 273 0040 FFFEFFFF 		.word	-257
+ 274              		.cfi_endproc
+ 275              	.LFE3:
+ 277              		.section	.text.TASK_LedOn,"ax",%progbits
+ 278              		.align	1
+ 279              		.global	TASK_LedOn
+ 280              		.syntax unified
+ 281              		.code	16
+ 282              		.thumb_func
+ 283              		.fpu softvfp
+ 285              	TASK_LedOn:
+ 286              	.LFB4:
+ 133:./Application/Funtion/DoControl/DoControl.c **** 
+ 134:./Application/Funtion/DoControl/DoControl.c **** /*=============================================================================================
+ 135:./Application/Funtion/DoControl/DoControl.c **** ** @Name      : void TASK_LedOn(void) 
+ 136:./Application/Funtion/DoControl/DoControl.c **** ** @Input     : void
+ 137:./Application/Funtion/DoControl/DoControl.c **** ** @Output    : void
+ 138:./Application/Funtion/DoControl/DoControl.c **** ** @Function  : led长亮
+ 139:./Application/Funtion/DoControl/DoControl.c **** ** @The notes : 
+ 140:./Application/Funtion/DoControl/DoControl.c **** **===========================================================================================*/
+ 141:./Application/Funtion/DoControl/DoControl.c **** void TASK_LedOn(void)  
+ 142:./Application/Funtion/DoControl/DoControl.c **** {
+ 287              		.loc 1 142 0
+ 288              		.cfi_startproc
+ 289              		@ args = 0, pretend = 0, frame = 0
+ 290              		@ frame_needed = 0, uses_anonymous_args = 0
+ 291 0000 10B5     		push	{r4, lr}
+ 292              	.LCFI4:
+ 293              		.cfi_def_cfa_offset 8
+ 294              		.cfi_offset 4, -8
+ 295              		.cfi_offset 14, -4
+ 143:./Application/Funtion/DoControl/DoControl.c ****     LED_RUN_ON();
+ 296              		.loc 1 143 0
+ 297 0002 0022     		movs	r2, #0
+ 298 0004 0921     		movs	r1, #9
+ARM GAS  /tmp/cc5WHSYN.s 			page 9
+
+
+ 299 0006 0220     		movs	r0, #2
+ 300 0008 FFF7FEFF 		bl	BSPGPIOSetPortState
+ 301              	.LVL15:
+ 144:./Application/Funtion/DoControl/DoControl.c **** }
+ 302              		.loc 1 144 0
+ 303              		@ sp needed
+ 304 000c 10BD     		pop	{r4, pc}
+ 305              		.cfi_endproc
+ 306              	.LFE4:
+ 308              		.section	.text.CloseDOCmd,"ax",%progbits
+ 309              		.align	1
+ 310              		.global	CloseDOCmd
+ 311              		.syntax unified
+ 312              		.code	16
+ 313              		.thumb_func
+ 314              		.fpu softvfp
+ 316              	CloseDOCmd:
+ 317              	.LFB5:
+ 145:./Application/Funtion/DoControl/DoControl.c **** 
+ 146:./Application/Funtion/DoControl/DoControl.c **** /*=============================================================================================
+ 147:./Application/Funtion/DoControl/DoControl.c **** ** @Name      : void CloseDOCmd(void) 
+ 148:./Application/Funtion/DoControl/DoControl.c **** ** @Input     : void
+ 149:./Application/Funtion/DoControl/DoControl.c **** ** @Output    : void
+ 150:./Application/Funtion/DoControl/DoControl.c **** ** @Function  : 关闭DO
+ 151:./Application/Funtion/DoControl/DoControl.c **** ** @The notes : 
+ 152:./Application/Funtion/DoControl/DoControl.c **** **===========================================================================================*/
+ 153:./Application/Funtion/DoControl/DoControl.c **** void CloseDOCmd(void)
+ 154:./Application/Funtion/DoControl/DoControl.c **** {
+ 318              		.loc 1 154 0
+ 319              		.cfi_startproc
+ 320              		@ args = 0, pretend = 0, frame = 0
+ 321              		@ frame_needed = 0, uses_anonymous_args = 0
+ 322              	.LVL16:
+ 323 0000 10B5     		push	{r4, lr}
+ 324              	.LCFI5:
+ 325              		.cfi_def_cfa_offset 8
+ 326              		.cfi_offset 4, -8
+ 327              		.cfi_offset 14, -4
+ 328              	.LBB16:
+ 329              	.LBB17:
+  66:./Application/Funtion/DoControl/DoControl.c ****         }else
+ 330              		.loc 1 66 0
+ 331 0002 FFF7FEFF 		bl	CRELAY1_Contr_Close
+ 332              	.LVL17:
+ 333              	.LBE17:
+ 334              	.LBE16:
+ 155:./Application/Funtion/DoControl/DoControl.c ****     //控制关闭继电器
+ 156:./Application/Funtion/DoControl/DoControl.c ****         DoSelectCtrl(0,1);
+ 157:./Application/Funtion/DoControl/DoControl.c ****         DoSelectCtrl(1,1);
+ 158:./Application/Funtion/DoControl/DoControl.c **** }
+ 335              		.loc 1 158 0
+ 336              		@ sp needed
+ 337              	.LBB18:
+ 338              	.LBB19:
+ 339              	.LBB20:
+  75:./Application/Funtion/DoControl/DoControl.c ****         }else
+ 340              		.loc 1 75 0
+ARM GAS  /tmp/cc5WHSYN.s 			page 10
+
+
+ 341 0006 FFF7FEFF 		bl	CRELAY2_Contr_Close
+ 342              	.LVL18:
+ 343              	.LBE20:
+ 344              	.LBE19:
+ 345              	.LBE18:
+ 346              		.loc 1 158 0
+ 347 000a 10BD     		pop	{r4, pc}
+ 348              		.cfi_endproc
+ 349              	.LFE5:
+ 351              		.comm	gControl,2,1
+ 352              		.section	.bss.sStep.6150,"aw",%nobits
+ 353              		.set	.LANCHOR0,. + 0
+ 356              	sStep.6150:
+ 357 0000 00       		.space	1
+ 358              		.section	.bss.sStep.6154,"aw",%nobits
+ 359              		.set	.LANCHOR1,. + 0
+ 362              	sStep.6154:
+ 363 0000 00       		.space	1
+ 364              		.text
+ 365              	.Letext0:
+ 366              		.file 2 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/machine/_default_types.h"
+ 367              		.file 3 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/lock.h"
+ 368              		.file 4 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_types.h"
+ 369              		.file 5 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/lib/gcc/arm-none-eabi/7.3.1/include/stddef.h"
+ 370              		.file 6 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/reent.h"
+ 371              		.file 7 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/stdlib.h"
+ 372              		.file 8 "Application/BSPSys/Util/BSPTypeDef.h"
+ 373              		.file 9 "Application/BSPSys/BSPDriver/BSPGPIO.h"
+ 374              		.file 10 "./Application/Funtion/DoControl/DoControl.h"
+ 375              		.file 11 "Application/Funtion/SystemInfo/SystemInfo.h"
+ 376              		.file 12 "Application/Funtion/SystemData/SystemData.h"
+ 377              		.file 13 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_stdint.h"
+ 378              		.file 14 "Core/Inc/FreeRTOSConfig.h"
+ 379              		.file 15 "Application/BSPSys/BSPDriver/BSPDIDO.h"
+ARM GAS  /tmp/cc5WHSYN.s 			page 11
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 DoControl.c
+     /tmp/cc5WHSYN.s:16     .text.DoSelectCtrl:0000000000000000 $t
+     /tmp/cc5WHSYN.s:23     .text.DoSelectCtrl:0000000000000000 DoSelectCtrl
+     /tmp/cc5WHSYN.s:88     .text.TASK_ControlProc:0000000000000000 $t
+     /tmp/cc5WHSYN.s:95     .text.TASK_ControlProc:0000000000000000 TASK_ControlProc
+     /tmp/cc5WHSYN.s:131    .text.TASK_ControlProc:0000000000000020 $d
+                            *COM*:0000000000000002 gControl
+     /tmp/cc5WHSYN.s:137    .text.TASK_LedControl:0000000000000000 $t
+     /tmp/cc5WHSYN.s:144    .text.TASK_LedControl:0000000000000000 TASK_LedControl
+     /tmp/cc5WHSYN.s:201    .text.TASK_LedControl:0000000000000038 $d
+     /tmp/cc5WHSYN.s:207    .text.TASK_ALM_LED_Control:0000000000000000 $t
+     /tmp/cc5WHSYN.s:214    .text.TASK_ALM_LED_Control:0000000000000000 TASK_ALM_LED_Control
+     /tmp/cc5WHSYN.s:271    .text.TASK_ALM_LED_Control:0000000000000038 $d
+     /tmp/cc5WHSYN.s:278    .text.TASK_LedOn:0000000000000000 $t
+     /tmp/cc5WHSYN.s:285    .text.TASK_LedOn:0000000000000000 TASK_LedOn
+     /tmp/cc5WHSYN.s:309    .text.CloseDOCmd:0000000000000000 $t
+     /tmp/cc5WHSYN.s:316    .text.CloseDOCmd:0000000000000000 CloseDOCmd
+     /tmp/cc5WHSYN.s:356    .bss.sStep.6150:0000000000000000 sStep.6150
+     /tmp/cc5WHSYN.s:357    .bss.sStep.6150:0000000000000000 $d
+     /tmp/cc5WHSYN.s:362    .bss.sStep.6154:0000000000000000 sStep.6154
+     /tmp/cc5WHSYN.s:363    .bss.sStep.6154:0000000000000000 $d
+
+UNDEFINED SYMBOLS
+CRELAY1_Contr_Close
+CRELAY1_Contr_Open
+CRELAY2_Contr_Close
+CRELAY2_Contr_Open
+SystemWorkState_50
+BSPGPIOSetPortState
+SystemData_51

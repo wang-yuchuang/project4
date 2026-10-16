@@ -1,0 +1,13 @@
+"D:\WorkSoftware_Source\IAR8.5\arm\bin\armproc.dll" 
+
+"D:\WorkSoftware_Source\IAR8.5\arm\bin\armjlink2.dll" 
+
+"D:\BMS_EMS_CODE\IMIU4_latest\IMIU4\IMIU4\EWARM\IMIU4\Exe\IMIU4.out" 
+
+--plugin="D:\WorkSoftware_Source\IAR8.5\arm\bin\armbat.dll" 
+
+--flash_loader="D:\WorkSoftware_Source\IAR8.5\arm\config\flashloader\ST\FlashSTM32G0BxxC.board" 
+
+
+
+

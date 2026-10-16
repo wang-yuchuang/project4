@@ -1,0 +1,431 @@
+ARM GAS  /tmp/ccHeCkhj.s 			page 1
+
+
+   1              		.cpu cortex-m0plus
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 4
+   9              		.eabi_attribute 34, 0
+  10              		.eabi_attribute 18, 4
+  11              		.file	"sid31_routine_ctrl.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.sid31_routine_ctrl_solve,"ax",%progbits
+  16              		.align	1
+  17              		.global	sid31_routine_ctrl_solve
+  18              		.syntax unified
+  19              		.code	16
+  20              		.thumb_func
+  21              		.fpu softvfp
+  23              	sid31_routine_ctrl_solve:
+  24              	.LFB493:
+  25              		.file 1 "./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c"
+   1:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c **** /* ******************* 
+   2:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****  * can uds 31h服务的实现
+   3:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****  **********************/
+   4:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c **** #include <string.h>
+   5:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c **** #include "network_layer/can_uds_network_layer.h"
+   6:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c **** #include "services_layer/device_role/sid_internal_header.h"
+   7:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c **** #include "services_layer/device_role/can_uds_services_layer.h"
+   8:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c **** #include "can_uds_arch.h"
+   9:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c **** 
+  10:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c **** extern unsigned long  WholePackCrc; 
+  11:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c **** 
+  12:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c **** extern St_FirmwareCanUdsUpgradeConfig pgst_firwareUdsUpgrade;
+  13:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c **** 
+  14:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c **** enum
+  15:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c **** {
+  16:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****     UDS_ROUTINE_CTRL_START = 0x01,		   // 启动例程
+  17:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****     UDS_ROUTINE_CTRL_STOP = 0x02,		   // 停止例程
+  18:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****     UDS_ROUTINE_CTRL_REQUEST_RESULT = 0x03 // 结束例程后获取结果值
+  19:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c **** };
+  20:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c **** 
+  21:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c **** #define ROUTINE_ID_ERASE_MEM        0xFF00      //擦除flash(擦除目标存储的flash)
+  22:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c **** #define ROUTINE_ID_CHECK_MEM        0x0202      //启动整包校验
+  23:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c **** #define ROUTINE_ID_TRANS_CRC_SET    0x0A01      //传输是否带CRC校验设置
+  24:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c **** 
+  25:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c **** 
+  26:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c **** static void routine_erase_memory(unsigned char *msg_buff,unsigned char *rsp_buff);
+  27:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c **** static void routine_check_memory(unsigned char *msg_buff,unsigned char *rsp_buff);
+  28:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c **** static void routine_transfer_crc_set(unsigned char *msg_buff,unsigned char *rsp_buff);
+  29:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c **** 
+  30:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c **** 
+  31:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c **** void sid31_routine_ctrl_solve(unsigned char *msg_buff,unsigned short msg_len)
+  32:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c **** {
+  26              		.loc 1 32 0
+ARM GAS  /tmp/ccHeCkhj.s 			page 2
+
+
+  27              		.cfi_startproc
+  28              		@ args = 0, pretend = 0, frame = 8
+  29              		@ frame_needed = 0, uses_anonymous_args = 0
+  30              	.LVL0:
+  31 0000 73B5     		push	{r0, r1, r4, r5, r6, lr}
+  32              	.LCFI0:
+  33              		.cfi_def_cfa_offset 24
+  34              		.cfi_offset 0, -24
+  35              		.cfi_offset 1, -20
+  36              		.cfi_offset 4, -16
+  37              		.cfi_offset 5, -12
+  38              		.cfi_offset 6, -8
+  39              		.cfi_offset 14, -4
+  33:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****     unsigned char rsp_msg[8];
+  34:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****     unsigned char subfunction = 0;
+  35:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****     unsigned short routine_id = 0;
+  36:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****     //unsigned char mem_bytes_len = 0, addr_bytes_len = 0;
+  37:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c **** 
+  38:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****     subfunction = msg_buff[1]&0x7f;
+  39:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****     routine_id = msg_buff[2] << 8 | msg_buff[3];
+  40:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c **** 
+  41:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****     rsp_msg[0] = ds_routine_ctrl | UDS_SRV_RET_ID_OFFSET;
+  40              		.loc 1 41 0
+  41 0002 6E46     		mov	r6, sp
+  39:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c **** 
+  42              		.loc 1 39 0
+  43 0004 8478     		ldrb	r4, [r0, #2]
+  44 0006 C178     		ldrb	r1, [r0, #3]
+  45              	.LVL1:
+  46 0008 2302     		lsls	r3, r4, #8
+  47 000a 0B43     		orrs	r3, r1
+  42:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****     rsp_msg[1] = msg_buff[1];
+  43:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****     rsp_msg[2] = msg_buff[2];
+  44:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****     rsp_msg[3] = msg_buff[3];
+  48              		.loc 1 44 0
+  49 000c F170     		strb	r1, [r6, #3]
+  45:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****     rsp_msg[4] = 0;//这个目前无效
+  50              		.loc 1 45 0
+  51 000e 0021     		movs	r1, #0
+  41:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****     rsp_msg[1] = msg_buff[1];
+  52              		.loc 1 41 0
+  53 0010 7125     		movs	r5, #113
+  38:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****     routine_id = msg_buff[2] << 8 | msg_buff[3];
+  54              		.loc 1 38 0
+  55 0012 4278     		ldrb	r2, [r0, #1]
+  56              	.LVL2:
+  57              		.loc 1 45 0
+  58 0014 3171     		strb	r1, [r6, #4]
+  46:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c **** 
+  47:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****     switch(subfunction)
+  59              		.loc 1 47 0
+  60 0016 7F31     		adds	r1, r1, #127
+  42:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****     rsp_msg[2] = msg_buff[2];
+  61              		.loc 1 42 0
+  62 0018 7270     		strb	r2, [r6, #1]
+  41:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****     rsp_msg[1] = msg_buff[1];
+  63              		.loc 1 41 0
+ARM GAS  /tmp/ccHeCkhj.s 			page 3
+
+
+  64 001a 3570     		strb	r5, [r6]
+  43:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****     rsp_msg[3] = msg_buff[3];
+  65              		.loc 1 43 0
+  66 001c B470     		strb	r4, [r6, #2]
+  67              		.loc 1 47 0
+  68 001e 0A40     		ands	r2, r1
+  69              	.LVL3:
+  70 0020 022A     		cmp	r2, #2
+  71 0022 33D0     		beq	.L3
+  72 0024 032A     		cmp	r2, #3
+  73 0026 3ED0     		beq	.L4
+  48:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****     {
+  49:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****     case UDS_ROUTINE_CTRL_START:
+  50:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****         switch(routine_id)
+  51:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****         {
+  52:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****         case ROUTINE_ID_ERASE_MEM:
+  53:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****             routine_erase_memory(&msg_buff[4],&rsp_msg[0]);
+  54:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****             break;
+  55:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****         case ROUTINE_ID_CHECK_MEM:
+  56:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****             routine_check_memory(&msg_buff[4],&rsp_msg[0]);
+  57:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****             break;
+  58:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****         case ROUTINE_ID_TRANS_CRC_SET:
+  59:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****             routine_transfer_crc_set(&msg_buff[4],&rsp_msg[0]);
+  60:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****             break;
+  61:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****         default:
+  62:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****             uds_ack_refuse(ds_routine_ctrl, nrc_request_out_of_range);
+  63:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****             break;
+  64:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****         }
+  65:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****         break;
+  66:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****     case UDS_ROUTINE_CTRL_STOP:
+  67:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****         switch(routine_id)
+  68:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****         {
+  69:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****         case ROUTINE_ID_ERASE_MEM:
+  70:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****         case ROUTINE_ID_CHECK_MEM:
+  71:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****         case ROUTINE_ID_TRANS_CRC_SET:
+  72:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****             uds_ack_accept(rsp_msg,5);//由于这几个控制功能没有持续执行的，所以�
+  73:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****             break;
+  74:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****         default:
+  75:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****             uds_ack_refuse(ds_routine_ctrl, nrc_request_out_of_range);
+  76:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****             break;
+  77:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****         }
+  78:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****         break;
+  79:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****     case UDS_ROUTINE_CTRL_REQUEST_RESULT:
+  80:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****         switch(routine_id)
+  81:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****         {
+  82:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****         case ROUTINE_ID_ERASE_MEM:
+  83:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****         case ROUTINE_ID_CHECK_MEM:
+  84:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****         case ROUTINE_ID_TRANS_CRC_SET:
+  85:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****             uds_ack_refuse(ds_routine_ctrl, nrc_request_sequence_error);//由于这几个控制功�
+  86:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****             break;
+  87:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****         default:
+  88:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****             uds_ack_refuse(ds_routine_ctrl, nrc_request_out_of_range);
+  89:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****             break;
+  90:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****         }
+  91:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****         break;
+  92:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****     default:
+  93:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****         uds_ack_refuse(ds_routine_ctrl, nrc_subfunction_not_support);
+ARM GAS  /tmp/ccHeCkhj.s 			page 4
+
+
+  74              		.loc 1 93 0
+  75 0028 1221     		movs	r1, #18
+  47:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****     {
+  76              		.loc 1 47 0
+  77 002a 012A     		cmp	r2, #1
+  78 002c 46D1     		bne	.L17
+  50:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****         {
+  79              		.loc 1 50 0
+  80 002e 2449     		ldr	r1, .L18
+  81 0030 8B42     		cmp	r3, r1
+  82 0032 23D0     		beq	.L7
+  83 0034 FF22     		movs	r2, #255
+  84 0036 1202     		lsls	r2, r2, #8
+  85 0038 9342     		cmp	r3, r2
+  86 003a 16D0     		beq	.L8
+  87 003c 214A     		ldr	r2, .L18+4
+  88 003e 9342     		cmp	r3, r2
+  89 0040 2ED1     		bne	.L6
+  90              	.LVL4:
+  91              	.LBB8:
+  92              	.LBB9:
+  94:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****         break;
+  95:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****     }
+  96:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c **** }
+  97:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c **** 
+  98:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c **** 
+  99:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c **** //------内部函数 
+ 100:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c **** 
+ 101:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c **** static void routine_erase_memory(unsigned char *msg_buff,unsigned char *rsp_buff)
+ 102:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c **** {//msg_buff(0~3)(4~7)分别是擦除起始地址和擦除长度，这里仅作升级用，不用这
+ 103:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****     if(uds_erase_app_data() == 0){
+ 104:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****         uds_ack_refuse(ds_routine_ctrl, nrc_general_programming_failure);//擦除失败
+ 105:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****     }else{
+ 106:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****         uds_ack_accept(rsp_buff,5);//擦除成功，回复之前已填好的数据
+ 107:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****     }
+ 108:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c **** }
+ 109:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c **** 
+ 110:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c **** static void routine_check_memory(unsigned char *msg_buff,unsigned char *rsp_buff)
+ 111:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c **** {//进行全包crc处理
+ 112:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****     unsigned long crc32_temp;
+ 113:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****     crc32_temp = msg_buff[3] << 24 | msg_buff[2] << 16 | msg_buff[1] << 8 | msg_buff[0];
+ 114:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c **** 	if (crc32_temp == WholePackCrc)
+  93              		.loc 1 114 0
+  94 0042 4279     		ldrb	r2, [r0, #5]
+  95 0044 0379     		ldrb	r3, [r0, #4]
+  96              	.LVL5:
+  97 0046 1202     		lsls	r2, r2, #8
+  98 0048 1A43     		orrs	r2, r3
+  99 004a 8379     		ldrb	r3, [r0, #6]
+ 115:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c **** 	{
+ 116:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c **** 		uds_ack_accept(rsp_buff,5);//校验成功，回复之前已填好的数据
+ 117:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c **** 	}
+ 118:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c **** 	else
+ 119:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c **** 	{
+ 120:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****         uds_ack_refuse(ds_routine_ctrl, nrc_whole_pack_crc_check_error);//擦除失败
+ 100              		.loc 1 120 0
+ 101 004c F321     		movs	r1, #243
+ARM GAS  /tmp/ccHeCkhj.s 			page 5
+
+
+ 114:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c **** 	{
+ 102              		.loc 1 114 0
+ 103 004e 1B04     		lsls	r3, r3, #16
+ 104 0050 1A43     		orrs	r2, r3
+ 105 0052 C379     		ldrb	r3, [r0, #7]
+ 106 0054 1B06     		lsls	r3, r3, #24
+ 107 0056 1343     		orrs	r3, r2
+ 108 0058 1B4A     		ldr	r2, .L18+8
+ 109 005a 1268     		ldr	r2, [r2]
+ 110 005c 9A42     		cmp	r2, r3
+ 111 005e 2DD1     		bne	.L17
+ 112              	.LVL6:
+ 113              	.L13:
+ 114              	.LBE9:
+ 115              	.LBE8:
+  72:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****             break;
+ 116              		.loc 1 72 0
+ 117 0060 0521     		movs	r1, #5
+ 118 0062 6846     		mov	r0, sp
+ 119 0064 FFF7FEFF 		bl	uds_ack_accept
+ 120              	.LVL7:
+ 121              	.L1:
+  96:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c **** 
+ 122              		.loc 1 96 0
+ 123              		@ sp needed
+ 124 0068 73BD     		pop	{r0, r1, r4, r5, r6, pc}
+ 125              	.LVL8:
+ 126              	.L8:
+ 127              	.LBB10:
+ 128              	.LBB11:
+ 103:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****         uds_ack_refuse(ds_routine_ctrl, nrc_general_programming_failure);//擦除失败
+ 129              		.loc 1 103 0
+ 130 006a FFF7FEFF 		bl	uds_erase_app_data
+ 131              	.LVL9:
+ 132 006e 0028     		cmp	r0, #0
+ 133 0070 F6D1     		bne	.L13
+ 104:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****     }else{
+ 134              		.loc 1 104 0
+ 135 0072 7221     		movs	r1, #114
+ 136 0074 3130     		adds	r0, r0, #49
+ 137              	.LVL10:
+ 138              	.L16:
+ 139              	.LBE11:
+ 140              	.LBE10:
+  93:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****         break;
+ 141              		.loc 1 93 0
+ 142 0076 FFF7FEFF 		bl	uds_ack_refuse
+ 143              	.LVL11:
+  96:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c **** 
+ 144              		.loc 1 96 0
+ 145 007a F5E7     		b	.L1
+ 146              	.LVL12:
+ 147              	.L7:
+ 148              	.LBB12:
+ 149              	.LBB13:
+ 121:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c **** 	}
+ 122:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****     //全包校验，待填充
+ARM GAS  /tmp/ccHeCkhj.s 			page 6
+
+
+ 123:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****     //uds_program_finish();//写入升级标志
+ 124:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****   
+ 125:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c **** }
+ 126:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c **** 
+ 127:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c **** static void routine_transfer_crc_set(unsigned char *msg_buff,unsigned char *rsp_buff)
+ 128:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c **** {
+ 129:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****     if(msg_buff[0]){//非0，表示使能子包crc
+ 150              		.loc 1 129 0
+ 151 007c 0179     		ldrb	r1, [r0, #4]
+ 152 007e 134B     		ldr	r3, .L18+12
+ 153              	.LVL13:
+ 154 0080 0029     		cmp	r1, #0
+ 155 0082 01D0     		beq	.L12
+ 130:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****         g_uds_config.pack_with_crc = 1;
+ 156              		.loc 1 130 0
+ 157 0084 5A74     		strb	r2, [r3, #17]
+ 158              	.LVL14:
+ 159 0086 EBE7     		b	.L13
+ 160              	.LVL15:
+ 161              	.L12:
+ 131:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****     }else{
+ 132:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****         g_uds_config.pack_with_crc = 0;
+ 162              		.loc 1 132 0
+ 163 0088 5974     		strb	r1, [r3, #17]
+ 164              	.LVL16:
+ 165 008a E9E7     		b	.L13
+ 166              	.LVL17:
+ 167              	.L3:
+ 168              	.LBE13:
+ 169              	.LBE12:
+  67:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****         {
+ 170              		.loc 1 67 0
+ 171 008c 0C4A     		ldr	r2, .L18
+ 172 008e 9342     		cmp	r3, r2
+ 173 0090 E6D0     		beq	.L13
+ 174 0092 FF22     		movs	r2, #255
+ 175 0094 1202     		lsls	r2, r2, #8
+ 176 0096 9342     		cmp	r3, r2
+ 177 0098 E2D0     		beq	.L13
+ 178 009a 0A4A     		ldr	r2, .L18+4
+ 179 009c 9342     		cmp	r3, r2
+ 180 009e DFD0     		beq	.L13
+ 181              	.L6:
+  62:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****             break;
+ 182              		.loc 1 62 0
+ 183 00a0 3121     		movs	r1, #49
+ 184 00a2 0800     		movs	r0, r1
+ 185              	.LVL18:
+ 186 00a4 E7E7     		b	.L16
+ 187              	.LVL19:
+ 188              	.L4:
+  80:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****         {
+ 189              		.loc 1 80 0
+ 190 00a6 064A     		ldr	r2, .L18
+ 191 00a8 9342     		cmp	r3, r2
+ 192 00aa 06D0     		beq	.L14
+ 193 00ac FF22     		movs	r2, #255
+ARM GAS  /tmp/ccHeCkhj.s 			page 7
+
+
+ 194 00ae 1202     		lsls	r2, r2, #8
+ 195 00b0 9342     		cmp	r3, r2
+ 196 00b2 02D0     		beq	.L14
+ 197 00b4 034A     		ldr	r2, .L18+4
+ 198 00b6 9342     		cmp	r3, r2
+ 199 00b8 F2D1     		bne	.L6
+ 200              	.L14:
+  85:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****             break;
+ 201              		.loc 1 85 0
+ 202 00ba 2421     		movs	r1, #36
+ 203              	.LVL20:
+ 204              	.L17:
+  93:./Application/Addition/UDSCanfd/services_layer/device_role/sid31_routine_ctrl.c ****         break;
+ 205              		.loc 1 93 0
+ 206 00bc 3120     		movs	r0, #49
+ 207              	.LVL21:
+ 208 00be DAE7     		b	.L16
+ 209              	.L19:
+ 210              		.align	2
+ 211              	.L18:
+ 212 00c0 010A0000 		.word	2561
+ 213 00c4 02020000 		.word	514
+ 214 00c8 00000000 		.word	WholePackCrc
+ 215 00cc 00000000 		.word	g_uds_config
+ 216              		.cfi_endproc
+ 217              	.LFE493:
+ 219              		.text
+ 220              	.Letext0:
+ 221              		.file 2 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/machine/_default_types.h"
+ 222              		.file 3 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/lock.h"
+ 223              		.file 4 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_types.h"
+ 224              		.file 5 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/lib/gcc/arm-none-eabi/7.3.1/include/stddef.h"
+ 225              		.file 6 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/reent.h"
+ 226              		.file 7 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/stdlib.h"
+ 227              		.file 8 "Application/BSPSys/Util/BSPTypeDef.h"
+ 228              		.file 9 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_stdint.h"
+ 229              		.file 10 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/system_stm32g0xx.h"
+ 230              		.file 11 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/stm32g0b1xx.h"
+ 231              		.file 12 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_def.h"
+ 232              		.file 13 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_dma.h"
+ 233              		.file 14 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_flash.h"
+ 234              		.file 15 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_spi.h"
+ 235              		.file 16 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_uart.h"
+ 236              		.file 17 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal.h"
+ 237              		.file 18 "Core/Inc/main.h"
+ 238              		.file 19 "Core/Inc/spi.h"
+ 239              		.file 20 "Application/BSPSys/BSPDevice/gd25q32e/BSPGD25Q32E.h"
+ 240              		.file 21 "Application/Addition/UDSCanfd/can_uds_arch.h"
+ 241              		.file 22 "Application/Addition/UDSCanfd/network_layer/can_uds_network_layer.h"
+ 242              		.file 23 "Application/Addition/RTT/SEGGER_RTT.h"
+ 243              		.file 24 "Application/Addition/UDSCanfd/services_layer/device_role/sid_internal_header.h"
+ 244              		.file 25 "Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.h"
+ 245              		.file 26 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_ll_dma.h"
+ARM GAS  /tmp/ccHeCkhj.s 			page 8
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 sid31_routine_ctrl.c
+     /tmp/ccHeCkhj.s:16     .text.sid31_routine_ctrl_solve:0000000000000000 $t
+     /tmp/ccHeCkhj.s:23     .text.sid31_routine_ctrl_solve:0000000000000000 sid31_routine_ctrl_solve
+     /tmp/ccHeCkhj.s:212    .text.sid31_routine_ctrl_solve:00000000000000c0 $d
+
+UNDEFINED SYMBOLS
+uds_ack_accept
+uds_erase_app_data
+uds_ack_refuse
+WholePackCrc
+g_uds_config

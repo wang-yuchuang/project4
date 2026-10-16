@@ -1,0 +1,392 @@
+ARM GAS  /tmp/ccwtt4dU.s 			page 1
+
+
+   1              		.cpu cortex-m0plus
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 4
+   9              		.eabi_attribute 34, 0
+  10              		.eabi_attribute 18, 4
+  11              		.file	"BSPUserHook.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.CANSendData_Hook,"ax",%progbits
+  16              		.align	1
+  17              		.global	CANSendData_Hook
+  18              		.syntax unified
+  19              		.code	16
+  20              		.thumb_func
+  21              		.fpu softvfp
+  23              	CANSendData_Hook:
+  24              	.LFB493:
+  25              		.file 1 "./Application/BSPSys/BSPUser/BSPUserHook.c"
+   1:./Application/BSPSys/BSPUser/BSPUserHook.c **** 
+   2:./Application/BSPSys/BSPUser/BSPUserHook.c **** /*==========================================Copyright(c)=======================================
+   3:./Application/BSPSys/BSPUser/BSPUserHook.c **** **                                  Shenzhen Infypower Co., Ltd.
+   4:./Application/BSPSys/BSPUser/BSPUserHook.c **** **                                  Power conversion Department
+   5:./Application/BSPSys/BSPUser/BSPUserHook.c **** **                                       BMS Product Line
+   6:./Application/BSPSys/BSPUser/BSPUserHook.c **** **
+   7:./Application/BSPSys/BSPUser/BSPUserHook.c **** **---------------------------------------File Information--------------------------------------
+   8:./Application/BSPSys/BSPUser/BSPUserHook.c **** ** @File Name    : BSPUserHook.c
+   9:./Application/BSPSys/BSPUser/BSPUserHook.c **** ** @Founder      : WYC834
+  10:./Application/BSPSys/BSPUser/BSPUserHook.c **** ** @Date         : 2025.09.29
+  11:./Application/BSPSys/BSPUser/BSPUserHook.c **** ** @Function     : BSP用户服务函数模块
+  12:./Application/BSPSys/BSPUser/BSPUserHook.c **** ** @Instructions : 用户完善
+  13:./Application/BSPSys/BSPUser/BSPUserHook.c **** **===========================================================================================*/
+  14:./Application/BSPSys/BSPUser/BSPUserHook.c **** 
+  15:./Application/BSPSys/BSPUser/BSPUserHook.c **** /*=============================================================================================
+  16:./Application/BSPSys/BSPUser/BSPUserHook.c **** ** @Header file definition
+  17:./Application/BSPSys/BSPUser/BSPUserHook.c **** **===========================================================================================*/
+  18:./Application/BSPSys/BSPUser/BSPUserHook.c **** #include "BSPTypeDef.h"
+  19:./Application/BSPSys/BSPUser/BSPUserHook.c **** #include "BSPConfig.h"
+  20:./Application/BSPSys/BSPUser/BSPUserHook.c **** #include "BSPUserHook.h"
+  21:./Application/BSPSys/BSPUser/BSPUserHook.c **** #include "CANHandle.h"
+  22:./Application/BSPSys/BSPUser/BSPUserHook.c **** #include "UsartHandle.h"
+  23:./Application/BSPSys/BSPUser/BSPUserHook.c **** #include "ToolingCheck.h"
+  24:./Application/BSPSys/BSPUser/BSPUserHook.c **** #include "LoadApp.h"
+  25:./Application/BSPSys/BSPUser/BSPUserHook.c **** #include "can_uds_network_layer.h"
+  26:./Application/BSPSys/BSPUser/BSPUserHook.c **** 
+  27:./Application/BSPSys/BSPUser/BSPUserHook.c **** 
+  28:./Application/BSPSys/BSPUser/BSPUserHook.c **** #include "network_layer/can_uds_network_layer.h"
+  29:./Application/BSPSys/BSPUser/BSPUserHook.c **** #include "services_layer/device_role/sid_internal_header.h"
+  30:./Application/BSPSys/BSPUser/BSPUserHook.c **** #include "services_layer/device_role/can_uds_services_layer.h"
+  31:./Application/BSPSys/BSPUser/BSPUserHook.c **** #include "can_uds_interface.h"
+  32:./Application/BSPSys/BSPUser/BSPUserHook.c **** #include "SystemInfo.h"
+  33:./Application/BSPSys/BSPUser/BSPUserHook.c **** /*=============================================================================================
+ARM GAS  /tmp/ccwtt4dU.s 			page 2
+
+
+  34:./Application/BSPSys/BSPUser/BSPUserHook.c **** ** @Global variable definition
+  35:./Application/BSPSys/BSPUser/BSPUserHook.c **** **===========================================================================================*/
+  36:./Application/BSPSys/BSPUser/BSPUserHook.c **** 
+  37:./Application/BSPSys/BSPUser/BSPUserHook.c **** /*=============================================================================================
+  38:./Application/BSPSys/BSPUser/BSPUserHook.c **** ** @Static function declaration
+  39:./Application/BSPSys/BSPUser/BSPUserHook.c **** **===========================================================================================*/
+  40:./Application/BSPSys/BSPUser/BSPUserHook.c **** 
+  41:./Application/BSPSys/BSPUser/BSPUserHook.c **** /*=============================================================================================
+  42:./Application/BSPSys/BSPUser/BSPUserHook.c **** ** @Interface function definition
+  43:./Application/BSPSys/BSPUser/BSPUserHook.c **** **===========================================================================================*/
+  44:./Application/BSPSys/BSPUser/BSPUserHook.c **** /*=============================================================================================
+  45:./Application/BSPSys/BSPUser/BSPUserHook.c **** ** @Name      : void CANSendData_Hook(e_CANNUM CANNum, t_CANMSG msg)
+  46:./Application/BSPSys/BSPUser/BSPUserHook.c **** ** @Input     : CANNum:CAN通道 msg:报文信息
+  47:./Application/BSPSys/BSPUser/BSPUserHook.c **** ** @Output    : void
+  48:./Application/BSPSys/BSPUser/BSPUserHook.c **** ** @Function  : CAN发送任务嵌入函数
+  49:./Application/BSPSys/BSPUser/BSPUserHook.c **** ** @The notes :
+  50:./Application/BSPSys/BSPUser/BSPUserHook.c **** **===========================================================================================*/
+  51:./Application/BSPSys/BSPUser/BSPUserHook.c **** void CANSendData_Hook(e_CANNUM CANNum, t_CANMSG msg)
+  52:./Application/BSPSys/BSPUser/BSPUserHook.c **** {
+  26              		.loc 1 52 0
+  27              		.cfi_startproc
+  28              		@ args = 76, pretend = 16, frame = 0
+  29              		@ frame_needed = 0, uses_anonymous_args = 0
+  30              		@ link register save eliminated.
+  31              	.LVL0:
+  32 0000 84B0     		sub	sp, sp, #16
+  33              	.LCFI0:
+  34              		.cfi_def_cfa_offset 16
+  35              		.loc 1 52 0
+  36 0002 0191     		str	r1, [sp, #4]
+  37 0004 0292     		str	r2, [sp, #8]
+  38 0006 0393     		str	r3, [sp, #12]
+  53:./Application/BSPSys/BSPUser/BSPUserHook.c ****     (void)CANNum;
+  54:./Application/BSPSys/BSPUser/BSPUserHook.c ****     (void)msg;
+  55:./Application/BSPSys/BSPUser/BSPUserHook.c **** }
+  39              		.loc 1 55 0
+  40              		@ sp needed
+  41 0008 04B0     		add	sp, sp, #16
+  42 000a 7047     		bx	lr
+  43              		.cfi_endproc
+  44              	.LFE493:
+  46              		.section	.text.CANRcvMsgHandle_Hook,"ax",%progbits
+  47              		.align	1
+  48              		.global	CANRcvMsgHandle_Hook
+  49              		.syntax unified
+  50              		.code	16
+  51              		.thumb_func
+  52              		.fpu softvfp
+  54              	CANRcvMsgHandle_Hook:
+  55              	.LFB494:
+  56:./Application/BSPSys/BSPUser/BSPUserHook.c **** 
+  57:./Application/BSPSys/BSPUser/BSPUserHook.c **** /*=============================================================================================
+  58:./Application/BSPSys/BSPUser/BSPUserHook.c **** ** @Name      : void CANRcvMsgHandle_Hook(e_CANNUM CANNum, t_CANMSG *pWriteMsg)
+  59:./Application/BSPSys/BSPUser/BSPUserHook.c **** ** @Input     : CANNum:CAN通道 pWriteMsg:CAN报文信息结构指针
+  60:./Application/BSPSys/BSPUser/BSPUserHook.c **** ** @Output    : void
+  61:./Application/BSPSys/BSPUser/BSPUserHook.c **** ** @Function  : CAN接收信息处理接口
+  62:./Application/BSPSys/BSPUser/BSPUserHook.c **** ** @The notes : 该函数已经在读CAN接收缓冲区调用      
+ARM GAS  /tmp/ccwtt4dU.s 			page 3
+
+
+  63:./Application/BSPSys/BSPUser/BSPUserHook.c **** **===========================================================================================*/
+  64:./Application/BSPSys/BSPUser/BSPUserHook.c **** void CANRcvMsgHandle_Hook(e_CANNUM CANNum, t_CANMSG *pWriteMsg)
+  65:./Application/BSPSys/BSPUser/BSPUserHook.c **** {       
+  56              		.loc 1 65 0
+  57              		.cfi_startproc
+  58              		@ args = 0, pretend = 0, frame = 0
+  59              		@ frame_needed = 0, uses_anonymous_args = 0
+  60              	.LVL1:
+  61 0000 30B5     		push	{r4, r5, lr}
+  62              	.LCFI1:
+  63              		.cfi_def_cfa_offset 12
+  64              		.cfi_offset 4, -12
+  65              		.cfi_offset 5, -8
+  66              		.cfi_offset 14, -4
+  67 0002 0C00     		movs	r4, r1
+  68 0004 91B0     		sub	sp, sp, #68
+  69              	.LCFI2:
+  70              		.cfi_def_cfa_offset 80
+  66:./Application/BSPSys/BSPUser/BSPUserHook.c ****     if(CANNum == eCAN1)
+  71              		.loc 1 66 0
+  72 0006 0028     		cmp	r0, #0
+  73 0008 34D1     		bne	.L2
+  67:./Application/BSPSys/BSPUser/BSPUserHook.c ****     {
+  68:./Application/BSPSys/BSPUser/BSPUserHook.c ****         //1.
+  69:./Application/BSPSys/BSPUser/BSPUserHook.c ****         CANLibRcvMsgHandle_API(*pWriteMsg,CANNum);
+  74              		.loc 1 69 0
+  75 000a 0D00     		movs	r5, r1
+  76 000c 1035     		adds	r5, r5, #16
+  77 000e 0E90     		str	r0, [sp, #56]
+  78 0010 3822     		movs	r2, #56
+  79 0012 2900     		movs	r1, r5
+  80              	.LVL2:
+  81 0014 6846     		mov	r0, sp
+  82              	.LVL3:
+  83 0016 FFF7FEFF 		bl	memcpy
+  84              	.LVL4:
+  85 001a A268     		ldr	r2, [r4, #8]
+  86 001c E368     		ldr	r3, [r4, #12]
+  87 001e 2068     		ldr	r0, [r4]
+  88 0020 6168     		ldr	r1, [r4, #4]
+  89 0022 FFF7FEFF 		bl	CANLibRcvMsgHandle_API
+  90              	.LVL5:
+  70:./Application/BSPSys/BSPUser/BSPUserHook.c **** 
+  71:./Application/BSPSys/BSPUser/BSPUserHook.c ****         //2. 升级报文ID:0b110514/15  
+  72:./Application/BSPSys/BSPUser/BSPUserHook.c ****         if (pWriteMsg->ID == g_uds_config.rx_phy_id)
+  91              		.loc 1 72 0
+  92 0026 144B     		ldr	r3, .L8
+  93 0028 2268     		ldr	r2, [r4]
+  94 002a 9B68     		ldr	r3, [r3, #8]
+  95 002c 9A42     		cmp	r2, r3
+  96 002e 02D1     		bne	.L5
+  73:./Application/BSPSys/BSPUser/BSPUserHook.c ****         {
+  74:./Application/BSPSys/BSPUser/BSPUserHook.c ****             uds_recv_data_fristhandle(pWriteMsg);
+  97              		.loc 1 74 0
+  98 0030 2000     		movs	r0, r4
+  99 0032 FFF7FEFF 		bl	uds_recv_data_fristhandle
+ 100              	.LVL6:
+ARM GAS  /tmp/ccwtt4dU.s 			page 4
+
+
+ 101              	.L5:
+ 102              	.LBB2:
+  75:./Application/BSPSys/BSPUser/BSPUserHook.c ****         }
+  76:./Application/BSPSys/BSPUser/BSPUserHook.c **** 
+  77:./Application/BSPSys/BSPUser/BSPUserHook.c ****         //2.1 其他设备UDS升级报文检测(帧ID基址匹配但地址≠本机)
+  78:./Application/BSPSys/BSPUser/BSPUserHook.c ****         {
+  79:./Application/BSPSys/BSPUser/BSPUserHook.c ****             u32 idBase = pWriteMsg->ID & 0xFFFFFF00;
+ 103              		.loc 1 79 0
+ 104 0036 2368     		ldr	r3, [r4]
+ 105              	.LVL7:
+ 106 0038 FF22     		movs	r2, #255
+ 107 003a 1900     		movs	r1, r3
+ 108 003c 9143     		bics	r1, r2
+ 109 003e 0A00     		movs	r2, r1
+  80:./Application/BSPSys/BSPUser/BSPUserHook.c ****             u32 testerBase = REMOTE_TESTER_CAN_ID | (LOAD_DEV_ID << 8);
+  81:./Application/BSPSys/BSPUser/BSPUserHook.c ****             u32 deviceBase = LOCAL_DEVICE_CAN_ID  | (LOAD_DEV_ID << 8);
+  82:./Application/BSPSys/BSPUser/BSPUserHook.c ****             u8  addr = (u8)(pWriteMsg->ID & 0xFF);
+  83:./Application/BSPSys/BSPUser/BSPUserHook.c **** 
+  84:./Application/BSPSys/BSPUser/BSPUserHook.c ****             if(((idBase == testerBase) || (idBase == deviceBase))
+ 110              		.loc 1 84 0
+ 111 0040 0E49     		ldr	r1, .L8+4
+ 112 0042 5218     		adds	r2, r2, r1
+ 113 0044 0E49     		ldr	r1, .L8+8
+ 114 0046 0A42     		tst	r2, r1
+ 115 0048 06D1     		bne	.L6
+  85:./Application/BSPSys/BSPUser/BSPUserHook.c ****              && (addr != (u8)SystemInfo_1[DeviceAddr]))
+ 116              		.loc 1 85 0
+ 117 004a 0E4A     		ldr	r2, .L8+12
+ 118 004c DBB2     		uxtb	r3, r3
+ 119              	.LVL8:
+ 120 004e 9278     		ldrb	r2, [r2, #2]
+ 121 0050 9A42     		cmp	r2, r3
+ 122 0052 01D0     		beq	.L6
+  86:./Application/BSPSys/BSPUser/BSPUserHook.c ****             {
+  87:./Application/BSPSys/BSPUser/BSPUserHook.c ****                 UpgSilence_RefreshOtherTimer();
+ 123              		.loc 1 87 0
+ 124 0054 FFF7FEFF 		bl	UpgSilence_RefreshOtherTimer
+ 125              	.LVL9:
+ 126              	.L6:
+ 127              	.LBE2:
+  88:./Application/BSPSys/BSPUser/BSPUserHook.c ****             }
+  89:./Application/BSPSys/BSPUser/BSPUserHook.c ****         }
+  90:./Application/BSPSys/BSPUser/BSPUserHook.c ****         
+  91:./Application/BSPSys/BSPUser/BSPUserHook.c ****         //3.工装通信状态检测
+  92:./Application/BSPSys/BSPUser/BSPUserHook.c ****           if (ModbusReg[REG_TOOLING_CTRL][1] == 1)
+ 128              		.loc 1 92 0
+ 129 0058 0B4B     		ldr	r3, .L8+16
+ 130 005a 5B78     		ldrb	r3, [r3, #1]
+ 131 005c 012B     		cmp	r3, #1
+ 132 005e 09D1     		bne	.L2
+  93:./Application/BSPSys/BSPUser/BSPUserHook.c ****         {
+  94:./Application/BSPSys/BSPUser/BSPUserHook.c ****           ToolingCheckCANReviceAPI(*pWriteMsg,CANNum);
+ 133              		.loc 1 94 0
+ 134 0060 0023     		movs	r3, #0
+ 135 0062 3822     		movs	r2, #56
+ 136 0064 2900     		movs	r1, r5
+ 137 0066 6846     		mov	r0, sp
+ARM GAS  /tmp/ccwtt4dU.s 			page 5
+
+
+ 138 0068 0E93     		str	r3, [sp, #56]
+ 139 006a FFF7FEFF 		bl	memcpy
+ 140              	.LVL10:
+ 141 006e 0FCC     		ldmia	r4!, {r0, r1, r2, r3}
+ 142              	.LVL11:
+ 143 0070 FFF7FEFF 		bl	ToolingCheckCANReviceAPI
+ 144              	.LVL12:
+ 145              	.L2:
+  95:./Application/BSPSys/BSPUser/BSPUserHook.c ****         }
+  96:./Application/BSPSys/BSPUser/BSPUserHook.c **** 
+  97:./Application/BSPSys/BSPUser/BSPUserHook.c ****     }
+  98:./Application/BSPSys/BSPUser/BSPUserHook.c **** }
+ 146              		.loc 1 98 0
+ 147 0074 11B0     		add	sp, sp, #68
+ 148              		@ sp needed
+ 149 0076 30BD     		pop	{r4, r5, pc}
+ 150              	.L9:
+ 151              		.align	2
+ 152              	.L8:
+ 153 0078 00000000 		.word	g_uds_config
+ 154 007c 00FBEEF4 		.word	-185664768
+ 155 0080 FFFFFFFE 		.word	-16777217
+ 156 0084 00000000 		.word	SystemInfo_1
+ 157 0088 00000000 		.word	ModbusReg
+ 158              		.cfi_endproc
+ 159              	.LFE494:
+ 161              		.section	.text.USARTRcvMsgHandle_Hook,"ax",%progbits
+ 162              		.align	1
+ 163              		.global	USARTRcvMsgHandle_Hook
+ 164              		.syntax unified
+ 165              		.code	16
+ 166              		.thumb_func
+ 167              		.fpu softvfp
+ 169              	USARTRcvMsgHandle_Hook:
+ 170              	.LFB495:
+  99:./Application/BSPSys/BSPUser/BSPUserHook.c **** 
+ 100:./Application/BSPSys/BSPUser/BSPUserHook.c **** /*=============================================================================================
+ 101:./Application/BSPSys/BSPUser/BSPUserHook.c **** ** @Name      : void USARTRcvMsgHandle_Hook(e_USARTNUM USARTNum, t_USARTMSG *rcvData)
+ 102:./Application/BSPSys/BSPUser/BSPUserHook.c **** ** @Input     : SCINum:SCI通道 rcvMsg:接收到的数据
+ 103:./Application/BSPSys/BSPUser/BSPUserHook.c **** ** @Output    : void
+ 104:./Application/BSPSys/BSPUser/BSPUserHook.c **** ** @Function  : USART接收信息处理接口
+ 105:./Application/BSPSys/BSPUser/BSPUserHook.c **** ** @The notes :
+ 106:./Application/BSPSys/BSPUser/BSPUserHook.c **** **===========================================================================================*/
+ 107:./Application/BSPSys/BSPUser/BSPUserHook.c **** void USARTRcvMsgHandle_Hook(e_USARTNUM USARTNum, t_USARTMSG *rcvData)
+ 108:./Application/BSPSys/BSPUser/BSPUserHook.c **** {
+ 171              		.loc 1 108 0
+ 172              		.cfi_startproc
+ 173              		@ args = 0, pretend = 0, frame = 0
+ 174              		@ frame_needed = 0, uses_anonymous_args = 0
+ 175              	.LVL13:
+ 176 0000 10B5     		push	{r4, lr}
+ 177              	.LCFI3:
+ 178              		.cfi_def_cfa_offset 8
+ 179              		.cfi_offset 4, -8
+ 180              		.cfi_offset 14, -4
+ 109:./Application/BSPSys/BSPUser/BSPUserHook.c ****     if(USARTNum == eUSART6)
+ 181              		.loc 1 109 0
+ARM GAS  /tmp/ccwtt4dU.s 			page 6
+
+
+ 182 0002 0028     		cmp	r0, #0
+ 183 0004 02D1     		bne	.L10
+ 110:./Application/BSPSys/BSPUser/BSPUserHook.c ****     {             
+ 111:./Application/BSPSys/BSPUser/BSPUserHook.c ****       Usart6RcvMsgHandle_API(rcvData);
+ 184              		.loc 1 111 0
+ 185 0006 0800     		movs	r0, r1
+ 186              	.LVL14:
+ 187 0008 FFF7FEFF 		bl	Usart6RcvMsgHandle_API
+ 188              	.LVL15:
+ 189              	.L10:
+ 112:./Application/BSPSys/BSPUser/BSPUserHook.c ****     }
+ 113:./Application/BSPSys/BSPUser/BSPUserHook.c **** 
+ 114:./Application/BSPSys/BSPUser/BSPUserHook.c **** }
+ 190              		.loc 1 114 0
+ 191              		@ sp needed
+ 192 000c 10BD     		pop	{r4, pc}
+ 193              		.cfi_endproc
+ 194              	.LFE495:
+ 196              		.text
+ 197              	.Letext0:
+ 198              		.file 2 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/machine/_default_types.h"
+ 199              		.file 3 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/lock.h"
+ 200              		.file 4 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_types.h"
+ 201              		.file 5 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/lib/gcc/arm-none-eabi/7.3.1/include/stddef.h"
+ 202              		.file 6 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/reent.h"
+ 203              		.file 7 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/stdlib.h"
+ 204              		.file 8 "Application/BSPSys/Util/BSPTypeDef.h"
+ 205              		.file 9 "Application/BSPSys/BSPCfg/BSPConfig.h"
+ 206              		.file 10 "Application/BSPSys/BSPDriver/BSPUSART.h"
+ 207              		.file 11 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_stdint.h"
+ 208              		.file 12 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/system_stm32g0xx.h"
+ 209              		.file 13 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/stm32g0b1xx.h"
+ 210              		.file 14 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/stm32g0xx.h"
+ 211              		.file 15 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_def.h"
+ 212              		.file 16 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_dma.h"
+ 213              		.file 17 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_flash.h"
+ 214              		.file 18 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_fdcan.h"
+ 215              		.file 19 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_spi.h"
+ 216              		.file 20 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_uart.h"
+ 217              		.file 21 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal.h"
+ 218              		.file 22 "Core/Inc/main.h"
+ 219              		.file 23 "Core/Inc/fdcan.h"
+ 220              		.file 24 "Application/BSPSys/BSPDriver/BSPCAN.h"
+ 221              		.file 25 "Application/Funtion/SystemDebug/SystemDebug.h"
+ 222              		.file 26 "Application/Addition/Modbus/Modbus.h"
+ 223              		.file 27 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_ll_dma.h"
+ 224              		.file 28 "Application/Funtion/SystemData/SystemData.h"
+ 225              		.file 29 "Middlewares/Third_Party/FreeRTOS/Source/include/queue.h"
+ 226              		.file 30 "Middlewares/Third_Party/FreeRTOS/Source/include/semphr.h"
+ 227              		.file 31 "Application/Funtion/Usart/ToolingCheck.h"
+ 228              		.file 32 "Core/Inc/spi.h"
+ 229              		.file 33 "Application/BSPSys/BSPDevice/gd25q32e/BSPGD25Q32E.h"
+ 230              		.file 34 "Application/Addition/UDSCanfd/can_uds_arch.h"
+ 231              		.file 35 "Application/Addition/UDSCanfd/network_layer/can_uds_network_layer.h"
+ 232              		.file 36 "Application/Addition/RTT/SEGGER_RTT.h"
+ 233              		.file 37 "Application/Addition/UDSCanfd/services_layer/device_role/sid_internal_header.h"
+ 234              		.file 38 "Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.h"
+ARM GAS  /tmp/ccwtt4dU.s 			page 7
+
+
+ 235              		.file 39 "Application/Funtion/SystemInfo/SystemInfo.h"
+ 236              		.file 40 "Application/Funtion/Usart/UsartHandle.h"
+ 237              		.file 41 "Application/Funtion/CanLib/CANInterface.h"
+ 238              		.file 42 "Application/Funtion/CanLib/CANHandle.h"
+ 239              		.file 43 "Application/Addition/UDSCanfd/can_uds_interface.h"
+ 240              		.file 44 "<built-in>"
+ARM GAS  /tmp/ccwtt4dU.s 			page 8
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 BSPUserHook.c
+     /tmp/ccwtt4dU.s:16     .text.CANSendData_Hook:0000000000000000 $t
+     /tmp/ccwtt4dU.s:23     .text.CANSendData_Hook:0000000000000000 CANSendData_Hook
+     /tmp/ccwtt4dU.s:47     .text.CANRcvMsgHandle_Hook:0000000000000000 $t
+     /tmp/ccwtt4dU.s:54     .text.CANRcvMsgHandle_Hook:0000000000000000 CANRcvMsgHandle_Hook
+     /tmp/ccwtt4dU.s:153    .text.CANRcvMsgHandle_Hook:0000000000000078 $d
+     /tmp/ccwtt4dU.s:162    .text.USARTRcvMsgHandle_Hook:0000000000000000 $t
+     /tmp/ccwtt4dU.s:169    .text.USARTRcvMsgHandle_Hook:0000000000000000 USARTRcvMsgHandle_Hook
+
+UNDEFINED SYMBOLS
+memcpy
+CANLibRcvMsgHandle_API
+uds_recv_data_fristhandle
+UpgSilence_RefreshOtherTimer
+ToolingCheckCANReviceAPI
+g_uds_config
+SystemInfo_1
+ModbusReg
+Usart6RcvMsgHandle_API

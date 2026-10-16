@@ -1,0 +1,611 @@
+ARM GAS  /tmp/cclRkpez.s 			page 1
+
+
+   1              		.cpu cortex-m0plus
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 4
+   9              		.eabi_attribute 34, 0
+  10              		.eabi_attribute 18, 4
+  11              		.file	"BSPConfig.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.BSPUserCfgInit,"ax",%progbits
+  16              		.align	1
+  17              		.global	BSPUserCfgInit
+  18              		.syntax unified
+  19              		.code	16
+  20              		.thumb_func
+  21              		.fpu softvfp
+  23              	BSPUserCfgInit:
+  24              	.LFB493:
+  25              		.file 1 "./Application/BSPSys/BSPCfg/BSPConfig.c"
+   1:./Application/BSPSys/BSPCfg/BSPConfig.c **** /*==========================================Copyright(c)=======================================
+   2:./Application/BSPSys/BSPCfg/BSPConfig.c **** **                                  Shenzhen Infypower Co., Ltd.
+   3:./Application/BSPSys/BSPCfg/BSPConfig.c **** **                                  Power conversion Department
+   4:./Application/BSPSys/BSPCfg/BSPConfig.c **** **                                       BMS Product Line
+   5:./Application/BSPSys/BSPCfg/BSPConfig.c **** **
+   6:./Application/BSPSys/BSPCfg/BSPConfig.c **** **---------------------------------------File Information--------------------------------------
+   7:./Application/BSPSys/BSPCfg/BSPConfig.c **** ** @File Name    : BSPConfig.c
+   8:./Application/BSPSys/BSPCfg/BSPConfig.c **** ** @Founder      : WYC834
+   9:./Application/BSPSys/BSPCfg/BSPConfig.c **** ** @Date         : 2025.8.15
+  10:./Application/BSPSys/BSPCfg/BSPConfig.c **** ** @Function     : 各驱动模块初始化接口
+  11:./Application/BSPSys/BSPCfg/BSPConfig.c **** ** @Instructions :
+  12:./Application/BSPSys/BSPCfg/BSPConfig.c **** **===========================================================================================*/
+  13:./Application/BSPSys/BSPCfg/BSPConfig.c **** 
+  14:./Application/BSPSys/BSPCfg/BSPConfig.c **** /*=============================================================================================
+  15:./Application/BSPSys/BSPCfg/BSPConfig.c **** ** @Header file definition
+  16:./Application/BSPSys/BSPCfg/BSPConfig.c **** **===========================================================================================*/
+  17:./Application/BSPSys/BSPCfg/BSPConfig.c **** #include "BSPTypeDef.h"
+  18:./Application/BSPSys/BSPCfg/BSPConfig.c **** #include "BSPConfig.h"
+  19:./Application/BSPSys/BSPCfg/BSPConfig.c **** #include "BSPMCG.h"
+  20:./Application/BSPSys/BSPCfg/BSPConfig.c **** #include "BSPDIDO.h"
+  21:./Application/BSPSys/BSPCfg/BSPConfig.c **** #include "BSPGPIO.h"
+  22:./Application/BSPSys/BSPCfg/BSPConfig.c **** #include "BSPWDOG.h"
+  23:./Application/BSPSys/BSPCfg/BSPConfig.c **** #include "BSPDMA.h" 
+  24:./Application/BSPSys/BSPCfg/BSPConfig.c **** #include "BSPTIM.h"
+  25:./Application/BSPSys/BSPCfg/BSPConfig.c **** #include "BSPADC.h"
+  26:./Application/BSPSys/BSPCfg/BSPConfig.c **** #include "BSPCAN.h"
+  27:./Application/BSPSys/BSPCfg/BSPConfig.c **** #include "BSPSPI.h"
+  28:./Application/BSPSys/BSPCfg/BSPConfig.c **** #include "BSPUSART.h"
+  29:./Application/BSPSys/BSPCfg/BSPConfig.c **** #include "BSPIIC.h"
+  30:./Application/BSPSys/BSPCfg/BSPConfig.c **** #include "BSPFLASH.h"
+  31:./Application/BSPSys/BSPCfg/BSPConfig.c **** #include "BSPGD25Q32E.h"
+  32:./Application/BSPSys/BSPCfg/BSPConfig.c **** #include "Insulation.h"
+  33:./Application/BSPSys/BSPCfg/BSPConfig.c **** /*=============================================================================================
+ARM GAS  /tmp/cclRkpez.s 			page 2
+
+
+  34:./Application/BSPSys/BSPCfg/BSPConfig.c **** ** @Global variable definition
+  35:./Application/BSPSys/BSPCfg/BSPConfig.c **** **===========================================================================================*/
+  36:./Application/BSPSys/BSPCfg/BSPConfig.c **** volatile u_BSPFunCfg gBSPFunCfg;
+  37:./Application/BSPSys/BSPCfg/BSPConfig.c **** volatile s_BSPParaCfg gBSPParaCfg;
+  38:./Application/BSPSys/BSPCfg/BSPConfig.c **** /*=============================================================================================
+  39:./Application/BSPSys/BSPCfg/BSPConfig.c **** ** @Static function declaration
+  40:./Application/BSPSys/BSPCfg/BSPConfig.c **** **===========================================================================================*/
+  41:./Application/BSPSys/BSPCfg/BSPConfig.c **** 
+  42:./Application/BSPSys/BSPCfg/BSPConfig.c **** /*=============================================================================================
+  43:./Application/BSPSys/BSPCfg/BSPConfig.c **** ** @Interface function definition
+  44:./Application/BSPSys/BSPCfg/BSPConfig.c **** **===========================================================================================*/
+  45:./Application/BSPSys/BSPCfg/BSPConfig.c **** /*=============================================================================================
+  46:./Application/BSPSys/BSPCfg/BSPConfig.c **** ** @Name      : void BSPUserCfgInit(void)
+  47:./Application/BSPSys/BSPCfg/BSPConfig.c **** ** @Input     : void
+  48:./Application/BSPSys/BSPCfg/BSPConfig.c **** ** @Output    : void
+  49:./Application/BSPSys/BSPCfg/BSPConfig.c **** ** @Function  : BSP驱动功能用户配置模块参数初始化
+  50:./Application/BSPSys/BSPCfg/BSPConfig.c **** ** @The notes : Main()函数调用，上电初始化
+  51:./Application/BSPSys/BSPCfg/BSPConfig.c **** **===========================================================================================*/
+  52:./Application/BSPSys/BSPCfg/BSPConfig.c **** void BSPUserCfgInit(void)
+  53:./Application/BSPSys/BSPCfg/BSPConfig.c **** {
+  26              		.loc 1 53 0
+  27              		.cfi_startproc
+  28              		@ args = 0, pretend = 0, frame = 0
+  29              		@ frame_needed = 0, uses_anonymous_args = 0
+  30              		@ link register save eliminated.
+  54:./Application/BSPSys/BSPCfg/BSPConfig.c ****     /*读取驱动模块使能配置*/
+  55:./Application/BSPSys/BSPCfg/BSPConfig.c ****     gBSPFunCfg.Bits.TIM6En = TIM6_FUN_EN;		/*定时器6使能配置*/
+  31              		.loc 1 55 0
+  32 0000 8022     		movs	r2, #128
+  33 0002 224B     		ldr	r3, .L2
+  34 0004 9200     		lsls	r2, r2, #2
+  35 0006 1988     		ldrh	r1, [r3]
+  56:./Application/BSPSys/BSPCfg/BSPConfig.c ****     gBSPFunCfg.Bits.TIM7En = TIM7_FUN_EN;		/*定时器7使能配置*/
+  57:./Application/BSPSys/BSPCfg/BSPConfig.c **** 
+  58:./Application/BSPSys/BSPCfg/BSPConfig.c ****     gBSPFunCfg.Bits.CAN1En = CAN1_FUN_EN;		/*CAN1使能配置*/
+  59:./Application/BSPSys/BSPCfg/BSPConfig.c **** 
+  60:./Application/BSPSys/BSPCfg/BSPConfig.c ****     gBSPFunCfg.Bits.SPI1En = SPI1_FUN_EN;		/*SPI1使能配置*/
+  61:./Application/BSPSys/BSPCfg/BSPConfig.c ****     gBSPFunCfg.Bits.SPI3En = SPI3_FUN_EN;		/*SPI3使能配置*/
+  62:./Application/BSPSys/BSPCfg/BSPConfig.c ****         
+  63:./Application/BSPSys/BSPCfg/BSPConfig.c ****     gBSPFunCfg.Bits.USART6En = USART6_FUN_EN;		/*USART6使能配置*/
+  64:./Application/BSPSys/BSPCfg/BSPConfig.c ****     gBSPFunCfg.Bits.IIC2En = IIC2_FUN_EN;		    /*IIC使能配置*/
+  65:./Application/BSPSys/BSPCfg/BSPConfig.c ****     gBSPFunCfg.Bits.FLASHEn = FLASH_FUN_EN;
+  66:./Application/BSPSys/BSPCfg/BSPConfig.c **** 
+  67:./Application/BSPSys/BSPCfg/BSPConfig.c ****     gBSPFunCfg.Bits.ADCEn  = ADC_FUN_EN;         /*ADC使能配置*/
+  68:./Application/BSPSys/BSPCfg/BSPConfig.c **** 
+  69:./Application/BSPSys/BSPCfg/BSPConfig.c ****     gBSPFunCfg.Bits.DMAEn  = DMA_FUN_EN;         /*DMA使能配置*/
+  70:./Application/BSPSys/BSPCfg/BSPConfig.c ****     gBSPFunCfg.Bits.GPIOEn = GPIO_FUN_EN;        /*GPIO使能配置*/
+  71:./Application/BSPSys/BSPCfg/BSPConfig.c ****     gBSPFunCfg.Bits.DIDOEn  = DIDO_FUN_EN;       /*DIDO使能配置*/
+  72:./Application/BSPSys/BSPCfg/BSPConfig.c ****     gBSPFunCfg.Bits.WDOGEn = WDOG_FUN_EN;        /*wdog使能配置*/
+  73:./Application/BSPSys/BSPCfg/BSPConfig.c **** 
+  74:./Application/BSPSys/BSPCfg/BSPConfig.c ****     /*读取驱动模块功能参数配置信息*/
+  75:./Application/BSPSys/BSPCfg/BSPConfig.c ****     gBSPParaCfg.Can1Rate   = CAN1_BPS;           /*CAN1通信波特率(1kbps)*/
+  76:./Application/BSPSys/BSPCfg/BSPConfig.c ****     gBSPParaCfg.Usart6Rate   = USART6_BPS;         /*USART6通信波特率(1Mbps)*/
+  77:./Application/BSPSys/BSPCfg/BSPConfig.c ****     gBSPParaCfg.Spi1Rate   = SPI1_BPS;         /*SPI1通信波特率(1Mbps)*/
+  78:./Application/BSPSys/BSPCfg/BSPConfig.c ****     gBSPParaCfg.Spi3Rate   = SPI3_BPS;         /*SPI2通信波特率(1Mbps)*/
+  79:./Application/BSPSys/BSPCfg/BSPConfig.c **** 
+  80:./Application/BSPSys/BSPCfg/BSPConfig.c **** }
+ARM GAS  /tmp/cclRkpez.s 			page 3
+
+
+  36              		.loc 1 80 0
+  37              		@ sp needed
+  55:./Application/BSPSys/BSPCfg/BSPConfig.c ****     gBSPFunCfg.Bits.TIM7En = TIM7_FUN_EN;		/*定时器7使能配置*/
+  38              		.loc 1 55 0
+  39 0008 0A43     		orrs	r2, r1
+  40 000a 1A80     		strh	r2, [r3]
+  56:./Application/BSPSys/BSPCfg/BSPConfig.c ****     gBSPFunCfg.Bits.TIM7En = TIM7_FUN_EN;		/*定时器7使能配置*/
+  41              		.loc 1 56 0
+  42 000c 8022     		movs	r2, #128
+  43 000e 1988     		ldrh	r1, [r3]
+  44 0010 D200     		lsls	r2, r2, #3
+  45 0012 0A43     		orrs	r2, r1
+  46 0014 1A80     		strh	r2, [r3]
+  58:./Application/BSPSys/BSPCfg/BSPConfig.c **** 
+  47              		.loc 1 58 0
+  48 0016 0122     		movs	r2, #1
+  49 0018 1988     		ldrh	r1, [r3]
+  50 001a 0A43     		orrs	r2, r1
+  51 001c 1A80     		strh	r2, [r3]
+  60:./Application/BSPSys/BSPCfg/BSPConfig.c ****     gBSPFunCfg.Bits.SPI3En = SPI3_FUN_EN;		/*SPI3使能配置*/
+  52              		.loc 1 60 0
+  53 001e 0422     		movs	r2, #4
+  54 0020 1988     		ldrh	r1, [r3]
+  55 0022 0A43     		orrs	r2, r1
+  56 0024 1A80     		strh	r2, [r3]
+  61:./Application/BSPSys/BSPCfg/BSPConfig.c ****         
+  57              		.loc 1 61 0
+  58 0026 0822     		movs	r2, #8
+  59 0028 1988     		ldrh	r1, [r3]
+  60 002a 0A43     		orrs	r2, r1
+  61 002c 1A80     		strh	r2, [r3]
+  63:./Application/BSPSys/BSPCfg/BSPConfig.c ****     gBSPFunCfg.Bits.IIC2En = IIC2_FUN_EN;		    /*IIC使能配置*/
+  62              		.loc 1 63 0
+  63 002e 0222     		movs	r2, #2
+  64 0030 1988     		ldrh	r1, [r3]
+  65 0032 0A43     		orrs	r2, r1
+  66 0034 1A80     		strh	r2, [r3]
+  64:./Application/BSPSys/BSPCfg/BSPConfig.c ****     gBSPFunCfg.Bits.FLASHEn = FLASH_FUN_EN;
+  67              		.loc 1 64 0
+  68 0036 1022     		movs	r2, #16
+  69 0038 1988     		ldrh	r1, [r3]
+  70 003a 0A43     		orrs	r2, r1
+  71 003c 1A80     		strh	r2, [r3]
+  65:./Application/BSPSys/BSPCfg/BSPConfig.c **** 
+  72              		.loc 1 65 0
+  73 003e 2022     		movs	r2, #32
+  74 0040 1988     		ldrh	r1, [r3]
+  75 0042 0A43     		orrs	r2, r1
+  76 0044 1A80     		strh	r2, [r3]
+  67:./Application/BSPSys/BSPCfg/BSPConfig.c **** 
+  77              		.loc 1 67 0
+  78 0046 4022     		movs	r2, #64
+  79 0048 1988     		ldrh	r1, [r3]
+  80 004a 0A43     		orrs	r2, r1
+  81 004c 1A80     		strh	r2, [r3]
+  69:./Application/BSPSys/BSPCfg/BSPConfig.c ****     gBSPFunCfg.Bits.GPIOEn = GPIO_FUN_EN;        /*GPIO使能配置*/
+  82              		.loc 1 69 0
+ARM GAS  /tmp/cclRkpez.s 			page 4
+
+
+  83 004e 8022     		movs	r2, #128
+  84 0050 1988     		ldrh	r1, [r3]
+  85 0052 5200     		lsls	r2, r2, #1
+  86 0054 0A43     		orrs	r2, r1
+  87 0056 1A80     		strh	r2, [r3]
+  70:./Application/BSPSys/BSPCfg/BSPConfig.c ****     gBSPFunCfg.Bits.DIDOEn  = DIDO_FUN_EN;       /*DIDO使能配置*/
+  88              		.loc 1 70 0
+  89 0058 8022     		movs	r2, #128
+  90 005a 1988     		ldrh	r1, [r3]
+  91 005c 5201     		lsls	r2, r2, #5
+  92 005e 0A43     		orrs	r2, r1
+  93 0060 1A80     		strh	r2, [r3]
+  71:./Application/BSPSys/BSPCfg/BSPConfig.c ****     gBSPFunCfg.Bits.WDOGEn = WDOG_FUN_EN;        /*wdog使能配置*/
+  94              		.loc 1 71 0
+  95 0062 8022     		movs	r2, #128
+  96 0064 1988     		ldrh	r1, [r3]
+  97 0066 1201     		lsls	r2, r2, #4
+  98 0068 0A43     		orrs	r2, r1
+  99 006a 1A80     		strh	r2, [r3]
+  72:./Application/BSPSys/BSPCfg/BSPConfig.c **** 
+ 100              		.loc 1 72 0
+ 101 006c 8022     		movs	r2, #128
+ 102 006e 1988     		ldrh	r1, [r3]
+ 103 0070 0A43     		orrs	r2, r1
+ 104 0072 1A80     		strh	r2, [r3]
+  75:./Application/BSPSys/BSPCfg/BSPConfig.c ****     gBSPParaCfg.Usart6Rate   = USART6_BPS;         /*USART6通信波特率(1Mbps)*/
+ 105              		.loc 1 75 0
+ 106 0074 FA22     		movs	r2, #250
+ 107 0076 064B     		ldr	r3, .L2+4
+ 108 0078 5200     		lsls	r2, r2, #1
+ 109 007a 1A80     		strh	r2, [r3]
+  76:./Application/BSPSys/BSPCfg/BSPConfig.c ****     gBSPParaCfg.Spi1Rate   = SPI1_BPS;         /*SPI1通信波特率(1Mbps)*/
+ 110              		.loc 1 76 0
+ 111 007c 9622     		movs	r2, #150
+ 112 007e 9201     		lsls	r2, r2, #6
+ 113 0080 5A80     		strh	r2, [r3, #2]
+  77:./Application/BSPSys/BSPCfg/BSPConfig.c ****     gBSPParaCfg.Spi3Rate   = SPI3_BPS;         /*SPI2通信波特率(1Mbps)*/
+ 114              		.loc 1 77 0
+ 115 0082 FA22     		movs	r2, #250
+ 116 0084 9200     		lsls	r2, r2, #2
+ 117 0086 9A80     		strh	r2, [r3, #4]
+  78:./Application/BSPSys/BSPCfg/BSPConfig.c **** 
+ 118              		.loc 1 78 0
+ 119 0088 DA80     		strh	r2, [r3, #6]
+ 120              		.loc 1 80 0
+ 121 008a 7047     		bx	lr
+ 122              	.L3:
+ 123              		.align	2
+ 124              	.L2:
+ 125 008c 00000000 		.word	gBSPFunCfg
+ 126 0090 00000000 		.word	gBSPParaCfg
+ 127              		.cfi_endproc
+ 128              	.LFE493:
+ 130              		.section	.text.BSPDriverInit,"ax",%progbits
+ 131              		.align	1
+ 132              		.global	BSPDriverInit
+ 133              		.syntax unified
+ARM GAS  /tmp/cclRkpez.s 			page 5
+
+
+ 134              		.code	16
+ 135              		.thumb_func
+ 136              		.fpu softvfp
+ 138              	BSPDriverInit:
+ 139              	.LFB494:
+  81:./Application/BSPSys/BSPCfg/BSPConfig.c **** 
+  82:./Application/BSPSys/BSPCfg/BSPConfig.c **** /*=============================================================================================
+  83:./Application/BSPSys/BSPCfg/BSPConfig.c **** ** @Name      : void BSPDriverInit(void)
+  84:./Application/BSPSys/BSPCfg/BSPConfig.c **** ** @Input     : void
+  85:./Application/BSPSys/BSPCfg/BSPConfig.c **** ** @Output    : void
+  86:./Application/BSPSys/BSPCfg/BSPConfig.c **** ** @Function  : 所有底层驱动模块进行初始化
+  87:./Application/BSPSys/BSPCfg/BSPConfig.c **** ** @The notes : Main()函数调用，上电初始化
+  88:./Application/BSPSys/BSPCfg/BSPConfig.c **** **===========================================================================================*/
+  89:./Application/BSPSys/BSPCfg/BSPConfig.c **** void BSPDriverInit(void)
+  90:./Application/BSPSys/BSPCfg/BSPConfig.c **** {
+ 140              		.loc 1 90 0
+ 141              		.cfi_startproc
+ 142              		@ args = 0, pretend = 0, frame = 0
+ 143              		@ frame_needed = 0, uses_anonymous_args = 0
+ 144 0000 10B5     		push	{r4, lr}
+ 145              	.LCFI0:
+ 146              		.cfi_def_cfa_offset 8
+ 147              		.cfi_offset 4, -8
+ 148              		.cfi_offset 14, -4
+  91:./Application/BSPSys/BSPCfg/BSPConfig.c ****     BSPMCGInit();                                                               /*初始化时钟�
+ 149              		.loc 1 91 0
+ 150 0002 FFF7FEFF 		bl	BSPMCGInit
+ 151              	.LVL0:
+  92:./Application/BSPSys/BSPCfg/BSPConfig.c ****     if(1 == gBSPFunCfg.Bits.GPIOEn)                                              /*GPIO使能*/
+ 152              		.loc 1 92 0
+ 153 0006 244C     		ldr	r4, .L17
+ 154 0008 2388     		ldrh	r3, [r4]
+ 155 000a DB04     		lsls	r3, r3, #19
+ 156 000c 01D5     		bpl	.L5
+  93:./Application/BSPSys/BSPCfg/BSPConfig.c ****     {
+  94:./Application/BSPSys/BSPCfg/BSPConfig.c ****         BSPALLGPIOInit();                                                       /*初始化gpio口*
+ 157              		.loc 1 94 0
+ 158 000e FFF7FEFF 		bl	BSPALLGPIOInit
+ 159              	.LVL1:
+ 160              	.L5:
+  95:./Application/BSPSys/BSPCfg/BSPConfig.c ****     }
+  96:./Application/BSPSys/BSPCfg/BSPConfig.c **** 
+  97:./Application/BSPSys/BSPCfg/BSPConfig.c ****     if(1 == gBSPFunCfg.Bits.DMAEn)                                              /*DMA使能*/
+ 161              		.loc 1 97 0
+ 162 0012 2388     		ldrh	r3, [r4]
+ 163 0014 DB05     		lsls	r3, r3, #23
+ 164 0016 01D5     		bpl	.L6
+  98:./Application/BSPSys/BSPCfg/BSPConfig.c ****     {
+  99:./Application/BSPSys/BSPCfg/BSPConfig.c ****         BSPDMAInit();                                                           /*初始化DMA*/   
+ 165              		.loc 1 99 0
+ 166 0018 FFF7FEFF 		bl	BSPDMAInit
+ 167              	.LVL2:
+ 168              	.L6:
+ 100:./Application/BSPSys/BSPCfg/BSPConfig.c ****     }
+ 101:./Application/BSPSys/BSPCfg/BSPConfig.c ****     
+ 102:./Application/BSPSys/BSPCfg/BSPConfig.c ****     if(1 == gBSPFunCfg.Bits.ADCEn)                                              /*ADC使能*/
+ 169              		.loc 1 102 0
+ARM GAS  /tmp/cclRkpez.s 			page 6
+
+
+ 170 001c 2388     		ldrh	r3, [r4]
+ 171 001e 5B06     		lsls	r3, r3, #25
+ 172 0020 02D5     		bpl	.L7
+ 103:./Application/BSPSys/BSPCfg/BSPConfig.c ****     {
+ 104:./Application/BSPSys/BSPCfg/BSPConfig.c ****         BSPADCInit(eADC_MOD1);                                                  /*初始化ADC*/
+ 173              		.loc 1 104 0
+ 174 0022 0020     		movs	r0, #0
+ 175 0024 FFF7FEFF 		bl	BSPADCInit
+ 176              	.LVL3:
+ 177              	.L7:
+ 105:./Application/BSPSys/BSPCfg/BSPConfig.c ****     }
+ 106:./Application/BSPSys/BSPCfg/BSPConfig.c **** 
+ 107:./Application/BSPSys/BSPCfg/BSPConfig.c ****     if(1 == gBSPFunCfg.Bits.CAN1En)                                             /*CAN1使能*/
+ 178              		.loc 1 107 0
+ 179 0028 2388     		ldrh	r3, [r4]
+ 180 002a DB07     		lsls	r3, r3, #31
+ 181 002c 02D5     		bpl	.L8
+ 108:./Application/BSPSys/BSPCfg/BSPConfig.c ****     {
+ 109:./Application/BSPSys/BSPCfg/BSPConfig.c ****         BSPCANInit(eCAN1);                                                      /*初始化CAN1*/
+ 182              		.loc 1 109 0
+ 183 002e 0020     		movs	r0, #0
+ 184 0030 FFF7FEFF 		bl	BSPCANInit
+ 185              	.LVL4:
+ 186              	.L8:
+ 110:./Application/BSPSys/BSPCfg/BSPConfig.c ****     }
+ 111:./Application/BSPSys/BSPCfg/BSPConfig.c **** 
+ 112:./Application/BSPSys/BSPCfg/BSPConfig.c ****     if(1 == gBSPFunCfg.Bits.SPI1En)                                             /*SPI_1使能*/
+ 187              		.loc 1 112 0
+ 188 0034 2388     		ldrh	r3, [r4]
+ 189 0036 5B07     		lsls	r3, r3, #29
+ 190 0038 02D5     		bpl	.L9
+ 113:./Application/BSPSys/BSPCfg/BSPConfig.c ****     {
+ 114:./Application/BSPSys/BSPCfg/BSPConfig.c ****        BSPSPIInit(eSPI1);                                                       /*初始化SPI_1*/
+ 191              		.loc 1 114 0
+ 192 003a 0020     		movs	r0, #0
+ 193 003c FFF7FEFF 		bl	BSPSPIInit
+ 194              	.LVL5:
+ 195              	.L9:
+ 115:./Application/BSPSys/BSPCfg/BSPConfig.c ****     }
+ 116:./Application/BSPSys/BSPCfg/BSPConfig.c **** 
+ 117:./Application/BSPSys/BSPCfg/BSPConfig.c ****     if(1 == gBSPFunCfg.Bits.SPI3En)                                             /*SPI_3使能*/
+ 196              		.loc 1 117 0
+ 197 0040 2388     		ldrh	r3, [r4]
+ 198 0042 1B07     		lsls	r3, r3, #28
+ 199 0044 02D5     		bpl	.L10
+ 118:./Application/BSPSys/BSPCfg/BSPConfig.c ****     {
+ 119:./Application/BSPSys/BSPCfg/BSPConfig.c ****        BSPSPIInit(eSPI3);                                                       /*初始化SPI_3*/
+ 200              		.loc 1 119 0
+ 201 0046 0220     		movs	r0, #2
+ 202 0048 FFF7FEFF 		bl	BSPSPIInit
+ 203              	.LVL6:
+ 204              	.L10:
+ 120:./Application/BSPSys/BSPCfg/BSPConfig.c ****     }
+ 121:./Application/BSPSys/BSPCfg/BSPConfig.c ****     
+ 122:./Application/BSPSys/BSPCfg/BSPConfig.c **** 
+ 123:./Application/BSPSys/BSPCfg/BSPConfig.c ****     if(1 == gBSPFunCfg.Bits.USART6En)                                           /*USART_6使能*/
+ 205              		.loc 1 123 0
+ARM GAS  /tmp/cclRkpez.s 			page 7
+
+
+ 206 004c 2388     		ldrh	r3, [r4]
+ 207 004e 9B07     		lsls	r3, r3, #30
+ 208 0050 02D5     		bpl	.L11
+ 124:./Application/BSPSys/BSPCfg/BSPConfig.c ****     {
+ 125:./Application/BSPSys/BSPCfg/BSPConfig.c ****         BSPUSARTInit(eUSART6);                                                  /*初始化USART_6*
+ 209              		.loc 1 125 0
+ 210 0052 0020     		movs	r0, #0
+ 211 0054 FFF7FEFF 		bl	BSPUSARTInit
+ 212              	.LVL7:
+ 213              	.L11:
+ 126:./Application/BSPSys/BSPCfg/BSPConfig.c ****     }
+ 127:./Application/BSPSys/BSPCfg/BSPConfig.c **** 
+ 128:./Application/BSPSys/BSPCfg/BSPConfig.c ****     if(1== gBSPFunCfg.Bits.IIC2En)
+ 214              		.loc 1 128 0
+ 215 0058 2088     		ldrh	r0, [r4]
+ 216 005a C006     		lsls	r0, r0, #27
+ 217 005c C00F     		lsrs	r0, r0, #31
+ 218 005e 0128     		cmp	r0, #1
+ 219 0060 01D1     		bne	.L12
+ 129:./Application/BSPSys/BSPCfg/BSPConfig.c ****     {
+ 130:./Application/BSPSys/BSPCfg/BSPConfig.c ****         BSPIICInit(eIIC2);
+ 220              		.loc 1 130 0
+ 221 0062 FFF7FEFF 		bl	BSPIICInit
+ 222              	.LVL8:
+ 223              	.L12:
+ 131:./Application/BSPSys/BSPCfg/BSPConfig.c ****     }
+ 132:./Application/BSPSys/BSPCfg/BSPConfig.c **** 
+ 133:./Application/BSPSys/BSPCfg/BSPConfig.c ****     if(1 == gBSPFunCfg.Bits.TIM6En)                                             /*定时器TIM6使�
+ 224              		.loc 1 133 0
+ 225 0066 2388     		ldrh	r3, [r4]
+ 226 0068 9B05     		lsls	r3, r3, #22
+ 227 006a 02D5     		bpl	.L13
+ 134:./Application/BSPSys/BSPCfg/BSPConfig.c ****     {                                                                           /*定时器TIM6*/
+ 135:./Application/BSPSys/BSPCfg/BSPConfig.c ****         BSPTIMInit(eTIM6);                                                      /*初始化定时�
+ 228              		.loc 1 135 0
+ 229 006c 0020     		movs	r0, #0
+ 230 006e FFF7FEFF 		bl	BSPTIMInit
+ 231              	.LVL9:
+ 232              	.L13:
+ 136:./Application/BSPSys/BSPCfg/BSPConfig.c ****     }
+ 137:./Application/BSPSys/BSPCfg/BSPConfig.c ****     if(1 == gBSPFunCfg.Bits.TIM7En)                                             /*定时器TIM7使�
+ 233              		.loc 1 137 0
+ 234 0072 2088     		ldrh	r0, [r4]
+ 235 0074 4005     		lsls	r0, r0, #21
+ 236 0076 C00F     		lsrs	r0, r0, #31
+ 237 0078 0128     		cmp	r0, #1
+ 238 007a 01D1     		bne	.L14
+ 138:./Application/BSPSys/BSPCfg/BSPConfig.c ****     {                                                                           /*定时器TIM7*/
+ 139:./Application/BSPSys/BSPCfg/BSPConfig.c ****         BSPTIMInit(eTIM7);                                                      /*初始化定时�
+ 239              		.loc 1 139 0
+ 240 007c FFF7FEFF 		bl	BSPTIMInit
+ 241              	.LVL10:
+ 242              	.L14:
+ 140:./Application/BSPSys/BSPCfg/BSPConfig.c ****     }
+ 141:./Application/BSPSys/BSPCfg/BSPConfig.c **** 
+ 142:./Application/BSPSys/BSPCfg/BSPConfig.c ****     if(1 == gBSPFunCfg.Bits.FLASHEn)                                            /*内部FLASH使能
+ 243              		.loc 1 142 0
+ARM GAS  /tmp/cclRkpez.s 			page 8
+
+
+ 244 0080 2388     		ldrh	r3, [r4]
+ 245 0082 9B06     		lsls	r3, r3, #26
+ 246 0084 01D5     		bpl	.L15
+ 143:./Application/BSPSys/BSPCfg/BSPConfig.c ****     {
+ 144:./Application/BSPSys/BSPCfg/BSPConfig.c ****         BSPINTFLASHInit();                                                      /*初始化内部FL
+ 247              		.loc 1 144 0
+ 248 0086 FFF7FEFF 		bl	BSPINTFLASHInit
+ 249              	.LVL11:
+ 250              	.L15:
+ 145:./Application/BSPSys/BSPCfg/BSPConfig.c ****     }
+ 146:./Application/BSPSys/BSPCfg/BSPConfig.c ****     
+ 147:./Application/BSPSys/BSPCfg/BSPConfig.c ****     if(1 == gBSPFunCfg.Bits.WDOGEn)                                             /*内部看门狗�
+ 251              		.loc 1 147 0
+ 252 008a 2388     		ldrh	r3, [r4]
+ 253 008c 1B06     		lsls	r3, r3, #24
+ 254 008e 01D5     		bpl	.L4
+ 148:./Application/BSPSys/BSPCfg/BSPConfig.c ****     {
+ 149:./Application/BSPSys/BSPCfg/BSPConfig.c ****         BSPWatchDogInit();                                                      /*初始化看门�
+ 255              		.loc 1 149 0
+ 256 0090 FFF7FEFF 		bl	BSPWatchDogInit
+ 257              	.LVL12:
+ 258              	.L4:
+ 150:./Application/BSPSys/BSPCfg/BSPConfig.c ****     }
+ 151:./Application/BSPSys/BSPCfg/BSPConfig.c **** }
+ 259              		.loc 1 151 0
+ 260              		@ sp needed
+ 261 0094 10BD     		pop	{r4, pc}
+ 262              	.L18:
+ 263 0096 C046     		.align	2
+ 264              	.L17:
+ 265 0098 00000000 		.word	gBSPFunCfg
+ 266              		.cfi_endproc
+ 267              	.LFE494:
+ 269              		.section	.text.DEVDriverInit,"ax",%progbits
+ 270              		.align	1
+ 271              		.global	DEVDriverInit
+ 272              		.syntax unified
+ 273              		.code	16
+ 274              		.thumb_func
+ 275              		.fpu softvfp
+ 277              	DEVDriverInit:
+ 278              	.LFB495:
+ 152:./Application/BSPSys/BSPCfg/BSPConfig.c **** 
+ 153:./Application/BSPSys/BSPCfg/BSPConfig.c **** /*=============================================================================================
+ 154:./Application/BSPSys/BSPCfg/BSPConfig.c **** ** @Name      : void DEVDriverInit(void)
+ 155:./Application/BSPSys/BSPCfg/BSPConfig.c **** ** @Input     : void
+ 156:./Application/BSPSys/BSPCfg/BSPConfig.c **** ** @Output    : void
+ 157:./Application/BSPSys/BSPCfg/BSPConfig.c **** ** @Function  : 所有外围设备驱动模块初始化
+ 158:./Application/BSPSys/BSPCfg/BSPConfig.c **** ** @The notes : Main()函数调用，上电初始化。必须在底层驱动初始化完成后调�
+ 159:./Application/BSPSys/BSPCfg/BSPConfig.c **** **===========================================================================================*/
+ 160:./Application/BSPSys/BSPCfg/BSPConfig.c **** void DEVDriverInit(void)
+ 161:./Application/BSPSys/BSPCfg/BSPConfig.c **** {
+ 279              		.loc 1 161 0
+ 280              		.cfi_startproc
+ 281              		@ args = 0, pretend = 0, frame = 0
+ 282              		@ frame_needed = 0, uses_anonymous_args = 0
+ 283 0000 10B5     		push	{r4, lr}
+ARM GAS  /tmp/cclRkpez.s 			page 9
+
+
+ 284              	.LCFI1:
+ 285              		.cfi_def_cfa_offset 8
+ 286              		.cfi_offset 4, -8
+ 287              		.cfi_offset 14, -4
+ 162:./Application/BSPSys/BSPCfg/BSPConfig.c **** 
+ 163:./Application/BSPSys/BSPCfg/BSPConfig.c **** 
+ 164:./Application/BSPSys/BSPCfg/BSPConfig.c ****     BSP_GD25Qx_Init();/*外部falsh初始化*/ 
+ 288              		.loc 1 164 0
+ 289 0002 FFF7FEFF 		bl	BSP_GD25Qx_Init
+ 290              	.LVL13:
+ 165:./Application/BSPSys/BSPCfg/BSPConfig.c ****     
+ 166:./Application/BSPSys/BSPCfg/BSPConfig.c ****     DEVGPIOGetHWVersion();/*初始化硬件版本号*/ 
+ 291              		.loc 1 166 0
+ 292 0006 FFF7FEFF 		bl	DEVGPIOGetHWVersion
+ 293              	.LVL14:
+ 167:./Application/BSPSys/BSPCfg/BSPConfig.c ****     
+ 168:./Application/BSPSys/BSPCfg/BSPConfig.c ****     Insulation_InitInsulationData();/*绝缘检测信息初始化*/  
+ 294              		.loc 1 168 0
+ 295 000a FFF7FEFF 		bl	Insulation_InitInsulationData
+ 296              	.LVL15:
+ 169:./Application/BSPSys/BSPCfg/BSPConfig.c **** 
+ 170:./Application/BSPSys/BSPCfg/BSPConfig.c ****     if(1 == gBSPFunCfg.Bits.USART6En)
+ 297              		.loc 1 170 0
+ 298 000e 044B     		ldr	r3, .L21
+ 299 0010 1B88     		ldrh	r3, [r3]
+ 300 0012 9B07     		lsls	r3, r3, #30
+ 301 0014 01D5     		bpl	.L20
+ 171:./Application/BSPSys/BSPCfg/BSPConfig.c ****     {
+ 172:./Application/BSPSys/BSPCfg/BSPConfig.c ****         BSPUSARTBufInit(); /*初始化USART发送/接收BUF*/ 
+ 302              		.loc 1 172 0
+ 303 0016 FFF7FEFF 		bl	BSPUSARTBufInit
+ 304              	.LVL16:
+ 305              	.L20:
+ 173:./Application/BSPSys/BSPCfg/BSPConfig.c ****     }  
+ 174:./Application/BSPSys/BSPCfg/BSPConfig.c ****     BSPCanBufInit();    /*初始化CAN发送/接收BUF*/ 
+ 306              		.loc 1 174 0
+ 307 001a FFF7FEFF 		bl	BSPCanBufInit
+ 308              	.LVL17:
+ 175:./Application/BSPSys/BSPCfg/BSPConfig.c ****     
+ 176:./Application/BSPSys/BSPCfg/BSPConfig.c **** }
+ 309              		.loc 1 176 0
+ 310              		@ sp needed
+ 311 001e 10BD     		pop	{r4, pc}
+ 312              	.L22:
+ 313              		.align	2
+ 314              	.L21:
+ 315 0020 00000000 		.word	gBSPFunCfg
+ 316              		.cfi_endproc
+ 317              	.LFE495:
+ 319              		.comm	gBSPParaCfg,8,2
+ 320              		.comm	gBSPFunCfg,4,4
+ 321              		.text
+ 322              	.Letext0:
+ 323              		.file 2 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/machine/_default_types.h"
+ 324              		.file 3 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/lock.h"
+ 325              		.file 4 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_types.h"
+ 326              		.file 5 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/lib/gcc/arm-none-eabi/7.3.1/include/stddef.h"
+ARM GAS  /tmp/cclRkpez.s 			page 10
+
+
+ 327              		.file 6 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/reent.h"
+ 328              		.file 7 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/stdlib.h"
+ 329              		.file 8 "Application/BSPSys/Util/BSPTypeDef.h"
+ 330              		.file 9 "./Application/BSPSys/BSPCfg/BSPConfig.h"
+ 331              		.file 10 "Application/Funtion/SystemInfo/SystemInfo.h"
+ 332              		.file 11 "Application/BSPSys/BSPDriver/BSPTIM.h"
+ 333              		.file 12 "Application/BSPSys/BSPDriver/BSPADC.h"
+ 334              		.file 13 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_stdint.h"
+ 335              		.file 14 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/system_stm32g0xx.h"
+ 336              		.file 15 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/stm32g0b1xx.h"
+ 337              		.file 16 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/stm32g0xx.h"
+ 338              		.file 17 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_def.h"
+ 339              		.file 18 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_dma.h"
+ 340              		.file 19 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_flash.h"
+ 341              		.file 20 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_fdcan.h"
+ 342              		.file 21 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_spi.h"
+ 343              		.file 22 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_uart.h"
+ 344              		.file 23 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal.h"
+ 345              		.file 24 "Core/Inc/main.h"
+ 346              		.file 25 "Core/Inc/fdcan.h"
+ 347              		.file 26 "Application/BSPSys/BSPDriver/BSPCAN.h"
+ 348              		.file 27 "Application/BSPSys/BSPDriver/BSPSPI.h"
+ 349              		.file 28 "Application/BSPSys/BSPDriver/BSPUSART.h"
+ 350              		.file 29 "Application/BSPSys/BSPDriver/BSPIIC.h"
+ 351              		.file 30 "Core/Inc/spi.h"
+ 352              		.file 31 "Application/BSPSys/BSPDevice/gd25q32e/BSPGD25Q32E.h"
+ 353              		.file 32 "Application/Logics/Insulation/Insulation.h"
+ 354              		.file 33 "Application/BSPSys/BSPDriver/BSPDIDO.h"
+ 355              		.file 34 "Application/BSPSys/BSPDriver/BSPMCG.h"
+ 356              		.file 35 "Application/BSPSys/BSPDriver/BSPGPIO.h"
+ 357              		.file 36 "Application/BSPSys/BSPDriver/BSPDMA.h"
+ 358              		.file 37 "Application/BSPSys/BSPDriver/BSPFLASH.h"
+ 359              		.file 38 "Application/BSPSys/BSPDriver/BSPWDOG.h"
+ 360              		.file 39 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_ll_dma.h"
+ARM GAS  /tmp/cclRkpez.s 			page 11
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 BSPConfig.c
+     /tmp/cclRkpez.s:16     .text.BSPUserCfgInit:0000000000000000 $t
+     /tmp/cclRkpez.s:23     .text.BSPUserCfgInit:0000000000000000 BSPUserCfgInit
+     /tmp/cclRkpez.s:125    .text.BSPUserCfgInit:000000000000008c $d
+                            *COM*:0000000000000004 gBSPFunCfg
+                            *COM*:0000000000000008 gBSPParaCfg
+     /tmp/cclRkpez.s:131    .text.BSPDriverInit:0000000000000000 $t
+     /tmp/cclRkpez.s:138    .text.BSPDriverInit:0000000000000000 BSPDriverInit
+     /tmp/cclRkpez.s:265    .text.BSPDriverInit:0000000000000098 $d
+     /tmp/cclRkpez.s:270    .text.DEVDriverInit:0000000000000000 $t
+     /tmp/cclRkpez.s:277    .text.DEVDriverInit:0000000000000000 DEVDriverInit
+     /tmp/cclRkpez.s:315    .text.DEVDriverInit:0000000000000020 $d
+
+UNDEFINED SYMBOLS
+BSPMCGInit
+BSPALLGPIOInit
+BSPDMAInit
+BSPADCInit
+BSPCANInit
+BSPSPIInit
+BSPUSARTInit
+BSPIICInit
+BSPTIMInit
+BSPINTFLASHInit
+BSPWatchDogInit
+BSP_GD25Qx_Init
+DEVGPIOGetHWVersion
+Insulation_InitInsulationData
+BSPUSARTBufInit
+BSPCanBufInit

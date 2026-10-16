@@ -1,0 +1,2440 @@
+ARM GAS  /tmp/ccTEt5Zb.s 			page 1
+
+
+   1              		.cpu cortex-m0plus
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 4
+   9              		.eabi_attribute 34, 0
+  10              		.eabi_attribute 18, 4
+  11              		.file	"CANInterface.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.CANLibAllInit_API,"ax",%progbits
+  16              		.align	1
+  17              		.global	CANLibAllInit_API
+  18              		.syntax unified
+  19              		.code	16
+  20              		.thumb_func
+  21              		.fpu softvfp
+  23              	CANLibAllInit_API:
+  24              	.LFB493:
+  25              		.file 1 "./Application/Funtion/CanLib/CANInterface.c"
+   1:./Application/Funtion/CanLib/CANInterface.c **** /*==========================================Copyright(c)===========================================
+   2:./Application/Funtion/CanLib/CANInterface.c **** **                                  Shenzhen Infypower Co., Ltd.
+   3:./Application/Funtion/CanLib/CANInterface.c **** **                                  Power conversion Department
+   4:./Application/Funtion/CanLib/CANInterface.c **** **                                       BMS Product Line
+   5:./Application/Funtion/CanLib/CANInterface.c **** **
+   6:./Application/Funtion/CanLib/CANInterface.c **** **---------------------------------------File Information------------------------------------------
+   7:./Application/Funtion/CanLib/CANInterface.c **** ** @File Name    : CANInterface.c
+   8:./Application/Funtion/CanLib/CANInterface.c **** ** @Founder      : SBK326
+   9:./Application/Funtion/CanLib/CANInterface.c **** ** @Date         : 2019.11.1
+  10:./Application/Funtion/CanLib/CANInterface.c **** ** @Function     : CAN通信包用户接口处理
+  11:./Application/Funtion/CanLib/CANInterface.c **** ** @Instructions :
+  12:./Application/Funtion/CanLib/CANInterface.c **** **===============================================================================================*/
+  13:./Application/Funtion/CanLib/CANInterface.c **** 
+  14:./Application/Funtion/CanLib/CANInterface.c **** /*=================================================================================================
+  15:./Application/Funtion/CanLib/CANInterface.c **** ** @Header file definition
+  16:./Application/Funtion/CanLib/CANInterface.c **** **===============================================================================================*/
+  17:./Application/Funtion/CanLib/CANInterface.c **** #include "BSPTypeDef.h"
+  18:./Application/Funtion/CanLib/CANInterface.c **** #include "CANTabOper.h"
+  19:./Application/Funtion/CanLib/CANInterface.c **** #include "CANTxCycle.h"
+  20:./Application/Funtion/CanLib/CANInterface.c **** #include "CANUser.h"
+  21:./Application/Funtion/CanLib/CANInterface.c **** #include "CANInterface.h"
+  22:./Application/Funtion/CanLib/CANInterface.c **** #include "SystemInfo.h"
+  23:./Application/Funtion/CanLib/CANInterface.c **** #include "SystemPara.h"
+  24:./Application/Funtion/CanLib/CANInterface.c **** #include "SystemDebug.h"
+  25:./Application/Funtion/CanLib/CANInterface.c **** #include "BSPCAN.h"
+  26:./Application/Funtion/CanLib/CANInterface.c **** #include "Insulation.h"
+  27:./Application/Funtion/CanLib/CANInterface.c **** #include "network_layer/can_uds_network_layer.h"        /*DEFAULT_SESSION枚举定义*/
+  28:./Application/Funtion/CanLib/CANInterface.c **** #include "services_layer/device_role/sid_internal_header.h"  /*cur_session_type外部变量声明*/
+  29:./Application/Funtion/CanLib/CANInterface.c **** #include "DoControl.h"
+  30:./Application/Funtion/CanLib/CANInterface.c **** /*=================================================================================================
+  31:./Application/Funtion/CanLib/CANInterface.c **** ** @Global variable definition
+  32:./Application/Funtion/CanLib/CANInterface.c **** **===============================================================================================*/
+  33:./Application/Funtion/CanLib/CANInterface.c **** t_CANDevTab gCanDevTable[CAN_DEVTAB_NUM] = {0};                     /*CAN通信设备表*/
+ARM GAS  /tmp/ccTEt5Zb.s 			page 2
+
+
+  34:./Application/Funtion/CanLib/CANInterface.c **** t_CANTxRcvTab gCanTxRcvTable[CAN_TRTAB_NUM] = {0};                  /*CAN通信收发处理表*/
+  35:./Application/Funtion/CanLib/CANInterface.c **** t_CANTxCycTab gCanTxCycTable[CAN_TX_ALL_NUM] = {0};                 /*CAN通信周期发送处理�
+  36:./Application/Funtion/CanLib/CANInterface.c **** 
+  37:./Application/Funtion/CanLib/CANInterface.c **** t_CANLibIndexMap gCanIndexMap = {0};                                /*CAN通信包主索引映射�
+  38:./Application/Funtion/CanLib/CANInterface.c **** 
+  39:./Application/Funtion/CanLib/CANInterface.c **** /*升级静默功能: 其他设备升级静默计时器(10ms单位递减)*/
+  40:./Application/Funtion/CanLib/CANInterface.c **** #define OTHER_UPG_SILENCE_TIMEOUT   500    /*超时500次=5秒(10ms周期)无其他设备UDS报文�
+  41:./Application/Funtion/CanLib/CANInterface.c **** u16 g_OtherUpgSilenceTimer = 0;           /*其他设备升级静默剩余计时*/
+  42:./Application/Funtion/CanLib/CANInterface.c **** 
+  43:./Application/Funtion/CanLib/CANInterface.c **** extern u8 gCANBaseDef_3[];                                          /*通信包基本配置信息*/
+  44:./Application/Funtion/CanLib/CANInterface.c **** extern u8 gCANTxCelDef_14[];                                        /*主动更新单体配置表*/
+  45:./Application/Funtion/CanLib/CANInterface.c **** extern u8 gCANTxCelDef_14[];                                        /*主动更新单体配置表*/
+  46:./Application/Funtion/CanLib/CANInterface.c **** extern u16 gGBmuGenPara_102[];                                      /*主控通用参数值*/
+  47:./Application/Funtion/CanLib/CANInterface.c **** /*=================================================================================================
+  48:./Application/Funtion/CanLib/CANInterface.c **** ** @Static function declaration
+  49:./Application/Funtion/CanLib/CANInterface.c **** **===============================================================================================*/
+  50:./Application/Funtion/CanLib/CANInterface.c **** 
+  51:./Application/Funtion/CanLib/CANInterface.c **** /*=================================================================================================
+  52:./Application/Funtion/CanLib/CANInterface.c **** ** @Interface function definition
+  53:./Application/Funtion/CanLib/CANInterface.c **** **===============================================================================================*/
+  54:./Application/Funtion/CanLib/CANInterface.c **** /*=================================================================================================
+  55:./Application/Funtion/CanLib/CANInterface.c **** ** @Name      : void BSPUserCfgInit(void)
+  56:./Application/Funtion/CanLib/CANInterface.c **** ** @Input     : void
+  57:./Application/Funtion/CanLib/CANInterface.c **** ** @Output    : void
+  58:./Application/Funtion/CanLib/CANInterface.c **** ** @Function  : CAN通信包所有初始化
+  59:./Application/Funtion/CanLib/CANInterface.c **** ** @The notes : 用户必须初始化调用
+  60:./Application/Funtion/CanLib/CANInterface.c **** **===============================================================================================*/
+  61:./Application/Funtion/CanLib/CANInterface.c **** void CANLibAllInit_API(void)
+  62:./Application/Funtion/CanLib/CANInterface.c **** {
+  26              		.loc 1 62 0
+  27              		.cfi_startproc
+  28              		@ args = 0, pretend = 0, frame = 0
+  29              		@ frame_needed = 0, uses_anonymous_args = 0
+  30              	.LVL0:
+  31 0000 10B5     		push	{r4, lr}
+  32              	.LCFI0:
+  33              		.cfi_def_cfa_offset 8
+  34              		.cfi_offset 4, -8
+  35              		.cfi_offset 14, -4
+  63:./Application/Funtion/CanLib/CANInterface.c ****     u8 i = 0;
+  64:./Application/Funtion/CanLib/CANInterface.c **** 
+  65:./Application/Funtion/CanLib/CANInterface.c ****     /*通信口用户初始化*/
+  66:./Application/Funtion/CanLib/CANInterface.c ****     CANCommuPortUserInit();
+  36              		.loc 1 66 0
+  37 0002 FFF7FEFF 		bl	CANCommuPortUserInit
+  38              	.LVL1:
+  67:./Application/Funtion/CanLib/CANInterface.c ****     /*系统信息初始化*/
+  68:./Application/Funtion/CanLib/CANInterface.c ****     InitSystemInfo();
+  39              		.loc 1 68 0
+  40 0006 FFF7FEFF 		bl	InitSystemInfo
+  41              	.LVL2:
+  69:./Application/Funtion/CanLib/CANInterface.c **** 
+  70:./Application/Funtion/CanLib/CANInterface.c ****     /*通信包用户定义参数初始化*/
+  71:./Application/Funtion/CanLib/CANInterface.c ****     
+  72:./Application/Funtion/CanLib/CANInterface.c ****     gCanIndexMap.index90Type = CAN_DT_U16;
+  42              		.loc 1 72 0
+  43 000a 0222     		movs	r2, #2
+ARM GAS  /tmp/ccTEt5Zb.s 			page 3
+
+
+  73:./Application/Funtion/CanLib/CANInterface.c ****     gCanIndexMap.index91Type = CAN_DT_U16;
+  74:./Application/Funtion/CanLib/CANInterface.c ****     gCanIndexMap.index92Type = CAN_DT_U16;
+  75:./Application/Funtion/CanLib/CANInterface.c ****     gCanIndexMap.index93Type = CAN_DT_U16;
+  76:./Application/Funtion/CanLib/CANInterface.c ****     gCanIndexMap.index94Type = CAN_DT_S8;
+  44              		.loc 1 76 0
+  45 000c 0121     		movs	r1, #1
+  72:./Application/Funtion/CanLib/CANInterface.c ****     gCanIndexMap.index91Type = CAN_DT_U16;
+  46              		.loc 1 72 0
+  47 000e 0E4B     		ldr	r3, .L4
+  77:./Application/Funtion/CanLib/CANInterface.c ****     gCanIndexMap.index95Type = CAN_DT_S8;
+  78:./Application/Funtion/CanLib/CANInterface.c **** 
+  79:./Application/Funtion/CanLib/CANInterface.c ****     gCanIndexMap.index100Type = CAN_DT_U16;
+  80:./Application/Funtion/CanLib/CANInterface.c ****     gCanIndexMap.index101Type = CAN_DT_U16;
+  81:./Application/Funtion/CanLib/CANInterface.c ****     gCanIndexMap.index102Type = CAN_DT_U16;
+  82:./Application/Funtion/CanLib/CANInterface.c ****     gCanIndexMap.index103Type = CAN_DT_U16;
+  83:./Application/Funtion/CanLib/CANInterface.c ****     gCanIndexMap.index104Type = CAN_DT_U8;
+  84:./Application/Funtion/CanLib/CANInterface.c **** 
+  85:./Application/Funtion/CanLib/CANInterface.c ****     /*通信包配置参数初始化*/
+  86:./Application/Funtion/CanLib/CANInterface.c ****     //SystemInfo_1[DeviceAddr] = gGBmuGenPara_102[eBmuGenPara102_BmuDev];
+  87:./Application/Funtion/CanLib/CANInterface.c ****     //SystemInfo_1[HardwareVersion] = 00;
+  88:./Application/Funtion/CanLib/CANInterface.c **** 
+  89:./Application/Funtion/CanLib/CANInterface.c ****     /*通信包设备表初始化*/
+  90:./Application/Funtion/CanLib/CANInterface.c ****     CANDeviceTableInit();
+  91:./Application/Funtion/CanLib/CANInterface.c **** 
+  92:./Application/Funtion/CanLib/CANInterface.c ****     /*通信包收发通信表初始化*/
+  93:./Application/Funtion/CanLib/CANInterface.c ****     if(gCanTxRcvTable != NULL)
+  94:./Application/Funtion/CanLib/CANInterface.c ****     {
+  95:./Application/Funtion/CanLib/CANInterface.c ****     	for(i = 0; i < gCANBaseDef_3[eCANRBas3_TRTabNum]; i++)
+  48              		.loc 1 95 0
+  49 0010 0024     		movs	r4, #0
+  72:./Application/Funtion/CanLib/CANInterface.c ****     gCanIndexMap.index91Type = CAN_DT_U16;
+  50              		.loc 1 72 0
+  51 0012 DA72     		strb	r2, [r3, #11]
+  73:./Application/Funtion/CanLib/CANInterface.c ****     gCanIndexMap.index92Type = CAN_DT_U16;
+  52              		.loc 1 73 0
+  53 0014 1A73     		strb	r2, [r3, #12]
+  74:./Application/Funtion/CanLib/CANInterface.c ****     gCanIndexMap.index93Type = CAN_DT_U16;
+  54              		.loc 1 74 0
+  55 0016 5A73     		strb	r2, [r3, #13]
+  75:./Application/Funtion/CanLib/CANInterface.c ****     gCanIndexMap.index94Type = CAN_DT_S8;
+  56              		.loc 1 75 0
+  57 0018 9A73     		strb	r2, [r3, #14]
+  76:./Application/Funtion/CanLib/CANInterface.c ****     gCanIndexMap.index95Type = CAN_DT_S8;
+  58              		.loc 1 76 0
+  59 001a D973     		strb	r1, [r3, #15]
+  77:./Application/Funtion/CanLib/CANInterface.c **** 
+  60              		.loc 1 77 0
+  61 001c 1974     		strb	r1, [r3, #16]
+  79:./Application/Funtion/CanLib/CANInterface.c ****     gCanIndexMap.index101Type = CAN_DT_U16;
+  62              		.loc 1 79 0
+  63 001e 5A74     		strb	r2, [r3, #17]
+  80:./Application/Funtion/CanLib/CANInterface.c ****     gCanIndexMap.index102Type = CAN_DT_U16;
+  64              		.loc 1 80 0
+  65 0020 9A74     		strb	r2, [r3, #18]
+  81:./Application/Funtion/CanLib/CANInterface.c ****     gCanIndexMap.index103Type = CAN_DT_U16;
+  66              		.loc 1 81 0
+  67 0022 DA74     		strb	r2, [r3, #19]
+ARM GAS  /tmp/ccTEt5Zb.s 			page 4
+
+
+  82:./Application/Funtion/CanLib/CANInterface.c ****     gCanIndexMap.index104Type = CAN_DT_U8;
+  68              		.loc 1 82 0
+  69 0024 1A75     		strb	r2, [r3, #20]
+  83:./Application/Funtion/CanLib/CANInterface.c **** 
+  70              		.loc 1 83 0
+  71 0026 5975     		strb	r1, [r3, #21]
+  90:./Application/Funtion/CanLib/CANInterface.c **** 
+  72              		.loc 1 90 0
+  73 0028 FFF7FEFF 		bl	CANDeviceTableInit
+  74              	.LVL3:
+  75              	.L2:
+  76              		.loc 1 95 0 discriminator 1
+  77 002c 074B     		ldr	r3, .L4+4
+  78 002e 9B78     		ldrb	r3, [r3, #2]
+  79 0030 A342     		cmp	r3, r4
+  80 0032 02D8     		bhi	.L3
+  96:./Application/Funtion/CanLib/CANInterface.c ****     	{
+  97:./Application/Funtion/CanLib/CANInterface.c ****     		/*清空所有收发通信表*/
+  98:./Application/Funtion/CanLib/CANInterface.c ****     		CANClrTxRcvTabInfo(i);
+  99:./Application/Funtion/CanLib/CANInterface.c ****     	}
+ 100:./Application/Funtion/CanLib/CANInterface.c ****     }
+ 101:./Application/Funtion/CanLib/CANInterface.c **** 
+ 102:./Application/Funtion/CanLib/CANInterface.c ****     /*通信包周期发送表初始化*/
+ 103:./Application/Funtion/CanLib/CANInterface.c ****     CANTxCycleTabInit();
+  81              		.loc 1 103 0
+  82 0034 FFF7FEFF 		bl	CANTxCycleTabInit
+  83              	.LVL4:
+ 104:./Application/Funtion/CanLib/CANInterface.c **** }
+  84              		.loc 1 104 0
+  85              		@ sp needed
+  86              	.LVL5:
+  87 0038 10BD     		pop	{r4, pc}
+  88              	.LVL6:
+  89              	.L3:
+  98:./Application/Funtion/CanLib/CANInterface.c ****     	}
+  90              		.loc 1 98 0 discriminator 3
+  91 003a 2000     		movs	r0, r4
+  95:./Application/Funtion/CanLib/CANInterface.c ****     	{
+  92              		.loc 1 95 0 discriminator 3
+  93 003c 0134     		adds	r4, r4, #1
+  94              	.LVL7:
+  98:./Application/Funtion/CanLib/CANInterface.c ****     	}
+  95              		.loc 1 98 0 discriminator 3
+  96 003e FFF7FEFF 		bl	CANClrTxRcvTabInfo
+  97              	.LVL8:
+  95:./Application/Funtion/CanLib/CANInterface.c ****     	{
+  98              		.loc 1 95 0 discriminator 3
+  99 0042 E4B2     		uxtb	r4, r4
+ 100              	.LVL9:
+ 101 0044 F2E7     		b	.L2
+ 102              	.L5:
+ 103 0046 C046     		.align	2
+ 104              	.L4:
+ 105 0048 00000000 		.word	.LANCHOR0
+ 106 004c 00000000 		.word	gCANBaseDef_3
+ 107              		.cfi_endproc
+ 108              	.LFE493:
+ARM GAS  /tmp/ccTEt5Zb.s 			page 5
+
+
+ 110              		.section	.text.CANRcvShieldDeal_Hook,"ax",%progbits
+ 111              		.align	1
+ 112              		.global	CANRcvShieldDeal_Hook
+ 113              		.syntax unified
+ 114              		.code	16
+ 115              		.thumb_func
+ 116              		.fpu softvfp
+ 118              	CANRcvShieldDeal_Hook:
+ 119              	.LFB494:
+ 105:./Application/Funtion/CanLib/CANInterface.c **** 
+ 106:./Application/Funtion/CanLib/CANInterface.c **** /*=================================================================================================
+ 107:./Application/Funtion/CanLib/CANInterface.c **** ** @Name      : u8 CANRcvShieldDeal_Hook(u32 canID, u8 canNum)
+ 108:./Application/Funtion/CanLib/CANInterface.c **** ** @Input     : canID:报文ID  canNum:CAN通道号
+ 109:./Application/Funtion/CanLib/CANInterface.c **** ** @Output    : TURE:需屏蔽 FALSE:不需屏蔽
+ 110:./Application/Funtion/CanLib/CANInterface.c **** ** @Function  : 接收到需屏蔽的报文用户处理
+ 111:./Application/Funtion/CanLib/CANInterface.c **** ** @The notes : 用户需要时补充完善
+ 112:./Application/Funtion/CanLib/CANInterface.c **** **===============================================================================================*/
+ 113:./Application/Funtion/CanLib/CANInterface.c **** u8 CANRcvShieldDeal_Hook(u32 canID, u8 canNum)
+ 114:./Application/Funtion/CanLib/CANInterface.c **** {
+ 120              		.loc 1 114 0
+ 121              		.cfi_startproc
+ 122              		@ args = 0, pretend = 0, frame = 0
+ 123              		@ frame_needed = 0, uses_anonymous_args = 0
+ 124              		@ link register save eliminated.
+ 125              	.LVL10:
+ 115:./Application/Funtion/CanLib/CANInterface.c ****     // /*广播报文可能不需要接收处理*/
+ 116:./Application/Funtion/CanLib/CANInterface.c **** 	// if(0xff == ((canID >> 8) & 0xff))
+ 117:./Application/Funtion/CanLib/CANInterface.c **** 	// {
+ 118:./Application/Funtion/CanLib/CANInterface.c **** 	// 	/*同级BMU和从控信息不处理*/
+ 119:./Application/Funtion/CanLib/CANInterface.c **** 	// 	if(/*((canID & 0xff) >= BMU_BAS_DEVADDR) && */((canID & 0xff) < 70))
+ 120:./Application/Funtion/CanLib/CANInterface.c **** 	// 	{
+ 121:./Application/Funtion/CanLib/CANInterface.c **** 	// 		return(TRUE);
+ 122:./Application/Funtion/CanLib/CANInterface.c **** 	// 	}
+ 123:./Application/Funtion/CanLib/CANInterface.c **** 	// }
+ 124:./Application/Funtion/CanLib/CANInterface.c **** 
+ 125:./Application/Funtion/CanLib/CANInterface.c **** 	return(FALSE);
+ 126:./Application/Funtion/CanLib/CANInterface.c **** }
+ 126              		.loc 1 126 0
+ 127 0000 0020     		movs	r0, #0
+ 128              	.LVL11:
+ 129              		@ sp needed
+ 130 0002 7047     		bx	lr
+ 131              		.cfi_endproc
+ 132              	.LFE494:
+ 134              		.section	.text.CANRcvVerUserDeal_Hook,"ax",%progbits
+ 135              		.align	1
+ 136              		.global	CANRcvVerUserDeal_Hook
+ 137              		.syntax unified
+ 138              		.code	16
+ 139              		.thumb_func
+ 140              		.fpu softvfp
+ 142              	CANRcvVerUserDeal_Hook:
+ 143              	.LFB495:
+ 127:./Application/Funtion/CanLib/CANInterface.c **** 
+ 128:./Application/Funtion/CanLib/CANInterface.c **** /*=================================================================================================
+ 129:./Application/Funtion/CanLib/CANInterface.c **** ** @Name      : void CANRcvVerUserDeal_Hook(u8 saddr, u8 canNum)
+ 130:./Application/Funtion/CanLib/CANInterface.c **** ** @Input     : saddr:源地址  canNum:CAN通道号
+ARM GAS  /tmp/ccTEt5Zb.s 			page 6
+
+
+ 131:./Application/Funtion/CanLib/CANInterface.c **** ** @Output    : void
+ 132:./Application/Funtion/CanLib/CANInterface.c **** ** @Function  : 接收到校时报文后用户处理
+ 133:./Application/Funtion/CanLib/CANInterface.c **** ** @The notes : 用户需要时补充完善
+ 134:./Application/Funtion/CanLib/CANInterface.c **** **===============================================================================================*/
+ 135:./Application/Funtion/CanLib/CANInterface.c **** void CANRcvVerUserDeal_Hook(u8 saddr, u8 canNum)
+ 136:./Application/Funtion/CanLib/CANInterface.c **** {
+ 144              		.loc 1 136 0
+ 145              		.cfi_startproc
+ 146              		@ args = 0, pretend = 0, frame = 0
+ 147              		@ frame_needed = 0, uses_anonymous_args = 0
+ 148              		@ link register save eliminated.
+ 149              	.LVL12:
+ 137:./Application/Funtion/CanLib/CANInterface.c ****     /*将时间信息更新到系统时钟*/
+ 138:./Application/Funtion/CanLib/CANInterface.c **** 	//SysClockExtVerifyAPI();
+ 139:./Application/Funtion/CanLib/CANInterface.c **** }
+ 150              		.loc 1 139 0
+ 151              		@ sp needed
+ 152 0000 7047     		bx	lr
+ 153              		.cfi_endproc
+ 154              	.LFE495:
+ 156              		.section	.text.CANRcvBreUserDeal_Hook,"ax",%progbits
+ 157              		.align	1
+ 158              		.global	CANRcvBreUserDeal_Hook
+ 159              		.syntax unified
+ 160              		.code	16
+ 161              		.thumb_func
+ 162              		.fpu softvfp
+ 164              	CANRcvBreUserDeal_Hook:
+ 165              	.LFB520:
+ 166              		.cfi_startproc
+ 167              		@ args = 0, pretend = 0, frame = 0
+ 168              		@ frame_needed = 0, uses_anonymous_args = 0
+ 169              		@ link register save eliminated.
+ 170              		@ sp needed
+ 171 0000 7047     		bx	lr
+ 172              		.cfi_endproc
+ 173              	.LFE520:
+ 175              		.section	.text.CANRcvReqUserDeal_Hook,"ax",%progbits
+ 176              		.align	1
+ 177              		.global	CANRcvReqUserDeal_Hook
+ 178              		.syntax unified
+ 179              		.code	16
+ 180              		.thumb_func
+ 181              		.fpu softvfp
+ 183              	CANRcvReqUserDeal_Hook:
+ 184              	.LFB498:
+ 140:./Application/Funtion/CanLib/CANInterface.c **** 
+ 141:./Application/Funtion/CanLib/CANInterface.c **** /*=================================================================================================
+ 142:./Application/Funtion/CanLib/CANInterface.c **** ** @Name      : void CANRcvBreUserDeal_Hook(u8 saddr, u8 canNum)
+ 143:./Application/Funtion/CanLib/CANInterface.c **** ** @Input     : saddr:源地址  canNum:CAN通道号
+ 144:./Application/Funtion/CanLib/CANInterface.c **** ** @Output    : void
+ 145:./Application/Funtion/CanLib/CANInterface.c **** ** @Function  : 接收到心跳报文后用户处理
+ 146:./Application/Funtion/CanLib/CANInterface.c **** ** @The notes : 用户需要时补充完善
+ 147:./Application/Funtion/CanLib/CANInterface.c **** **===============================================================================================*/
+ 148:./Application/Funtion/CanLib/CANInterface.c **** void CANRcvBreUserDeal_Hook(u8 saddr, u8 canNum)
+ 149:./Application/Funtion/CanLib/CANInterface.c **** {
+ 150:./Application/Funtion/CanLib/CANInterface.c ****     /*通信诊断计数*/
+ARM GAS  /tmp/ccTEt5Zb.s 			page 7
+
+
+ 151:./Application/Funtion/CanLib/CANInterface.c **** 	//DiagRcvDevMsgAddAPI(saddr);
+ 152:./Application/Funtion/CanLib/CANInterface.c **** 	//DiagRcvEcuRepCheckAPI(saddr);
+ 153:./Application/Funtion/CanLib/CANInterface.c **** }
+ 154:./Application/Funtion/CanLib/CANInterface.c **** 
+ 155:./Application/Funtion/CanLib/CANInterface.c **** /*=================================================================================================
+ 156:./Application/Funtion/CanLib/CANInterface.c **** ** @Name      : u8 CANRcvRupUserDeal_Hook(u8 saddr, u8 mIndex, u8 sIndex, u8 sIndexNum, u8 canNum)
+ 157:./Application/Funtion/CanLib/CANInterface.c **** ** @Input     : saddr:源地址  mIndex:主索引号 sIndex:起始子索引号 sIndexNum:子索引�
+ 158:./Application/Funtion/CanLib/CANInterface.c **** ** @Output    : 执行结果:0:正常 1:索引非法 2:CRC非法 3:权限非法 4:状态非法 5:�
+ 159:./Application/Funtion/CanLib/CANInterface.c **** ** @Function  : 接收到请求修改报文后用户处理
+ 160:./Application/Funtion/CanLib/CANInterface.c **** ** @The notes : 用户需要时补充完善,对相应索引值进行处理
+ 161:./Application/Funtion/CanLib/CANInterface.c **** **===============================================================================================*/
+ 162:./Application/Funtion/CanLib/CANInterface.c **** u8 CANRcvRupUserDeal_Hook(u8 saddr, u8 mIndex, u8 sIndex, u8 sIndexNum, u8 canNum)
+ 163:./Application/Funtion/CanLib/CANInterface.c **** {
+ 164:./Application/Funtion/CanLib/CANInterface.c ****     /*通信诊断计数*/
+ 165:./Application/Funtion/CanLib/CANInterface.c **** 	//DiagRcvDevMsgAddAPI(saddr);
+ 166:./Application/Funtion/CanLib/CANInterface.c **** 	//DiagRcvEcuRepCheckAPI(saddr);
+ 167:./Application/Funtion/CanLib/CANInterface.c **** 
+ 168:./Application/Funtion/CanLib/CANInterface.c ****     /*非上层设备控制不执行*/
+ 169:./Application/Funtion/CanLib/CANInterface.c **** 	if(saddr <= SystemInfo_1[DeviceAddr])
+ 170:./Application/Funtion/CanLib/CANInterface.c **** 	{
+ 171:./Application/Funtion/CanLib/CANInterface.c **** 		/*权限非法*/
+ 172:./Application/Funtion/CanLib/CANInterface.c **** 		return(eCANERRREAS_AUTHERR);
+ 173:./Application/Funtion/CanLib/CANInterface.c **** 	}
+ 174:./Application/Funtion/CanLib/CANInterface.c **** 
+ 175:./Application/Funtion/CanLib/CANInterface.c ****     /*执行请求修改命令*/
+ 176:./Application/Funtion/CanLib/CANInterface.c ****     if(2 == mIndex)                     /*写设备序列号*/
+ 177:./Application/Funtion/CanLib/CANInterface.c ****     {
+ 178:./Application/Funtion/CanLib/CANInterface.c ****     	/*执行写设备序列号处理*/
+ 179:./Application/Funtion/CanLib/CANInterface.c ****     	return(RcvCanDeviceSerialCfgDeal(sIndex, sIndexNum, canNum));
+ 180:./Application/Funtion/CanLib/CANInterface.c ****     }
+ 181:./Application/Funtion/CanLib/CANInterface.c ****     /*执行请求修改命令*/
+ 182:./Application/Funtion/CanLib/CANInterface.c ****     else if(22 == mIndex)               /*写参数批量配置值*/
+ 183:./Application/Funtion/CanLib/CANInterface.c ****     {
+ 184:./Application/Funtion/CanLib/CANInterface.c ****     	/*执行写参数批量配置写数据处理*/
+ 185:./Application/Funtion/CanLib/CANInterface.c ****     	//return(RcvCanDnloadParaWRDeal(sIndex, sIndexNum, canNum));
+ 186:./Application/Funtion/CanLib/CANInterface.c ****     }
+ 187:./Application/Funtion/CanLib/CANInterface.c ****     else if(50 == mIndex)               /*系统控制*/
+ 188:./Application/Funtion/CanLib/CANInterface.c ****     {
+ 189:./Application/Funtion/CanLib/CANInterface.c ****     	/*执行系统控制处理*/
+ 190:./Application/Funtion/CanLib/CANInterface.c ****     	return(RcvCanSysCtrlCmd(sIndex, sIndexNum, canNum));
+ 191:./Application/Funtion/CanLib/CANInterface.c ****     }
+ 192:./Application/Funtion/CanLib/CANInterface.c ****     /*执行请求修改命令*/
+ 193:./Application/Funtion/CanLib/CANInterface.c ****     else if(52 == mIndex)              
+ 194:./Application/Funtion/CanLib/CANInterface.c ****     {
+ 195:./Application/Funtion/CanLib/CANInterface.c ****         return(RcvCanGroupCalibrationDeal(sIndex, sIndexNum, canNum));/*执行校准命令处理*/
+ 196:./Application/Funtion/CanLib/CANInterface.c ****     	
+ 197:./Application/Funtion/CanLib/CANInterface.c ****     }
+ 198:./Application/Funtion/CanLib/CANInterface.c ****     /*执行请求修改命令*/
+ 199:./Application/Funtion/CanLib/CANInterface.c ****     else if(53 == mIndex)               /*权限密码*/
+ 200:./Application/Funtion/CanLib/CANInterface.c ****     {
+ 201:./Application/Funtion/CanLib/CANInterface.c ****     	/*执行权限密码处理*/
+ 202:./Application/Funtion/CanLib/CANInterface.c ****     	return(RcvCanGroupPasswordDeal(sIndex, sIndexNum, canNum));
+ 203:./Application/Funtion/CanLib/CANInterface.c ****     }
+ 204:./Application/Funtion/CanLib/CANInterface.c ****     else if(55 == mIndex)               /*系统控制*/
+ 205:./Application/Funtion/CanLib/CANInterface.c ****     {
+ 206:./Application/Funtion/CanLib/CANInterface.c ****     	/*执行系统控制处理*/
+ 207:./Application/Funtion/CanLib/CANInterface.c ****     	return(RcvCanGroupCtrlCmdDeal(saddr, sIndex, sIndexNum, canNum));
+ARM GAS  /tmp/ccTEt5Zb.s 			page 8
+
+
+ 208:./Application/Funtion/CanLib/CANInterface.c ****     }
+ 209:./Application/Funtion/CanLib/CANInterface.c ****     // else if(87 == mIndex)               /*用户控制*/
+ 210:./Application/Funtion/CanLib/CANInterface.c ****     // {
+ 211:./Application/Funtion/CanLib/CANInterface.c ****     	/*执行用户控制处理*/
+ 212:./Application/Funtion/CanLib/CANInterface.c ****     	//return(RcvCanUserCtrlCmdDeal(sIndex, sIndexNum, canNum));
+ 213:./Application/Funtion/CanLib/CANInterface.c ****     // }
+ 214:./Application/Funtion/CanLib/CANInterface.c ****     else if(60 == mIndex)               /*系统调试*/
+ 215:./Application/Funtion/CanLib/CANInterface.c ****     {
+ 216:./Application/Funtion/CanLib/CANInterface.c ****     	/*执行系统调试处理*/
+ 217:./Application/Funtion/CanLib/CANInterface.c ****     	return(RcvCanGroupDebugCmdDeal(sIndex, sIndexNum, canNum));
+ 218:./Application/Funtion/CanLib/CANInterface.c ****     }
+ 219:./Application/Funtion/CanLib/CANInterface.c ****     else if(107 == mIndex)              /*系统通用参数设置*/
+ 220:./Application/Funtion/CanLib/CANInterface.c ****     {
+ 221:./Application/Funtion/CanLib/CANInterface.c ****     	/*执行系统通用参数设置处理*/
+ 222:./Application/Funtion/CanLib/CANInterface.c ****     	return(RcvCanSystemGenParaCfgDeal(sIndex, sIndexNum, canNum));
+ 223:./Application/Funtion/CanLib/CANInterface.c ****     }
+ 224:./Application/Funtion/CanLib/CANInterface.c **** 
+ 225:./Application/Funtion/CanLib/CANInterface.c **** 
+ 226:./Application/Funtion/CanLib/CANInterface.c ****     return(eCANERRREAS_INDEXERR);
+ 227:./Application/Funtion/CanLib/CANInterface.c **** }
+ 228:./Application/Funtion/CanLib/CANInterface.c **** 
+ 229:./Application/Funtion/CanLib/CANInterface.c **** /*=================================================================================================
+ 230:./Application/Funtion/CanLib/CANInterface.c **** ** @Name      : void CANRcvReqUserDeal_Hook(u8 saddr, u8 mIndex, u8 sIndex, u8 sIndexNum, u8 canNum
+ 231:./Application/Funtion/CanLib/CANInterface.c **** ** @Input     : saddr:源地址  mIndex:主索引号 sIndex:起始子索引号 sIndexNum:子索引�
+ 232:./Application/Funtion/CanLib/CANInterface.c **** ** @Output    : void
+ 233:./Application/Funtion/CanLib/CANInterface.c **** ** @Function  : 接收到请求查询报文后(查询回复前)用户处理
+ 234:./Application/Funtion/CanLib/CANInterface.c **** ** @The notes : 用户需要时补充完善,更新相应索引值(不自动跟新的值)
+ 235:./Application/Funtion/CanLib/CANInterface.c **** **===============================================================================================*/
+ 236:./Application/Funtion/CanLib/CANInterface.c **** void CANRcvReqUserDeal_Hook(u8 saddr, u8 mIndex, u8 sIndex, u8 sIndexNum, u8 canNum)
+ 237:./Application/Funtion/CanLib/CANInterface.c **** {
+ 185              		.loc 1 237 0
+ 186              		.cfi_startproc
+ 187              		@ args = 4, pretend = 0, frame = 0
+ 188              		@ frame_needed = 0, uses_anonymous_args = 0
+ 189              		@ link register save eliminated.
+ 190              	.LVL13:
+ 238:./Application/Funtion/CanLib/CANInterface.c ****     /*查询系统时钟当前时间*/
+ 239:./Application/Funtion/CanLib/CANInterface.c **** 	if(0 == mIndex)
+ 240:./Application/Funtion/CanLib/CANInterface.c **** 	{
+ 241:./Application/Funtion/CanLib/CANInterface.c **** 	    /*更新系统时钟显示*/
+ 242:./Application/Funtion/CanLib/CANInterface.c **** 		//SysClockDisplayAPI();
+ 243:./Application/Funtion/CanLib/CANInterface.c **** 	}
+ 244:./Application/Funtion/CanLib/CANInterface.c ****     /*查询主控设备当前条码序列号*/
+ 245:./Application/Funtion/CanLib/CANInterface.c **** 	else if(2 == mIndex)
+ 246:./Application/Funtion/CanLib/CANInterface.c **** 	{
+ 247:./Application/Funtion/CanLib/CANInterface.c **** 		if(0 == sIndex)
+ 248:./Application/Funtion/CanLib/CANInterface.c **** 		{
+ 249:./Application/Funtion/CanLib/CANInterface.c **** 			/*读设备序列号到显示区域*/
+ 250:./Application/Funtion/CanLib/CANInterface.c **** 			//SysDevSerialDispayAPI();
+ 251:./Application/Funtion/CanLib/CANInterface.c **** 		}
+ 252:./Application/Funtion/CanLib/CANInterface.c **** 	}
+ 253:./Application/Funtion/CanLib/CANInterface.c **** }
+ 191              		.loc 1 253 0
+ 192              		@ sp needed
+ 193 0000 7047     		bx	lr
+ 194              		.cfi_endproc
+ 195              	.LFE498:
+ARM GAS  /tmp/ccTEt5Zb.s 			page 9
+
+
+ 197              		.section	.text.CANRcvCycUpUserDeal_Hook,"ax",%progbits
+ 198              		.align	1
+ 199              		.global	CANRcvCycUpUserDeal_Hook
+ 200              		.syntax unified
+ 201              		.code	16
+ 202              		.thumb_func
+ 203              		.fpu softvfp
+ 205              	CANRcvCycUpUserDeal_Hook:
+ 206              	.LFB499:
+ 254:./Application/Funtion/CanLib/CANInterface.c **** 
+ 255:./Application/Funtion/CanLib/CANInterface.c **** /*=================================================================================================
+ 256:./Application/Funtion/CanLib/CANInterface.c **** ** @Name      : void CANRcvCycUpUserDeal_Hook (u32 ID, u8 *pdata, u8 DLC, u8 canNum)
+ 257:./Application/Funtion/CanLib/CANInterface.c **** ** @Input     : ID:CANID *pdata:CAN数据域 DLC:数据域长度 canNum:CAN通道号
+ 258:./Application/Funtion/CanLib/CANInterface.c **** ** @Output    : void
+ 259:./Application/Funtion/CanLib/CANInterface.c **** ** @Function  : 接收到周期更新报文后用户处理
+ 260:./Application/Funtion/CanLib/CANInterface.c **** ** @The notes : 用户需要时补充完善,处理接收周期发送的长帧、单帧、单体和�
+ 261:./Application/Funtion/CanLib/CANInterface.c **** **===============================================================================================*/
+ 262:./Application/Funtion/CanLib/CANInterface.c **** void CANRcvCycUpUserDeal_Hook (u32 ID, u8 *pdata, u8 DLC, u8 canNum)
+ 263:./Application/Funtion/CanLib/CANInterface.c **** {
+ 207              		.loc 1 263 0
+ 208              		.cfi_startproc
+ 209              		@ args = 0, pretend = 0, frame = 0
+ 210              		@ frame_needed = 0, uses_anonymous_args = 0
+ 211              		@ link register save eliminated.
+ 212              	.LVL14:
+ 264:./Application/Funtion/CanLib/CANInterface.c **** //	u8 saddr = 0;
+ 265:./Application/Funtion/CanLib/CANInterface.c **** 
+ 266:./Application/Funtion/CanLib/CANInterface.c **** //	saddr = ID & 0xff;
+ 267:./Application/Funtion/CanLib/CANInterface.c **** 
+ 268:./Application/Funtion/CanLib/CANInterface.c ****     /*通信诊断计数*/
+ 269:./Application/Funtion/CanLib/CANInterface.c **** 	//DiagRcvDevMsgAddAPI(saddr);
+ 270:./Application/Funtion/CanLib/CANInterface.c **** 	//DiagRcvEcuRepCheckAPI(saddr);
+ 271:./Application/Funtion/CanLib/CANInterface.c **** }
+ 213              		.loc 1 271 0
+ 214              		@ sp needed
+ 215 0000 7047     		bx	lr
+ 216              		.cfi_endproc
+ 217              	.LFE499:
+ 219              		.section	.text.CANTxCycUpUserEnState_Hook,"ax",%progbits
+ 220              		.align	1
+ 221              		.global	CANTxCycUpUserEnState_Hook
+ 222              		.syntax unified
+ 223              		.code	16
+ 224              		.thumb_func
+ 225              		.fpu softvfp
+ 227              	CANTxCycUpUserEnState_Hook:
+ 228              	.LFB501:
+ 272:./Application/Funtion/CanLib/CANInterface.c **** 
+ 273:./Application/Funtion/CanLib/CANInterface.c **** /*=================================================================================================
+ 274:./Application/Funtion/CanLib/CANInterface.c **** ** @Name      : void CANSendMsgUser_Hook (u32 ID, u8 *pdata, u8 DLC, u8 canNum)
+ 275:./Application/Funtion/CanLib/CANInterface.c **** ** @Input     : ID:CANID *pdata:CAN数据域 DLC:数据域长度 canNum:CAN通道号
+ 276:./Application/Funtion/CanLib/CANInterface.c **** ** @Output    : void
+ 277:./Application/Funtion/CanLib/CANInterface.c **** ** @Function  : CAN通信包发送报文处理
+ 278:./Application/Funtion/CanLib/CANInterface.c **** ** @The notes : 用户必须补充完善
+ 279:./Application/Funtion/CanLib/CANInterface.c **** **===============================================================================================*/
+ 280:./Application/Funtion/CanLib/CANInterface.c **** void CANSendMsgUser_Hook(u32 ID, u8 *pdata, u8 DLC, u8 canNum)
+ 281:./Application/Funtion/CanLib/CANInterface.c **** {
+ARM GAS  /tmp/ccTEt5Zb.s 			page 10
+
+
+ 282:./Application/Funtion/CanLib/CANInterface.c **** 	/*升级静默: 本机或其他设备升级时,阻断CanLib所有报文发送
+ 283:./Application/Funtion/CanLib/CANInterface.c **** 	 *UDS响应(can_uds_arch.c)直接调BSPCANSendQin,不受影响*/
+ 284:./Application/Funtion/CanLib/CANInterface.c **** 	if(TRUE == UpgSilence_IsActive())
+ 285:./Application/Funtion/CanLib/CANInterface.c **** 	{
+ 286:./Application/Funtion/CanLib/CANInterface.c **** 		return;
+ 287:./Application/Funtion/CanLib/CANInterface.c **** 	}
+ 288:./Application/Funtion/CanLib/CANInterface.c **** 	u8 i = 0;
+ 289:./Application/Funtion/CanLib/CANInterface.c **** 	t_CANMSG msg;
+ 290:./Application/Funtion/CanLib/CANInterface.c **** 
+ 291:./Application/Funtion/CanLib/CANInterface.c **** 	if(DLC > 64)
+ 292:./Application/Funtion/CanLib/CANInterface.c **** 	{
+ 293:./Application/Funtion/CanLib/CANInterface.c **** 		return;
+ 294:./Application/Funtion/CanLib/CANInterface.c **** 	}
+ 295:./Application/Funtion/CanLib/CANInterface.c **** 
+ 296:./Application/Funtion/CanLib/CANInterface.c **** 	msg.ID = ID;
+ 297:./Application/Funtion/CanLib/CANInterface.c **** 	msg.Len = DLC;
+ 298:./Application/Funtion/CanLib/CANInterface.c **** 
+ 299:./Application/Funtion/CanLib/CANInterface.c **** 	for(i = 0; i < DLC; i++)
+ 300:./Application/Funtion/CanLib/CANInterface.c **** 	{
+ 301:./Application/Funtion/CanLib/CANInterface.c **** 		msg.Data[i] = pdata[i];
+ 302:./Application/Funtion/CanLib/CANInterface.c **** 	}
+ 303:./Application/Funtion/CanLib/CANInterface.c **** 
+ 304:./Application/Funtion/CanLib/CANInterface.c **** 	//不满64byte则补0满64byte
+ 305:./Application/Funtion/CanLib/CANInterface.c **** 	// msg.Len = 64;
+ 306:./Application/Funtion/CanLib/CANInterface.c **** 	// for(i = DLC; i < 8; i++)
+ 307:./Application/Funtion/CanLib/CANInterface.c **** 	// {
+ 308:./Application/Funtion/CanLib/CANInterface.c **** 	// 	msg.Data[i] = 0;
+ 309:./Application/Funtion/CanLib/CANInterface.c **** 	// }
+ 310:./Application/Funtion/CanLib/CANInterface.c **** 
+ 311:./Application/Funtion/CanLib/CANInterface.c ****     /*发送CAN报文*/
+ 312:./Application/Funtion/CanLib/CANInterface.c **** 	BSPCANSendQin((e_CANNUM)canNum, &msg);
+ 313:./Application/Funtion/CanLib/CANInterface.c **** }
+ 314:./Application/Funtion/CanLib/CANInterface.c **** 
+ 315:./Application/Funtion/CanLib/CANInterface.c **** /*=================================================================================================
+ 316:./Application/Funtion/CanLib/CANInterface.c **** ** @Name      : u8 CANTxCycUpUserEnState_Hook(e_CANFunCode funCode, u8 mIndex, u8 canNum)
+ 317:./Application/Funtion/CanLib/CANInterface.c **** ** @Input     : funCode:功能码  mIndex:主索引号 canNum:CAN通道号
+ 318:./Application/Funtion/CanLib/CANInterface.c **** ** @Output    : 用户允许发送状态 TRUE:允许 FALSE:禁止
+ 319:./Application/Funtion/CanLib/CANInterface.c **** ** @Function  : 判断用户允许发送指定主索引报文状态
+ 320:./Application/Funtion/CanLib/CANInterface.c **** ** @The notes : 用户需要时补充完善,对指定主索引在指定状态下才允许发送(比
+ 321:./Application/Funtion/CanLib/CANInterface.c **** **===============================================================================================*/
+ 322:./Application/Funtion/CanLib/CANInterface.c **** u8 CANTxCycUpUserEnState_Hook(e_CANFunCode funCode, u8 mIndex, u8 canNum)
+ 323:./Application/Funtion/CanLib/CANInterface.c **** {
+ 229              		.loc 1 323 0
+ 230              		.cfi_startproc
+ 231              		@ args = 0, pretend = 0, frame = 0
+ 232              		@ frame_needed = 0, uses_anonymous_args = 0
+ 233              		@ link register save eliminated.
+ 234              	.LVL15:
+ 235              		.loc 1 323 0
+ 236 0000 0300     		movs	r3, r0
+ 324:./Application/Funtion/CanLib/CANInterface.c **** 	static u8 sDebugInfoTime = 10;
+ 325:./Application/Funtion/CanLib/CANInterface.c **** 
+ 326:./Application/Funtion/CanLib/CANInterface.c **** 	/*调试信息(长帧)*/
+ 327:./Application/Funtion/CanLib/CANInterface.c **** 	if((eCANFUN_UPM == funCode) && ((82 == mIndex) || (83 == mIndex)))
+ 328:./Application/Funtion/CanLib/CANInterface.c **** 	{
+ 329:./Application/Funtion/CanLib/CANInterface.c **** 		/*调试模式允许发送*/
+ 330:./Application/Funtion/CanLib/CANInterface.c **** 		if(eMODE_Debug == SystemWorkState_50[WorkMode])
+ARM GAS  /tmp/ccTEt5Zb.s 			page 11
+
+
+ 331:./Application/Funtion/CanLib/CANInterface.c **** 		{
+ 332:./Application/Funtion/CanLib/CANInterface.c **** 			sDebugInfoTime = 10;
+ 333:./Application/Funtion/CanLib/CANInterface.c **** 			return(TRUE);
+ 334:./Application/Funtion/CanLib/CANInterface.c **** 		}
+ 335:./Application/Funtion/CanLib/CANInterface.c **** 		/*非调试模式*/
+ 336:./Application/Funtion/CanLib/CANInterface.c **** 		else
+ 337:./Application/Funtion/CanLib/CANInterface.c **** 		{
+ 338:./Application/Funtion/CanLib/CANInterface.c **** 			/*非调试模式允许发送完10次*/
+ 339:./Application/Funtion/CanLib/CANInterface.c **** 			if(sDebugInfoTime > 0)
+ 340:./Application/Funtion/CanLib/CANInterface.c **** 			{
+ 341:./Application/Funtion/CanLib/CANInterface.c **** 				sDebugInfoTime--;
+ 342:./Application/Funtion/CanLib/CANInterface.c **** 				return(TRUE);
+ 343:./Application/Funtion/CanLib/CANInterface.c **** 			}
+ 344:./Application/Funtion/CanLib/CANInterface.c **** 			/*非调试模式且已发送完10次发送*/
+ 345:./Application/Funtion/CanLib/CANInterface.c **** 			else
+ 346:./Application/Funtion/CanLib/CANInterface.c **** 			{
+ 347:./Application/Funtion/CanLib/CANInterface.c **** 				return(FALSE);
+ 348:./Application/Funtion/CanLib/CANInterface.c **** 			}
+ 349:./Application/Funtion/CanLib/CANInterface.c **** 		}
+ 350:./Application/Funtion/CanLib/CANInterface.c **** 	}
+ 351:./Application/Funtion/CanLib/CANInterface.c **** 
+ 352:./Application/Funtion/CanLib/CANInterface.c **** 	return(TRUE);
+ 237              		.loc 1 352 0
+ 238 0002 0120     		movs	r0, #1
+ 239              	.LVL16:
+ 327:./Application/Funtion/CanLib/CANInterface.c **** 	{
+ 240              		.loc 1 327 0
+ 241 0004 082B     		cmp	r3, #8
+ 242 0006 09D1     		bne	.L12
+ 327:./Application/Funtion/CanLib/CANInterface.c **** 	{
+ 243              		.loc 1 327 0 is_stmt 0 discriminator 1
+ 244 0008 5239     		subs	r1, r1, #82
+ 245              	.LVL17:
+ 246 000a 8142     		cmp	r1, r0
+ 247 000c 06D8     		bhi	.L12
+ 330:./Application/Funtion/CanLib/CANInterface.c **** 		{
+ 248              		.loc 1 330 0 is_stmt 1
+ 249 000e 074B     		ldr	r3, .L19
+ 250 0010 1A88     		ldrh	r2, [r3]
+ 251              	.LVL18:
+ 252 0012 074B     		ldr	r3, .L19+4
+ 253 0014 052A     		cmp	r2, #5
+ 254 0016 02D1     		bne	.L13
+ 332:./Application/Funtion/CanLib/CANInterface.c **** 			return(TRUE);
+ 255              		.loc 1 332 0
+ 256 0018 0532     		adds	r2, r2, #5
+ 257 001a 1A70     		strb	r2, [r3]
+ 258              	.L12:
+ 353:./Application/Funtion/CanLib/CANInterface.c **** }
+ 259              		.loc 1 353 0
+ 260              		@ sp needed
+ 261 001c 7047     		bx	lr
+ 262              	.L13:
+ 339:./Application/Funtion/CanLib/CANInterface.c **** 			{
+ 263              		.loc 1 339 0
+ 264 001e 1878     		ldrb	r0, [r3]
+ 265 0020 0028     		cmp	r0, #0
+ARM GAS  /tmp/ccTEt5Zb.s 			page 12
+
+
+ 266 0022 FBD0     		beq	.L12
+ 341:./Application/Funtion/CanLib/CANInterface.c **** 				return(TRUE);
+ 267              		.loc 1 341 0
+ 268 0024 0138     		subs	r0, r0, #1
+ 269 0026 1870     		strb	r0, [r3]
+ 342:./Application/Funtion/CanLib/CANInterface.c **** 			}
+ 270              		.loc 1 342 0
+ 271 0028 0120     		movs	r0, #1
+ 272 002a F7E7     		b	.L12
+ 273              	.L20:
+ 274              		.align	2
+ 275              	.L19:
+ 276 002c 00000000 		.word	SystemWorkState_50
+ 277 0030 00000000 		.word	.LANCHOR1
+ 278              		.cfi_endproc
+ 279              	.LFE501:
+ 281              		.section	.text.CANIndexMapTransUser_Hook,"ax",%progbits
+ 282              		.align	1
+ 283              		.global	CANIndexMapTransUser_Hook
+ 284              		.syntax unified
+ 285              		.code	16
+ 286              		.thumb_func
+ 287              		.fpu softvfp
+ 289              	CANIndexMapTransUser_Hook:
+ 290              	.LFB502:
+ 354:./Application/Funtion/CanLib/CANInterface.c **** 
+ 355:./Application/Funtion/CanLib/CANInterface.c **** /*=================================================================================================
+ 356:./Application/Funtion/CanLib/CANInterface.c **** ** @Name      : t_CANMapTrans CANIndexMapTransUser_Hook(e_CANFunCode funCode, u8 mIndex, u8 DLC)
+ 357:./Application/Funtion/CanLib/CANInterface.c **** ** @Input     : funCode:功能码  mIndex:映射主索引号 DLC:报文长度
+ 358:./Application/Funtion/CanLib/CANInterface.c **** ** @Output    : void
+ 359:./Application/Funtion/CanLib/CANInterface.c **** ** @Function  : CAN通信包将映射报文信息转换成真实信息
+ 360:./Application/Funtion/CanLib/CANInterface.c **** ** @The notes : 用户必须补充完善,单体信息和参数信息报文的映射
+ 361:./Application/Funtion/CanLib/CANInterface.c **** **===============================================================================================*/
+ 362:./Application/Funtion/CanLib/CANInterface.c **** t_CANMapTrans CANIndexMapTransUser_Hook(e_CANFunCode funCode, u8 mIndex, u8 DLC)
+ 363:./Application/Funtion/CanLib/CANInterface.c **** {
+ 291              		.loc 1 363 0
+ 292              		.cfi_startproc
+ 293              		@ args = 0, pretend = 0, frame = 8
+ 294              		@ frame_needed = 0, uses_anonymous_args = 0
+ 295              		@ link register save eliminated.
+ 296              	.LVL19:
+ 364:./Application/Funtion/CanLib/CANInterface.c ****     /*根据报文映射信息[功能码/主索引/报文长度]转换成真实索引信息*/
+ 365:./Application/Funtion/CanLib/CANInterface.c **** 	t_CANMapTrans canMapInfo = {0};
+ 366:./Application/Funtion/CanLib/CANInterface.c **** 
+ 367:./Application/Funtion/CanLib/CANInterface.c **** 
+ 368:./Application/Funtion/CanLib/CANInterface.c ****     //周期主动更新参数报文
+ 369:./Application/Funtion/CanLib/CANInterface.c ****     if(eCANFUN_UPP == funCode)
+ 297              		.loc 1 369 0
+ 298 0000 0300     		movs	r3, r0
+ 299 0002 0C3B     		subs	r3, r3, #12
+ 300 0004 581E     		subs	r0, r3, #1
+ 301 0006 8341     		sbcs	r3, r3, r0
+ 302              	.LVL20:
+ 303 0008 5B42     		rsbs	r3, r3, #0
+ 304 000a DBB2     		uxtb	r3, r3
+ 370:./Application/Funtion/CanLib/CANInterface.c ****     {
+ 371:./Application/Funtion/CanLib/CANInterface.c ****     	/*系统通用参数*/
+ARM GAS  /tmp/ccTEt5Zb.s 			page 13
+
+
+ 372:./Application/Funtion/CanLib/CANInterface.c ****     	if(mIndex < gCanIndexMap.map101Index)
+ 373:./Application/Funtion/CanLib/CANInterface.c ****     	{
+ 374:./Application/Funtion/CanLib/CANInterface.c ****     		// canMapInfo.realMIndex = 100;
+ 375:./Application/Funtion/CanLib/CANInterface.c ****     		// canMapInfo.realSIndex = mIndex * 4;
+ 376:./Application/Funtion/CanLib/CANInterface.c ****     		// canMapInfo.realSIndexNum = DLC / gCanIndexMap.index100Type;
+ 377:./Application/Funtion/CanLib/CANInterface.c ****     	}
+ 378:./Application/Funtion/CanLib/CANInterface.c ****     }
+ 379:./Application/Funtion/CanLib/CANInterface.c ****     //非周期主动更新帧报文
+ 380:./Application/Funtion/CanLib/CANInterface.c ****     else
+ 381:./Application/Funtion/CanLib/CANInterface.c ****     {
+ 382:./Application/Funtion/CanLib/CANInterface.c **** 		canMapInfo.realMIndex = 0xff;
+ 383:./Application/Funtion/CanLib/CANInterface.c **** 		canMapInfo.realSIndex = 0xff;
+ 384:./Application/Funtion/CanLib/CANInterface.c **** 		canMapInfo.realSIndexNum = 0xff;
+ 385:./Application/Funtion/CanLib/CANInterface.c ****     }
+ 386:./Application/Funtion/CanLib/CANInterface.c **** 
+ 387:./Application/Funtion/CanLib/CANInterface.c ****     return(canMapInfo);
+ 305              		.loc 1 387 0
+ 306 000c FF22     		movs	r2, #255
+ 307              	.LVL21:
+ 308 000e 1900     		movs	r1, r3
+ 309              	.LVL22:
+ 310 0010 1140     		ands	r1, r2
+ 311 0012 0802     		lsls	r0, r1, #8
+ 312 0014 0B04     		lsls	r3, r1, #16
+ 313 0016 0843     		orrs	r0, r1
+ 363:./Application/Funtion/CanLib/CANInterface.c ****     /*根据报文映射信息[功能码/主索引/报文长度]转换成真实索引信息*/
+ 314              		.loc 1 363 0
+ 315 0018 82B0     		sub	sp, sp, #8
+ 316              	.LCFI1:
+ 317              		.cfi_def_cfa_offset 8
+ 318              		.loc 1 387 0
+ 319 001a 1843     		orrs	r0, r3
+ 388:./Application/Funtion/CanLib/CANInterface.c **** }
+ 320              		.loc 1 388 0
+ 321 001c 02B0     		add	sp, sp, #8
+ 322              		@ sp needed
+ 323 001e 7047     		bx	lr
+ 324              		.cfi_endproc
+ 325              	.LFE502:
+ 327              		.section	.text.RcvCanDeviceSerialCfgDeal,"ax",%progbits
+ 328              		.align	1
+ 329              		.global	RcvCanDeviceSerialCfgDeal
+ 330              		.syntax unified
+ 331              		.code	16
+ 332              		.thumb_func
+ 333              		.fpu softvfp
+ 335              	RcvCanDeviceSerialCfgDeal:
+ 336              	.LFB503:
+ 389:./Application/Funtion/CanLib/CANInterface.c **** 
+ 390:./Application/Funtion/CanLib/CANInterface.c **** /*=================================================================================================
+ 391:./Application/Funtion/CanLib/CANInterface.c **** ** @Name      : u8 RcvCanDeviceSerialCfgDeal(u8 index, u8 len, u8 canNum)
+ 392:./Application/Funtion/CanLib/CANInterface.c **** ** @Input     : index:子索引号 len:控制索引长度 canNum:CAN口
+ 393:./Application/Funtion/CanLib/CANInterface.c **** ** @Output    : 执行结果:0:正常 1:索引非法 2:CRC非法 3:权限非法 4:状态非法 5:�
+ 394:./Application/Funtion/CanLib/CANInterface.c **** ** @Function  : 接收写设备序列号命令CAN报文处理
+ 395:./Application/Funtion/CanLib/CANInterface.c **** ** @The notes : CAN通信包接收请求修改(2)处理调用
+ 396:./Application/Funtion/CanLib/CANInterface.c **** **===============================================================================================*/
+ 397:./Application/Funtion/CanLib/CANInterface.c **** u8 RcvCanDeviceSerialCfgDeal(u8 index, u8 len, u8 canNum)
+ARM GAS  /tmp/ccTEt5Zb.s 			page 14
+
+
+ 398:./Application/Funtion/CanLib/CANInterface.c **** {
+ 337              		.loc 1 398 0
+ 338              		.cfi_startproc
+ 339              		@ args = 0, pretend = 0, frame = 0
+ 340              		@ frame_needed = 0, uses_anonymous_args = 0
+ 341              	.LVL23:
+ 342 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+ 343              	.LCFI2:
+ 344              		.cfi_def_cfa_offset 24
+ 345              		.cfi_offset 3, -24
+ 346              		.cfi_offset 4, -20
+ 347              		.cfi_offset 5, -16
+ 348              		.cfi_offset 6, -12
+ 349              		.cfi_offset 7, -8
+ 350              		.cfi_offset 14, -4
+ 351              		.loc 1 398 0
+ 352 0002 0700     		movs	r7, r0
+ 353 0004 0E00     		movs	r6, r1
+ 354 0006 141E     		subs	r4, r2, #0
+ 399:./Application/Funtion/CanLib/CANInterface.c ****     /*无CAN口控制权限*/
+ 400:./Application/Funtion/CanLib/CANInterface.c ****     if((canNum >= eCANNUM)
+ 355              		.loc 1 400 0
+ 356 0008 02D0     		beq	.L23
+ 357              	.LVL24:
+ 358              	.L25:
+ 401:./Application/Funtion/CanLib/CANInterface.c ****         || (eAuthL_Admin != GetSystemPermissionArray(PermissionLevel)) || (canNum != GetSystemPermi
+ 402:./Application/Funtion/CanLib/CANInterface.c ****     {
+ 403:./Application/Funtion/CanLib/CANInterface.c ****         /*权限未开启*/
+ 404:./Application/Funtion/CanLib/CANInterface.c ****     	return(eCANERRREAS_AUTHERR);
+ 359              		.loc 1 404 0
+ 360 000a 0324     		movs	r4, #3
+ 361              	.L24:
+ 405:./Application/Funtion/CanLib/CANInterface.c ****     }
+ 406:./Application/Funtion/CanLib/CANInterface.c **** 
+ 407:./Application/Funtion/CanLib/CANInterface.c ****     /*控制命令索引错误*/
+ 408:./Application/Funtion/CanLib/CANInterface.c ****     if(((index + len) > SerialNum_len) || (index == SerialNum_len))
+ 409:./Application/Funtion/CanLib/CANInterface.c ****     {
+ 410:./Application/Funtion/CanLib/CANInterface.c ****         return(eCANERRREAS_INDEXERR);
+ 411:./Application/Funtion/CanLib/CANInterface.c ****     }
+ 412:./Application/Funtion/CanLib/CANInterface.c **** 
+ 413:./Application/Funtion/CanLib/CANInterface.c ****     if(TRUE != RcvDeviceSerialParaCfgAPI())
+ 414:./Application/Funtion/CanLib/CANInterface.c **** 	{
+ 415:./Application/Funtion/CanLib/CANInterface.c **** 		return(eCANERRREAS_STATEERR);
+ 416:./Application/Funtion/CanLib/CANInterface.c **** 	}
+ 417:./Application/Funtion/CanLib/CANInterface.c ****     return(eCANERRREAS_NORMAL);
+ 418:./Application/Funtion/CanLib/CANInterface.c **** }
+ 362              		.loc 1 418 0
+ 363 000c 2000     		movs	r0, r4
+ 364              		@ sp needed
+ 365 000e F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 366              	.LVL25:
+ 367              	.L23:
+ 401:./Application/Funtion/CanLib/CANInterface.c ****         || (eAuthL_Admin != GetSystemPermissionArray(PermissionLevel)) || (canNum != GetSystemPermi
+ 368              		.loc 1 401 0
+ 369 0010 1000     		movs	r0, r2
+ 370              	.LVL26:
+ 371 0012 FFF7FEFF 		bl	GetSystemPermissionArray
+ARM GAS  /tmp/ccTEt5Zb.s 			page 15
+
+
+ 372              	.LVL27:
+ 373 0016 0500     		movs	r5, r0
+ 374 0018 0128     		cmp	r0, #1
+ 375 001a F6D1     		bne	.L25
+ 401:./Application/Funtion/CanLib/CANInterface.c ****         || (eAuthL_Admin != GetSystemPermissionArray(PermissionLevel)) || (canNum != GetSystemPermi
+ 376              		.loc 1 401 0 is_stmt 0 discriminator 1
+ 377 001c FFF7FEFF 		bl	GetSystemPermissionArray
+ 378              	.LVL28:
+ 379 0020 0028     		cmp	r0, #0
+ 380 0022 F2D1     		bne	.L25
+ 408:./Application/Funtion/CanLib/CANInterface.c ****     {
+ 381              		.loc 1 408 0 is_stmt 1
+ 382 0024 BE19     		adds	r6, r7, r6
+ 383 0026 172E     		cmp	r6, #23
+ 384 0028 07DC     		bgt	.L27
+ 408:./Application/Funtion/CanLib/CANInterface.c ****     {
+ 385              		.loc 1 408 0 is_stmt 0 discriminator 1
+ 386 002a 172F     		cmp	r7, #23
+ 387 002c 05D0     		beq	.L27
+ 388              	.LVL29:
+ 389              	.LBB4:
+ 390              	.LBB5:
+ 413:./Application/Funtion/CanLib/CANInterface.c **** 	{
+ 391              		.loc 1 413 0 is_stmt 1
+ 392 002e FFF7FEFF 		bl	RcvDeviceSerialParaCfgAPI
+ 393              	.LVL30:
+ 394 0032 0128     		cmp	r0, #1
+ 395 0034 EAD0     		beq	.L24
+ 415:./Application/Funtion/CanLib/CANInterface.c **** 	}
+ 396              		.loc 1 415 0
+ 397 0036 0424     		movs	r4, #4
+ 398 0038 E8E7     		b	.L24
+ 399              	.LVL31:
+ 400              	.L27:
+ 401              	.LBE5:
+ 402              	.LBE4:
+ 410:./Application/Funtion/CanLib/CANInterface.c ****     }
+ 403              		.loc 1 410 0
+ 404 003a 2C00     		movs	r4, r5
+ 405 003c E6E7     		b	.L24
+ 406              		.cfi_endproc
+ 407              	.LFE503:
+ 409              		.section	.text.RcvCanGroupCalibrationDeal,"ax",%progbits
+ 410              		.align	1
+ 411              		.global	RcvCanGroupCalibrationDeal
+ 412              		.syntax unified
+ 413              		.code	16
+ 414              		.thumb_func
+ 415              		.fpu softvfp
+ 417              	RcvCanGroupCalibrationDeal:
+ 418              	.LFB504:
+ 419:./Application/Funtion/CanLib/CANInterface.c **** 
+ 420:./Application/Funtion/CanLib/CANInterface.c **** /*=================================================================================================
+ 421:./Application/Funtion/CanLib/CANInterface.c **** ** @Name      : u8 RcvCanGroupCalibrationDeal(u8 index, u8 len, u8 canNum)
+ 422:./Application/Funtion/CanLib/CANInterface.c **** ** @Input     : index:子索引号 len:控制索引长度 canNum:CAN口
+ 423:./Application/Funtion/CanLib/CANInterface.c **** ** @Output    : 执行结果:0:正常 1:索引非法 2:CRC非法 3:权限非法 4:状态非法 5:�
+ 424:./Application/Funtion/CanLib/CANInterface.c **** ** @Function  : 接收执行校准命令CAN报文处理
+ARM GAS  /tmp/ccTEt5Zb.s 			page 16
+
+
+ 425:./Application/Funtion/CanLib/CANInterface.c **** ** @The notes : CAN通信包接收请求修改(52)处理调用
+ 426:./Application/Funtion/CanLib/CANInterface.c **** **===============================================================================================*/
+ 427:./Application/Funtion/CanLib/CANInterface.c **** u8  RcvCanGroupCalibrationDeal(u8 index, u8 len, u8 canNum)
+ 428:./Application/Funtion/CanLib/CANInterface.c **** {
+ 419              		.loc 1 428 0
+ 420              		.cfi_startproc
+ 421              		@ args = 0, pretend = 0, frame = 0
+ 422              		@ frame_needed = 0, uses_anonymous_args = 0
+ 423              		@ link register save eliminated.
+ 424              	.LVL32:
+ 429:./Application/Funtion/CanLib/CANInterface.c ****     u8 i = 0;
+ 430:./Application/Funtion/CanLib/CANInterface.c ****     /*控制命令索引错误*/
+ 431:./Application/Funtion/CanLib/CANInterface.c ****     if(((index + len) > SysCorrCmd_Len) || (0 == len))
+ 425              		.loc 1 431 0
+ 426 0000 4218     		adds	r2, r0, r1
+ 427              	.LVL33:
+ 432:./Application/Funtion/CanLib/CANInterface.c ****     {
+ 433:./Application/Funtion/CanLib/CANInterface.c ****         return(eCANERRREAS_INDEXERR);
+ 428              		.loc 1 433 0
+ 429 0002 0123     		movs	r3, #1
+ 431:./Application/Funtion/CanLib/CANInterface.c ****     {
+ 430              		.loc 1 431 0
+ 431 0004 0E2A     		cmp	r2, #14
+ 432 0006 01DC     		bgt	.L30
+ 431:./Application/Funtion/CanLib/CANInterface.c ****     {
+ 433              		.loc 1 431 0 is_stmt 0 discriminator 1
+ 434 0008 0029     		cmp	r1, #0
+ 435 000a 03D1     		bne	.L31
+ 436              	.LVL34:
+ 437              	.L30:
+ 434:./Application/Funtion/CanLib/CANInterface.c ****     }
+ 435:./Application/Funtion/CanLib/CANInterface.c **** 
+ 436:./Application/Funtion/CanLib/CANInterface.c ****     for(i = index; i < (index + len); i++)
+ 437:./Application/Funtion/CanLib/CANInterface.c ****     {
+ 438:./Application/Funtion/CanLib/CANInterface.c ****         switch(i)
+ 439:./Application/Funtion/CanLib/CANInterface.c ****         {
+ 440:./Application/Funtion/CanLib/CANInterface.c ****             //采样校准类型
+ 441:./Application/Funtion/CanLib/CANInterface.c ****             case 0:
+ 442:./Application/Funtion/CanLib/CANInterface.c ****                     // CalibrationCtrl_52[SysCorrCmdType] = eCORR_INVALID;
+ 443:./Application/Funtion/CanLib/CANInterface.c **** 				break;
+ 444:./Application/Funtion/CanLib/CANInterface.c **** 
+ 445:./Application/Funtion/CanLib/CANInterface.c ****             //校准点基准值
+ 446:./Application/Funtion/CanLib/CANInterface.c ****             case 1:
+ 447:./Application/Funtion/CanLib/CANInterface.c ****             	/*执行基准电压或电流输入*/
+ 448:./Application/Funtion/CanLib/CANInterface.c ****             	//InputCalibrationInfoMsg(CalibrationCtrl_52[SysCorrValue]);
+ 449:./Application/Funtion/CanLib/CANInterface.c ****                 break;
+ 450:./Application/Funtion/CanLib/CANInterface.c **** 
+ 451:./Application/Funtion/CanLib/CANInterface.c ****             default:
+ 452:./Application/Funtion/CanLib/CANInterface.c ****                 break;
+ 453:./Application/Funtion/CanLib/CANInterface.c ****         }
+ 454:./Application/Funtion/CanLib/CANInterface.c ****     }
+ 455:./Application/Funtion/CanLib/CANInterface.c ****     return(eCANERRREAS_NORMAL);
+ 456:./Application/Funtion/CanLib/CANInterface.c **** }
+ 438              		.loc 1 456 0 is_stmt 1
+ 439 000c 1800     		movs	r0, r3
+ 440              		@ sp needed
+ 441 000e 7047     		bx	lr
+ARM GAS  /tmp/ccTEt5Zb.s 			page 17
+
+
+ 442              	.LVL35:
+ 443              	.L32:
+ 436:./Application/Funtion/CanLib/CANInterface.c ****     {
+ 444              		.loc 1 436 0
+ 445 0010 0130     		adds	r0, r0, #1
+ 446              	.LVL36:
+ 447 0012 C0B2     		uxtb	r0, r0
+ 448              	.LVL37:
+ 449              	.L31:
+ 436:./Application/Funtion/CanLib/CANInterface.c ****     {
+ 450              		.loc 1 436 0 is_stmt 0 discriminator 1
+ 451 0014 8242     		cmp	r2, r0
+ 452 0016 FBDC     		bgt	.L32
+ 455:./Application/Funtion/CanLib/CANInterface.c **** }
+ 453              		.loc 1 455 0 is_stmt 1
+ 454 0018 0023     		movs	r3, #0
+ 455 001a F7E7     		b	.L30
+ 456              		.cfi_endproc
+ 457              	.LFE504:
+ 459              		.section	.text.RcvCanGroupPasswordDeal,"ax",%progbits
+ 460              		.align	1
+ 461              		.global	RcvCanGroupPasswordDeal
+ 462              		.syntax unified
+ 463              		.code	16
+ 464              		.thumb_func
+ 465              		.fpu softvfp
+ 467              	RcvCanGroupPasswordDeal:
+ 468              	.LFB505:
+ 457:./Application/Funtion/CanLib/CANInterface.c **** 
+ 458:./Application/Funtion/CanLib/CANInterface.c **** /*=================================================================================================
+ 459:./Application/Funtion/CanLib/CANInterface.c **** ** @Name      : u8 RcvCanGroupPasswordDeal(u8 index, u8 len, u8 canNum)
+ 460:./Application/Funtion/CanLib/CANInterface.c **** ** @Input     : index:子索引号 len:控制索引长度 canNum:CAN口
+ 461:./Application/Funtion/CanLib/CANInterface.c **** ** @Output    : 执行结果:0:正常 1:索引非法 2:CRC非法 3:权限非法 4:状态非法 5:�
+ 462:./Application/Funtion/CanLib/CANInterface.c **** ** @Function  : 接收权限密码命令CAN报文处理
+ 463:./Application/Funtion/CanLib/CANInterface.c **** ** @The notes : CAN通信包接收请求修改(53)处理调用
+ 464:./Application/Funtion/CanLib/CANInterface.c **** **===============================================================================================*/
+ 465:./Application/Funtion/CanLib/CANInterface.c **** u8 RcvCanGroupPasswordDeal(u8 index, u8 len, u8 canNum)
+ 466:./Application/Funtion/CanLib/CANInterface.c **** {
+ 469              		.loc 1 466 0
+ 470              		.cfi_startproc
+ 471              		@ args = 0, pretend = 0, frame = 0
+ 472              		@ frame_needed = 0, uses_anonymous_args = 0
+ 473              	.LVL38:
+ 474 0000 70B5     		push	{r4, r5, r6, lr}
+ 475              	.LCFI3:
+ 476              		.cfi_def_cfa_offset 16
+ 477              		.cfi_offset 4, -16
+ 478              		.cfi_offset 5, -12
+ 479              		.cfi_offset 6, -8
+ 480              		.cfi_offset 14, -4
+ 467:./Application/Funtion/CanLib/CANInterface.c ****     u8 i = 0;
+ 468:./Application/Funtion/CanLib/CANInterface.c **** 
+ 469:./Application/Funtion/CanLib/CANInterface.c ****     /*控制命令索引错误*/
+ 470:./Application/Funtion/CanLib/CANInterface.c ****     if(((index + len) > Password_Len) || (0 == len))
+ 481              		.loc 1 470 0
+ 482 0002 4518     		adds	r5, r0, r1
+ 466:./Application/Funtion/CanLib/CANInterface.c ****     u8 i = 0;
+ARM GAS  /tmp/ccTEt5Zb.s 			page 18
+
+
+ 483              		.loc 1 466 0
+ 484 0004 0400     		movs	r4, r0
+ 471:./Application/Funtion/CanLib/CANInterface.c ****     {
+ 472:./Application/Funtion/CanLib/CANInterface.c ****         return(eCANERRREAS_INDEXERR);
+ 485              		.loc 1 472 0
+ 486 0006 0120     		movs	r0, #1
+ 487              	.LVL39:
+ 470:./Application/Funtion/CanLib/CANInterface.c ****     {
+ 488              		.loc 1 470 0
+ 489 0008 022D     		cmp	r5, #2
+ 490 000a 01DC     		bgt	.L37
+ 470:./Application/Funtion/CanLib/CANInterface.c ****     {
+ 491              		.loc 1 470 0 is_stmt 0 discriminator 1
+ 492 000c 0029     		cmp	r1, #0
+ 493 000e 07D1     		bne	.L38
+ 494              	.LVL40:
+ 495              	.L37:
+ 473:./Application/Funtion/CanLib/CANInterface.c ****     }
+ 474:./Application/Funtion/CanLib/CANInterface.c **** 
+ 475:./Application/Funtion/CanLib/CANInterface.c ****     for(i = index; i < (index + len); i++)
+ 476:./Application/Funtion/CanLib/CANInterface.c ****     {
+ 477:./Application/Funtion/CanLib/CANInterface.c ****         switch(i)
+ 478:./Application/Funtion/CanLib/CANInterface.c ****         {
+ 479:./Application/Funtion/CanLib/CANInterface.c ****             //权限密码高位
+ 480:./Application/Funtion/CanLib/CANInterface.c ****             case 0:
+ 481:./Application/Funtion/CanLib/CANInterface.c **** 				break;
+ 482:./Application/Funtion/CanLib/CANInterface.c **** 
+ 483:./Application/Funtion/CanLib/CANInterface.c ****             //权限密码低位
+ 484:./Application/Funtion/CanLib/CANInterface.c ****             case 1:
+ 485:./Application/Funtion/CanLib/CANInterface.c ****             	/*执行密码检测*/
+ 486:./Application/Funtion/CanLib/CANInterface.c ****             	RcvSysAuthorityCmdAPI(eAuthL_Can);
+ 487:./Application/Funtion/CanLib/CANInterface.c ****             	//SendCanGroupAuthorityInfoMsg();
+ 488:./Application/Funtion/CanLib/CANInterface.c ****                 break;
+ 489:./Application/Funtion/CanLib/CANInterface.c **** 
+ 490:./Application/Funtion/CanLib/CANInterface.c ****             default:
+ 491:./Application/Funtion/CanLib/CANInterface.c ****                 break;
+ 492:./Application/Funtion/CanLib/CANInterface.c ****         }
+ 493:./Application/Funtion/CanLib/CANInterface.c ****     }
+ 494:./Application/Funtion/CanLib/CANInterface.c **** 
+ 495:./Application/Funtion/CanLib/CANInterface.c ****     return(eCANERRREAS_NORMAL);
+ 496:./Application/Funtion/CanLib/CANInterface.c **** }
+ 496              		.loc 1 496 0 is_stmt 1
+ 497              		@ sp needed
+ 498 0010 70BD     		pop	{r4, r5, r6, pc}
+ 499              	.LVL41:
+ 500              	.L41:
+ 477:./Application/Funtion/CanLib/CANInterface.c ****         {
+ 501              		.loc 1 477 0
+ 502 0012 012C     		cmp	r4, #1
+ 503 0014 02D1     		bne	.L39
+ 486:./Application/Funtion/CanLib/CANInterface.c ****             	//SendCanGroupAuthorityInfoMsg();
+ 504              		.loc 1 486 0
+ 505 0016 0020     		movs	r0, #0
+ 506 0018 FFF7FEFF 		bl	RcvSysAuthorityCmdAPI
+ 507              	.LVL42:
+ 508              	.L39:
+ 475:./Application/Funtion/CanLib/CANInterface.c ****     {
+ARM GAS  /tmp/ccTEt5Zb.s 			page 19
+
+
+ 509              		.loc 1 475 0 discriminator 2
+ 510 001c 0134     		adds	r4, r4, #1
+ 511              	.LVL43:
+ 512 001e E4B2     		uxtb	r4, r4
+ 513              	.LVL44:
+ 514              	.L38:
+ 475:./Application/Funtion/CanLib/CANInterface.c ****     {
+ 515              		.loc 1 475 0 is_stmt 0 discriminator 1
+ 516 0020 A542     		cmp	r5, r4
+ 517 0022 F6DC     		bgt	.L41
+ 495:./Application/Funtion/CanLib/CANInterface.c **** }
+ 518              		.loc 1 495 0 is_stmt 1
+ 519 0024 0020     		movs	r0, #0
+ 520 0026 F3E7     		b	.L37
+ 521              		.cfi_endproc
+ 522              	.LFE505:
+ 524              		.section	.text.RcvCanGroupCtrlCmdDeal,"ax",%progbits
+ 525              		.align	1
+ 526              		.global	RcvCanGroupCtrlCmdDeal
+ 527              		.syntax unified
+ 528              		.code	16
+ 529              		.thumb_func
+ 530              		.fpu softvfp
+ 532              	RcvCanGroupCtrlCmdDeal:
+ 533              	.LFB506:
+ 497:./Application/Funtion/CanLib/CANInterface.c **** 
+ 498:./Application/Funtion/CanLib/CANInterface.c **** /*=================================================================================================
+ 499:./Application/Funtion/CanLib/CANInterface.c **** ** @Name      : u8 RcvCanGroupCtrlCmdDeal(u8 saddr, u8 index, u8 len, u8 canNum)
+ 500:./Application/Funtion/CanLib/CANInterface.c **** ** @Input     : saddr:命令源地址 index:子索引号 len:控制索引长度 canNum:CAN口
+ 501:./Application/Funtion/CanLib/CANInterface.c **** ** @Output    : 执行结果:0:正常 1:索引非法 2:CRC非法 3:权限非法 4:状态非法 5:�
+ 502:./Application/Funtion/CanLib/CANInterface.c **** ** @Function  : 接收控制命令CAN报文处理
+ 503:./Application/Funtion/CanLib/CANInterface.c **** ** @The notes : CAN通信包接收请求修改(55)处理调用
+ 504:./Application/Funtion/CanLib/CANInterface.c **** **===============================================================================================*/
+ 505:./Application/Funtion/CanLib/CANInterface.c **** u8 RcvCanGroupCtrlCmdDeal(u8 saddr, u8 index, u8 len, u8 canNum)
+ 506:./Application/Funtion/CanLib/CANInterface.c **** {
+ 534              		.loc 1 506 0
+ 535              		.cfi_startproc
+ 536              		@ args = 0, pretend = 0, frame = 24
+ 537              		@ frame_needed = 0, uses_anonymous_args = 0
+ 538              	.LVL45:
+ 539 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+ 540              	.LCFI4:
+ 541              		.cfi_def_cfa_offset 20
+ 542              		.cfi_offset 4, -20
+ 543              		.cfi_offset 5, -16
+ 544              		.cfi_offset 6, -12
+ 545              		.cfi_offset 7, -8
+ 546              		.cfi_offset 14, -4
+ 547 0002 0D00     		movs	r5, r1
+ 548 0004 87B0     		sub	sp, sp, #28
+ 549              	.LCFI5:
+ 550              		.cfi_def_cfa_offset 48
+ 551              		.loc 1 506 0
+ 552 0006 1600     		movs	r6, r2
+ 553 0008 1C1E     		subs	r4, r3, #0
+ 507:./Application/Funtion/CanLib/CANInterface.c ****     u8 i = 0;
+ 508:./Application/Funtion/CanLib/CANInterface.c **** 
+ARM GAS  /tmp/ccTEt5Zb.s 			page 20
+
+
+ 509:./Application/Funtion/CanLib/CANInterface.c ****     /*仅在普通模式使用*/
+ 510:./Application/Funtion/CanLib/CANInterface.c ****     if((canNum >= eCANNUM)
+ 554              		.loc 1 510 0
+ 555 000a 03D0     		beq	.L46
+ 556              	.LVL46:
+ 557              	.L48:
+ 511:./Application/Funtion/CanLib/CANInterface.c ****         || (eAuthL_User  != GetSystemPermissionArray(PermissionLevel)))
+ 512:./Application/Funtion/CanLib/CANInterface.c ****     {
+ 513:./Application/Funtion/CanLib/CANInterface.c ****         /*权限未开启*/
+ 514:./Application/Funtion/CanLib/CANInterface.c ****     	return(eCANERRREAS_AUTHERR);
+ 558              		.loc 1 514 0
+ 559 000c 0324     		movs	r4, #3
+ 560              	.L47:
+ 515:./Application/Funtion/CanLib/CANInterface.c ****     }
+ 516:./Application/Funtion/CanLib/CANInterface.c **** 
+ 517:./Application/Funtion/CanLib/CANInterface.c ****     /*控制命令索引错误*/
+ 518:./Application/Funtion/CanLib/CANInterface.c ****     if(((index + len) > UserCtrlCmd_len) || (0 == len))
+ 519:./Application/Funtion/CanLib/CANInterface.c ****     {
+ 520:./Application/Funtion/CanLib/CANInterface.c ****         return(eCANERRREAS_INDEXERR);
+ 521:./Application/Funtion/CanLib/CANInterface.c ****     }
+ 522:./Application/Funtion/CanLib/CANInterface.c **** 
+ 523:./Application/Funtion/CanLib/CANInterface.c ****     for(i = index; i < (index + len); i++)
+ 524:./Application/Funtion/CanLib/CANInterface.c ****     {
+ 525:./Application/Funtion/CanLib/CANInterface.c ****         switch(i)
+ 526:./Application/Funtion/CanLib/CANInterface.c ****         {
+ 527:./Application/Funtion/CanLib/CANInterface.c ****             //绝缘检测控制
+ 528:./Application/Funtion/CanLib/CANInterface.c ****             case UserCtrl:
+ 529:./Application/Funtion/CanLib/CANInterface.c **** 				gs_InsulationDetectMng.ucInsulationMode = UserCtrlCmd_55[UserCtrl];
+ 530:./Application/Funtion/CanLib/CANInterface.c ****                 break;
+ 531:./Application/Funtion/CanLib/CANInterface.c ****             //继电器控制 //继电器通道选择 //继电器控制确认
+ 532:./Application/Funtion/CanLib/CANInterface.c ****             case DoCtrlState:
+ 533:./Application/Funtion/CanLib/CANInterface.c ****                 if((1 == UserCtrlCmd_55[DoCtrlChannl])&& (1 == UserCtrlCmd_55[DoCtrlConfirm] ))
+ 534:./Application/Funtion/CanLib/CANInterface.c **** 				{
+ 535:./Application/Funtion/CanLib/CANInterface.c ****                     gControl.DOStateSet[DO_1] = UserCtrlCmd_55[DoCtrlState];
+ 536:./Application/Funtion/CanLib/CANInterface.c ****                 }else if((2 == UserCtrlCmd_55[DoCtrlChannl]) && (1 == UserCtrlCmd_55[DoCtrlConfirm]
+ 537:./Application/Funtion/CanLib/CANInterface.c ****                 {
+ 538:./Application/Funtion/CanLib/CANInterface.c ****                     gControl.DOStateSet[DO_2] = UserCtrlCmd_55[DoCtrlState];
+ 539:./Application/Funtion/CanLib/CANInterface.c ****                 }else if((0 == UserCtrlCmd_55[DoCtrlChannl]) && (1 == UserCtrlCmd_55[DoCtrlConfirm]
+ 540:./Application/Funtion/CanLib/CANInterface.c ****                 {
+ 541:./Application/Funtion/CanLib/CANInterface.c ****                     gControl.DOStateSet[DO_1] = UserCtrlCmd_55[DoCtrlState];
+ 542:./Application/Funtion/CanLib/CANInterface.c ****                     gControl.DOStateSet[DO_2] = UserCtrlCmd_55[DoCtrlState];
+ 543:./Application/Funtion/CanLib/CANInterface.c ****                 }
+ 544:./Application/Funtion/CanLib/CANInterface.c ****                 break;
+ 545:./Application/Funtion/CanLib/CANInterface.c **** 
+ 546:./Application/Funtion/CanLib/CANInterface.c ****             default:
+ 547:./Application/Funtion/CanLib/CANInterface.c ****                 break;
+ 548:./Application/Funtion/CanLib/CANInterface.c ****         }
+ 549:./Application/Funtion/CanLib/CANInterface.c ****     }
+ 550:./Application/Funtion/CanLib/CANInterface.c **** 
+ 551:./Application/Funtion/CanLib/CANInterface.c ****     return(eCANERRREAS_NORMAL);
+ 552:./Application/Funtion/CanLib/CANInterface.c **** }
+ 561              		.loc 1 552 0
+ 562 000e 2000     		movs	r0, r4
+ 563 0010 07B0     		add	sp, sp, #28
+ 564              		@ sp needed
+ 565 0012 F0BD     		pop	{r4, r5, r6, r7, pc}
+ 566              	.LVL47:
+ARM GAS  /tmp/ccTEt5Zb.s 			page 21
+
+
+ 567              	.L46:
+ 511:./Application/Funtion/CanLib/CANInterface.c ****         || (eAuthL_User  != GetSystemPermissionArray(PermissionLevel)))
+ 568              		.loc 1 511 0
+ 569 0014 1800     		movs	r0, r3
+ 570              	.LVL48:
+ 571 0016 FFF7FEFF 		bl	GetSystemPermissionArray
+ 572              	.LVL49:
+ 573 001a 0028     		cmp	r0, #0
+ 574 001c F6D1     		bne	.L48
+ 575              	.LVL50:
+ 576              	.LBB8:
+ 577              	.LBB9:
+ 518:./Application/Funtion/CanLib/CANInterface.c ****     {
+ 578              		.loc 1 518 0
+ 579 001e AB19     		adds	r3, r5, r6
+ 580 0020 0493     		str	r3, [sp, #16]
+ 581 0022 042B     		cmp	r3, #4
+ 582 0024 4EDC     		bgt	.L60
+ 583 0026 002E     		cmp	r6, #0
+ 584 0028 4CD0     		beq	.L60
+ 533:./Application/Funtion/CanLib/CANInterface.c **** 				{
+ 585              		.loc 1 533 0
+ 586 002a 274B     		ldr	r3, .L74
+ 587 002c 2748     		ldr	r0, .L74+4
+ 588 002e 5A88     		ldrh	r2, [r3, #2]
+ 589 0030 0678     		ldrb	r6, [r0]
+ 590              	.LVL51:
+ 591 0032 0092     		str	r2, [sp]
+ 539:./Application/Funtion/CanLib/CANInterface.c ****                 {
+ 592              		.loc 1 539 0
+ 593 0034 DA88     		ldrh	r2, [r3, #6]
+ 594 0036 4178     		ldrb	r1, [r0, #1]
+ 595 0038 9446     		mov	ip, r2
+ 541:./Application/Funtion/CanLib/CANInterface.c ****                     gControl.DOStateSet[DO_2] = UserCtrlCmd_55[DoCtrlState];
+ 596              		.loc 1 541 0
+ 597 003a 1A79     		ldrb	r2, [r3, #4]
+ 529:./Application/Funtion/CanLib/CANInterface.c ****                 break;
+ 598              		.loc 1 529 0
+ 599 003c 1B78     		ldrb	r3, [r3]
+ 600 003e 2000     		movs	r0, r4
+ 601 0040 0593     		str	r3, [sp, #20]
+ 602 0042 234B     		ldr	r3, .L74+8
+ 603 0044 2700     		movs	r7, r4
+ 604 0046 1B78     		ldrb	r3, [r3]
+ 605 0048 0191     		str	r1, [sp, #4]
+ 606 004a 0393     		str	r3, [sp, #12]
+ 525:./Application/Funtion/CanLib/CANInterface.c ****         {
+ 607              		.loc 1 525 0
+ 608 004c 0123     		movs	r3, #1
+ 529:./Application/Funtion/CanLib/CANInterface.c ****                 break;
+ 609              		.loc 1 529 0
+ 610 004e 0294     		str	r4, [sp, #8]
+ 611              	.LVL52:
+ 612              	.L49:
+ 523:./Application/Funtion/CanLib/CANInterface.c ****     {
+ 613              		.loc 1 523 0
+ 614 0050 0499     		ldr	r1, [sp, #16]
+ARM GAS  /tmp/ccTEt5Zb.s 			page 22
+
+
+ 615 0052 A942     		cmp	r1, r5
+ 616 0054 0FDC     		bgt	.L55
+ 617 0056 029B     		ldr	r3, [sp, #8]
+ 618 0058 002B     		cmp	r3, #0
+ 619 005a 02D0     		beq	.L56
+ 620 005c 1C4B     		ldr	r3, .L74+8
+ 621 005e 039A     		ldr	r2, [sp, #12]
+ 622 0060 1A70     		strb	r2, [r3]
+ 623              	.L56:
+ 624 0062 002F     		cmp	r7, #0
+ 625 0064 01D0     		beq	.L57
+ 626 0066 194B     		ldr	r3, .L74+4
+ 627 0068 1E70     		strb	r6, [r3]
+ 628              	.L57:
+ 629 006a 0028     		cmp	r0, #0
+ 630 006c CFD0     		beq	.L47
+ 631 006e 174B     		ldr	r3, .L74+4
+ 632 0070 019A     		ldr	r2, [sp, #4]
+ 633 0072 5A70     		strb	r2, [r3, #1]
+ 634 0074 CBE7     		b	.L47
+ 635              	.L55:
+ 525:./Application/Funtion/CanLib/CANInterface.c ****         {
+ 636              		.loc 1 525 0
+ 637 0076 002D     		cmp	r5, #0
+ 638 0078 04D0     		beq	.L51
+ 639 007a 022D     		cmp	r5, #2
+ 640 007c 06D0     		beq	.L52
+ 641              	.L50:
+ 523:./Application/Funtion/CanLib/CANInterface.c ****     {
+ 642              		.loc 1 523 0
+ 643 007e 0135     		adds	r5, r5, #1
+ 644              	.LVL53:
+ 645 0080 EDB2     		uxtb	r5, r5
+ 646              	.LVL54:
+ 647 0082 E5E7     		b	.L49
+ 648              	.L51:
+ 529:./Application/Funtion/CanLib/CANInterface.c ****                 break;
+ 649              		.loc 1 529 0
+ 650 0084 0599     		ldr	r1, [sp, #20]
+ 525:./Application/Funtion/CanLib/CANInterface.c ****         {
+ 651              		.loc 1 525 0
+ 652 0086 0293     		str	r3, [sp, #8]
+ 529:./Application/Funtion/CanLib/CANInterface.c ****                 break;
+ 653              		.loc 1 529 0
+ 654 0088 0391     		str	r1, [sp, #12]
+ 655 008a F8E7     		b	.L50
+ 656              	.L52:
+ 533:./Application/Funtion/CanLib/CANInterface.c **** 				{
+ 657              		.loc 1 533 0
+ 658 008c 0099     		ldr	r1, [sp]
+ 659 008e 0129     		cmp	r1, #1
+ 660 0090 05D1     		bne	.L53
+ 661 0092 6146     		mov	r1, ip
+ 662 0094 0129     		cmp	r1, #1
+ 663 0096 F2D1     		bne	.L50
+ 535:./Application/Funtion/CanLib/CANInterface.c ****                 }else if((2 == UserCtrlCmd_55[DoCtrlChannl]) && (1 == UserCtrlCmd_55[DoCtrlConfirm]
+ 664              		.loc 1 535 0
+ARM GAS  /tmp/ccTEt5Zb.s 			page 23
+
+
+ 665 0098 1600     		movs	r6, r2
+ 666              	.L73:
+ 539:./Application/Funtion/CanLib/CANInterface.c ****                 {
+ 667              		.loc 1 539 0
+ 668 009a 1F00     		movs	r7, r3
+ 669 009c EFE7     		b	.L50
+ 670              	.L53:
+ 536:./Application/Funtion/CanLib/CANInterface.c ****                 {
+ 671              		.loc 1 536 0
+ 672 009e 0099     		ldr	r1, [sp]
+ 673 00a0 0229     		cmp	r1, #2
+ 674 00a2 05D1     		bne	.L54
+ 675 00a4 6146     		mov	r1, ip
+ 676 00a6 0129     		cmp	r1, #1
+ 677 00a8 E9D1     		bne	.L50
+ 538:./Application/Funtion/CanLib/CANInterface.c ****                 }else if((0 == UserCtrlCmd_55[DoCtrlChannl]) && (1 == UserCtrlCmd_55[DoCtrlConfirm]
+ 678              		.loc 1 538 0
+ 679 00aa 0192     		str	r2, [sp, #4]
+ 536:./Application/Funtion/CanLib/CANInterface.c ****                 {
+ 680              		.loc 1 536 0
+ 681 00ac 1800     		movs	r0, r3
+ 682 00ae E6E7     		b	.L50
+ 683              	.L54:
+ 539:./Application/Funtion/CanLib/CANInterface.c ****                 {
+ 684              		.loc 1 539 0
+ 685 00b0 0099     		ldr	r1, [sp]
+ 686 00b2 0029     		cmp	r1, #0
+ 687 00b4 E3D1     		bne	.L50
+ 688 00b6 6146     		mov	r1, ip
+ 689 00b8 0129     		cmp	r1, #1
+ 690 00ba E0D1     		bne	.L50
+ 542:./Application/Funtion/CanLib/CANInterface.c ****                 }
+ 691              		.loc 1 542 0
+ 692 00bc 0192     		str	r2, [sp, #4]
+ 541:./Application/Funtion/CanLib/CANInterface.c ****                     gControl.DOStateSet[DO_2] = UserCtrlCmd_55[DoCtrlState];
+ 693              		.loc 1 541 0
+ 694 00be 1600     		movs	r6, r2
+ 539:./Application/Funtion/CanLib/CANInterface.c ****                 {
+ 695              		.loc 1 539 0
+ 696 00c0 1800     		movs	r0, r3
+ 697 00c2 EAE7     		b	.L73
+ 698              	.LVL55:
+ 699              	.L60:
+ 520:./Application/Funtion/CanLib/CANInterface.c ****     }
+ 700              		.loc 1 520 0
+ 701 00c4 0124     		movs	r4, #1
+ 702 00c6 A2E7     		b	.L47
+ 703              	.L75:
+ 704              		.align	2
+ 705              	.L74:
+ 706 00c8 00000000 		.word	UserCtrlCmd_55
+ 707 00cc 00000000 		.word	gControl
+ 708 00d0 00000000 		.word	gs_InsulationDetectMng
+ 709              	.LBE9:
+ 710              	.LBE8:
+ 711              		.cfi_endproc
+ 712              	.LFE506:
+ARM GAS  /tmp/ccTEt5Zb.s 			page 24
+
+
+ 714              		.section	.text.RcvCanGroupDebugCmdDeal,"ax",%progbits
+ 715              		.align	1
+ 716              		.global	RcvCanGroupDebugCmdDeal
+ 717              		.syntax unified
+ 718              		.code	16
+ 719              		.thumb_func
+ 720              		.fpu softvfp
+ 722              	RcvCanGroupDebugCmdDeal:
+ 723              	.LFB507:
+ 553:./Application/Funtion/CanLib/CANInterface.c **** 
+ 554:./Application/Funtion/CanLib/CANInterface.c **** /*=================================================================================================
+ 555:./Application/Funtion/CanLib/CANInterface.c **** ** @Name      : u8 RcvCanGroupDebugCmdDeal(u8 index, u8 len, u8 canNum)
+ 556:./Application/Funtion/CanLib/CANInterface.c **** ** @Input     : index:子索引号 len:控制索引长度 canNum:CAN口
+ 557:./Application/Funtion/CanLib/CANInterface.c **** ** @Output    : 执行结果:0:正常 1:索引非法 2:CRC非法 3:权限非法 4:状态非法 5:�
+ 558:./Application/Funtion/CanLib/CANInterface.c **** ** @Function  : 接收电池组调试命令CAN报文处理
+ 559:./Application/Funtion/CanLib/CANInterface.c **** ** @The notes : CAN通信包接收请求修改(88)处理调用
+ 560:./Application/Funtion/CanLib/CANInterface.c **** **===============================================================================================*/
+ 561:./Application/Funtion/CanLib/CANInterface.c **** u8 RcvCanGroupDebugCmdDeal(u8 index, u8 len, u8 canNum)
+ 562:./Application/Funtion/CanLib/CANInterface.c **** {
+ 724              		.loc 1 562 0
+ 725              		.cfi_startproc
+ 726              		@ args = 0, pretend = 0, frame = 0
+ 727              		@ frame_needed = 0, uses_anonymous_args = 0
+ 728              	.LVL56:
+ 729 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+ 730              	.LCFI6:
+ 731              		.cfi_def_cfa_offset 24
+ 732              		.cfi_offset 3, -24
+ 733              		.cfi_offset 4, -20
+ 734              		.cfi_offset 5, -16
+ 735              		.cfi_offset 6, -12
+ 736              		.cfi_offset 7, -8
+ 737              		.cfi_offset 14, -4
+ 738              		.loc 1 562 0
+ 739 0002 0400     		movs	r4, r0
+ 740 0004 0F00     		movs	r7, r1
+ 741 0006 151E     		subs	r5, r2, #0
+ 563:./Application/Funtion/CanLib/CANInterface.c ****     u8 i = 0;
+ 564:./Application/Funtion/CanLib/CANInterface.c **** 
+ 565:./Application/Funtion/CanLib/CANInterface.c ****     /*无CAN口调试权限*/
+ 566:./Application/Funtion/CanLib/CANInterface.c ****     if((canNum >= eCANNUM)
+ 742              		.loc 1 566 0
+ 743 0008 02D0     		beq	.L77
+ 744              	.LVL57:
+ 745              	.L79:
+ 567:./Application/Funtion/CanLib/CANInterface.c ****         || (eAuthL_Admin  != GetSystemPermissionArray(PermissionLevel)))
+ 568:./Application/Funtion/CanLib/CANInterface.c ****     {
+ 569:./Application/Funtion/CanLib/CANInterface.c ****         /*权限未开启*/
+ 570:./Application/Funtion/CanLib/CANInterface.c ****     	return(eCANERRREAS_AUTHERR);
+ 746              		.loc 1 570 0
+ 747 000a 0325     		movs	r5, #3
+ 748              	.L78:
+ 571:./Application/Funtion/CanLib/CANInterface.c ****     }
+ 572:./Application/Funtion/CanLib/CANInterface.c **** 
+ 573:./Application/Funtion/CanLib/CANInterface.c ****     /*调试命令索引错误*/
+ 574:./Application/Funtion/CanLib/CANInterface.c ****     if(((index + len) > Debug_Len) || (0 == len))
+ 575:./Application/Funtion/CanLib/CANInterface.c ****     {
+ARM GAS  /tmp/ccTEt5Zb.s 			page 25
+
+
+ 576:./Application/Funtion/CanLib/CANInterface.c ****         return(eCANERRREAS_INDEXERR);
+ 577:./Application/Funtion/CanLib/CANInterface.c ****     }
+ 578:./Application/Funtion/CanLib/CANInterface.c **** 
+ 579:./Application/Funtion/CanLib/CANInterface.c ****     for(i = index; i < (index + len); i++)
+ 580:./Application/Funtion/CanLib/CANInterface.c ****     {
+ 581:./Application/Funtion/CanLib/CANInterface.c ****     	//调试命令设置
+ 582:./Application/Funtion/CanLib/CANInterface.c ****         if(i < DebugComfirm)
+ 583:./Application/Funtion/CanLib/CANInterface.c ****         {
+ 584:./Application/Funtion/CanLib/CANInterface.c ****             RcvGroupDebugOperCmdAPI(i);
+ 585:./Application/Funtion/CanLib/CANInterface.c ****         }
+ 586:./Application/Funtion/CanLib/CANInterface.c ****         //调试确认
+ 587:./Application/Funtion/CanLib/CANInterface.c ****         else if(i == DebugComfirm)
+ 588:./Application/Funtion/CanLib/CANInterface.c ****         {
+ 589:./Application/Funtion/CanLib/CANInterface.c ****             RcvGroupDebugAffirmCmdAPI(canNum);
+ 590:./Application/Funtion/CanLib/CANInterface.c ****         }
+ 591:./Application/Funtion/CanLib/CANInterface.c ****     }
+ 592:./Application/Funtion/CanLib/CANInterface.c **** 
+ 593:./Application/Funtion/CanLib/CANInterface.c ****     return(eCANERRREAS_NORMAL);
+ 594:./Application/Funtion/CanLib/CANInterface.c **** }
+ 749              		.loc 1 594 0
+ 750 000c 2800     		movs	r0, r5
+ 751              		@ sp needed
+ 752 000e F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 753              	.LVL58:
+ 754              	.L77:
+ 567:./Application/Funtion/CanLib/CANInterface.c ****         || (eAuthL_Admin  != GetSystemPermissionArray(PermissionLevel)))
+ 755              		.loc 1 567 0
+ 756 0010 1000     		movs	r0, r2
+ 757              	.LVL59:
+ 758 0012 FFF7FEFF 		bl	GetSystemPermissionArray
+ 759              	.LVL60:
+ 760 0016 0128     		cmp	r0, #1
+ 761 0018 F7D1     		bne	.L79
+ 762              	.LVL61:
+ 763              	.LBB12:
+ 764              	.LBB13:
+ 574:./Application/Funtion/CanLib/CANInterface.c ****     {
+ 765              		.loc 1 574 0
+ 766 001a E619     		adds	r6, r4, r7
+ 767 001c 062E     		cmp	r6, #6
+ 768 001e 01DC     		bgt	.L85
+ 769 0020 002F     		cmp	r7, #0
+ 770 0022 08D1     		bne	.L80
+ 771              	.L85:
+ 576:./Application/Funtion/CanLib/CANInterface.c ****     }
+ 772              		.loc 1 576 0
+ 773 0024 0500     		movs	r5, r0
+ 774 0026 F1E7     		b	.L78
+ 775              	.LVL62:
+ 776              	.L83:
+ 582:./Application/Funtion/CanLib/CANInterface.c ****         {
+ 777              		.loc 1 582 0
+ 778 0028 042C     		cmp	r4, #4
+ 779 002a 07D8     		bhi	.L81
+ 584:./Application/Funtion/CanLib/CANInterface.c ****         }
+ 780              		.loc 1 584 0
+ 781 002c 2000     		movs	r0, r4
+ARM GAS  /tmp/ccTEt5Zb.s 			page 26
+
+
+ 782 002e FFF7FEFF 		bl	RcvGroupDebugOperCmdAPI
+ 783              	.LVL63:
+ 784              	.L82:
+ 579:./Application/Funtion/CanLib/CANInterface.c ****     {
+ 785              		.loc 1 579 0
+ 786 0032 0134     		adds	r4, r4, #1
+ 787              	.LVL64:
+ 788 0034 E4B2     		uxtb	r4, r4
+ 789              	.LVL65:
+ 790              	.L80:
+ 791 0036 A642     		cmp	r6, r4
+ 792 0038 F6DC     		bgt	.L83
+ 793 003a E7E7     		b	.L78
+ 794              	.L81:
+ 587:./Application/Funtion/CanLib/CANInterface.c ****         {
+ 795              		.loc 1 587 0
+ 796 003c 052C     		cmp	r4, #5
+ 797 003e F8D1     		bne	.L82
+ 589:./Application/Funtion/CanLib/CANInterface.c ****         }
+ 798              		.loc 1 589 0
+ 799 0040 0020     		movs	r0, #0
+ 800 0042 FFF7FEFF 		bl	RcvGroupDebugAffirmCmdAPI
+ 801              	.LVL66:
+ 802 0046 F4E7     		b	.L82
+ 803              	.LBE13:
+ 804              	.LBE12:
+ 805              		.cfi_endproc
+ 806              	.LFE507:
+ 808              		.section	.text.RcvCanSystemGenParaCfgDeal,"ax",%progbits
+ 809              		.align	1
+ 810              		.global	RcvCanSystemGenParaCfgDeal
+ 811              		.syntax unified
+ 812              		.code	16
+ 813              		.thumb_func
+ 814              		.fpu softvfp
+ 816              	RcvCanSystemGenParaCfgDeal:
+ 817              	.LFB508:
+ 595:./Application/Funtion/CanLib/CANInterface.c **** 
+ 596:./Application/Funtion/CanLib/CANInterface.c **** /*=================================================================================================
+ 597:./Application/Funtion/CanLib/CANInterface.c **** ** @Name      : u8 RcvCanSystemGenParaCfgDeal(u8 index, u8 len, u8 canNum)
+ 598:./Application/Funtion/CanLib/CANInterface.c **** ** @Input     : index:子索引号 len:控制索引长度 canNum:CAN口
+ 599:./Application/Funtion/CanLib/CANInterface.c **** ** @Output    : 执行结果:0:正常 1:索引非法 2:CRC非法 3:权限非法 4:状态非法 5:�
+ 600:./Application/Funtion/CanLib/CANInterface.c **** ** @Function  : 接收系统通用参数设置命令CAN报文处理
+ 601:./Application/Funtion/CanLib/CANInterface.c **** ** @The notes : CAN通信包接收请求修改(105)处理调用
+ 602:./Application/Funtion/CanLib/CANInterface.c **** **===============================================================================================*/
+ 603:./Application/Funtion/CanLib/CANInterface.c **** u8 RcvCanSystemGenParaCfgDeal(u8 index, u8 len, u8 canNum)
+ 604:./Application/Funtion/CanLib/CANInterface.c **** {
+ 818              		.loc 1 604 0
+ 819              		.cfi_startproc
+ 820              		@ args = 0, pretend = 0, frame = 0
+ 821              		@ frame_needed = 0, uses_anonymous_args = 0
+ 822              	.LVL67:
+ 823 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+ 824              	.LCFI7:
+ 825              		.cfi_def_cfa_offset 24
+ 826              		.cfi_offset 3, -24
+ 827              		.cfi_offset 4, -20
+ARM GAS  /tmp/ccTEt5Zb.s 			page 27
+
+
+ 828              		.cfi_offset 5, -16
+ 829              		.cfi_offset 6, -12
+ 830              		.cfi_offset 7, -8
+ 831              		.cfi_offset 14, -4
+ 832              		.loc 1 604 0
+ 833 0002 0500     		movs	r5, r0
+ 834 0004 0F00     		movs	r7, r1
+ 835 0006 141E     		subs	r4, r2, #0
+ 605:./Application/Funtion/CanLib/CANInterface.c ****     u8 i = 0;
+ 606:./Application/Funtion/CanLib/CANInterface.c ****     u8 reault = TRUE;
+ 607:./Application/Funtion/CanLib/CANInterface.c **** 
+ 608:./Application/Funtion/CanLib/CANInterface.c ****     /*无CAN口调试权限*/
+ 609:./Application/Funtion/CanLib/CANInterface.c ****     if((canNum >= eCANNUM)
+ 836              		.loc 1 609 0
+ 837 0008 02D0     		beq	.L87
+ 838              	.LVL68:
+ 839              	.L89:
+ 610:./Application/Funtion/CanLib/CANInterface.c ****         || (eAuthL_Admin  != GetSystemPermissionArray(PermissionLevel)))
+ 611:./Application/Funtion/CanLib/CANInterface.c ****     {
+ 612:./Application/Funtion/CanLib/CANInterface.c ****         /*权限未开启*/
+ 613:./Application/Funtion/CanLib/CANInterface.c ****     	return(eCANERRREAS_AUTHERR);
+ 840              		.loc 1 613 0
+ 841 000a 0324     		movs	r4, #3
+ 842              	.L88:
+ 614:./Application/Funtion/CanLib/CANInterface.c ****     }
+ 615:./Application/Funtion/CanLib/CANInterface.c **** 
+ 616:./Application/Funtion/CanLib/CANInterface.c ****     /*设置命令索引错误*/
+ 617:./Application/Funtion/CanLib/CANInterface.c ****     if(((index + len) > Parameter_Len) || (0 == len))
+ 618:./Application/Funtion/CanLib/CANInterface.c ****     {
+ 619:./Application/Funtion/CanLib/CANInterface.c ****         return(eCANERRREAS_INDEXERR);
+ 620:./Application/Funtion/CanLib/CANInterface.c ****     }
+ 621:./Application/Funtion/CanLib/CANInterface.c **** 
+ 622:./Application/Funtion/CanLib/CANInterface.c ****     for(i = index; i < (index + len); i++)
+ 623:./Application/Funtion/CanLib/CANInterface.c ****     {
+ 624:./Application/Funtion/CanLib/CANInterface.c ****         /*写入参数处理*/
+ 625:./Application/Funtion/CanLib/CANInterface.c ****     	reault &= RcvSystemGenParaCfgAPI(i, canNum);
+ 626:./Application/Funtion/CanLib/CANInterface.c ****     }
+ 627:./Application/Funtion/CanLib/CANInterface.c **** 
+ 628:./Application/Funtion/CanLib/CANInterface.c ****     /*有写成功*/
+ 629:./Application/Funtion/CanLib/CANInterface.c ****     if(TRUE == reault)
+ 630:./Application/Funtion/CanLib/CANInterface.c ****     {
+ 631:./Application/Funtion/CanLib/CANInterface.c ****         /*请求备份FLASH*/
+ 632:./Application/Funtion/CanLib/CANInterface.c ****         RcvParaSetFlashSaveAPI();
+ 633:./Application/Funtion/CanLib/CANInterface.c ****     }
+ 634:./Application/Funtion/CanLib/CANInterface.c ****     /*有写失败*/
+ 635:./Application/Funtion/CanLib/CANInterface.c ****     if(FALSE == reault)
+ 636:./Application/Funtion/CanLib/CANInterface.c ****     {
+ 637:./Application/Funtion/CanLib/CANInterface.c ****         /*参数非法*/
+ 638:./Application/Funtion/CanLib/CANInterface.c ****     	return(eCANERRREAS_RANGEERR);
+ 639:./Application/Funtion/CanLib/CANInterface.c ****     }
+ 640:./Application/Funtion/CanLib/CANInterface.c **** 
+ 641:./Application/Funtion/CanLib/CANInterface.c ****     return(eCANERRREAS_NORMAL);
+ 642:./Application/Funtion/CanLib/CANInterface.c **** }
+ 843              		.loc 1 642 0
+ 844 000c 2000     		movs	r0, r4
+ 845              		@ sp needed
+ 846 000e F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ARM GAS  /tmp/ccTEt5Zb.s 			page 28
+
+
+ 847              	.LVL69:
+ 848              	.L87:
+ 610:./Application/Funtion/CanLib/CANInterface.c ****         || (eAuthL_Admin  != GetSystemPermissionArray(PermissionLevel)))
+ 849              		.loc 1 610 0
+ 850 0010 1000     		movs	r0, r2
+ 851              	.LVL70:
+ 852 0012 FFF7FEFF 		bl	GetSystemPermissionArray
+ 853              	.LVL71:
+ 854 0016 0128     		cmp	r0, #1
+ 855 0018 F7D1     		bne	.L89
+ 856              	.LVL72:
+ 857              	.LBB16:
+ 858              	.LBB17:
+ 617:./Application/Funtion/CanLib/CANInterface.c ****     {
+ 859              		.loc 1 617 0
+ 860 001a EE19     		adds	r6, r5, r7
+ 861 001c 102E     		cmp	r6, #16
+ 862 001e 11DC     		bgt	.L93
+ 863 0020 002F     		cmp	r7, #0
+ 864 0022 0FD0     		beq	.L93
+ 606:./Application/Funtion/CanLib/CANInterface.c **** 
+ 865              		.loc 1 606 0
+ 866 0024 0700     		movs	r7, r0
+ 867              	.LVL73:
+ 868              	.L90:
+ 622:./Application/Funtion/CanLib/CANInterface.c ****     {
+ 869              		.loc 1 622 0
+ 870 0026 AE42     		cmp	r6, r5
+ 871 0028 04DC     		bgt	.L91
+ 629:./Application/Funtion/CanLib/CANInterface.c ****     {
+ 872              		.loc 1 629 0
+ 873 002a 012F     		cmp	r7, #1
+ 874 002c 0CD1     		bne	.L94
+ 632:./Application/Funtion/CanLib/CANInterface.c ****     }
+ 875              		.loc 1 632 0
+ 876 002e FFF7FEFF 		bl	RcvParaSetFlashSaveAPI
+ 877              	.LVL74:
+ 878 0032 EBE7     		b	.L88
+ 879              	.L91:
+ 625:./Application/Funtion/CanLib/CANInterface.c ****     }
+ 880              		.loc 1 625 0
+ 881 0034 2800     		movs	r0, r5
+ 882 0036 0021     		movs	r1, #0
+ 883 0038 FFF7FEFF 		bl	RcvSystemGenParaCfgAPI
+ 884              	.LVL75:
+ 622:./Application/Funtion/CanLib/CANInterface.c ****     {
+ 885              		.loc 1 622 0
+ 886 003c 0135     		adds	r5, r5, #1
+ 887              	.LVL76:
+ 625:./Application/Funtion/CanLib/CANInterface.c ****     }
+ 888              		.loc 1 625 0
+ 889 003e 0740     		ands	r7, r0
+ 890              	.LVL77:
+ 622:./Application/Funtion/CanLib/CANInterface.c ****     {
+ 891              		.loc 1 622 0
+ 892 0040 EDB2     		uxtb	r5, r5
+ 893              	.LVL78:
+ARM GAS  /tmp/ccTEt5Zb.s 			page 29
+
+
+ 894 0042 F0E7     		b	.L90
+ 895              	.LVL79:
+ 896              	.L93:
+ 619:./Application/Funtion/CanLib/CANInterface.c ****     }
+ 897              		.loc 1 619 0
+ 898 0044 0400     		movs	r4, r0
+ 899 0046 E1E7     		b	.L88
+ 900              	.LVL80:
+ 901              	.L94:
+ 638:./Application/Funtion/CanLib/CANInterface.c ****     }
+ 902              		.loc 1 638 0
+ 903 0048 0524     		movs	r4, #5
+ 904 004a DFE7     		b	.L88
+ 905              	.LBE17:
+ 906              	.LBE16:
+ 907              		.cfi_endproc
+ 908              	.LFE508:
+ 910              		.section	.text.RcvCanSysCtrlCmd,"ax",%progbits
+ 911              		.align	1
+ 912              		.global	RcvCanSysCtrlCmd
+ 913              		.syntax unified
+ 914              		.code	16
+ 915              		.thumb_func
+ 916              		.fpu softvfp
+ 918              	RcvCanSysCtrlCmd:
+ 919              	.LFB509:
+ 643:./Application/Funtion/CanLib/CANInterface.c **** 
+ 644:./Application/Funtion/CanLib/CANInterface.c **** 
+ 645:./Application/Funtion/CanLib/CANInterface.c **** /*=================================================================================================
+ 646:./Application/Funtion/CanLib/CANInterface.c **** ** @Name      : u8 RcvCanSysCtrlCmd(u8 index, u8 len, u8 canNum)
+ 647:./Application/Funtion/CanLib/CANInterface.c **** ** @Input     : index:起始子索引号 len:控制索引长度 canNum:CAN口
+ 648:./Application/Funtion/CanLib/CANInterface.c **** ** @Output    : 执行结果:0:正常 1:索引非法 2:CRC非法 3:权限非法 4:状态非法 5:�
+ 649:./Application/Funtion/CanLib/CANInterface.c **** ** @Function  : 接收系统工作模式设置命令CAN报文处理
+ 650:./Application/Funtion/CanLib/CANInterface.c **** ** @The notes : CAN通信包接收请求修改(50)处理调用
+ 651:./Application/Funtion/CanLib/CANInterface.c **** **===============================================================================================*/
+ 652:./Application/Funtion/CanLib/CANInterface.c **** u8 RcvCanSysCtrlCmd(u8 index, u8 len, u8 canNum)
+ 653:./Application/Funtion/CanLib/CANInterface.c **** {
+ 920              		.loc 1 653 0
+ 921              		.cfi_startproc
+ 922              		@ args = 0, pretend = 0, frame = 0
+ 923              		@ frame_needed = 0, uses_anonymous_args = 0
+ 924              		@ link register save eliminated.
+ 925              	.LVL81:
+ 654:./Application/Funtion/CanLib/CANInterface.c ****     u16 modeVal = 0;
+ 655:./Application/Funtion/CanLib/CANInterface.c ****     
+ 656:./Application/Funtion/CanLib/CANInterface.c ****     /*控制命令索引错误(使用WorkMode_Len而非DeviceInfo1_len)*/
+ 657:./Application/Funtion/CanLib/CANInterface.c ****     if(((index + len) > WorkMode_Len) || (0 == len))
+ 926              		.loc 1 657 0
+ 927 0000 4318     		adds	r3, r0, r1
+ 658:./Application/Funtion/CanLib/CANInterface.c ****     {
+ 659:./Application/Funtion/CanLib/CANInterface.c ****         return(eCANERRREAS_INDEXERR);
+ 928              		.loc 1 659 0
+ 929 0002 0120     		movs	r0, #1
+ 930              	.LVL82:
+ 657:./Application/Funtion/CanLib/CANInterface.c ****     {
+ 931              		.loc 1 657 0
+ 932 0004 8342     		cmp	r3, r0
+ARM GAS  /tmp/ccTEt5Zb.s 			page 30
+
+
+ 933 0006 0BDC     		bgt	.L96
+ 657:./Application/Funtion/CanLib/CANInterface.c ****     {
+ 934              		.loc 1 657 0 is_stmt 0 discriminator 1
+ 935 0008 0029     		cmp	r1, #0
+ 936 000a 09D0     		beq	.L96
+ 937              	.LVL83:
+ 938              	.LBB20:
+ 939              	.LBB21:
+ 660:./Application/Funtion/CanLib/CANInterface.c ****     }
+ 661:./Application/Funtion/CanLib/CANInterface.c **** 
+ 662:./Application/Funtion/CanLib/CANInterface.c ****     /*读取CAN写入后的工作模式值*/
+ 663:./Application/Funtion/CanLib/CANInterface.c ****     modeVal = SystemWorkState_50[WorkMode];
+ 940              		.loc 1 663 0 is_stmt 1
+ 941 000c 0949     		ldr	r1, .L106
+ 942              	.LVL84:
+ 943 000e 0022     		movs	r2, #0
+ 944              	.LVL85:
+ 945 0010 0B88     		ldrh	r3, [r1]
+ 946              	.LVL86:
+ 664:./Application/Funtion/CanLib/CANInterface.c **** 
+ 665:./Application/Funtion/CanLib/CANInterface.c ****     /*验证工作模式值合法性*/
+ 666:./Application/Funtion/CanLib/CANInterface.c ****     if((eMODE_Normal != modeVal) && (eMODE_Tooling != modeVal) && (eMODE_Debug != modeVal))
+ 947              		.loc 1 666 0
+ 948 0012 8342     		cmp	r3, r0
+ 949 0014 05D9     		bls	.L97
+ 667:./Application/Funtion/CanLib/CANInterface.c ****     {
+ 668:./Application/Funtion/CanLib/CANInterface.c ****         /*参数非法,恢复为正常模式*/
+ 669:./Application/Funtion/CanLib/CANInterface.c ****         SystemWorkState_50[WorkMode] = eMODE_Normal;
+ 670:./Application/Funtion/CanLib/CANInterface.c ****         return(eCANERRREAS_RANGEERR);
+ 671:./Application/Funtion/CanLib/CANInterface.c ****     }
+ 672:./Application/Funtion/CanLib/CANInterface.c **** 
+ 673:./Application/Funtion/CanLib/CANInterface.c ****     /*模式合法,根据模式执行相应操作*/
+ 674:./Application/Funtion/CanLib/CANInterface.c ****     switch(modeVal)
+ 675:./Application/Funtion/CanLib/CANInterface.c ****     {
+ 676:./Application/Funtion/CanLib/CANInterface.c ****         case eMODE_Normal:
+ 677:./Application/Funtion/CanLib/CANInterface.c ****             /*正常模式:恢复权限和调试状态*/
+ 678:./Application/Funtion/CanLib/CANInterface.c ****             SystemPermission_54[PermissionLevel] = eAuthL_User;
+ 679:./Application/Funtion/CanLib/CANInterface.c ****             SystemPermission_54[PermissionChannel] = eAuthL_Reserved;
+ 680:./Application/Funtion/CanLib/CANInterface.c ****             break;
+ 681:./Application/Funtion/CanLib/CANInterface.c **** 
+ 682:./Application/Funtion/CanLib/CANInterface.c ****         case eMODE_Tooling:
+ 683:./Application/Funtion/CanLib/CANInterface.c ****             /*工装模式:保持当前权限*/
+ 684:./Application/Funtion/CanLib/CANInterface.c ****             break;
+ 685:./Application/Funtion/CanLib/CANInterface.c **** 
+ 686:./Application/Funtion/CanLib/CANInterface.c ****         case eMODE_Debug:
+ 687:./Application/Funtion/CanLib/CANInterface.c ****             /*调试模式:保持当前权限*/
+ 688:./Application/Funtion/CanLib/CANInterface.c ****             break;
+ 689:./Application/Funtion/CanLib/CANInterface.c **** 
+ 690:./Application/Funtion/CanLib/CANInterface.c ****         default:
+ 691:./Application/Funtion/CanLib/CANInterface.c ****             break;
+ 692:./Application/Funtion/CanLib/CANInterface.c ****     }
+ 693:./Application/Funtion/CanLib/CANInterface.c **** 
+ 694:./Application/Funtion/CanLib/CANInterface.c ****     return(eCANERRREAS_NORMAL);
+ 950              		.loc 1 694 0
+ 951 0016 1000     		movs	r0, r2
+ 666:./Application/Funtion/CanLib/CANInterface.c ****     {
+ 952              		.loc 1 666 0
+ARM GAS  /tmp/ccTEt5Zb.s 			page 31
+
+
+ 953 0018 052B     		cmp	r3, #5
+ 954 001a 01D0     		beq	.L96
+ 669:./Application/Funtion/CanLib/CANInterface.c ****         return(eCANERRREAS_RANGEERR);
+ 955              		.loc 1 669 0
+ 956 001c 0A80     		strh	r2, [r1]
+ 670:./Application/Funtion/CanLib/CANInterface.c ****     }
+ 957              		.loc 1 670 0
+ 958 001e 0530     		adds	r0, r0, #5
+ 959              	.LVL87:
+ 960              	.L96:
+ 961              	.LBE21:
+ 962              	.LBE20:
+ 695:./Application/Funtion/CanLib/CANInterface.c **** }
+ 963              		.loc 1 695 0
+ 964              		@ sp needed
+ 965 0020 7047     		bx	lr
+ 966              	.LVL88:
+ 967              	.L97:
+ 968              	.LBB23:
+ 969              	.LBB22:
+ 674:./Application/Funtion/CanLib/CANInterface.c ****     {
+ 970              		.loc 1 674 0
+ 971 0022 002B     		cmp	r3, #0
+ 972 0024 04D1     		bne	.L105
+ 678:./Application/Funtion/CanLib/CANInterface.c ****             SystemPermission_54[PermissionChannel] = eAuthL_Reserved;
+ 973              		.loc 1 678 0
+ 974 0026 044A     		ldr	r2, .L106+4
+ 679:./Application/Funtion/CanLib/CANInterface.c ****             break;
+ 975              		.loc 1 679 0
+ 976 0028 5080     		strh	r0, [r2, #2]
+ 678:./Application/Funtion/CanLib/CANInterface.c ****             SystemPermission_54[PermissionChannel] = eAuthL_Reserved;
+ 977              		.loc 1 678 0
+ 978 002a 1380     		strh	r3, [r2]
+ 694:./Application/Funtion/CanLib/CANInterface.c **** }
+ 979              		.loc 1 694 0
+ 980 002c 1800     		movs	r0, r3
+ 981 002e F7E7     		b	.L96
+ 982              	.L105:
+ 983 0030 1000     		movs	r0, r2
+ 984 0032 F5E7     		b	.L96
+ 985              	.L107:
+ 986              		.align	2
+ 987              	.L106:
+ 988 0034 00000000 		.word	SystemWorkState_50
+ 989 0038 00000000 		.word	SystemPermission_54
+ 990              	.LBE22:
+ 991              	.LBE23:
+ 992              		.cfi_endproc
+ 993              	.LFE509:
+ 995              		.section	.text.CANRcvRupUserDeal_Hook,"ax",%progbits
+ 996              		.align	1
+ 997              		.global	CANRcvRupUserDeal_Hook
+ 998              		.syntax unified
+ 999              		.code	16
+ 1000              		.thumb_func
+ 1001              		.fpu softvfp
+ 1003              	CANRcvRupUserDeal_Hook:
+ARM GAS  /tmp/ccTEt5Zb.s 			page 32
+
+
+ 1004              	.LFB497:
+ 163:./Application/Funtion/CanLib/CANInterface.c ****     /*通信诊断计数*/
+ 1005              		.loc 1 163 0
+ 1006              		.cfi_startproc
+ 1007              		@ args = 4, pretend = 0, frame = 0
+ 1008              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1009              	.LVL89:
+ 1010 0000 70B5     		push	{r4, r5, r6, lr}
+ 1011              	.LCFI8:
+ 1012              		.cfi_def_cfa_offset 16
+ 1013              		.cfi_offset 4, -16
+ 1014              		.cfi_offset 5, -12
+ 1015              		.cfi_offset 6, -8
+ 1016              		.cfi_offset 14, -4
+ 163:./Application/Funtion/CanLib/CANInterface.c ****     /*通信诊断计数*/
+ 1017              		.loc 1 163 0
+ 1018 0002 0C00     		movs	r4, r1
+ 1019 0004 1900     		movs	r1, r3
+ 1020              	.LVL90:
+ 1021 0006 04AB     		add	r3, sp, #16
+ 1022              	.LVL91:
+ 1023 0008 1500     		movs	r5, r2
+ 1024 000a 1A78     		ldrb	r2, [r3]
+ 1025              	.LVL92:
+ 169:./Application/Funtion/CanLib/CANInterface.c **** 	{
+ 1026              		.loc 1 169 0
+ 1027 000c 1B4B     		ldr	r3, .L119
+ 1028              	.LVL93:
+ 163:./Application/Funtion/CanLib/CANInterface.c ****     /*通信诊断计数*/
+ 1029              		.loc 1 163 0
+ 1030 000e 0600     		movs	r6, r0
+ 169:./Application/Funtion/CanLib/CANInterface.c **** 	{
+ 1031              		.loc 1 169 0
+ 1032 0010 5B88     		ldrh	r3, [r3, #2]
+ 172:./Application/Funtion/CanLib/CANInterface.c **** 	}
+ 1033              		.loc 1 172 0
+ 1034 0012 0320     		movs	r0, #3
+ 1035              	.LVL94:
+ 169:./Application/Funtion/CanLib/CANInterface.c **** 	{
+ 1036              		.loc 1 169 0
+ 1037 0014 B342     		cmp	r3, r6
+ 1038 0016 04D2     		bcs	.L109
+ 176:./Application/Funtion/CanLib/CANInterface.c ****     {
+ 1039              		.loc 1 176 0
+ 1040 0018 022C     		cmp	r4, #2
+ 1041 001a 03D1     		bne	.L110
+ 179:./Application/Funtion/CanLib/CANInterface.c ****     }
+ 1042              		.loc 1 179 0
+ 1043 001c 2800     		movs	r0, r5
+ 1044 001e FFF7FEFF 		bl	RcvCanDeviceSerialCfgDeal
+ 1045              	.LVL95:
+ 1046              	.L109:
+ 227:./Application/Funtion/CanLib/CANInterface.c **** 
+ 1047              		.loc 1 227 0
+ 1048              		@ sp needed
+ 1049 0022 70BD     		pop	{r4, r5, r6, pc}
+ 1050              	.L110:
+ARM GAS  /tmp/ccTEt5Zb.s 			page 33
+
+
+ 226:./Application/Funtion/CanLib/CANInterface.c **** }
+ 1051              		.loc 1 226 0
+ 1052 0024 0120     		movs	r0, #1
+ 182:./Application/Funtion/CanLib/CANInterface.c ****     {
+ 1053              		.loc 1 182 0
+ 1054 0026 162C     		cmp	r4, #22
+ 1055 0028 FBD0     		beq	.L109
+ 187:./Application/Funtion/CanLib/CANInterface.c ****     {
+ 1056              		.loc 1 187 0
+ 1057 002a 322C     		cmp	r4, #50
+ 1058 002c 03D1     		bne	.L111
+ 190:./Application/Funtion/CanLib/CANInterface.c ****     }
+ 1059              		.loc 1 190 0
+ 1060 002e 2800     		movs	r0, r5
+ 1061 0030 FFF7FEFF 		bl	RcvCanSysCtrlCmd
+ 1062              	.LVL96:
+ 1063 0034 F5E7     		b	.L109
+ 1064              	.L111:
+ 193:./Application/Funtion/CanLib/CANInterface.c ****     {
+ 1065              		.loc 1 193 0
+ 1066 0036 342C     		cmp	r4, #52
+ 1067 0038 03D1     		bne	.L112
+ 195:./Application/Funtion/CanLib/CANInterface.c ****     	
+ 1068              		.loc 1 195 0
+ 1069 003a 2800     		movs	r0, r5
+ 1070 003c FFF7FEFF 		bl	RcvCanGroupCalibrationDeal
+ 1071              	.LVL97:
+ 1072 0040 EFE7     		b	.L109
+ 1073              	.L112:
+ 199:./Application/Funtion/CanLib/CANInterface.c ****     {
+ 1074              		.loc 1 199 0
+ 1075 0042 352C     		cmp	r4, #53
+ 1076 0044 03D1     		bne	.L113
+ 202:./Application/Funtion/CanLib/CANInterface.c ****     }
+ 1077              		.loc 1 202 0
+ 1078 0046 2800     		movs	r0, r5
+ 1079 0048 FFF7FEFF 		bl	RcvCanGroupPasswordDeal
+ 1080              	.LVL98:
+ 1081 004c E9E7     		b	.L109
+ 1082              	.L113:
+ 204:./Application/Funtion/CanLib/CANInterface.c ****     {
+ 1083              		.loc 1 204 0
+ 1084 004e 372C     		cmp	r4, #55
+ 1085 0050 06D1     		bne	.L114
+ 207:./Application/Funtion/CanLib/CANInterface.c ****     }
+ 1086              		.loc 1 207 0
+ 1087 0052 1300     		movs	r3, r2
+ 1088 0054 3000     		movs	r0, r6
+ 1089 0056 0A00     		movs	r2, r1
+ 1090 0058 2900     		movs	r1, r5
+ 1091 005a FFF7FEFF 		bl	RcvCanGroupCtrlCmdDeal
+ 1092              	.LVL99:
+ 1093 005e E0E7     		b	.L109
+ 1094              	.L114:
+ 214:./Application/Funtion/CanLib/CANInterface.c ****     {
+ 1095              		.loc 1 214 0
+ 1096 0060 3C2C     		cmp	r4, #60
+ARM GAS  /tmp/ccTEt5Zb.s 			page 34
+
+
+ 1097 0062 03D1     		bne	.L115
+ 217:./Application/Funtion/CanLib/CANInterface.c ****     }
+ 1098              		.loc 1 217 0
+ 1099 0064 2800     		movs	r0, r5
+ 1100 0066 FFF7FEFF 		bl	RcvCanGroupDebugCmdDeal
+ 1101              	.LVL100:
+ 1102 006a DAE7     		b	.L109
+ 1103              	.L115:
+ 226:./Application/Funtion/CanLib/CANInterface.c **** }
+ 1104              		.loc 1 226 0
+ 1105 006c 0120     		movs	r0, #1
+ 219:./Application/Funtion/CanLib/CANInterface.c ****     {
+ 1106              		.loc 1 219 0
+ 1107 006e 6B2C     		cmp	r4, #107
+ 1108 0070 D7D1     		bne	.L109
+ 222:./Application/Funtion/CanLib/CANInterface.c ****     }
+ 1109              		.loc 1 222 0
+ 1110 0072 2800     		movs	r0, r5
+ 1111 0074 FFF7FEFF 		bl	RcvCanSystemGenParaCfgDeal
+ 1112              	.LVL101:
+ 1113 0078 D3E7     		b	.L109
+ 1114              	.L120:
+ 1115 007a C046     		.align	2
+ 1116              	.L119:
+ 1117 007c 00000000 		.word	SystemInfo_1
+ 1118              		.cfi_endproc
+ 1119              	.LFE497:
+ 1121              		.section	.text.UpgSilence_RefreshOtherTimer,"ax",%progbits
+ 1122              		.align	1
+ 1123              		.global	UpgSilence_RefreshOtherTimer
+ 1124              		.syntax unified
+ 1125              		.code	16
+ 1126              		.thumb_func
+ 1127              		.fpu softvfp
+ 1129              	UpgSilence_RefreshOtherTimer:
+ 1130              	.LFB510:
+ 696:./Application/Funtion/CanLib/CANInterface.c **** 
+ 697:./Application/Funtion/CanLib/CANInterface.c **** /*=================================================================================================
+ 698:./Application/Funtion/CanLib/CANInterface.c **** ** @Name      : void UpgSilence_RefreshOtherTimer(void)
+ 699:./Application/Funtion/CanLib/CANInterface.c **** ** @Input     : void
+ 700:./Application/Funtion/CanLib/CANInterface.c **** ** @Output    : void
+ 701:./Application/Funtion/CanLib/CANInterface.c **** ** @Function  : 刷新其他设备升级静默计时器(收到其他设备UDS报文时调用)
+ 702:./Application/Funtion/CanLib/CANInterface.c **** ** @The notes : 
+ 703:./Application/Funtion/CanLib/CANInterface.c **** **===============================================================================================*/
+ 704:./Application/Funtion/CanLib/CANInterface.c **** void UpgSilence_RefreshOtherTimer(void)
+ 705:./Application/Funtion/CanLib/CANInterface.c **** {
+ 1131              		.loc 1 705 0
+ 1132              		.cfi_startproc
+ 1133              		@ args = 0, pretend = 0, frame = 0
+ 1134              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1135              		@ link register save eliminated.
+ 706:./Application/Funtion/CanLib/CANInterface.c ****     g_OtherUpgSilenceTimer = OTHER_UPG_SILENCE_TIMEOUT;
+ 1136              		.loc 1 706 0
+ 1137 0000 FA22     		movs	r2, #250
+ 1138 0002 024B     		ldr	r3, .L122
+ 1139 0004 5200     		lsls	r2, r2, #1
+ 1140 0006 1A80     		strh	r2, [r3]
+ARM GAS  /tmp/ccTEt5Zb.s 			page 35
+
+
+ 707:./Application/Funtion/CanLib/CANInterface.c **** }
+ 1141              		.loc 1 707 0
+ 1142              		@ sp needed
+ 1143 0008 7047     		bx	lr
+ 1144              	.L123:
+ 1145 000a C046     		.align	2
+ 1146              	.L122:
+ 1147 000c 00000000 		.word	.LANCHOR2
+ 1148              		.cfi_endproc
+ 1149              	.LFE510:
+ 1151              		.section	.text.UpgSilence_TimerTick,"ax",%progbits
+ 1152              		.align	1
+ 1153              		.global	UpgSilence_TimerTick
+ 1154              		.syntax unified
+ 1155              		.code	16
+ 1156              		.thumb_func
+ 1157              		.fpu softvfp
+ 1159              	UpgSilence_TimerTick:
+ 1160              	.LFB511:
+ 708:./Application/Funtion/CanLib/CANInterface.c **** 
+ 709:./Application/Funtion/CanLib/CANInterface.c **** /*=================================================================================================
+ 710:./Application/Funtion/CanLib/CANInterface.c **** ** @Name      : void UpgSilence_TimerTick(void)
+ 711:./Application/Funtion/CanLib/CANInterface.c **** ** @Input     : void
+ 712:./Application/Funtion/CanLib/CANInterface.c **** ** @Output    : void
+ 713:./Application/Funtion/CanLib/CANInterface.c **** ** @Function  : 升级静默计时器周期递减(10ms周期调用)
+ 714:./Application/Funtion/CanLib/CANInterface.c **** ** @The notes : 放在CANLibHandleTask_API的10ms任务中调用
+ 715:./Application/Funtion/CanLib/CANInterface.c **** **===============================================================================================*/
+ 716:./Application/Funtion/CanLib/CANInterface.c **** void UpgSilence_TimerTick(void)
+ 717:./Application/Funtion/CanLib/CANInterface.c **** {
+ 1161              		.loc 1 717 0
+ 1162              		.cfi_startproc
+ 1163              		@ args = 0, pretend = 0, frame = 0
+ 1164              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1165              		@ link register save eliminated.
+ 718:./Application/Funtion/CanLib/CANInterface.c ****     if(g_OtherUpgSilenceTimer > 0)
+ 1166              		.loc 1 718 0
+ 1167 0000 034A     		ldr	r2, .L129
+ 1168 0002 1388     		ldrh	r3, [r2]
+ 1169 0004 002B     		cmp	r3, #0
+ 1170 0006 01D0     		beq	.L124
+ 719:./Application/Funtion/CanLib/CANInterface.c ****     {
+ 720:./Application/Funtion/CanLib/CANInterface.c ****         g_OtherUpgSilenceTimer--;
+ 1171              		.loc 1 720 0
+ 1172 0008 013B     		subs	r3, r3, #1
+ 1173 000a 1380     		strh	r3, [r2]
+ 1174              	.L124:
+ 721:./Application/Funtion/CanLib/CANInterface.c ****     }
+ 722:./Application/Funtion/CanLib/CANInterface.c **** }
+ 1175              		.loc 1 722 0
+ 1176              		@ sp needed
+ 1177 000c 7047     		bx	lr
+ 1178              	.L130:
+ 1179 000e C046     		.align	2
+ 1180              	.L129:
+ 1181 0010 00000000 		.word	.LANCHOR2
+ 1182              		.cfi_endproc
+ 1183              	.LFE511:
+ARM GAS  /tmp/ccTEt5Zb.s 			page 36
+
+
+ 1185              		.section	.text.UpgSilence_IsActive,"ax",%progbits
+ 1186              		.align	1
+ 1187              		.global	UpgSilence_IsActive
+ 1188              		.syntax unified
+ 1189              		.code	16
+ 1190              		.thumb_func
+ 1191              		.fpu softvfp
+ 1193              	UpgSilence_IsActive:
+ 1194              	.LFB512:
+ 723:./Application/Funtion/CanLib/CANInterface.c **** 
+ 724:./Application/Funtion/CanLib/CANInterface.c **** /*=================================================================================================
+ 725:./Application/Funtion/CanLib/CANInterface.c **** ** @Name      : u8 UpgSilence_IsActive(void)
+ 726:./Application/Funtion/CanLib/CANInterface.c **** ** @Input     : void
+ 727:./Application/Funtion/CanLib/CANInterface.c **** ** @Output    : TRUE:升级静默激活 FALSE:正常发送
+ 728:./Application/Funtion/CanLib/CANInterface.c **** ** @Function  : 查询升级静默状态是否激活
+ 729:./Application/Funtion/CanLib/CANInterface.c **** ** @The notes : 本机升级(非默认会话)或其他设备升级(计时器未超时)时返回TRUE
+ 730:./Application/Funtion/CanLib/CANInterface.c **** **===============================================================================================*/
+ 731:./Application/Funtion/CanLib/CANInterface.c **** u8 UpgSilence_IsActive(void)
+ 732:./Application/Funtion/CanLib/CANInterface.c **** {
+ 1195              		.loc 1 732 0
+ 1196              		.cfi_startproc
+ 1197              		@ args = 0, pretend = 0, frame = 0
+ 1198              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1199              		@ link register save eliminated.
+ 733:./Application/Funtion/CanLib/CANInterface.c ****     /*本机升级: 非默认会话视为升级中*/
+ 734:./Application/Funtion/CanLib/CANInterface.c ****     if(cur_session_type != DEFAULT_SESSION)
+ 735:./Application/Funtion/CanLib/CANInterface.c ****     {
+ 736:./Application/Funtion/CanLib/CANInterface.c ****         return(TRUE);
+ 1200              		.loc 1 736 0
+ 1201 0000 0120     		movs	r0, #1
+ 734:./Application/Funtion/CanLib/CANInterface.c ****     {
+ 1202              		.loc 1 734 0
+ 1203 0002 054B     		ldr	r3, .L134
+ 1204 0004 1B78     		ldrb	r3, [r3]
+ 1205 0006 8342     		cmp	r3, r0
+ 1206 0008 04D1     		bne	.L132
+ 1207              	.LBB26:
+ 737:./Application/Funtion/CanLib/CANInterface.c ****     }
+ 738:./Application/Funtion/CanLib/CANInterface.c ****     /*其他设备升级: 计时器未超时*/
+ 739:./Application/Funtion/CanLib/CANInterface.c ****     if(g_OtherUpgSilenceTimer > 0)
+ 1208              		.loc 1 739 0
+ 1209 000a 044B     		ldr	r3, .L134+4
+ 1210 000c 1888     		ldrh	r0, [r3]
+ 1211 000e 431E     		subs	r3, r0, #1
+ 1212 0010 9841     		sbcs	r0, r0, r3
+ 1213              	.LBE26:
+ 736:./Application/Funtion/CanLib/CANInterface.c ****     }
+ 1214              		.loc 1 736 0
+ 1215 0012 C0B2     		uxtb	r0, r0
+ 1216              	.L132:
+ 740:./Application/Funtion/CanLib/CANInterface.c ****     {
+ 741:./Application/Funtion/CanLib/CANInterface.c ****         return(TRUE);
+ 742:./Application/Funtion/CanLib/CANInterface.c ****     }
+ 743:./Application/Funtion/CanLib/CANInterface.c ****     return(FALSE);
+ 744:./Application/Funtion/CanLib/CANInterface.c **** }
+ 1217              		.loc 1 744 0
+ 1218              		@ sp needed
+ARM GAS  /tmp/ccTEt5Zb.s 			page 37
+
+
+ 1219 0014 7047     		bx	lr
+ 1220              	.L135:
+ 1221 0016 C046     		.align	2
+ 1222              	.L134:
+ 1223 0018 00000000 		.word	cur_session_type
+ 1224 001c 00000000 		.word	.LANCHOR2
+ 1225              		.cfi_endproc
+ 1226              	.LFE512:
+ 1228              		.section	.text.CANSendMsgUser_Hook,"ax",%progbits
+ 1229              		.align	1
+ 1230              		.global	CANSendMsgUser_Hook
+ 1231              		.syntax unified
+ 1232              		.code	16
+ 1233              		.thumb_func
+ 1234              		.fpu softvfp
+ 1236              	CANSendMsgUser_Hook:
+ 1237              	.LFB500:
+ 281:./Application/Funtion/CanLib/CANInterface.c **** 	/*升级静默: 本机或其他设备升级时,阻断CanLib所有报文发送
+ 1238              		.loc 1 281 0
+ 1239              		.cfi_startproc
+ 1240              		@ args = 0, pretend = 0, frame = 72
+ 1241              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1242              	.LVL102:
+ 1243 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+ 1244              	.LCFI9:
+ 1245              		.cfi_def_cfa_offset 20
+ 1246              		.cfi_offset 4, -20
+ 1247              		.cfi_offset 5, -16
+ 1248              		.cfi_offset 6, -12
+ 1249              		.cfi_offset 7, -8
+ 1250              		.cfi_offset 14, -4
+ 1251 0002 93B0     		sub	sp, sp, #76
+ 1252              	.LCFI10:
+ 1253              		.cfi_def_cfa_offset 96
+ 281:./Application/Funtion/CanLib/CANInterface.c **** 	/*升级静默: 本机或其他设备升级时,阻断CanLib所有报文发送
+ 1254              		.loc 1 281 0
+ 1255 0004 0700     		movs	r7, r0
+ 1256 0006 0E00     		movs	r6, r1
+ 1257 0008 1400     		movs	r4, r2
+ 1258 000a 1D00     		movs	r5, r3
+ 284:./Application/Funtion/CanLib/CANInterface.c **** 	{
+ 1259              		.loc 1 284 0
+ 1260 000c FFF7FEFF 		bl	UpgSilence_IsActive
+ 1261              	.LVL103:
+ 1262 0010 0128     		cmp	r0, #1
+ 1263 0012 0CD0     		beq	.L136
+ 1264              	.LVL104:
+ 291:./Application/Funtion/CanLib/CANInterface.c **** 	{
+ 1265              		.loc 1 291 0
+ 1266 0014 402C     		cmp	r4, #64
+ 1267 0016 0AD8     		bhi	.L136
+ 297:./Application/Funtion/CanLib/CANInterface.c **** 
+ 1268              		.loc 1 297 0
+ 1269 0018 6B46     		mov	r3, sp
+ 1270 001a 1C71     		strb	r4, [r3, #4]
+ 299:./Application/Funtion/CanLib/CANInterface.c **** 	{
+ 1271              		.loc 1 299 0
+ARM GAS  /tmp/ccTEt5Zb.s 			page 38
+
+
+ 1272 001c 0023     		movs	r3, #0
+ 296:./Application/Funtion/CanLib/CANInterface.c **** 	msg.Len = DLC;
+ 1273              		.loc 1 296 0
+ 1274 001e 0097     		str	r7, [sp]
+ 1275              	.LVL105:
+ 1276              	.L138:
+ 299:./Application/Funtion/CanLib/CANInterface.c **** 	{
+ 1277              		.loc 1 299 0 discriminator 1
+ 1278 0020 DAB2     		uxtb	r2, r3
+ 1279 0022 9442     		cmp	r4, r2
+ 1280 0024 05D8     		bhi	.L139
+ 312:./Application/Funtion/CanLib/CANInterface.c **** }
+ 1281              		.loc 1 312 0
+ 1282 0026 6946     		mov	r1, sp
+ 1283 0028 2800     		movs	r0, r5
+ 1284 002a FFF7FEFF 		bl	BSPCANSendQin
+ 1285              	.LVL106:
+ 1286              	.L136:
+ 313:./Application/Funtion/CanLib/CANInterface.c **** 
+ 1287              		.loc 1 313 0
+ 1288 002e 13B0     		add	sp, sp, #76
+ 1289              		@ sp needed
+ 1290              	.LVL107:
+ 1291              	.LVL108:
+ 1292 0030 F0BD     		pop	{r4, r5, r6, r7, pc}
+ 1293              	.LVL109:
+ 1294              	.L139:
+ 301:./Application/Funtion/CanLib/CANInterface.c **** 	}
+ 1295              		.loc 1 301 0 discriminator 3
+ 1296 0032 1A00     		movs	r2, r3
+ 1297 0034 F15C     		ldrb	r1, [r6, r3]
+ 1298 0036 6A44     		add	r2, r2, sp
+ 1299 0038 5171     		strb	r1, [r2, #5]
+ 1300              	.LVL110:
+ 1301 003a 0133     		adds	r3, r3, #1
+ 1302              	.LVL111:
+ 1303 003c F0E7     		b	.L138
+ 1304              		.cfi_endproc
+ 1305              	.LFE500:
+ 1307              		.global	g_OtherUpgSilenceTimer
+ 1308              		.global	gCanIndexMap
+ 1309              		.global	gCanTxCycTable
+ 1310              		.global	gCanTxRcvTable
+ 1311              		.global	gCanDevTable
+ 1312              		.section	.bss.gCanDevTable,"aw",%nobits
+ 1313              		.align	2
+ 1316              	gCanDevTable:
+ 1317 0000 00000000 		.space	8
+ 1317      00000000 
+ 1318              		.section	.bss.gCanIndexMap,"aw",%nobits
+ 1319              		.set	.LANCHOR0,. + 0
+ 1322              	gCanIndexMap:
+ 1323 0000 00000000 		.space	22
+ 1323      00000000 
+ 1323      00000000 
+ 1323      00000000 
+ 1323      00000000 
+ARM GAS  /tmp/ccTEt5Zb.s 			page 39
+
+
+ 1324              		.section	.bss.gCanTxCycTable,"aw",%nobits
+ 1325              		.align	2
+ 1328              	gCanTxCycTable:
+ 1329 0000 00000000 		.space	168
+ 1329      00000000 
+ 1329      00000000 
+ 1329      00000000 
+ 1329      00000000 
+ 1330              		.section	.bss.gCanTxRcvTable,"aw",%nobits
+ 1331              		.align	2
+ 1334              	gCanTxRcvTable:
+ 1335 0000 00000000 		.space	240
+ 1335      00000000 
+ 1335      00000000 
+ 1335      00000000 
+ 1335      00000000 
+ 1336              		.section	.bss.g_OtherUpgSilenceTimer,"aw",%nobits
+ 1337              		.align	1
+ 1338              		.set	.LANCHOR2,. + 0
+ 1341              	g_OtherUpgSilenceTimer:
+ 1342 0000 0000     		.space	2
+ 1343              		.section	.data.sDebugInfoTime.11193,"aw",%progbits
+ 1344              		.set	.LANCHOR1,. + 0
+ 1347              	sDebugInfoTime.11193:
+ 1348 0000 0A       		.byte	10
+ 1349              		.text
+ 1350              	.Letext0:
+ 1351              		.file 2 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/machine/_default_types.h"
+ 1352              		.file 3 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/lock.h"
+ 1353              		.file 4 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_types.h"
+ 1354              		.file 5 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/lib/gcc/arm-none-eabi/7.3.1/include/stddef.h"
+ 1355              		.file 6 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/reent.h"
+ 1356              		.file 7 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/stdlib.h"
+ 1357              		.file 8 "Application/BSPSys/Util/BSPTypeDef.h"
+ 1358              		.file 9 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_stdint.h"
+ 1359              		.file 10 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/system_stm32g0xx.h"
+ 1360              		.file 11 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/stm32g0b1xx.h"
+ 1361              		.file 12 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/stm32g0xx.h"
+ 1362              		.file 13 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_def.h"
+ 1363              		.file 14 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_dma.h"
+ 1364              		.file 15 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_flash.h"
+ 1365              		.file 16 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_fdcan.h"
+ 1366              		.file 17 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_spi.h"
+ 1367              		.file 18 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_uart.h"
+ 1368              		.file 19 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal.h"
+ 1369              		.file 20 "Core/Inc/main.h"
+ 1370              		.file 21 "Core/Inc/fdcan.h"
+ 1371              		.file 22 "Application/BSPSys/BSPDriver/BSPCAN.h"
+ 1372              		.file 23 "./Application/Funtion/CanLib/CANInterface.h"
+ 1373              		.file 24 "./Application/Funtion/CanLib/CANUser.h"
+ 1374              		.file 25 "Application/Funtion/SystemInfo/SystemInfo.h"
+ 1375              		.file 26 "Application/Funtion/SystemPara/SystemPara.h"
+ 1376              		.file 27 "Application/Funtion/SystemDebug/SystemDebug.h"
+ 1377              		.file 28 "Application/Logics/Insulation/Insulation.h"
+ 1378              		.file 29 "Core/Inc/spi.h"
+ 1379              		.file 30 "Application/BSPSys/BSPDevice/gd25q32e/BSPGD25Q32E.h"
+ 1380              		.file 31 "Application/Addition/UDSCanfd/can_uds_arch.h"
+ARM GAS  /tmp/ccTEt5Zb.s 			page 40
+
+
+ 1381              		.file 32 "Application/Addition/UDSCanfd/network_layer/can_uds_network_layer.h"
+ 1382              		.file 33 "Application/Addition/RTT/SEGGER_RTT.h"
+ 1383              		.file 34 "Application/Addition/UDSCanfd/services_layer/device_role/sid_internal_header.h"
+ 1384              		.file 35 "Application/Funtion/DoControl/DoControl.h"
+ 1385              		.file 36 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_ll_dma.h"
+ 1386              		.file 37 "./Application/Funtion/CanLib/CANTxCycle.h"
+ 1387              		.file 38 "./Application/Funtion/CanLib/CANTabOper.h"
+ARM GAS  /tmp/ccTEt5Zb.s 			page 41
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 CANInterface.c
+     /tmp/ccTEt5Zb.s:16     .text.CANLibAllInit_API:0000000000000000 $t
+     /tmp/ccTEt5Zb.s:23     .text.CANLibAllInit_API:0000000000000000 CANLibAllInit_API
+     /tmp/ccTEt5Zb.s:105    .text.CANLibAllInit_API:0000000000000048 $d
+     /tmp/ccTEt5Zb.s:111    .text.CANRcvShieldDeal_Hook:0000000000000000 $t
+     /tmp/ccTEt5Zb.s:118    .text.CANRcvShieldDeal_Hook:0000000000000000 CANRcvShieldDeal_Hook
+     /tmp/ccTEt5Zb.s:135    .text.CANRcvVerUserDeal_Hook:0000000000000000 $t
+     /tmp/ccTEt5Zb.s:142    .text.CANRcvVerUserDeal_Hook:0000000000000000 CANRcvVerUserDeal_Hook
+     /tmp/ccTEt5Zb.s:157    .text.CANRcvBreUserDeal_Hook:0000000000000000 $t
+     /tmp/ccTEt5Zb.s:164    .text.CANRcvBreUserDeal_Hook:0000000000000000 CANRcvBreUserDeal_Hook
+     /tmp/ccTEt5Zb.s:176    .text.CANRcvReqUserDeal_Hook:0000000000000000 $t
+     /tmp/ccTEt5Zb.s:183    .text.CANRcvReqUserDeal_Hook:0000000000000000 CANRcvReqUserDeal_Hook
+     /tmp/ccTEt5Zb.s:198    .text.CANRcvCycUpUserDeal_Hook:0000000000000000 $t
+     /tmp/ccTEt5Zb.s:205    .text.CANRcvCycUpUserDeal_Hook:0000000000000000 CANRcvCycUpUserDeal_Hook
+     /tmp/ccTEt5Zb.s:220    .text.CANTxCycUpUserEnState_Hook:0000000000000000 $t
+     /tmp/ccTEt5Zb.s:227    .text.CANTxCycUpUserEnState_Hook:0000000000000000 CANTxCycUpUserEnState_Hook
+     /tmp/ccTEt5Zb.s:276    .text.CANTxCycUpUserEnState_Hook:000000000000002c $d
+     /tmp/ccTEt5Zb.s:282    .text.CANIndexMapTransUser_Hook:0000000000000000 $t
+     /tmp/ccTEt5Zb.s:289    .text.CANIndexMapTransUser_Hook:0000000000000000 CANIndexMapTransUser_Hook
+     /tmp/ccTEt5Zb.s:328    .text.RcvCanDeviceSerialCfgDeal:0000000000000000 $t
+     /tmp/ccTEt5Zb.s:335    .text.RcvCanDeviceSerialCfgDeal:0000000000000000 RcvCanDeviceSerialCfgDeal
+     /tmp/ccTEt5Zb.s:410    .text.RcvCanGroupCalibrationDeal:0000000000000000 $t
+     /tmp/ccTEt5Zb.s:417    .text.RcvCanGroupCalibrationDeal:0000000000000000 RcvCanGroupCalibrationDeal
+     /tmp/ccTEt5Zb.s:460    .text.RcvCanGroupPasswordDeal:0000000000000000 $t
+     /tmp/ccTEt5Zb.s:467    .text.RcvCanGroupPasswordDeal:0000000000000000 RcvCanGroupPasswordDeal
+     /tmp/ccTEt5Zb.s:525    .text.RcvCanGroupCtrlCmdDeal:0000000000000000 $t
+     /tmp/ccTEt5Zb.s:532    .text.RcvCanGroupCtrlCmdDeal:0000000000000000 RcvCanGroupCtrlCmdDeal
+     /tmp/ccTEt5Zb.s:706    .text.RcvCanGroupCtrlCmdDeal:00000000000000c8 $d
+     /tmp/ccTEt5Zb.s:715    .text.RcvCanGroupDebugCmdDeal:0000000000000000 $t
+     /tmp/ccTEt5Zb.s:722    .text.RcvCanGroupDebugCmdDeal:0000000000000000 RcvCanGroupDebugCmdDeal
+     /tmp/ccTEt5Zb.s:809    .text.RcvCanSystemGenParaCfgDeal:0000000000000000 $t
+     /tmp/ccTEt5Zb.s:816    .text.RcvCanSystemGenParaCfgDeal:0000000000000000 RcvCanSystemGenParaCfgDeal
+     /tmp/ccTEt5Zb.s:911    .text.RcvCanSysCtrlCmd:0000000000000000 $t
+     /tmp/ccTEt5Zb.s:918    .text.RcvCanSysCtrlCmd:0000000000000000 RcvCanSysCtrlCmd
+     /tmp/ccTEt5Zb.s:988    .text.RcvCanSysCtrlCmd:0000000000000034 $d
+     /tmp/ccTEt5Zb.s:996    .text.CANRcvRupUserDeal_Hook:0000000000000000 $t
+     /tmp/ccTEt5Zb.s:1003   .text.CANRcvRupUserDeal_Hook:0000000000000000 CANRcvRupUserDeal_Hook
+     /tmp/ccTEt5Zb.s:1117   .text.CANRcvRupUserDeal_Hook:000000000000007c $d
+     /tmp/ccTEt5Zb.s:1122   .text.UpgSilence_RefreshOtherTimer:0000000000000000 $t
+     /tmp/ccTEt5Zb.s:1129   .text.UpgSilence_RefreshOtherTimer:0000000000000000 UpgSilence_RefreshOtherTimer
+     /tmp/ccTEt5Zb.s:1147   .text.UpgSilence_RefreshOtherTimer:000000000000000c $d
+     /tmp/ccTEt5Zb.s:1152   .text.UpgSilence_TimerTick:0000000000000000 $t
+     /tmp/ccTEt5Zb.s:1159   .text.UpgSilence_TimerTick:0000000000000000 UpgSilence_TimerTick
+     /tmp/ccTEt5Zb.s:1181   .text.UpgSilence_TimerTick:0000000000000010 $d
+     /tmp/ccTEt5Zb.s:1186   .text.UpgSilence_IsActive:0000000000000000 $t
+     /tmp/ccTEt5Zb.s:1193   .text.UpgSilence_IsActive:0000000000000000 UpgSilence_IsActive
+     /tmp/ccTEt5Zb.s:1223   .text.UpgSilence_IsActive:0000000000000018 $d
+     /tmp/ccTEt5Zb.s:1229   .text.CANSendMsgUser_Hook:0000000000000000 $t
+     /tmp/ccTEt5Zb.s:1236   .text.CANSendMsgUser_Hook:0000000000000000 CANSendMsgUser_Hook
+     /tmp/ccTEt5Zb.s:1341   .bss.g_OtherUpgSilenceTimer:0000000000000000 g_OtherUpgSilenceTimer
+     /tmp/ccTEt5Zb.s:1322   .bss.gCanIndexMap:0000000000000000 gCanIndexMap
+     /tmp/ccTEt5Zb.s:1328   .bss.gCanTxCycTable:0000000000000000 gCanTxCycTable
+     /tmp/ccTEt5Zb.s:1334   .bss.gCanTxRcvTable:0000000000000000 gCanTxRcvTable
+     /tmp/ccTEt5Zb.s:1316   .bss.gCanDevTable:0000000000000000 gCanDevTable
+     /tmp/ccTEt5Zb.s:1313   .bss.gCanDevTable:0000000000000000 $d
+     /tmp/ccTEt5Zb.s:1323   .bss.gCanIndexMap:0000000000000000 $d
+ARM GAS  /tmp/ccTEt5Zb.s 			page 42
+
+
+     /tmp/ccTEt5Zb.s:1325   .bss.gCanTxCycTable:0000000000000000 $d
+     /tmp/ccTEt5Zb.s:1331   .bss.gCanTxRcvTable:0000000000000000 $d
+     /tmp/ccTEt5Zb.s:1337   .bss.g_OtherUpgSilenceTimer:0000000000000000 $d
+     /tmp/ccTEt5Zb.s:1347   .data.sDebugInfoTime.11193:0000000000000000 sDebugInfoTime.11193
+
+UNDEFINED SYMBOLS
+CANCommuPortUserInit
+InitSystemInfo
+CANDeviceTableInit
+CANTxCycleTabInit
+CANClrTxRcvTabInfo
+gCANBaseDef_3
+SystemWorkState_50
+GetSystemPermissionArray
+RcvDeviceSerialParaCfgAPI
+RcvSysAuthorityCmdAPI
+UserCtrlCmd_55
+gControl
+gs_InsulationDetectMng
+RcvGroupDebugOperCmdAPI
+RcvGroupDebugAffirmCmdAPI
+RcvParaSetFlashSaveAPI
+RcvSystemGenParaCfgAPI
+SystemPermission_54
+SystemInfo_1
+cur_session_type
+BSPCANSendQin

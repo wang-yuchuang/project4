@@ -1,0 +1,210 @@
+ARM GAS  /tmp/ccdqdCQw.s 			page 1
+
+
+   1              		.cpu cortex-m0plus
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 4
+   9              		.eabi_attribute 34, 0
+  10              		.eabi_attribute 18, 4
+  11              		.file	"BSPWDOG.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.BSPWatchDogInit,"ax",%progbits
+  16              		.align	1
+  17              		.global	BSPWatchDogInit
+  18              		.syntax unified
+  19              		.code	16
+  20              		.thumb_func
+  21              		.fpu softvfp
+  23              	BSPWatchDogInit:
+  24              	.LFB493:
+  25              		.file 1 "./Application/BSPSys/BSPDriver/BSPWDOG.c"
+   1:./Application/BSPSys/BSPDriver/BSPWDOG.c **** /*==========================================Copyright(c)=======================================
+   2:./Application/BSPSys/BSPDriver/BSPWDOG.c **** **                                  Shenzhen Infypower Co., Ltd.
+   3:./Application/BSPSys/BSPDriver/BSPWDOG.c **** **                                  Power conversion Department
+   4:./Application/BSPSys/BSPDriver/BSPWDOG.c **** **                                       BMS Product Line
+   5:./Application/BSPSys/BSPDriver/BSPWDOG.c **** **
+   6:./Application/BSPSys/BSPDriver/BSPWDOG.c **** **---------------------------------------File Information--------------------------------------
+   7:./Application/BSPSys/BSPDriver/BSPWDOG.c **** ** @File Name    : BSPWDOG.c
+   8:./Application/BSPSys/BSPDriver/BSPWDOG.c **** ** @Founder      : WYC834
+   9:./Application/BSPSys/BSPDriver/BSPWDOG.c **** ** @Date         : 2025.09.05
+  10:./Application/BSPSys/BSPDriver/BSPWDOG.c **** ** @Function     : 软件看门狗驱动函数模块
+  11:./Application/BSPSys/BSPDriver/BSPWDOG.c **** ** @Instructions :
+  12:./Application/BSPSys/BSPDriver/BSPWDOG.c **** **===========================================================================================*/
+  13:./Application/BSPSys/BSPDriver/BSPWDOG.c **** 
+  14:./Application/BSPSys/BSPDriver/BSPWDOG.c **** /*=============================================================================================
+  15:./Application/BSPSys/BSPDriver/BSPWDOG.c **** ** @Header file definition
+  16:./Application/BSPSys/BSPDriver/BSPWDOG.c **** **===========================================================================================*/
+  17:./Application/BSPSys/BSPDriver/BSPWDOG.c **** #include "BSPTypeDef.h"
+  18:./Application/BSPSys/BSPDriver/BSPWDOG.c **** #include "BSPConfig.h"
+  19:./Application/BSPSys/BSPDriver/BSPWDOG.c **** #include "BSPWDOG.h"
+  20:./Application/BSPSys/BSPDriver/BSPWDOG.c **** #include "iwdg.h"
+  21:./Application/BSPSys/BSPDriver/BSPWDOG.c **** 
+  22:./Application/BSPSys/BSPDriver/BSPWDOG.c **** /*=============================================================================================
+  23:./Application/BSPSys/BSPDriver/BSPWDOG.c **** ** @Global variable definition
+  24:./Application/BSPSys/BSPDriver/BSPWDOG.c **** **===========================================================================================*/
+  25:./Application/BSPSys/BSPDriver/BSPWDOG.c **** /*=============================================================================================
+  26:./Application/BSPSys/BSPDriver/BSPWDOG.c **** ** @Static function declaration
+  27:./Application/BSPSys/BSPDriver/BSPWDOG.c **** **===========================================================================================*/
+  28:./Application/BSPSys/BSPDriver/BSPWDOG.c **** 
+  29:./Application/BSPSys/BSPDriver/BSPWDOG.c **** /*=============================================================================================
+  30:./Application/BSPSys/BSPDriver/BSPWDOG.c **** ** @Interface function definition
+  31:./Application/BSPSys/BSPDriver/BSPWDOG.c **** **===========================================================================================*/
+  32:./Application/BSPSys/BSPDriver/BSPWDOG.c **** /*=============================================================================================
+  33:./Application/BSPSys/BSPDriver/BSPWDOG.c **** ** @Name      : void BSPWatchDogInit(void)
+ARM GAS  /tmp/ccdqdCQw.s 			page 2
+
+
+  34:./Application/BSPSys/BSPDriver/BSPWDOG.c **** ** @Input     : void
+  35:./Application/BSPSys/BSPDriver/BSPWDOG.c **** ** @Output    : 初始化结果 TRUE:成功 FALSE:失败
+  36:./Application/BSPSys/BSPDriver/BSPWDOG.c **** ** @Function  : 软件和硬件看门狗模块初始化
+  37:./Application/BSPSys/BSPDriver/BSPWDOG.c **** ** @The notes : 软狗3s内需要喂狗一次，硬件1.6s内需要喂狗一次，不然复位
+  38:./Application/BSPSys/BSPDriver/BSPWDOG.c **** **===========================================================================================*/
+  39:./Application/BSPSys/BSPDriver/BSPWDOG.c **** void BSPWatchDogInit(void)
+  40:./Application/BSPSys/BSPDriver/BSPWDOG.c **** {
+  26              		.loc 1 40 0
+  27              		.cfi_startproc
+  28              		@ args = 0, pretend = 0, frame = 0
+  29              		@ frame_needed = 0, uses_anonymous_args = 0
+  41:./Application/BSPSys/BSPDriver/BSPWDOG.c ****     //模块未使能不进行初始化
+  42:./Application/BSPSys/BSPDriver/BSPWDOG.c ****     if(1 != gBSPFunCfg.Bits.WDOGEn)
+  30              		.loc 1 42 0
+  31 0000 034B     		ldr	r3, .L6
+  40:./Application/BSPSys/BSPDriver/BSPWDOG.c ****     //模块未使能不进行初始化
+  32              		.loc 1 40 0
+  33 0002 10B5     		push	{r4, lr}
+  34              	.LCFI0:
+  35              		.cfi_def_cfa_offset 8
+  36              		.cfi_offset 4, -8
+  37              		.cfi_offset 14, -4
+  38              		.loc 1 42 0
+  39 0004 1B88     		ldrh	r3, [r3]
+  40 0006 1B06     		lsls	r3, r3, #24
+  41 0008 01D5     		bpl	.L1
+  43:./Application/BSPSys/BSPDriver/BSPWDOG.c ****     {   
+  44:./Application/BSPSys/BSPDriver/BSPWDOG.c ****         return;
+  45:./Application/BSPSys/BSPDriver/BSPWDOG.c ****     }
+  46:./Application/BSPSys/BSPDriver/BSPWDOG.c ****     MX_IWDG_Init();//软件独立看门狗，3s内需要喂狗一次，不然复位
+  42              		.loc 1 46 0
+  43 000a FFF7FEFF 		bl	MX_IWDG_Init
+  44              	.LVL0:
+  45              	.L1:
+  47:./Application/BSPSys/BSPDriver/BSPWDOG.c **** }
+  46              		.loc 1 47 0
+  47              		@ sp needed
+  48 000e 10BD     		pop	{r4, pc}
+  49              	.L7:
+  50              		.align	2
+  51              	.L6:
+  52 0010 00000000 		.word	gBSPFunCfg
+  53              		.cfi_endproc
+  54              	.LFE493:
+  56              		.section	.text.BSPWatchDogRefresh,"ax",%progbits
+  57              		.align	1
+  58              		.global	BSPWatchDogRefresh
+  59              		.syntax unified
+  60              		.code	16
+  61              		.thumb_func
+  62              		.fpu softvfp
+  64              	BSPWatchDogRefresh:
+  65              	.LFB494:
+  48:./Application/BSPSys/BSPDriver/BSPWDOG.c **** 
+  49:./Application/BSPSys/BSPDriver/BSPWDOG.c **** /*=============================================================================================
+  50:./Application/BSPSys/BSPDriver/BSPWDOG.c **** ** @Name      : void BSPWatchDogRefresh(void)
+  51:./Application/BSPSys/BSPDriver/BSPWDOG.c **** ** @Input     : void
+ARM GAS  /tmp/ccdqdCQw.s 			page 3
+
+
+  52:./Application/BSPSys/BSPDriver/BSPWDOG.c **** ** @Output    : void
+  53:./Application/BSPSys/BSPDriver/BSPWDOG.c **** ** @Function  : 看门狗刷新
+  54:./Application/BSPSys/BSPDriver/BSPWDOG.c **** ** @The notes : 看门狗喂狗,用户调用
+  55:./Application/BSPSys/BSPDriver/BSPWDOG.c **** **===========================================================================================*/
+  56:./Application/BSPSys/BSPDriver/BSPWDOG.c **** void BSPWatchDogRefresh(void)
+  57:./Application/BSPSys/BSPDriver/BSPWDOG.c **** {
+  66              		.loc 1 57 0
+  67              		.cfi_startproc
+  68              		@ args = 0, pretend = 0, frame = 0
+  69              		@ frame_needed = 0, uses_anonymous_args = 0
+  58:./Application/BSPSys/BSPDriver/BSPWDOG.c ****     //内部看门狗未初始化
+  59:./Application/BSPSys/BSPDriver/BSPWDOG.c ****     if(1 != gBSPFunCfg.Bits.WDOGEn)
+  70              		.loc 1 59 0
+  71 0000 044B     		ldr	r3, .L13
+  57:./Application/BSPSys/BSPDriver/BSPWDOG.c ****     //内部看门狗未初始化
+  72              		.loc 1 57 0
+  73 0002 10B5     		push	{r4, lr}
+  74              	.LCFI1:
+  75              		.cfi_def_cfa_offset 8
+  76              		.cfi_offset 4, -8
+  77              		.cfi_offset 14, -4
+  78              		.loc 1 59 0
+  79 0004 1B88     		ldrh	r3, [r3]
+  80 0006 1B06     		lsls	r3, r3, #24
+  81 0008 02D5     		bpl	.L8
+  60:./Application/BSPSys/BSPDriver/BSPWDOG.c ****     {   
+  61:./Application/BSPSys/BSPDriver/BSPWDOG.c ****         return;
+  62:./Application/BSPSys/BSPDriver/BSPWDOG.c ****     }
+  63:./Application/BSPSys/BSPDriver/BSPWDOG.c ****     //软件看门狗喂狗
+  64:./Application/BSPSys/BSPDriver/BSPWDOG.c ****     HAL_IWDG_Refresh(&hiwdg);
+  82              		.loc 1 64 0
+  83 000a 0348     		ldr	r0, .L13+4
+  84 000c FFF7FEFF 		bl	HAL_IWDG_Refresh
+  85              	.LVL1:
+  86              	.L8:
+  65:./Application/BSPSys/BSPDriver/BSPWDOG.c **** }
+  87              		.loc 1 65 0
+  88              		@ sp needed
+  89 0010 10BD     		pop	{r4, pc}
+  90              	.L14:
+  91 0012 C046     		.align	2
+  92              	.L13:
+  93 0014 00000000 		.word	gBSPFunCfg
+  94 0018 00000000 		.word	hiwdg
+  95              		.cfi_endproc
+  96              	.LFE494:
+  98              		.text
+  99              	.Letext0:
+ 100              		.file 2 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/machine/_default_types.h"
+ 101              		.file 3 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/lock.h"
+ 102              		.file 4 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_types.h"
+ 103              		.file 5 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/lib/gcc/arm-none-eabi/7.3.1/include/stddef.h"
+ 104              		.file 6 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/reent.h"
+ 105              		.file 7 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/stdlib.h"
+ 106              		.file 8 "Application/BSPSys/Util/BSPTypeDef.h"
+ 107              		.file 9 "Application/BSPSys/BSPCfg/BSPConfig.h"
+ 108              		.file 10 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_stdint.h"
+ARM GAS  /tmp/ccdqdCQw.s 			page 4
+
+
+ 109              		.file 11 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/system_stm32g0xx.h"
+ 110              		.file 12 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/stm32g0b1xx.h"
+ 111              		.file 13 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_def.h"
+ 112              		.file 14 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_flash.h"
+ 113              		.file 15 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_iwdg.h"
+ 114              		.file 16 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_uart.h"
+ 115              		.file 17 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal.h"
+ 116              		.file 18 "Core/Inc/main.h"
+ 117              		.file 19 "Core/Inc/iwdg.h"
+ 118              		.file 20 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_ll_dma.h"
+ARM GAS  /tmp/ccdqdCQw.s 			page 5
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 BSPWDOG.c
+     /tmp/ccdqdCQw.s:16     .text.BSPWatchDogInit:0000000000000000 $t
+     /tmp/ccdqdCQw.s:23     .text.BSPWatchDogInit:0000000000000000 BSPWatchDogInit
+     /tmp/ccdqdCQw.s:52     .text.BSPWatchDogInit:0000000000000010 $d
+     /tmp/ccdqdCQw.s:57     .text.BSPWatchDogRefresh:0000000000000000 $t
+     /tmp/ccdqdCQw.s:64     .text.BSPWatchDogRefresh:0000000000000000 BSPWatchDogRefresh
+     /tmp/ccdqdCQw.s:93     .text.BSPWatchDogRefresh:0000000000000014 $d
+
+UNDEFINED SYMBOLS
+MX_IWDG_Init
+gBSPFunCfg
+HAL_IWDG_Refresh
+hiwdg

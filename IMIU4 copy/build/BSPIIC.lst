@@ -1,0 +1,745 @@
+ARM GAS  /tmp/ccR96gZS.s 			page 1
+
+
+   1              		.cpu cortex-m0plus
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 4
+   9              		.eabi_attribute 34, 0
+  10              		.eabi_attribute 18, 4
+  11              		.file	"BSPIIC.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.BSPIICInit,"ax",%progbits
+  16              		.align	1
+  17              		.global	BSPIICInit
+  18              		.syntax unified
+  19              		.code	16
+  20              		.thumb_func
+  21              		.fpu softvfp
+  23              	BSPIICInit:
+  24              	.LFB493:
+  25              		.file 1 "./Application/BSPSys/BSPDriver/BSPIIC.c"
+   1:./Application/BSPSys/BSPDriver/BSPIIC.c **** /*==========================================Copyright(c)=======================================
+   2:./Application/BSPSys/BSPDriver/BSPIIC.c **** **                                  Shenzhen Infypower Co., Ltd.
+   3:./Application/BSPSys/BSPDriver/BSPIIC.c **** **                                  Power conversion Department
+   4:./Application/BSPSys/BSPDriver/BSPIIC.c **** **                                       BMS Product Line
+   5:./Application/BSPSys/BSPDriver/BSPIIC.c **** **
+   6:./Application/BSPSys/BSPDriver/BSPIIC.c **** **---------------------------------------File Information--------------------------------------
+   7:./Application/BSPSys/BSPDriver/BSPIIC.c **** ** @File Name    : BSPI2c.h
+   8:./Application/BSPSys/BSPDriver/BSPIIC.c **** ** @Founder      : WYC834
+   9:./Application/BSPSys/BSPDriver/BSPIIC.c **** ** @Date         : 2025.09.08
+  10:./Application/BSPSys/BSPDriver/BSPIIC.c **** ** @Function     : 模拟IIC驱动模块
+  11:./Application/BSPSys/BSPDriver/BSPIIC.c **** ** @Instructions :
+  12:./Application/BSPSys/BSPDriver/BSPIIC.c **** **===========================================================================================*/
+  13:./Application/BSPSys/BSPDriver/BSPIIC.c **** 
+  14:./Application/BSPSys/BSPDriver/BSPIIC.c **** /*=============================================================================================
+  15:./Application/BSPSys/BSPDriver/BSPIIC.c **** ** @Header file definition
+  16:./Application/BSPSys/BSPDriver/BSPIIC.c **** **===========================================================================================*/
+  17:./Application/BSPSys/BSPDriver/BSPIIC.c **** #include "BSPTypeDef.h"
+  18:./Application/BSPSys/BSPDriver/BSPIIC.c **** #include "BSPConfig.h"
+  19:./Application/BSPSys/BSPDriver/BSPIIC.c **** #include "BSPIRQ.h"
+  20:./Application/BSPSys/BSPDriver/BSPIIC.c **** #include "BSPGPIO.h"
+  21:./Application/BSPSys/BSPDriver/BSPIIC.c **** #include "BSPIIC.h"
+  22:./Application/BSPSys/BSPDriver/BSPIIC.c **** #include "i2c.h"
+  23:./Application/BSPSys/BSPDriver/BSPIIC.c **** /*=============================================================================================
+  24:./Application/BSPSys/BSPDriver/BSPIIC.c **** ** @Global variable definition
+  25:./Application/BSPSys/BSPDriver/BSPIIC.c **** **===========================================================================================*/
+  26:./Application/BSPSys/BSPDriver/BSPIIC.c **** 
+  27:./Application/BSPSys/BSPDriver/BSPIIC.c **** /*=============================================================================================
+  28:./Application/BSPSys/BSPDriver/BSPIIC.c **** ** @Static function declaration
+  29:./Application/BSPSys/BSPDriver/BSPIIC.c **** **===========================================================================================*/
+  30:./Application/BSPSys/BSPDriver/BSPIIC.c **** 
+  31:./Application/BSPSys/BSPDriver/BSPIIC.c **** /*=============================================================================================
+  32:./Application/BSPSys/BSPDriver/BSPIIC.c **** ** @Interface function definition
+  33:./Application/BSPSys/BSPDriver/BSPIIC.c **** **===========================================================================================*/
+ARM GAS  /tmp/ccR96gZS.s 			page 2
+
+
+  34:./Application/BSPSys/BSPDriver/BSPIIC.c **** 
+  35:./Application/BSPSys/BSPDriver/BSPIIC.c **** /*=============================================================================================
+  36:./Application/BSPSys/BSPDriver/BSPIIC.c **** ** @Name      : void BSPIICInit(e_SimI2cChann Channel)
+  37:./Application/BSPSys/BSPDriver/BSPIIC.c **** ** @Input     : Chan:选择IIC通道
+  38:./Application/BSPSys/BSPDriver/BSPIIC.c **** ** @Output    : void
+  39:./Application/BSPSys/BSPDriver/BSPIIC.c **** ** @Function  : IIC通信初始化
+  40:./Application/BSPSys/BSPDriver/BSPIIC.c **** ** @The notes :
+  41:./Application/BSPSys/BSPDriver/BSPIIC.c **** **===========================================================================================*/
+  42:./Application/BSPSys/BSPDriver/BSPIIC.c **** void BSPIICInit(e_I2cChann Channel)
+  43:./Application/BSPSys/BSPDriver/BSPIIC.c **** {
+  26              		.loc 1 43 0
+  27              		.cfi_startproc
+  28              		@ args = 0, pretend = 0, frame = 0
+  29              		@ frame_needed = 0, uses_anonymous_args = 0
+  30              	.LVL0:
+  44:./Application/BSPSys/BSPDriver/BSPIIC.c ****     if(1 != gBSPFunCfg.Bits.IIC2En)
+  31              		.loc 1 44 0
+  32 0000 044B     		ldr	r3, .L6
+  43:./Application/BSPSys/BSPDriver/BSPIIC.c ****     if(1 != gBSPFunCfg.Bits.IIC2En)
+  33              		.loc 1 43 0
+  34 0002 10B5     		push	{r4, lr}
+  35              	.LCFI0:
+  36              		.cfi_def_cfa_offset 8
+  37              		.cfi_offset 4, -8
+  38              		.cfi_offset 14, -4
+  39              		.loc 1 44 0
+  40 0004 1B88     		ldrh	r3, [r3]
+  41 0006 DB06     		lsls	r3, r3, #27
+  42 0008 03D5     		bpl	.L1
+  45:./Application/BSPSys/BSPDriver/BSPIIC.c ****     {
+  46:./Application/BSPSys/BSPDriver/BSPIIC.c ****         return;
+  47:./Application/BSPSys/BSPDriver/BSPIIC.c ****     }
+  48:./Application/BSPSys/BSPDriver/BSPIIC.c ****     if(eIIC2 == Channel)
+  43              		.loc 1 48 0
+  44 000a 0128     		cmp	r0, #1
+  45 000c 01D1     		bne	.L1
+  49:./Application/BSPSys/BSPDriver/BSPIIC.c ****     {
+  50:./Application/BSPSys/BSPDriver/BSPIIC.c ****         MX_I2C2_Init();
+  46              		.loc 1 50 0
+  47 000e FFF7FEFF 		bl	MX_I2C2_Init
+  48              	.LVL1:
+  49              	.L1:
+  51:./Application/BSPSys/BSPDriver/BSPIIC.c ****     }
+  52:./Application/BSPSys/BSPDriver/BSPIIC.c **** }
+  50              		.loc 1 52 0
+  51              		@ sp needed
+  52 0012 10BD     		pop	{r4, pc}
+  53              	.L7:
+  54              		.align	2
+  55              	.L6:
+  56 0014 00000000 		.word	gBSPFunCfg
+  57              		.cfi_endproc
+  58              	.LFE493:
+  60              		.section	.text.BSPIICMasterSendMsg,"ax",%progbits
+  61              		.align	1
+  62              		.global	BSPIICMasterSendMsg
+  63              		.syntax unified
+ARM GAS  /tmp/ccR96gZS.s 			page 3
+
+
+  64              		.code	16
+  65              		.thumb_func
+  66              		.fpu softvfp
+  68              	BSPIICMasterSendMsg:
+  69              	.LFB494:
+  53:./Application/BSPSys/BSPDriver/BSPIIC.c **** 
+  54:./Application/BSPSys/BSPDriver/BSPIIC.c **** /*=============================================================================================
+  55:./Application/BSPSys/BSPDriver/BSPIIC.c **** ** @Name      : u8 BSPIICMasterSendMsg(e_I2cChann Channel, u16 device,u8 *data, u16 size)
+  56:./Application/BSPSys/BSPDriver/BSPIIC.c **** ** @Input     : Channel:选择IIC通道 device:设备地址 data:数据指针 size:数据大小
+  57:./Application/BSPSys/BSPDriver/BSPIIC.c **** ** @Output    : 
+  58:./Application/BSPSys/BSPDriver/BSPIIC.c **** ** @Function  : IIC通信从机寻址方式发送数据
+  59:./Application/BSPSys/BSPDriver/BSPIIC.c **** ** @The notes :
+  60:./Application/BSPSys/BSPDriver/BSPIIC.c **** **===========================================================================================*/
+  61:./Application/BSPSys/BSPDriver/BSPIIC.c **** u8 BSPIICMasterSendMsg(e_I2cChann Channel, u16 device,u8 *data, u16 size)
+  62:./Application/BSPSys/BSPDriver/BSPIIC.c **** {
+  70              		.loc 1 62 0
+  71              		.cfi_startproc
+  72              		@ args = 0, pretend = 0, frame = 0
+  73              		@ frame_needed = 0, uses_anonymous_args = 0
+  74              	.LVL2:
+  75 0000 37B5     		push	{r0, r1, r2, r4, r5, lr}
+  76              	.LCFI1:
+  77              		.cfi_def_cfa_offset 24
+  78              		.cfi_offset 0, -24
+  79              		.cfi_offset 1, -20
+  80              		.cfi_offset 2, -16
+  81              		.cfi_offset 4, -12
+  82              		.cfi_offset 5, -8
+  83              		.cfi_offset 14, -4
+  84              		.loc 1 62 0
+  85 0002 0400     		movs	r4, r0
+  63:./Application/BSPSys/BSPDriver/BSPIIC.c ****     if(1 != gBSPFunCfg.Bits.IIC2En)
+  86              		.loc 1 63 0
+  87 0004 0848     		ldr	r0, .L13
+  88              	.LVL3:
+  89 0006 0588     		ldrh	r5, [r0]
+  64:./Application/BSPSys/BSPDriver/BSPIIC.c ****     {
+  65:./Application/BSPSys/BSPDriver/BSPIIC.c ****         return(FALSE);
+  90              		.loc 1 65 0
+  91 0008 0020     		movs	r0, #0
+  63:./Application/BSPSys/BSPDriver/BSPIIC.c ****     if(1 != gBSPFunCfg.Bits.IIC2En)
+  92              		.loc 1 63 0
+  93 000a ED06     		lsls	r5, r5, #27
+  94 000c 0BD5     		bpl	.L9
+  66:./Application/BSPSys/BSPDriver/BSPIIC.c ****     }
+  67:./Application/BSPSys/BSPDriver/BSPIIC.c **** 
+  68:./Application/BSPSys/BSPDriver/BSPIIC.c **** 	if(Channel == eIIC2)
+  69:./Application/BSPSys/BSPDriver/BSPIIC.c ****     {	
+  70:./Application/BSPSys/BSPDriver/BSPIIC.c **** 		if(HAL_OK != HAL_I2C_Master_Transmit(&hi2c2,device,data,size,1000))
+  71:./Application/BSPSys/BSPDriver/BSPIIC.c ****         {
+  72:./Application/BSPSys/BSPDriver/BSPIIC.c ****             return(FALSE);
+  73:./Application/BSPSys/BSPDriver/BSPIIC.c ****         }
+  74:./Application/BSPSys/BSPDriver/BSPIIC.c **** 			
+  75:./Application/BSPSys/BSPDriver/BSPIIC.c ****     }
+  76:./Application/BSPSys/BSPDriver/BSPIIC.c ****     return(TRUE);
+  95              		.loc 1 76 0
+  96 000e 0130     		adds	r0, r0, #1
+ARM GAS  /tmp/ccR96gZS.s 			page 4
+
+
+  68:./Application/BSPSys/BSPDriver/BSPIIC.c ****     {	
+  97              		.loc 1 68 0
+  98 0010 8442     		cmp	r4, r0
+  99 0012 08D1     		bne	.L9
+  70:./Application/BSPSys/BSPDriver/BSPIIC.c ****         {
+ 100              		.loc 1 70 0
+ 101 0014 FA20     		movs	r0, #250
+ 102 0016 8000     		lsls	r0, r0, #2
+ 103 0018 0090     		str	r0, [sp]
+ 104 001a 0448     		ldr	r0, .L13+4
+ 105 001c FFF7FEFF 		bl	HAL_I2C_Master_Transmit
+ 106              	.LVL4:
+ 107 0020 4342     		rsbs	r3, r0, #0
+ 108 0022 5841     		adcs	r0, r0, r3
+  65:./Application/BSPSys/BSPDriver/BSPIIC.c ****     }
+ 109              		.loc 1 65 0
+ 110 0024 C0B2     		uxtb	r0, r0
+ 111              	.L9:
+  77:./Application/BSPSys/BSPDriver/BSPIIC.c **** }
+ 112              		.loc 1 77 0
+ 113              		@ sp needed
+ 114 0026 3EBD     		pop	{r1, r2, r3, r4, r5, pc}
+ 115              	.L14:
+ 116              		.align	2
+ 117              	.L13:
+ 118 0028 00000000 		.word	gBSPFunCfg
+ 119 002c 00000000 		.word	hi2c2
+ 120              		.cfi_endproc
+ 121              	.LFE494:
+ 123              		.section	.text.BSPIICMasterRcvMsg,"ax",%progbits
+ 124              		.align	1
+ 125              		.global	BSPIICMasterRcvMsg
+ 126              		.syntax unified
+ 127              		.code	16
+ 128              		.thumb_func
+ 129              		.fpu softvfp
+ 131              	BSPIICMasterRcvMsg:
+ 132              	.LFB495:
+  78:./Application/BSPSys/BSPDriver/BSPIIC.c **** 
+  79:./Application/BSPSys/BSPDriver/BSPIIC.c **** /*=============================================================================================
+  80:./Application/BSPSys/BSPDriver/BSPIIC.c **** ** @Name      : u8 BSPIICMasterRcvMsg(e_I2cChann Channel, u16 device,u8 *data, u16 size)
+  81:./Application/BSPSys/BSPDriver/BSPIIC.c **** ** @Input     : Channel:选择IIC通道 device:设备地址 data:数据指针 size:数据大小
+  82:./Application/BSPSys/BSPDriver/BSPIIC.c **** ** @Output    : 
+  83:./Application/BSPSys/BSPDriver/BSPIIC.c **** ** @Function  : IIC通信从机寻址方式接收数据
+  84:./Application/BSPSys/BSPDriver/BSPIIC.c **** ** @The notes :
+  85:./Application/BSPSys/BSPDriver/BSPIIC.c **** **===========================================================================================*/
+  86:./Application/BSPSys/BSPDriver/BSPIIC.c **** u8 BSPIICMasterRcvMsg(e_I2cChann Channel, u16 device,u8 *data, u16 size)
+  87:./Application/BSPSys/BSPDriver/BSPIIC.c **** {
+ 133              		.loc 1 87 0
+ 134              		.cfi_startproc
+ 135              		@ args = 0, pretend = 0, frame = 0
+ 136              		@ frame_needed = 0, uses_anonymous_args = 0
+ 137              	.LVL5:
+ 138 0000 37B5     		push	{r0, r1, r2, r4, r5, lr}
+ 139              	.LCFI2:
+ 140              		.cfi_def_cfa_offset 24
+ 141              		.cfi_offset 0, -24
+ARM GAS  /tmp/ccR96gZS.s 			page 5
+
+
+ 142              		.cfi_offset 1, -20
+ 143              		.cfi_offset 2, -16
+ 144              		.cfi_offset 4, -12
+ 145              		.cfi_offset 5, -8
+ 146              		.cfi_offset 14, -4
+ 147              		.loc 1 87 0
+ 148 0002 0400     		movs	r4, r0
+  88:./Application/BSPSys/BSPDriver/BSPIIC.c ****     if(1 != gBSPFunCfg.Bits.IIC2En)
+ 149              		.loc 1 88 0
+ 150 0004 0848     		ldr	r0, .L20
+ 151              	.LVL6:
+ 152 0006 0588     		ldrh	r5, [r0]
+  89:./Application/BSPSys/BSPDriver/BSPIIC.c ****     {
+  90:./Application/BSPSys/BSPDriver/BSPIIC.c ****         return(FALSE);
+ 153              		.loc 1 90 0
+ 154 0008 0020     		movs	r0, #0
+  88:./Application/BSPSys/BSPDriver/BSPIIC.c ****     if(1 != gBSPFunCfg.Bits.IIC2En)
+ 155              		.loc 1 88 0
+ 156 000a ED06     		lsls	r5, r5, #27
+ 157 000c 0BD5     		bpl	.L16
+  91:./Application/BSPSys/BSPDriver/BSPIIC.c ****     }
+  92:./Application/BSPSys/BSPDriver/BSPIIC.c ****     if(Channel == eIIC2)
+  93:./Application/BSPSys/BSPDriver/BSPIIC.c ****     {	
+  94:./Application/BSPSys/BSPDriver/BSPIIC.c **** 		if(HAL_OK != HAL_I2C_Master_Receive(&hi2c2,device,data,size,1000))
+  95:./Application/BSPSys/BSPDriver/BSPIIC.c ****         {
+  96:./Application/BSPSys/BSPDriver/BSPIIC.c ****             return(FALSE);
+  97:./Application/BSPSys/BSPDriver/BSPIIC.c ****         }
+  98:./Application/BSPSys/BSPDriver/BSPIIC.c **** 			
+  99:./Application/BSPSys/BSPDriver/BSPIIC.c ****     }
+ 100:./Application/BSPSys/BSPDriver/BSPIIC.c ****     return(TRUE);
+ 158              		.loc 1 100 0
+ 159 000e 0130     		adds	r0, r0, #1
+  92:./Application/BSPSys/BSPDriver/BSPIIC.c ****     {	
+ 160              		.loc 1 92 0
+ 161 0010 8442     		cmp	r4, r0
+ 162 0012 08D1     		bne	.L16
+  94:./Application/BSPSys/BSPDriver/BSPIIC.c ****         {
+ 163              		.loc 1 94 0
+ 164 0014 FA20     		movs	r0, #250
+ 165 0016 8000     		lsls	r0, r0, #2
+ 166 0018 0090     		str	r0, [sp]
+ 167 001a 0448     		ldr	r0, .L20+4
+ 168 001c FFF7FEFF 		bl	HAL_I2C_Master_Receive
+ 169              	.LVL7:
+ 170 0020 4342     		rsbs	r3, r0, #0
+ 171 0022 5841     		adcs	r0, r0, r3
+  90:./Application/BSPSys/BSPDriver/BSPIIC.c ****     }
+ 172              		.loc 1 90 0
+ 173 0024 C0B2     		uxtb	r0, r0
+ 174              	.L16:
+ 101:./Application/BSPSys/BSPDriver/BSPIIC.c **** }
+ 175              		.loc 1 101 0
+ 176              		@ sp needed
+ 177 0026 3EBD     		pop	{r1, r2, r3, r4, r5, pc}
+ 178              	.L21:
+ 179              		.align	2
+ 180              	.L20:
+ARM GAS  /tmp/ccR96gZS.s 			page 6
+
+
+ 181 0028 00000000 		.word	gBSPFunCfg
+ 182 002c 00000000 		.word	hi2c2
+ 183              		.cfi_endproc
+ 184              	.LFE495:
+ 186              		.section	.text.BSPIICMemSendMsg,"ax",%progbits
+ 187              		.align	1
+ 188              		.global	BSPIICMemSendMsg
+ 189              		.syntax unified
+ 190              		.code	16
+ 191              		.thumb_func
+ 192              		.fpu softvfp
+ 194              	BSPIICMemSendMsg:
+ 195              	.LFB496:
+ 102:./Application/BSPSys/BSPDriver/BSPIIC.c **** 
+ 103:./Application/BSPSys/BSPDriver/BSPIIC.c **** /*=============================================================================================
+ 104:./Application/BSPSys/BSPDriver/BSPIIC.c **** ** @Name      : u8 BSPIICMasterSendMsg(e_I2cChann Channel, u16 device, u16 add, u16 addsize, u8 *da
+ 105:./Application/BSPSys/BSPDriver/BSPIIC.c **** ** @Input     : Channel:选择IIC通道 device:设备地址 add:从机寄存器地址 addsize:从�
+ 106:./Application/BSPSys/BSPDriver/BSPIIC.c **** ** @Output    : 
+ 107:./Application/BSPSys/BSPDriver/BSPIIC.c **** ** @Function  : IIC通信从机寄存器寻址方式发送数据
+ 108:./Application/BSPSys/BSPDriver/BSPIIC.c **** ** @The notes :
+ 109:./Application/BSPSys/BSPDriver/BSPIIC.c **** **===========================================================================================*/
+ 110:./Application/BSPSys/BSPDriver/BSPIIC.c **** u8 BSPIICMemSendMsg(e_I2cChann Channel, u16 device, u16 add, u16 addsize, u8 *data, u16 datasize)
+ 111:./Application/BSPSys/BSPDriver/BSPIIC.c **** {
+ 196              		.loc 1 111 0
+ 197              		.cfi_startproc
+ 198              		@ args = 8, pretend = 0, frame = 0
+ 199              		@ frame_needed = 0, uses_anonymous_args = 0
+ 200              	.LVL8:
+ 201 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+ 202              	.LCFI3:
+ 203              		.cfi_def_cfa_offset 20
+ 204              		.cfi_offset 4, -20
+ 205              		.cfi_offset 5, -16
+ 206              		.cfi_offset 6, -12
+ 207              		.cfi_offset 7, -8
+ 208              		.cfi_offset 14, -4
+ 209 0002 0500     		movs	r5, r0
+ 210 0004 85B0     		sub	sp, sp, #20
+ 211              	.LCFI4:
+ 212              		.cfi_def_cfa_offset 40
+ 112:./Application/BSPSys/BSPDriver/BSPIIC.c ****     if(1 != gBSPFunCfg.Bits.IIC2En)
+ 213              		.loc 1 112 0
+ 214 0006 0C48     		ldr	r0, .L27
+ 215              	.LVL9:
+ 111:./Application/BSPSys/BSPDriver/BSPIIC.c ****     if(1 != gBSPFunCfg.Bits.IIC2En)
+ 216              		.loc 1 111 0
+ 217 0008 0AAC     		add	r4, sp, #40
+ 218              	.LVL10:
+ 219 000a 40CC     		ldmia	r4!, {r6}
+ 220              	.LVL11:
+ 221              		.loc 1 112 0
+ 222 000c 0788     		ldrh	r7, [r0]
+ 111:./Application/BSPSys/BSPDriver/BSPIIC.c ****     if(1 != gBSPFunCfg.Bits.IIC2En)
+ 223              		.loc 1 111 0
+ 224 000e 2488     		ldrh	r4, [r4]
+ 225              	.LVL12:
+ 113:./Application/BSPSys/BSPDriver/BSPIIC.c ****     {
+ARM GAS  /tmp/ccR96gZS.s 			page 7
+
+
+ 114:./Application/BSPSys/BSPDriver/BSPIIC.c ****         return(FALSE);
+ 226              		.loc 1 114 0
+ 227 0010 0020     		movs	r0, #0
+ 112:./Application/BSPSys/BSPDriver/BSPIIC.c ****     {
+ 228              		.loc 1 112 0
+ 229 0012 FF06     		lsls	r7, r7, #27
+ 230 0014 0DD5     		bpl	.L23
+ 115:./Application/BSPSys/BSPDriver/BSPIIC.c ****     }
+ 116:./Application/BSPSys/BSPDriver/BSPIIC.c ****     if(Channel == eIIC2)
+ 117:./Application/BSPSys/BSPDriver/BSPIIC.c ****     {	
+ 118:./Application/BSPSys/BSPDriver/BSPIIC.c **** 		if(HAL_OK != HAL_I2C_Mem_Write(&hi2c2,device,add,addsize,data,datasize,1000))
+ 119:./Application/BSPSys/BSPDriver/BSPIIC.c ****         {
+ 120:./Application/BSPSys/BSPDriver/BSPIIC.c ****             return(FALSE);
+ 121:./Application/BSPSys/BSPDriver/BSPIIC.c ****         }
+ 122:./Application/BSPSys/BSPDriver/BSPIIC.c **** 			
+ 123:./Application/BSPSys/BSPDriver/BSPIIC.c ****     }
+ 124:./Application/BSPSys/BSPDriver/BSPIIC.c ****     return(TRUE);
+ 231              		.loc 1 124 0
+ 232 0016 0130     		adds	r0, r0, #1
+ 116:./Application/BSPSys/BSPDriver/BSPIIC.c ****     {	
+ 233              		.loc 1 116 0
+ 234 0018 8542     		cmp	r5, r0
+ 235 001a 0AD1     		bne	.L23
+ 118:./Application/BSPSys/BSPDriver/BSPIIC.c ****         {
+ 236              		.loc 1 118 0
+ 237 001c FA20     		movs	r0, #250
+ 238 001e 8000     		lsls	r0, r0, #2
+ 239 0020 0290     		str	r0, [sp, #8]
+ 240 0022 0194     		str	r4, [sp, #4]
+ 241 0024 0096     		str	r6, [sp]
+ 242 0026 0548     		ldr	r0, .L27+4
+ 243 0028 FFF7FEFF 		bl	HAL_I2C_Mem_Write
+ 244              	.LVL13:
+ 245 002c 4342     		rsbs	r3, r0, #0
+ 246 002e 5841     		adcs	r0, r0, r3
+ 114:./Application/BSPSys/BSPDriver/BSPIIC.c ****     }
+ 247              		.loc 1 114 0
+ 248 0030 C0B2     		uxtb	r0, r0
+ 249              	.L23:
+ 125:./Application/BSPSys/BSPDriver/BSPIIC.c **** }
+ 250              		.loc 1 125 0
+ 251 0032 05B0     		add	sp, sp, #20
+ 252              		@ sp needed
+ 253 0034 F0BD     		pop	{r4, r5, r6, r7, pc}
+ 254              	.L28:
+ 255 0036 C046     		.align	2
+ 256              	.L27:
+ 257 0038 00000000 		.word	gBSPFunCfg
+ 258 003c 00000000 		.word	hi2c2
+ 259              		.cfi_endproc
+ 260              	.LFE496:
+ 262              		.section	.text.BSPIICMemRcvMsg,"ax",%progbits
+ 263              		.align	1
+ 264              		.global	BSPIICMemRcvMsg
+ 265              		.syntax unified
+ 266              		.code	16
+ 267              		.thumb_func
+ARM GAS  /tmp/ccR96gZS.s 			page 8
+
+
+ 268              		.fpu softvfp
+ 270              	BSPIICMemRcvMsg:
+ 271              	.LFB497:
+ 126:./Application/BSPSys/BSPDriver/BSPIIC.c **** 
+ 127:./Application/BSPSys/BSPDriver/BSPIIC.c **** /*=============================================================================================
+ 128:./Application/BSPSys/BSPDriver/BSPIIC.c **** ** @Name      : u8 BSPIICMasterRcvMsg(e_I2cChann Channel, u16 device, u16 add, u16 addsize, u8 *dat
+ 129:./Application/BSPSys/BSPDriver/BSPIIC.c **** ** @Input     : Channel:选择IIC通道 device:设备地址 add:从机寄存器地址 addsize:从�
+ 130:./Application/BSPSys/BSPDriver/BSPIIC.c **** ** @Output    : 
+ 131:./Application/BSPSys/BSPDriver/BSPIIC.c **** ** @Function  : IIC通信从机寄存器寻址方式接收数据
+ 132:./Application/BSPSys/BSPDriver/BSPIIC.c **** ** @The notes :
+ 133:./Application/BSPSys/BSPDriver/BSPIIC.c **** **===========================================================================================*/
+ 134:./Application/BSPSys/BSPDriver/BSPIIC.c **** u8 BSPIICMemRcvMsg(e_I2cChann Channel, u16 device, u16 add, u16 addsize, u8 *data, u16 datasize)
+ 135:./Application/BSPSys/BSPDriver/BSPIIC.c **** {
+ 272              		.loc 1 135 0
+ 273              		.cfi_startproc
+ 274              		@ args = 8, pretend = 0, frame = 0
+ 275              		@ frame_needed = 0, uses_anonymous_args = 0
+ 276              	.LVL14:
+ 277 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+ 278              	.LCFI5:
+ 279              		.cfi_def_cfa_offset 20
+ 280              		.cfi_offset 4, -20
+ 281              		.cfi_offset 5, -16
+ 282              		.cfi_offset 6, -12
+ 283              		.cfi_offset 7, -8
+ 284              		.cfi_offset 14, -4
+ 285 0002 0500     		movs	r5, r0
+ 286 0004 85B0     		sub	sp, sp, #20
+ 287              	.LCFI6:
+ 288              		.cfi_def_cfa_offset 40
+ 136:./Application/BSPSys/BSPDriver/BSPIIC.c ****     if(1 != gBSPFunCfg.Bits.IIC2En)
+ 289              		.loc 1 136 0
+ 290 0006 0C48     		ldr	r0, .L34
+ 291              	.LVL15:
+ 135:./Application/BSPSys/BSPDriver/BSPIIC.c ****     if(1 != gBSPFunCfg.Bits.IIC2En)
+ 292              		.loc 1 135 0
+ 293 0008 0AAC     		add	r4, sp, #40
+ 294              	.LVL16:
+ 295 000a 40CC     		ldmia	r4!, {r6}
+ 296              	.LVL17:
+ 297              		.loc 1 136 0
+ 298 000c 0788     		ldrh	r7, [r0]
+ 135:./Application/BSPSys/BSPDriver/BSPIIC.c ****     if(1 != gBSPFunCfg.Bits.IIC2En)
+ 299              		.loc 1 135 0
+ 300 000e 2488     		ldrh	r4, [r4]
+ 301              	.LVL18:
+ 137:./Application/BSPSys/BSPDriver/BSPIIC.c ****     {
+ 138:./Application/BSPSys/BSPDriver/BSPIIC.c ****         return(FALSE);
+ 302              		.loc 1 138 0
+ 303 0010 0020     		movs	r0, #0
+ 136:./Application/BSPSys/BSPDriver/BSPIIC.c ****     {
+ 304              		.loc 1 136 0
+ 305 0012 FF06     		lsls	r7, r7, #27
+ 306 0014 0DD5     		bpl	.L30
+ 139:./Application/BSPSys/BSPDriver/BSPIIC.c ****     }
+ 140:./Application/BSPSys/BSPDriver/BSPIIC.c **** 
+ 141:./Application/BSPSys/BSPDriver/BSPIIC.c **** 	if(Channel == eIIC2)
+ARM GAS  /tmp/ccR96gZS.s 			page 9
+
+
+ 142:./Application/BSPSys/BSPDriver/BSPIIC.c ****     {	
+ 143:./Application/BSPSys/BSPDriver/BSPIIC.c **** 		if(HAL_OK != HAL_I2C_Mem_Read(&hi2c2,device,add,addsize,data,datasize,1000))
+ 144:./Application/BSPSys/BSPDriver/BSPIIC.c ****         {
+ 145:./Application/BSPSys/BSPDriver/BSPIIC.c ****             return(FALSE);
+ 146:./Application/BSPSys/BSPDriver/BSPIIC.c ****         }
+ 147:./Application/BSPSys/BSPDriver/BSPIIC.c **** 			
+ 148:./Application/BSPSys/BSPDriver/BSPIIC.c ****     }
+ 149:./Application/BSPSys/BSPDriver/BSPIIC.c ****     return(TRUE);
+ 307              		.loc 1 149 0
+ 308 0016 0130     		adds	r0, r0, #1
+ 141:./Application/BSPSys/BSPDriver/BSPIIC.c ****     {	
+ 309              		.loc 1 141 0
+ 310 0018 8542     		cmp	r5, r0
+ 311 001a 0AD1     		bne	.L30
+ 143:./Application/BSPSys/BSPDriver/BSPIIC.c ****         {
+ 312              		.loc 1 143 0
+ 313 001c FA20     		movs	r0, #250
+ 314 001e 8000     		lsls	r0, r0, #2
+ 315 0020 0290     		str	r0, [sp, #8]
+ 316 0022 0194     		str	r4, [sp, #4]
+ 317 0024 0096     		str	r6, [sp]
+ 318 0026 0548     		ldr	r0, .L34+4
+ 319 0028 FFF7FEFF 		bl	HAL_I2C_Mem_Read
+ 320              	.LVL19:
+ 321 002c 4342     		rsbs	r3, r0, #0
+ 322 002e 5841     		adcs	r0, r0, r3
+ 138:./Application/BSPSys/BSPDriver/BSPIIC.c ****     }
+ 323              		.loc 1 138 0
+ 324 0030 C0B2     		uxtb	r0, r0
+ 325              	.L30:
+ 150:./Application/BSPSys/BSPDriver/BSPIIC.c **** }
+ 326              		.loc 1 150 0
+ 327 0032 05B0     		add	sp, sp, #20
+ 328              		@ sp needed
+ 329 0034 F0BD     		pop	{r4, r5, r6, r7, pc}
+ 330              	.L35:
+ 331 0036 C046     		.align	2
+ 332              	.L34:
+ 333 0038 00000000 		.word	gBSPFunCfg
+ 334 003c 00000000 		.word	hi2c2
+ 335              		.cfi_endproc
+ 336              	.LFE497:
+ 338              		.section	.text.BSPGetIICState,"ax",%progbits
+ 339              		.align	1
+ 340              		.global	BSPGetIICState
+ 341              		.syntax unified
+ 342              		.code	16
+ 343              		.thumb_func
+ 344              		.fpu softvfp
+ 346              	BSPGetIICState:
+ 347              	.LFB498:
+ 151:./Application/BSPSys/BSPDriver/BSPIIC.c **** 
+ 152:./Application/BSPSys/BSPDriver/BSPIIC.c **** /*=============================================================================================
+ 153:./Application/BSPSys/BSPDriver/BSPIIC.c **** ** @Name      : u8 BSPGetIICState(void)
+ 154:./Application/BSPSys/BSPDriver/BSPIIC.c **** ** @Input     : void
+ 155:./Application/BSPSys/BSPDriver/BSPIIC.c **** ** @Output    : TURE OR FALSE
+ 156:./Application/BSPSys/BSPDriver/BSPIIC.c **** ** @Function  : 
+ARM GAS  /tmp/ccR96gZS.s 			page 10
+
+
+ 157:./Application/BSPSys/BSPDriver/BSPIIC.c **** ** @The notes :
+ 158:./Application/BSPSys/BSPDriver/BSPIIC.c **** **===========================================================================================*/
+ 159:./Application/BSPSys/BSPDriver/BSPIIC.c **** u8 BSPGetIICState(void)
+ 160:./Application/BSPSys/BSPDriver/BSPIIC.c **** {
+ 348              		.loc 1 160 0
+ 349              		.cfi_startproc
+ 350              		@ args = 0, pretend = 0, frame = 0
+ 351              		@ frame_needed = 0, uses_anonymous_args = 0
+ 161:./Application/BSPSys/BSPDriver/BSPIIC.c ****     if(1 != gBSPFunCfg.Bits.IIC2En)
+ 352              		.loc 1 161 0
+ 353 0000 064B     		ldr	r3, .L40
+ 160:./Application/BSPSys/BSPDriver/BSPIIC.c ****     if(1 != gBSPFunCfg.Bits.IIC2En)
+ 354              		.loc 1 160 0
+ 355 0002 10B5     		push	{r4, lr}
+ 356              	.LCFI7:
+ 357              		.cfi_def_cfa_offset 8
+ 358              		.cfi_offset 4, -8
+ 359              		.cfi_offset 14, -4
+ 360              		.loc 1 161 0
+ 361 0004 1B88     		ldrh	r3, [r3]
+ 162:./Application/BSPSys/BSPDriver/BSPIIC.c ****     {
+ 163:./Application/BSPSys/BSPDriver/BSPIIC.c ****         return(FALSE);
+ 362              		.loc 1 163 0
+ 363 0006 0020     		movs	r0, #0
+ 161:./Application/BSPSys/BSPDriver/BSPIIC.c ****     {
+ 364              		.loc 1 161 0
+ 365 0008 DB06     		lsls	r3, r3, #27
+ 366 000a 06D5     		bpl	.L37
+ 164:./Application/BSPSys/BSPDriver/BSPIIC.c ****     }
+ 165:./Application/BSPSys/BSPDriver/BSPIIC.c ****     if(HAL_I2C_GetState(&hi2c2) != HAL_I2C_STATE_READY)
+ 367              		.loc 1 165 0
+ 368 000c 0448     		ldr	r0, .L40+4
+ 369 000e FFF7FEFF 		bl	HAL_I2C_GetState
+ 370              	.LVL20:
+ 371 0012 2038     		subs	r0, r0, #32
+ 372 0014 4342     		rsbs	r3, r0, #0
+ 373 0016 5841     		adcs	r0, r0, r3
+ 163:./Application/BSPSys/BSPDriver/BSPIIC.c ****     }
+ 374              		.loc 1 163 0
+ 375 0018 C0B2     		uxtb	r0, r0
+ 376              	.L37:
+ 166:./Application/BSPSys/BSPDriver/BSPIIC.c ****     {
+ 167:./Application/BSPSys/BSPDriver/BSPIIC.c ****         return(FALSE);
+ 168:./Application/BSPSys/BSPDriver/BSPIIC.c ****     }
+ 169:./Application/BSPSys/BSPDriver/BSPIIC.c **** 			
+ 170:./Application/BSPSys/BSPDriver/BSPIIC.c ****     return(TRUE);
+ 171:./Application/BSPSys/BSPDriver/BSPIIC.c **** }
+ 377              		.loc 1 171 0
+ 378              		@ sp needed
+ 379 001a 10BD     		pop	{r4, pc}
+ 380              	.L41:
+ 381              		.align	2
+ 382              	.L40:
+ 383 001c 00000000 		.word	gBSPFunCfg
+ 384 0020 00000000 		.word	hi2c2
+ 385              		.cfi_endproc
+ 386              	.LFE498:
+ARM GAS  /tmp/ccR96gZS.s 			page 11
+
+
+ 388              		.section	.text.BSPGetIsDeviceReady,"ax",%progbits
+ 389              		.align	1
+ 390              		.global	BSPGetIsDeviceReady
+ 391              		.syntax unified
+ 392              		.code	16
+ 393              		.thumb_func
+ 394              		.fpu softvfp
+ 396              	BSPGetIsDeviceReady:
+ 397              	.LFB499:
+ 172:./Application/BSPSys/BSPDriver/BSPIIC.c **** 
+ 173:./Application/BSPSys/BSPDriver/BSPIIC.c **** /*=============================================================================================
+ 174:./Application/BSPSys/BSPDriver/BSPIIC.c **** ** @Name      : u8 BSPGetIsDeviceReady(u16 DevAddress)
+ 175:./Application/BSPSys/BSPDriver/BSPIIC.c **** ** @Input     : DevAddress:设备地址
+ 176:./Application/BSPSys/BSPDriver/BSPIIC.c **** ** @Output    : TURE OR FALSE
+ 177:./Application/BSPSys/BSPDriver/BSPIIC.c **** ** @Function  : 
+ 178:./Application/BSPSys/BSPDriver/BSPIIC.c **** ** @The notes :
+ 179:./Application/BSPSys/BSPDriver/BSPIIC.c **** **===========================================================================================*/
+ 180:./Application/BSPSys/BSPDriver/BSPIIC.c **** u8 BSPGetIsDeviceReady(u16 DevAddress)
+ 181:./Application/BSPSys/BSPDriver/BSPIIC.c **** {
+ 398              		.loc 1 181 0
+ 399              		.cfi_startproc
+ 400              		@ args = 0, pretend = 0, frame = 0
+ 401              		@ frame_needed = 0, uses_anonymous_args = 0
+ 402              	.LVL21:
+ 182:./Application/BSPSys/BSPDriver/BSPIIC.c ****     if(1 != gBSPFunCfg.Bits.IIC2En)
+ 403              		.loc 1 182 0
+ 404 0000 084B     		ldr	r3, .L46
+ 181:./Application/BSPSys/BSPDriver/BSPIIC.c ****     if(1 != gBSPFunCfg.Bits.IIC2En)
+ 405              		.loc 1 181 0
+ 406 0002 0100     		movs	r1, r0
+ 407              		.loc 1 182 0
+ 408 0004 1B88     		ldrh	r3, [r3]
+ 181:./Application/BSPSys/BSPDriver/BSPIIC.c ****     if(1 != gBSPFunCfg.Bits.IIC2En)
+ 409              		.loc 1 181 0
+ 410 0006 10B5     		push	{r4, lr}
+ 411              	.LCFI8:
+ 412              		.cfi_def_cfa_offset 8
+ 413              		.cfi_offset 4, -8
+ 414              		.cfi_offset 14, -4
+ 183:./Application/BSPSys/BSPDriver/BSPIIC.c ****     {
+ 184:./Application/BSPSys/BSPDriver/BSPIIC.c ****         return(FALSE);
+ 415              		.loc 1 184 0
+ 416 0008 0020     		movs	r0, #0
+ 417              	.LVL22:
+ 182:./Application/BSPSys/BSPDriver/BSPIIC.c ****     {
+ 418              		.loc 1 182 0
+ 419 000a DB06     		lsls	r3, r3, #27
+ 420 000c 08D5     		bpl	.L43
+ 185:./Application/BSPSys/BSPDriver/BSPIIC.c ****     }
+ 186:./Application/BSPSys/BSPDriver/BSPIIC.c ****     if(HAL_I2C_IsDeviceReady(&hi2c2, DevAddress, EEPROM_MAX_TRIALS, 1000) != HAL_OK)
+ 421              		.loc 1 186 0
+ 422 000e FA23     		movs	r3, #250
+ 423 0010 0122     		movs	r2, #1
+ 424 0012 9B00     		lsls	r3, r3, #2
+ 425 0014 0448     		ldr	r0, .L46+4
+ 426 0016 FFF7FEFF 		bl	HAL_I2C_IsDeviceReady
+ 427              	.LVL23:
+ARM GAS  /tmp/ccR96gZS.s 			page 12
+
+
+ 428 001a 4342     		rsbs	r3, r0, #0
+ 429 001c 5841     		adcs	r0, r0, r3
+ 184:./Application/BSPSys/BSPDriver/BSPIIC.c ****     }
+ 430              		.loc 1 184 0
+ 431 001e C0B2     		uxtb	r0, r0
+ 432              	.L43:
+ 187:./Application/BSPSys/BSPDriver/BSPIIC.c ****     {
+ 188:./Application/BSPSys/BSPDriver/BSPIIC.c ****         return(FALSE);
+ 189:./Application/BSPSys/BSPDriver/BSPIIC.c ****     }
+ 190:./Application/BSPSys/BSPDriver/BSPIIC.c **** 			
+ 191:./Application/BSPSys/BSPDriver/BSPIIC.c ****     return(TRUE);
+ 192:./Application/BSPSys/BSPDriver/BSPIIC.c **** }...
+ 433              		.loc 1 192 0
+ 434              		@ sp needed
+ 435 0020 10BD     		pop	{r4, pc}
+ 436              	.L47:
+ 437 0022 C046     		.align	2
+ 438              	.L46:
+ 439 0024 00000000 		.word	gBSPFunCfg
+ 440 0028 00000000 		.word	hi2c2
+ 441              		.cfi_endproc
+ 442              	.LFE499:
+ 444              		.text
+ 445              	.Letext0:
+ 446              		.file 2 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/machine/_default_types.h"
+ 447              		.file 3 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/lock.h"
+ 448              		.file 4 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_types.h"
+ 449              		.file 5 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/lib/gcc/arm-none-eabi/7.3.1/include/stddef.h"
+ 450              		.file 6 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/reent.h"
+ 451              		.file 7 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/stdlib.h"
+ 452              		.file 8 "Application/BSPSys/Util/BSPTypeDef.h"
+ 453              		.file 9 "Application/BSPSys/BSPCfg/BSPConfig.h"
+ 454              		.file 10 "./Application/BSPSys/BSPDriver/BSPIIC.h"
+ 455              		.file 11 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_stdint.h"
+ 456              		.file 12 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/system_stm32g0xx.h"
+ 457              		.file 13 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/stm32g0b1xx.h"
+ 458              		.file 14 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_def.h"
+ 459              		.file 15 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_dma.h"
+ 460              		.file 16 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_flash.h"
+ 461              		.file 17 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_i2c.h"
+ 462              		.file 18 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_uart.h"
+ 463              		.file 19 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal.h"
+ 464              		.file 20 "Core/Inc/main.h"
+ 465              		.file 21 "Core/Inc/i2c.h"
+ 466              		.file 22 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_ll_dma.h"
+ARM GAS  /tmp/ccR96gZS.s 			page 13
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 BSPIIC.c
+     /tmp/ccR96gZS.s:16     .text.BSPIICInit:0000000000000000 $t
+     /tmp/ccR96gZS.s:23     .text.BSPIICInit:0000000000000000 BSPIICInit
+     /tmp/ccR96gZS.s:56     .text.BSPIICInit:0000000000000014 $d
+     /tmp/ccR96gZS.s:61     .text.BSPIICMasterSendMsg:0000000000000000 $t
+     /tmp/ccR96gZS.s:68     .text.BSPIICMasterSendMsg:0000000000000000 BSPIICMasterSendMsg
+     /tmp/ccR96gZS.s:118    .text.BSPIICMasterSendMsg:0000000000000028 $d
+     /tmp/ccR96gZS.s:124    .text.BSPIICMasterRcvMsg:0000000000000000 $t
+     /tmp/ccR96gZS.s:131    .text.BSPIICMasterRcvMsg:0000000000000000 BSPIICMasterRcvMsg
+     /tmp/ccR96gZS.s:181    .text.BSPIICMasterRcvMsg:0000000000000028 $d
+     /tmp/ccR96gZS.s:187    .text.BSPIICMemSendMsg:0000000000000000 $t
+     /tmp/ccR96gZS.s:194    .text.BSPIICMemSendMsg:0000000000000000 BSPIICMemSendMsg
+     /tmp/ccR96gZS.s:257    .text.BSPIICMemSendMsg:0000000000000038 $d
+     /tmp/ccR96gZS.s:263    .text.BSPIICMemRcvMsg:0000000000000000 $t
+     /tmp/ccR96gZS.s:270    .text.BSPIICMemRcvMsg:0000000000000000 BSPIICMemRcvMsg
+     /tmp/ccR96gZS.s:333    .text.BSPIICMemRcvMsg:0000000000000038 $d
+     /tmp/ccR96gZS.s:339    .text.BSPGetIICState:0000000000000000 $t
+     /tmp/ccR96gZS.s:346    .text.BSPGetIICState:0000000000000000 BSPGetIICState
+     /tmp/ccR96gZS.s:383    .text.BSPGetIICState:000000000000001c $d
+     /tmp/ccR96gZS.s:389    .text.BSPGetIsDeviceReady:0000000000000000 $t
+     /tmp/ccR96gZS.s:396    .text.BSPGetIsDeviceReady:0000000000000000 BSPGetIsDeviceReady
+     /tmp/ccR96gZS.s:439    .text.BSPGetIsDeviceReady:0000000000000024 $d
+
+UNDEFINED SYMBOLS
+MX_I2C2_Init
+gBSPFunCfg
+HAL_I2C_Master_Transmit
+hi2c2
+HAL_I2C_Master_Receive
+HAL_I2C_Mem_Write
+HAL_I2C_Mem_Read
+HAL_I2C_GetState
+HAL_I2C_IsDeviceReady

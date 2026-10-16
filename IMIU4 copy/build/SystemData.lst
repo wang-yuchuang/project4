@@ -1,0 +1,2855 @@
+ARM GAS  /tmp/cco0ytYU.s 			page 1
+
+
+   1              		.cpu cortex-m0plus
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 4
+   9              		.eabi_attribute 34, 0
+  10              		.eabi_attribute 18, 4
+  11              		.file	"SystemData.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.InPutSystemDataArray,"ax",%progbits
+  16              		.align	1
+  17              		.global	InPutSystemDataArray
+  18              		.syntax unified
+  19              		.code	16
+  20              		.thumb_func
+  21              		.fpu softvfp
+  23              	InPutSystemDataArray:
+  24              	.LFB0:
+  25              		.file 1 "./Application/Funtion/SystemData/SystemData.c"
+   1:./Application/Funtion/SystemData/SystemData.c **** /*==========================================Copyright(c)=======================================
+   2:./Application/Funtion/SystemData/SystemData.c **** **                                  Shenzhen Infypower Co., Ltd.
+   3:./Application/Funtion/SystemData/SystemData.c **** **                                  Power conversion Department
+   4:./Application/Funtion/SystemData/SystemData.c **** **                                       BMS Product Line
+   5:./Application/Funtion/SystemData/SystemData.c **** **
+   6:./Application/Funtion/SystemData/SystemData.c **** **---------------------------------------File Information--------------------------------------
+   7:./Application/Funtion/SystemData/SystemData.c **** ** @File Name    : SystemData.c
+   8:./Application/Funtion/SystemData/SystemData.c **** ** @Founder      : WYC834
+   9:./Application/Funtion/SystemData/SystemData.c **** ** @Date         : 2025.10.21
+  10:./Application/Funtion/SystemData/SystemData.c **** ** @Function     : 系统数据模块
+  11:./Application/Funtion/SystemData/SystemData.c **** ** @Instructions : 系统自身所有信息
+  12:./Application/Funtion/SystemData/SystemData.c **** **===========================================================================================*/
+  13:./Application/Funtion/SystemData/SystemData.c **** 
+  14:./Application/Funtion/SystemData/SystemData.c **** /*=============================================================================================
+  15:./Application/Funtion/SystemData/SystemData.c **** ** @Header file definition
+  16:./Application/Funtion/SystemData/SystemData.c **** **===========================================================================================*/
+  17:./Application/Funtion/SystemData/SystemData.c **** #include "BSPTypeDef.h"
+  18:./Application/Funtion/SystemData/SystemData.c **** #include "SystemData.h"
+  19:./Application/Funtion/SystemData/SystemData.c **** /*=============================================================================================
+  20:./Application/Funtion/SystemData/SystemData.c **** ** @Global variable definition
+  21:./Application/Funtion/SystemData/SystemData.c **** **===========================================================================================*/
+  22:./Application/Funtion/SystemData/SystemData.c **** SystemData_TypeDef gSystemData;//系统信息
+  23:./Application/Funtion/SystemData/SystemData.c **** s16 SystemData_51[SystemData_Len];
+  24:./Application/Funtion/SystemData/SystemData.c **** /*=============================================================================================
+  25:./Application/Funtion/SystemData/SystemData.c **** ** @Static function declaration
+  26:./Application/Funtion/SystemData/SystemData.c **** **===========================================================================================*/
+  27:./Application/Funtion/SystemData/SystemData.c **** 
+  28:./Application/Funtion/SystemData/SystemData.c **** /*=============================================================================================
+  29:./Application/Funtion/SystemData/SystemData.c **** ** @Interface function definition
+  30:./Application/Funtion/SystemData/SystemData.c **** **===========================================================================================*/
+  31:./Application/Funtion/SystemData/SystemData.c **** /*=============================================================================================
+  32:./Application/Funtion/SystemData/SystemData.c **** ** @Name      : void InPutSystemDataArray (u8 index ,s16 data);
+  33:./Application/Funtion/SystemData/SystemData.c **** ** @Input     : index:系统数据下标 data:数据
+ARM GAS  /tmp/cco0ytYU.s 			page 2
+
+
+  34:./Application/Funtion/SystemData/SystemData.c **** ** @Output    : void
+  35:./Application/Funtion/SystemData/SystemData.c **** ** @Function  : 输入系统数据
+  36:./Application/Funtion/SystemData/SystemData.c **** ** @The notes :
+  37:./Application/Funtion/SystemData/SystemData.c **** **===========================================================================================*/
+  38:./Application/Funtion/SystemData/SystemData.c **** void InPutSystemDataArray (u8 index ,s16 data)
+  39:./Application/Funtion/SystemData/SystemData.c **** {
+  26              		.loc 1 39 0
+  27              		.cfi_startproc
+  28              		@ args = 0, pretend = 0, frame = 0
+  29              		@ frame_needed = 0, uses_anonymous_args = 0
+  30              		@ link register save eliminated.
+  31              	.LVL0:
+  40:./Application/Funtion/SystemData/SystemData.c ****     if (index >= SystemData_Len) return;  /* 越界保护: 防止写穿数组破坏堆栈 */
+  32              		.loc 1 40 0
+  33 0000 1328     		cmp	r0, #19
+  34 0002 02D8     		bhi	.L1
+  41:./Application/Funtion/SystemData/SystemData.c ****     SystemData_51[index] = data;
+  35              		.loc 1 41 0
+  36 0004 014B     		ldr	r3, .L3
+  37 0006 4000     		lsls	r0, r0, #1
+  38              	.LVL1:
+  39 0008 C152     		strh	r1, [r0, r3]
+  40              	.L1:
+  42:./Application/Funtion/SystemData/SystemData.c **** }
+  41              		.loc 1 42 0
+  42              		@ sp needed
+  43 000a 7047     		bx	lr
+  44              	.L4:
+  45              		.align	2
+  46              	.L3:
+  47 000c 00000000 		.word	SystemData_51
+  48              		.cfi_endproc
+  49              	.LFE0:
+  51              		.section	.text.GetSystemDataArray,"ax",%progbits
+  52              		.align	1
+  53              		.global	GetSystemDataArray
+  54              		.syntax unified
+  55              		.code	16
+  56              		.thumb_func
+  57              		.fpu softvfp
+  59              	GetSystemDataArray:
+  60              	.LFB1:
+  43:./Application/Funtion/SystemData/SystemData.c **** 
+  44:./Application/Funtion/SystemData/SystemData.c **** /*=============================================================================================
+  45:./Application/Funtion/SystemData/SystemData.c **** ** @Name      : s16 GetSystemDataArray (u8 index);
+  46:./Application/Funtion/SystemData/SystemData.c **** ** @Input     : index:系统数据下标
+  47:./Application/Funtion/SystemData/SystemData.c **** ** @Output    : 系统数据
+  48:./Application/Funtion/SystemData/SystemData.c **** ** @Function  : 获取系统数据
+  49:./Application/Funtion/SystemData/SystemData.c **** ** @The notes :
+  50:./Application/Funtion/SystemData/SystemData.c **** **===========================================================================================*/
+  51:./Application/Funtion/SystemData/SystemData.c **** s16 GetSystemDataArray (u8 index)
+  52:./Application/Funtion/SystemData/SystemData.c **** {
+  61              		.loc 1 52 0
+  62              		.cfi_startproc
+  63              		@ args = 0, pretend = 0, frame = 0
+  64              		@ frame_needed = 0, uses_anonymous_args = 0
+  65              		@ link register save eliminated.
+ARM GAS  /tmp/cco0ytYU.s 			page 3
+
+
+  66              	.LVL2:
+  53:./Application/Funtion/SystemData/SystemData.c ****     if (index >= SystemData_Len) return 0;  /* 越界保护 */
+  67              		.loc 1 53 0
+  68 0000 0023     		movs	r3, #0
+  69 0002 1328     		cmp	r0, #19
+  70 0004 02D8     		bhi	.L6
+  54:./Application/Funtion/SystemData/SystemData.c ****     return SystemData_51[index];
+  71              		.loc 1 54 0
+  72 0006 024B     		ldr	r3, .L8
+  73 0008 4000     		lsls	r0, r0, #1
+  74              	.LVL3:
+  75 000a C35E     		ldrsh	r3, [r0, r3]
+  76              	.L6:
+  55:./Application/Funtion/SystemData/SystemData.c **** }
+  77              		.loc 1 55 0
+  78 000c 1800     		movs	r0, r3
+  79              		@ sp needed
+  80 000e 7047     		bx	lr
+  81              	.L9:
+  82              		.align	2
+  83              	.L8:
+  84 0010 00000000 		.word	SystemData_51
+  85              		.cfi_endproc
+  86              	.LFE1:
+  88              		.section	.text.InPutDiState,"ax",%progbits
+  89              		.align	1
+  90              		.global	InPutDiState
+  91              		.syntax unified
+  92              		.code	16
+  93              		.thumb_func
+  94              		.fpu softvfp
+  96              	InPutDiState:
+  97              	.LFB2:
+  56:./Application/Funtion/SystemData/SystemData.c **** 
+  57:./Application/Funtion/SystemData/SystemData.c **** /*=============================================================================================
+  58:./Application/Funtion/SystemData/SystemData.c **** ** @Name      : void InPutDiState(u8 state)
+  59:./Application/Funtion/SystemData/SystemData.c **** ** @Input     : state:DI状态输入
+  60:./Application/Funtion/SystemData/SystemData.c **** ** @Output    : void
+  61:./Application/Funtion/SystemData/SystemData.c **** ** @Function  : DI状态输入
+  62:./Application/Funtion/SystemData/SystemData.c **** ** @The notes : 
+  63:./Application/Funtion/SystemData/SystemData.c **** **===========================================================================================*/
+  64:./Application/Funtion/SystemData/SystemData.c **** void InPutDiState(u8 state)
+  65:./Application/Funtion/SystemData/SystemData.c **** {
+  98              		.loc 1 65 0
+  99              		.cfi_startproc
+ 100              		@ args = 0, pretend = 0, frame = 0
+ 101              		@ frame_needed = 0, uses_anonymous_args = 0
+ 102              		@ link register save eliminated.
+ 103              	.LVL4:
+  66:./Application/Funtion/SystemData/SystemData.c ****     gSystemData.u8DiState = state;
+ 104              		.loc 1 66 0
+ 105 0000 014B     		ldr	r3, .L11
+  67:./Application/Funtion/SystemData/SystemData.c **** }
+ 106              		.loc 1 67 0
+ 107              		@ sp needed
+  66:./Application/Funtion/SystemData/SystemData.c ****     gSystemData.u8DiState = state;
+ 108              		.loc 1 66 0
+ARM GAS  /tmp/cco0ytYU.s 			page 4
+
+
+ 109 0002 1870     		strb	r0, [r3]
+ 110              		.loc 1 67 0
+ 111 0004 7047     		bx	lr
+ 112              	.L12:
+ 113 0006 C046     		.align	2
+ 114              	.L11:
+ 115 0008 00000000 		.word	gSystemData
+ 116              		.cfi_endproc
+ 117              	.LFE2:
+ 119              		.section	.text.GetSwAddr,"ax",%progbits
+ 120              		.align	1
+ 121              		.global	GetSwAddr
+ 122              		.syntax unified
+ 123              		.code	16
+ 124              		.thumb_func
+ 125              		.fpu softvfp
+ 127              	GetSwAddr:
+ 128              	.LFB3:
+  68:./Application/Funtion/SystemData/SystemData.c **** 
+  69:./Application/Funtion/SystemData/SystemData.c **** /*=============================================================================================
+  70:./Application/Funtion/SystemData/SystemData.c **** ** @Name      : u8 GetSwAddr(void)
+  71:./Application/Funtion/SystemData/SystemData.c **** ** @Input     : void
+  72:./Application/Funtion/SystemData/SystemData.c **** ** @Output    : 获取拨码地址
+  73:./Application/Funtion/SystemData/SystemData.c **** ** @Function  : 
+  74:./Application/Funtion/SystemData/SystemData.c **** ** @The notes : 
+  75:./Application/Funtion/SystemData/SystemData.c **** **===========================================================================================*/
+  76:./Application/Funtion/SystemData/SystemData.c **** u8 GetSwAddr(void)
+  77:./Application/Funtion/SystemData/SystemData.c **** {
+ 129              		.loc 1 77 0
+ 130              		.cfi_startproc
+ 131              		@ args = 0, pretend = 0, frame = 0
+ 132              		@ frame_needed = 0, uses_anonymous_args = 0
+ 133              		@ link register save eliminated.
+  78:./Application/Funtion/SystemData/SystemData.c ****     return gSystemData.u8SwAddr;
+ 134              		.loc 1 78 0
+ 135 0000 014B     		ldr	r3, .L14
+  79:./Application/Funtion/SystemData/SystemData.c **** }
+ 136              		.loc 1 79 0
+ 137              		@ sp needed
+  78:./Application/Funtion/SystemData/SystemData.c ****     return gSystemData.u8SwAddr;
+ 138              		.loc 1 78 0
+ 139 0002 D878     		ldrb	r0, [r3, #3]
+ 140              		.loc 1 79 0
+ 141 0004 7047     		bx	lr
+ 142              	.L15:
+ 143 0006 C046     		.align	2
+ 144              	.L14:
+ 145 0008 00000000 		.word	gSystemData
+ 146              		.cfi_endproc
+ 147              	.LFE3:
+ 149              		.section	.text.InPutDoState,"ax",%progbits
+ 150              		.align	1
+ 151              		.global	InPutDoState
+ 152              		.syntax unified
+ 153              		.code	16
+ 154              		.thumb_func
+ 155              		.fpu softvfp
+ARM GAS  /tmp/cco0ytYU.s 			page 5
+
+
+ 157              	InPutDoState:
+ 158              	.LFB4:
+  80:./Application/Funtion/SystemData/SystemData.c **** /*=============================================================================================
+  81:./Application/Funtion/SystemData/SystemData.c **** ** @Name      : void InPutDoState(u8 channel, u8 data)
+  82:./Application/Funtion/SystemData/SystemData.c **** ** @Input     : channel:do通道 data:do状态
+  83:./Application/Funtion/SystemData/SystemData.c **** ** @Output    : void
+  84:./Application/Funtion/SystemData/SystemData.c **** ** @Function  : do状态输入
+  85:./Application/Funtion/SystemData/SystemData.c **** ** @The notes : 
+  86:./Application/Funtion/SystemData/SystemData.c **** **===========================================================================================*/
+  87:./Application/Funtion/SystemData/SystemData.c **** void InPutDoState(u8 channel, u8 data)
+  88:./Application/Funtion/SystemData/SystemData.c **** {
+ 159              		.loc 1 88 0
+ 160              		.cfi_startproc
+ 161              		@ args = 0, pretend = 0, frame = 0
+ 162              		@ frame_needed = 0, uses_anonymous_args = 0
+ 163              		@ link register save eliminated.
+ 164              	.LVL5:
+  89:./Application/Funtion/SystemData/SystemData.c ****     if(channel > 1)
+ 165              		.loc 1 89 0
+ 166 0000 0128     		cmp	r0, #1
+ 167 0002 02D8     		bhi	.L16
+  90:./Application/Funtion/SystemData/SystemData.c ****     {
+  91:./Application/Funtion/SystemData/SystemData.c ****         return;
+  92:./Application/Funtion/SystemData/SystemData.c ****     }
+  93:./Application/Funtion/SystemData/SystemData.c ****     gSystemData.u8DoState[channel] = data;
+ 168              		.loc 1 93 0
+ 169 0004 014B     		ldr	r3, .L18
+ 170 0006 1818     		adds	r0, r3, r0
+ 171              	.LVL6:
+ 172 0008 4170     		strb	r1, [r0, #1]
+ 173              	.L16:
+  94:./Application/Funtion/SystemData/SystemData.c **** }   
+ 174              		.loc 1 94 0
+ 175              		@ sp needed
+ 176 000a 7047     		bx	lr
+ 177              	.L19:
+ 178              		.align	2
+ 179              	.L18:
+ 180 000c 00000000 		.word	gSystemData
+ 181              		.cfi_endproc
+ 182              	.LFE4:
+ 184              		.section	.text.InPutSwAddr,"ax",%progbits
+ 185              		.align	1
+ 186              		.global	InPutSwAddr
+ 187              		.syntax unified
+ 188              		.code	16
+ 189              		.thumb_func
+ 190              		.fpu softvfp
+ 192              	InPutSwAddr:
+ 193              	.LFB5:
+  95:./Application/Funtion/SystemData/SystemData.c **** 
+  96:./Application/Funtion/SystemData/SystemData.c **** /*=============================================================================================
+  97:./Application/Funtion/SystemData/SystemData.c **** ** @Name      : void InPutSwAddr(u8 data)
+  98:./Application/Funtion/SystemData/SystemData.c **** ** @Input     : data:拨码地址
+  99:./Application/Funtion/SystemData/SystemData.c **** ** @Output    : void
+ 100:./Application/Funtion/SystemData/SystemData.c **** ** @Function  : 拨码地址输入
+ 101:./Application/Funtion/SystemData/SystemData.c **** ** @The notes : 
+ARM GAS  /tmp/cco0ytYU.s 			page 6
+
+
+ 102:./Application/Funtion/SystemData/SystemData.c **** **===========================================================================================*/
+ 103:./Application/Funtion/SystemData/SystemData.c **** void InPutSwAddr(u8 data)
+ 104:./Application/Funtion/SystemData/SystemData.c **** {
+ 194              		.loc 1 104 0
+ 195              		.cfi_startproc
+ 196              		@ args = 0, pretend = 0, frame = 0
+ 197              		@ frame_needed = 0, uses_anonymous_args = 0
+ 198              		@ link register save eliminated.
+ 199              	.LVL7:
+ 105:./Application/Funtion/SystemData/SystemData.c ****     gSystemData.u8SwAddr = data;
+ 200              		.loc 1 105 0
+ 201 0000 014B     		ldr	r3, .L21
+ 106:./Application/Funtion/SystemData/SystemData.c **** }
+ 202              		.loc 1 106 0
+ 203              		@ sp needed
+ 105:./Application/Funtion/SystemData/SystemData.c ****     gSystemData.u8SwAddr = data;
+ 204              		.loc 1 105 0
+ 205 0002 D870     		strb	r0, [r3, #3]
+ 206              		.loc 1 106 0
+ 207 0004 7047     		bx	lr
+ 208              	.L22:
+ 209 0006 C046     		.align	2
+ 210              	.L21:
+ 211 0008 00000000 		.word	gSystemData
+ 212              		.cfi_endproc
+ 213              	.LFE5:
+ 215              		.section	.text.InPutNtcTemp,"ax",%progbits
+ 216              		.align	1
+ 217              		.global	InPutNtcTemp
+ 218              		.syntax unified
+ 219              		.code	16
+ 220              		.thumb_func
+ 221              		.fpu softvfp
+ 223              	InPutNtcTemp:
+ 224              	.LFB6:
+ 107:./Application/Funtion/SystemData/SystemData.c **** 
+ 108:./Application/Funtion/SystemData/SystemData.c **** /*=============================================================================================
+ 109:./Application/Funtion/SystemData/SystemData.c **** ** @Name      : void InPutNtcTemp(u8 channel, f32 data)
+ 110:./Application/Funtion/SystemData/SystemData.c **** ** @Input     : channel:ntc通道 data:温度数据
+ 111:./Application/Funtion/SystemData/SystemData.c **** ** @Output    : void
+ 112:./Application/Funtion/SystemData/SystemData.c **** ** @Function  : ntc温度数据输入
+ 113:./Application/Funtion/SystemData/SystemData.c **** ** @The notes : 
+ 114:./Application/Funtion/SystemData/SystemData.c **** **===========================================================================================*/
+ 115:./Application/Funtion/SystemData/SystemData.c **** void InPutNtcTemp(u8 channel, f32 data)
+ 116:./Application/Funtion/SystemData/SystemData.c **** {
+ 225              		.loc 1 116 0
+ 226              		.cfi_startproc
+ 227              		@ args = 0, pretend = 0, frame = 0
+ 228              		@ frame_needed = 0, uses_anonymous_args = 0
+ 229              		@ link register save eliminated.
+ 230              	.LVL8:
+ 117:./Application/Funtion/SystemData/SystemData.c ****     if(channel > 1)
+ 231              		.loc 1 117 0
+ 232 0000 0128     		cmp	r0, #1
+ 233 0002 03D8     		bhi	.L23
+ 118:./Application/Funtion/SystemData/SystemData.c ****     {
+ 119:./Application/Funtion/SystemData/SystemData.c ****         return;
+ARM GAS  /tmp/cco0ytYU.s 			page 7
+
+
+ 120:./Application/Funtion/SystemData/SystemData.c ****     }
+ 121:./Application/Funtion/SystemData/SystemData.c ****     gSystemData.fNtcTemp[channel] = data;
+ 234              		.loc 1 121 0
+ 235 0004 024B     		ldr	r3, .L25
+ 236 0006 8000     		lsls	r0, r0, #2
+ 237              	.LVL9:
+ 238 0008 1818     		adds	r0, r3, r0
+ 239 000a 4160     		str	r1, [r0, #4]
+ 240              	.L23:
+ 122:./Application/Funtion/SystemData/SystemData.c **** }
+ 241              		.loc 1 122 0
+ 242              		@ sp needed
+ 243 000c 7047     		bx	lr
+ 244              	.L26:
+ 245 000e C046     		.align	2
+ 246              	.L25:
+ 247 0010 00000000 		.word	gSystemData
+ 248              		.cfi_endproc
+ 249              	.LFE6:
+ 251              		.section	.text.InPutBatShuntTemp,"ax",%progbits
+ 252              		.align	1
+ 253              		.global	InPutBatShuntTemp
+ 254              		.syntax unified
+ 255              		.code	16
+ 256              		.thumb_func
+ 257              		.fpu softvfp
+ 259              	InPutBatShuntTemp:
+ 260              	.LFB7:
+ 123:./Application/Funtion/SystemData/SystemData.c **** 
+ 124:./Application/Funtion/SystemData/SystemData.c **** /*=============================================================================================
+ 125:./Application/Funtion/SystemData/SystemData.c **** ** @Name      : void InPutBatShuntTemp(f32 data)
+ 126:./Application/Funtion/SystemData/SystemData.c **** ** @Input     : data:温度数据
+ 127:./Application/Funtion/SystemData/SystemData.c **** ** @Output    : void
+ 128:./Application/Funtion/SystemData/SystemData.c **** ** @Function  : 电池端分流器温度数据输入
+ 129:./Application/Funtion/SystemData/SystemData.c **** ** @The notes : 
+ 130:./Application/Funtion/SystemData/SystemData.c **** **===========================================================================================*/
+ 131:./Application/Funtion/SystemData/SystemData.c **** void InPutBatShuntTemp(f32 data)
+ 132:./Application/Funtion/SystemData/SystemData.c **** {
+ 261              		.loc 1 132 0
+ 262              		.cfi_startproc
+ 263              		@ args = 0, pretend = 0, frame = 0
+ 264              		@ frame_needed = 0, uses_anonymous_args = 0
+ 265              		@ link register save eliminated.
+ 266              	.LVL10:
+ 133:./Application/Funtion/SystemData/SystemData.c ****     gSystemData.fBatShuntTemp = data;
+ 267              		.loc 1 133 0
+ 268 0000 014B     		ldr	r3, .L28
+ 134:./Application/Funtion/SystemData/SystemData.c **** }
+ 269              		.loc 1 134 0
+ 270              		@ sp needed
+ 133:./Application/Funtion/SystemData/SystemData.c ****     gSystemData.fBatShuntTemp = data;
+ 271              		.loc 1 133 0
+ 272 0002 D860     		str	r0, [r3, #12]
+ 273              		.loc 1 134 0
+ 274 0004 7047     		bx	lr
+ 275              	.L29:
+ 276 0006 C046     		.align	2
+ARM GAS  /tmp/cco0ytYU.s 			page 8
+
+
+ 277              	.L28:
+ 278 0008 00000000 		.word	gSystemData
+ 279              		.cfi_endproc
+ 280              	.LFE7:
+ 282              		.section	.text.InPutBatShuntVolt,"ax",%progbits
+ 283              		.align	1
+ 284              		.global	InPutBatShuntVolt
+ 285              		.syntax unified
+ 286              		.code	16
+ 287              		.thumb_func
+ 288              		.fpu softvfp
+ 290              	InPutBatShuntVolt:
+ 291              	.LFB8:
+ 135:./Application/Funtion/SystemData/SystemData.c **** 
+ 136:./Application/Funtion/SystemData/SystemData.c **** /*=============================================================================================
+ 137:./Application/Funtion/SystemData/SystemData.c **** ** @Name      : void InPutBatShuntVolt(f32 data)
+ 138:./Application/Funtion/SystemData/SystemData.c **** ** @Input     : data:电池端分流器电压数据
+ 139:./Application/Funtion/SystemData/SystemData.c **** ** @Output    : void
+ 140:./Application/Funtion/SystemData/SystemData.c **** ** @Function  : 电池端分流器电压数据
+ 141:./Application/Funtion/SystemData/SystemData.c **** ** @The notes : 
+ 142:./Application/Funtion/SystemData/SystemData.c **** **===========================================================================================*/
+ 143:./Application/Funtion/SystemData/SystemData.c **** void InPutBatShuntVolt(f32 data)
+ 144:./Application/Funtion/SystemData/SystemData.c **** {
+ 292              		.loc 1 144 0
+ 293              		.cfi_startproc
+ 294              		@ args = 0, pretend = 0, frame = 0
+ 295              		@ frame_needed = 0, uses_anonymous_args = 0
+ 296              		@ link register save eliminated.
+ 297              	.LVL11:
+ 145:./Application/Funtion/SystemData/SystemData.c ****     gSystemData.fBatShuntVolt = data;
+ 298              		.loc 1 145 0
+ 299 0000 014B     		ldr	r3, .L31
+ 146:./Application/Funtion/SystemData/SystemData.c **** }
+ 300              		.loc 1 146 0
+ 301              		@ sp needed
+ 145:./Application/Funtion/SystemData/SystemData.c ****     gSystemData.fBatShuntVolt = data;
+ 302              		.loc 1 145 0
+ 303 0002 9861     		str	r0, [r3, #24]
+ 304              		.loc 1 146 0
+ 305 0004 7047     		bx	lr
+ 306              	.L32:
+ 307 0006 C046     		.align	2
+ 308              	.L31:
+ 309 0008 00000000 		.word	gSystemData
+ 310              		.cfi_endproc
+ 311              	.LFE8:
+ 313              		.section	.text.GetBatShuntVolt,"ax",%progbits
+ 314              		.align	1
+ 315              		.global	GetBatShuntVolt
+ 316              		.syntax unified
+ 317              		.code	16
+ 318              		.thumb_func
+ 319              		.fpu softvfp
+ 321              	GetBatShuntVolt:
+ 322              	.LFB9:
+ 147:./Application/Funtion/SystemData/SystemData.c **** /*=============================================================================================
+ 148:./Application/Funtion/SystemData/SystemData.c **** ** @Name      : f32 GetBatShuntVolt(void)
+ARM GAS  /tmp/cco0ytYU.s 			page 9
+
+
+ 149:./Application/Funtion/SystemData/SystemData.c **** ** @Input     : void
+ 150:./Application/Funtion/SystemData/SystemData.c **** ** @Output    : 输出电池端分流器电压数据
+ 151:./Application/Funtion/SystemData/SystemData.c **** ** @Function  : 
+ 152:./Application/Funtion/SystemData/SystemData.c **** ** @The notes : 
+ 153:./Application/Funtion/SystemData/SystemData.c **** **===========================================================================================*/
+ 154:./Application/Funtion/SystemData/SystemData.c **** f32 GetBatShuntVolt(void)
+ 155:./Application/Funtion/SystemData/SystemData.c **** {
+ 323              		.loc 1 155 0
+ 324              		.cfi_startproc
+ 325              		@ args = 0, pretend = 0, frame = 0
+ 326              		@ frame_needed = 0, uses_anonymous_args = 0
+ 327              		@ link register save eliminated.
+ 156:./Application/Funtion/SystemData/SystemData.c ****     return gSystemData.fBatShuntVolt;
+ 328              		.loc 1 156 0
+ 329 0000 014B     		ldr	r3, .L34
+ 157:./Application/Funtion/SystemData/SystemData.c **** }
+ 330              		.loc 1 157 0
+ 331              		@ sp needed
+ 156:./Application/Funtion/SystemData/SystemData.c ****     return gSystemData.fBatShuntVolt;
+ 332              		.loc 1 156 0
+ 333 0002 9869     		ldr	r0, [r3, #24]
+ 334              		.loc 1 157 0
+ 335 0004 7047     		bx	lr
+ 336              	.L35:
+ 337 0006 C046     		.align	2
+ 338              	.L34:
+ 339 0008 00000000 		.word	gSystemData
+ 340              		.cfi_endproc
+ 341              	.LFE9:
+ 343              		.section	.text.InPutfAdjustBatShuntVolt,"ax",%progbits
+ 344              		.align	1
+ 345              		.global	InPutfAdjustBatShuntVolt
+ 346              		.syntax unified
+ 347              		.code	16
+ 348              		.thumb_func
+ 349              		.fpu softvfp
+ 351              	InPutfAdjustBatShuntVolt:
+ 352              	.LFB10:
+ 158:./Application/Funtion/SystemData/SystemData.c **** 
+ 159:./Application/Funtion/SystemData/SystemData.c **** /*=============================================================================================
+ 160:./Application/Funtion/SystemData/SystemData.c **** ** @Name      : void InPutfAdjustBatShuntVolt(f32 data)
+ 161:./Application/Funtion/SystemData/SystemData.c **** ** @Input     : data:电池端分流器校准后电压数据
+ 162:./Application/Funtion/SystemData/SystemData.c **** ** @Output    : void
+ 163:./Application/Funtion/SystemData/SystemData.c **** ** @Function  : 电池端分流器校准后电压数据
+ 164:./Application/Funtion/SystemData/SystemData.c **** ** @The notes : 校准后
+ 165:./Application/Funtion/SystemData/SystemData.c **** **===========================================================================================*/
+ 166:./Application/Funtion/SystemData/SystemData.c **** void InPutfAdjustBatShuntVolt(f32 data)
+ 167:./Application/Funtion/SystemData/SystemData.c **** {
+ 353              		.loc 1 167 0
+ 354              		.cfi_startproc
+ 355              		@ args = 0, pretend = 0, frame = 0
+ 356              		@ frame_needed = 0, uses_anonymous_args = 0
+ 357              		@ link register save eliminated.
+ 358              	.LVL12:
+ 168:./Application/Funtion/SystemData/SystemData.c ****     gSystemData.fAdjustBatShuntVolt = data;
+ 359              		.loc 1 168 0
+ 360 0000 014B     		ldr	r3, .L37
+ARM GAS  /tmp/cco0ytYU.s 			page 10
+
+
+ 169:./Application/Funtion/SystemData/SystemData.c **** }
+ 361              		.loc 1 169 0
+ 362              		@ sp needed
+ 168:./Application/Funtion/SystemData/SystemData.c ****     gSystemData.fAdjustBatShuntVolt = data;
+ 363              		.loc 1 168 0
+ 364 0002 D861     		str	r0, [r3, #28]
+ 365              		.loc 1 169 0
+ 366 0004 7047     		bx	lr
+ 367              	.L38:
+ 368 0006 C046     		.align	2
+ 369              	.L37:
+ 370 0008 00000000 		.word	gSystemData
+ 371              		.cfi_endproc
+ 372              	.LFE10:
+ 374              		.section	.text.GetfAdjustBatShuntVolt,"ax",%progbits
+ 375              		.align	1
+ 376              		.global	GetfAdjustBatShuntVolt
+ 377              		.syntax unified
+ 378              		.code	16
+ 379              		.thumb_func
+ 380              		.fpu softvfp
+ 382              	GetfAdjustBatShuntVolt:
+ 383              	.LFB11:
+ 170:./Application/Funtion/SystemData/SystemData.c **** /*=============================================================================================
+ 171:./Application/Funtion/SystemData/SystemData.c **** ** @Name      : f32 GetfAdjustBatShuntVolt(void)
+ 172:./Application/Funtion/SystemData/SystemData.c **** ** @Input     : void
+ 173:./Application/Funtion/SystemData/SystemData.c **** ** @Output    : 
+ 174:./Application/Funtion/SystemData/SystemData.c **** ** @Function  : 电池端分流器校准后电压数据
+ 175:./Application/Funtion/SystemData/SystemData.c **** ** @The notes : 校准后
+ 176:./Application/Funtion/SystemData/SystemData.c **** **===========================================================================================*/
+ 177:./Application/Funtion/SystemData/SystemData.c **** f32 GetfAdjustBatShuntVolt(void)
+ 178:./Application/Funtion/SystemData/SystemData.c **** {
+ 384              		.loc 1 178 0
+ 385              		.cfi_startproc
+ 386              		@ args = 0, pretend = 0, frame = 0
+ 387              		@ frame_needed = 0, uses_anonymous_args = 0
+ 388              		@ link register save eliminated.
+ 179:./Application/Funtion/SystemData/SystemData.c ****     return gSystemData.fAdjustBatShuntVolt;
+ 389              		.loc 1 179 0
+ 390 0000 014B     		ldr	r3, .L40
+ 180:./Application/Funtion/SystemData/SystemData.c **** }
+ 391              		.loc 1 180 0
+ 392              		@ sp needed
+ 179:./Application/Funtion/SystemData/SystemData.c ****     return gSystemData.fAdjustBatShuntVolt;
+ 393              		.loc 1 179 0
+ 394 0002 D869     		ldr	r0, [r3, #28]
+ 395              		.loc 1 180 0
+ 396 0004 7047     		bx	lr
+ 397              	.L41:
+ 398 0006 C046     		.align	2
+ 399              	.L40:
+ 400 0008 00000000 		.word	gSystemData
+ 401              		.cfi_endproc
+ 402              	.LFE11:
+ 404              		.section	.text.InPutBatShuntCurrent,"ax",%progbits
+ 405              		.align	1
+ 406              		.global	InPutBatShuntCurrent
+ARM GAS  /tmp/cco0ytYU.s 			page 11
+
+
+ 407              		.syntax unified
+ 408              		.code	16
+ 409              		.thumb_func
+ 410              		.fpu softvfp
+ 412              	InPutBatShuntCurrent:
+ 413              	.LFB12:
+ 181:./Application/Funtion/SystemData/SystemData.c **** 
+ 182:./Application/Funtion/SystemData/SystemData.c **** 
+ 183:./Application/Funtion/SystemData/SystemData.c **** 
+ 184:./Application/Funtion/SystemData/SystemData.c **** /*=============================================================================================
+ 185:./Application/Funtion/SystemData/SystemData.c **** ** @Name      : void InPutBatShuntCurrent(f32 data)
+ 186:./Application/Funtion/SystemData/SystemData.c **** ** @Input     : data:电池端分流器电流数据
+ 187:./Application/Funtion/SystemData/SystemData.c **** ** @Output    : void
+ 188:./Application/Funtion/SystemData/SystemData.c **** ** @Function  : 电池端分流器电流数据
+ 189:./Application/Funtion/SystemData/SystemData.c **** ** @The notes : 
+ 190:./Application/Funtion/SystemData/SystemData.c **** **===========================================================================================*/
+ 191:./Application/Funtion/SystemData/SystemData.c **** void InPutBatShuntCurrent(f32 data)
+ 192:./Application/Funtion/SystemData/SystemData.c **** {
+ 414              		.loc 1 192 0
+ 415              		.cfi_startproc
+ 416              		@ args = 0, pretend = 0, frame = 0
+ 417              		@ frame_needed = 0, uses_anonymous_args = 0
+ 418              		@ link register save eliminated.
+ 419              	.LVL13:
+ 193:./Application/Funtion/SystemData/SystemData.c ****     gSystemData.fBatShuntCurrent = data;
+ 420              		.loc 1 193 0
+ 421 0000 014B     		ldr	r3, .L43
+ 194:./Application/Funtion/SystemData/SystemData.c **** }
+ 422              		.loc 1 194 0
+ 423              		@ sp needed
+ 193:./Application/Funtion/SystemData/SystemData.c ****     gSystemData.fBatShuntCurrent = data;
+ 424              		.loc 1 193 0
+ 425 0002 1862     		str	r0, [r3, #32]
+ 426              		.loc 1 194 0
+ 427 0004 7047     		bx	lr
+ 428              	.L44:
+ 429 0006 C046     		.align	2
+ 430              	.L43:
+ 431 0008 00000000 		.word	gSystemData
+ 432              		.cfi_endproc
+ 433              	.LFE12:
+ 435              		.section	.text.GetBatShuntCurrent,"ax",%progbits
+ 436              		.align	1
+ 437              		.global	GetBatShuntCurrent
+ 438              		.syntax unified
+ 439              		.code	16
+ 440              		.thumb_func
+ 441              		.fpu softvfp
+ 443              	GetBatShuntCurrent:
+ 444              	.LFB13:
+ 195:./Application/Funtion/SystemData/SystemData.c **** 
+ 196:./Application/Funtion/SystemData/SystemData.c **** /*=============================================================================================
+ 197:./Application/Funtion/SystemData/SystemData.c **** ** @Name      : f32 GetBatShuntCurrent(void)
+ 198:./Application/Funtion/SystemData/SystemData.c **** ** @Input     : void
+ 199:./Application/Funtion/SystemData/SystemData.c **** ** @Output    : data:电池端分流器电流数据
+ 200:./Application/Funtion/SystemData/SystemData.c **** ** @Function  : 返回电池端分流器电流数据
+ 201:./Application/Funtion/SystemData/SystemData.c **** ** @The notes : 
+ARM GAS  /tmp/cco0ytYU.s 			page 12
+
+
+ 202:./Application/Funtion/SystemData/SystemData.c **** **===========================================================================================*/
+ 203:./Application/Funtion/SystemData/SystemData.c **** f32 GetBatShuntCurrent(void)
+ 204:./Application/Funtion/SystemData/SystemData.c **** {
+ 445              		.loc 1 204 0
+ 446              		.cfi_startproc
+ 447              		@ args = 0, pretend = 0, frame = 0
+ 448              		@ frame_needed = 0, uses_anonymous_args = 0
+ 449              		@ link register save eliminated.
+ 205:./Application/Funtion/SystemData/SystemData.c ****     return gSystemData.fBatShuntCurrent;
+ 450              		.loc 1 205 0
+ 451 0000 014B     		ldr	r3, .L46
+ 206:./Application/Funtion/SystemData/SystemData.c **** }
+ 452              		.loc 1 206 0
+ 453              		@ sp needed
+ 205:./Application/Funtion/SystemData/SystemData.c ****     return gSystemData.fBatShuntCurrent;
+ 454              		.loc 1 205 0
+ 455 0002 186A     		ldr	r0, [r3, #32]
+ 456              		.loc 1 206 0
+ 457 0004 7047     		bx	lr
+ 458              	.L47:
+ 459 0006 C046     		.align	2
+ 460              	.L46:
+ 461 0008 00000000 		.word	gSystemData
+ 462              		.cfi_endproc
+ 463              	.LFE13:
+ 465              		.section	.text.InPutfAdjustBatShuntCurrent,"ax",%progbits
+ 466              		.align	1
+ 467              		.global	InPutfAdjustBatShuntCurrent
+ 468              		.syntax unified
+ 469              		.code	16
+ 470              		.thumb_func
+ 471              		.fpu softvfp
+ 473              	InPutfAdjustBatShuntCurrent:
+ 474              	.LFB14:
+ 207:./Application/Funtion/SystemData/SystemData.c **** /*=============================================================================================
+ 208:./Application/Funtion/SystemData/SystemData.c **** ** @Name      : void InPutfAdjustBatShuntCurrent(f32 data)
+ 209:./Application/Funtion/SystemData/SystemData.c **** ** @Input     : 电池端分流器校准后电流数据
+ 210:./Application/Funtion/SystemData/SystemData.c **** ** @Output    : void
+ 211:./Application/Funtion/SystemData/SystemData.c **** ** @Function  : 
+ 212:./Application/Funtion/SystemData/SystemData.c **** ** @The notes : 校准后
+ 213:./Application/Funtion/SystemData/SystemData.c **** **===========================================================================================*/
+ 214:./Application/Funtion/SystemData/SystemData.c **** void InPutfAdjustBatShuntCurrent(f32 data)
+ 215:./Application/Funtion/SystemData/SystemData.c **** {
+ 475              		.loc 1 215 0
+ 476              		.cfi_startproc
+ 477              		@ args = 0, pretend = 0, frame = 0
+ 478              		@ frame_needed = 0, uses_anonymous_args = 0
+ 479              		@ link register save eliminated.
+ 480              	.LVL14:
+ 216:./Application/Funtion/SystemData/SystemData.c ****     gSystemData.fAdjustBatShuntCurrent = data;
+ 481              		.loc 1 216 0
+ 482 0000 014B     		ldr	r3, .L49
+ 217:./Application/Funtion/SystemData/SystemData.c **** }
+ 483              		.loc 1 217 0
+ 484              		@ sp needed
+ 216:./Application/Funtion/SystemData/SystemData.c ****     gSystemData.fAdjustBatShuntCurrent = data;
+ 485              		.loc 1 216 0
+ARM GAS  /tmp/cco0ytYU.s 			page 13
+
+
+ 486 0002 5862     		str	r0, [r3, #36]
+ 487              		.loc 1 217 0
+ 488 0004 7047     		bx	lr
+ 489              	.L50:
+ 490 0006 C046     		.align	2
+ 491              	.L49:
+ 492 0008 00000000 		.word	gSystemData
+ 493              		.cfi_endproc
+ 494              	.LFE14:
+ 496              		.section	.text.GetfAdjustBatShuntCurrent,"ax",%progbits
+ 497              		.align	1
+ 498              		.global	GetfAdjustBatShuntCurrent
+ 499              		.syntax unified
+ 500              		.code	16
+ 501              		.thumb_func
+ 502              		.fpu softvfp
+ 504              	GetfAdjustBatShuntCurrent:
+ 505              	.LFB15:
+ 218:./Application/Funtion/SystemData/SystemData.c **** 
+ 219:./Application/Funtion/SystemData/SystemData.c **** /*=============================================================================================
+ 220:./Application/Funtion/SystemData/SystemData.c **** ** @Name      : f32 GetfAdjustBatShuntCurrent(void)
+ 221:./Application/Funtion/SystemData/SystemData.c **** ** @Input     : void
+ 222:./Application/Funtion/SystemData/SystemData.c **** ** @Output    : 返回电池端分流器校准后电流数据
+ 223:./Application/Funtion/SystemData/SystemData.c **** ** @Function  : 
+ 224:./Application/Funtion/SystemData/SystemData.c **** ** @The notes : 校准后
+ 225:./Application/Funtion/SystemData/SystemData.c **** **===========================================================================================*/
+ 226:./Application/Funtion/SystemData/SystemData.c **** f32 GetfAdjustBatShuntCurrent(void)
+ 227:./Application/Funtion/SystemData/SystemData.c **** {
+ 506              		.loc 1 227 0
+ 507              		.cfi_startproc
+ 508              		@ args = 0, pretend = 0, frame = 0
+ 509              		@ frame_needed = 0, uses_anonymous_args = 0
+ 510              		@ link register save eliminated.
+ 228:./Application/Funtion/SystemData/SystemData.c ****     return gSystemData.fAdjustBatShuntCurrent;
+ 511              		.loc 1 228 0
+ 512 0000 014B     		ldr	r3, .L52
+ 229:./Application/Funtion/SystemData/SystemData.c **** }
+ 513              		.loc 1 229 0
+ 514              		@ sp needed
+ 228:./Application/Funtion/SystemData/SystemData.c ****     return gSystemData.fAdjustBatShuntCurrent;
+ 515              		.loc 1 228 0
+ 516 0002 586A     		ldr	r0, [r3, #36]
+ 517              		.loc 1 229 0
+ 518 0004 7047     		bx	lr
+ 519              	.L53:
+ 520 0006 C046     		.align	2
+ 521              	.L52:
+ 522 0008 00000000 		.word	gSystemData
+ 523              		.cfi_endproc
+ 524              	.LFE15:
+ 526              		.section	.text.InPutfBatShuntVoltBackup,"ax",%progbits
+ 527              		.align	1
+ 528              		.global	InPutfBatShuntVoltBackup
+ 529              		.syntax unified
+ 530              		.code	16
+ 531              		.thumb_func
+ 532              		.fpu softvfp
+ARM GAS  /tmp/cco0ytYU.s 			page 14
+
+
+ 534              	InPutfBatShuntVoltBackup:
+ 535              	.LFB16:
+ 230:./Application/Funtion/SystemData/SystemData.c **** 
+ 231:./Application/Funtion/SystemData/SystemData.c **** /*=============================================================================================
+ 232:./Application/Funtion/SystemData/SystemData.c **** ** @Name      : void InPutfBatShuntVoltBackup(f32 data)
+ 233:./Application/Funtion/SystemData/SystemData.c **** ** @Input     : data:电池端分流器电压数据(备份)
+ 234:./Application/Funtion/SystemData/SystemData.c **** ** @Output    : void
+ 235:./Application/Funtion/SystemData/SystemData.c **** ** @Function  : 电池端分流器电压数据（备份）
+ 236:./Application/Funtion/SystemData/SystemData.c **** ** @The notes : 
+ 237:./Application/Funtion/SystemData/SystemData.c **** **===========================================================================================*/
+ 238:./Application/Funtion/SystemData/SystemData.c **** void InPutfBatShuntVoltBackup(f32 data)
+ 239:./Application/Funtion/SystemData/SystemData.c **** {
+ 536              		.loc 1 239 0
+ 537              		.cfi_startproc
+ 538              		@ args = 0, pretend = 0, frame = 0
+ 539              		@ frame_needed = 0, uses_anonymous_args = 0
+ 540              		@ link register save eliminated.
+ 541              	.LVL15:
+ 240:./Application/Funtion/SystemData/SystemData.c ****     gSystemData.fBatShuntVoltBackup = data;
+ 542              		.loc 1 240 0
+ 543 0000 014B     		ldr	r3, .L55
+ 241:./Application/Funtion/SystemData/SystemData.c **** }
+ 544              		.loc 1 241 0
+ 545              		@ sp needed
+ 240:./Application/Funtion/SystemData/SystemData.c ****     gSystemData.fBatShuntVoltBackup = data;
+ 546              		.loc 1 240 0
+ 547 0002 9862     		str	r0, [r3, #40]
+ 548              		.loc 1 241 0
+ 549 0004 7047     		bx	lr
+ 550              	.L56:
+ 551 0006 C046     		.align	2
+ 552              	.L55:
+ 553 0008 00000000 		.word	gSystemData
+ 554              		.cfi_endproc
+ 555              	.LFE16:
+ 557              		.section	.text.GetfBatShuntVoltBackup,"ax",%progbits
+ 558              		.align	1
+ 559              		.global	GetfBatShuntVoltBackup
+ 560              		.syntax unified
+ 561              		.code	16
+ 562              		.thumb_func
+ 563              		.fpu softvfp
+ 565              	GetfBatShuntVoltBackup:
+ 566              	.LFB17:
+ 242:./Application/Funtion/SystemData/SystemData.c **** /*=============================================================================================
+ 243:./Application/Funtion/SystemData/SystemData.c **** ** @Name      : f32 GetfBatShuntVoltBackup(void)
+ 244:./Application/Funtion/SystemData/SystemData.c **** ** @Input     : void
+ 245:./Application/Funtion/SystemData/SystemData.c **** ** @Output    : 返回电池端分流器校准后电流数据(备份)
+ 246:./Application/Funtion/SystemData/SystemData.c **** ** @Function  : 
+ 247:./Application/Funtion/SystemData/SystemData.c **** ** @The notes : 
+ 248:./Application/Funtion/SystemData/SystemData.c **** **===========================================================================================*/
+ 249:./Application/Funtion/SystemData/SystemData.c **** f32 GetfBatShuntVoltBackup(void)
+ 250:./Application/Funtion/SystemData/SystemData.c **** {
+ 567              		.loc 1 250 0
+ 568              		.cfi_startproc
+ 569              		@ args = 0, pretend = 0, frame = 0
+ 570              		@ frame_needed = 0, uses_anonymous_args = 0
+ARM GAS  /tmp/cco0ytYU.s 			page 15
+
+
+ 571              		@ link register save eliminated.
+ 251:./Application/Funtion/SystemData/SystemData.c ****     return gSystemData.fBatShuntVoltBackup;
+ 572              		.loc 1 251 0
+ 573 0000 014B     		ldr	r3, .L58
+ 252:./Application/Funtion/SystemData/SystemData.c **** }
+ 574              		.loc 1 252 0
+ 575              		@ sp needed
+ 251:./Application/Funtion/SystemData/SystemData.c ****     return gSystemData.fBatShuntVoltBackup;
+ 576              		.loc 1 251 0
+ 577 0002 986A     		ldr	r0, [r3, #40]
+ 578              		.loc 1 252 0
+ 579 0004 7047     		bx	lr
+ 580              	.L59:
+ 581 0006 C046     		.align	2
+ 582              	.L58:
+ 583 0008 00000000 		.word	gSystemData
+ 584              		.cfi_endproc
+ 585              	.LFE17:
+ 587              		.section	.text.InPutfAdjustBatShuntVoltBackup,"ax",%progbits
+ 588              		.align	1
+ 589              		.global	InPutfAdjustBatShuntVoltBackup
+ 590              		.syntax unified
+ 591              		.code	16
+ 592              		.thumb_func
+ 593              		.fpu softvfp
+ 595              	InPutfAdjustBatShuntVoltBackup:
+ 596              	.LFB18:
+ 253:./Application/Funtion/SystemData/SystemData.c **** 
+ 254:./Application/Funtion/SystemData/SystemData.c **** /*=============================================================================================
+ 255:./Application/Funtion/SystemData/SystemData.c **** ** @Name      : void InPutfAdjustBatShuntVoltBackup(f32 data)
+ 256:./Application/Funtion/SystemData/SystemData.c **** ** @Input     : data:电池端分流器校准后电压数据(备份)
+ 257:./Application/Funtion/SystemData/SystemData.c **** ** @Output    : void
+ 258:./Application/Funtion/SystemData/SystemData.c **** ** @Function  : 电池端分流器校准后电压数据（备份）
+ 259:./Application/Funtion/SystemData/SystemData.c **** ** @The notes : 校准后
+ 260:./Application/Funtion/SystemData/SystemData.c **** **===========================================================================================*/
+ 261:./Application/Funtion/SystemData/SystemData.c **** void InPutfAdjustBatShuntVoltBackup(f32 data)
+ 262:./Application/Funtion/SystemData/SystemData.c **** {
+ 597              		.loc 1 262 0
+ 598              		.cfi_startproc
+ 599              		@ args = 0, pretend = 0, frame = 0
+ 600              		@ frame_needed = 0, uses_anonymous_args = 0
+ 601              		@ link register save eliminated.
+ 602              	.LVL16:
+ 263:./Application/Funtion/SystemData/SystemData.c ****     gSystemData.fAdjustBatShuntVoltBackup = data;
+ 603              		.loc 1 263 0
+ 604 0000 014B     		ldr	r3, .L61
+ 264:./Application/Funtion/SystemData/SystemData.c **** }
+ 605              		.loc 1 264 0
+ 606              		@ sp needed
+ 263:./Application/Funtion/SystemData/SystemData.c ****     gSystemData.fAdjustBatShuntVoltBackup = data;
+ 607              		.loc 1 263 0
+ 608 0002 D862     		str	r0, [r3, #44]
+ 609              		.loc 1 264 0
+ 610 0004 7047     		bx	lr
+ 611              	.L62:
+ 612 0006 C046     		.align	2
+ 613              	.L61:
+ARM GAS  /tmp/cco0ytYU.s 			page 16
+
+
+ 614 0008 00000000 		.word	gSystemData
+ 615              		.cfi_endproc
+ 616              	.LFE18:
+ 618              		.section	.text.GetfAdjustBatShuntVoltBackup,"ax",%progbits
+ 619              		.align	1
+ 620              		.global	GetfAdjustBatShuntVoltBackup
+ 621              		.syntax unified
+ 622              		.code	16
+ 623              		.thumb_func
+ 624              		.fpu softvfp
+ 626              	GetfAdjustBatShuntVoltBackup:
+ 627              	.LFB19:
+ 265:./Application/Funtion/SystemData/SystemData.c **** 
+ 266:./Application/Funtion/SystemData/SystemData.c **** /*=============================================================================================
+ 267:./Application/Funtion/SystemData/SystemData.c **** ** @Name      : f32 GetfAdjustBatShuntVoltBackup(void)
+ 268:./Application/Funtion/SystemData/SystemData.c **** ** @Input     : void
+ 269:./Application/Funtion/SystemData/SystemData.c **** ** @Output    : 返回电池端分流器校准后电压数据（备份）
+ 270:./Application/Funtion/SystemData/SystemData.c **** ** @Function  : 
+ 271:./Application/Funtion/SystemData/SystemData.c **** ** @The notes : 校准后
+ 272:./Application/Funtion/SystemData/SystemData.c **** **===========================================================================================*/
+ 273:./Application/Funtion/SystemData/SystemData.c **** f32 GetfAdjustBatShuntVoltBackup(void)
+ 274:./Application/Funtion/SystemData/SystemData.c **** {
+ 628              		.loc 1 274 0
+ 629              		.cfi_startproc
+ 630              		@ args = 0, pretend = 0, frame = 0
+ 631              		@ frame_needed = 0, uses_anonymous_args = 0
+ 632              		@ link register save eliminated.
+ 275:./Application/Funtion/SystemData/SystemData.c ****     return gSystemData.fAdjustBatShuntVoltBackup;
+ 633              		.loc 1 275 0
+ 634 0000 014B     		ldr	r3, .L64
+ 276:./Application/Funtion/SystemData/SystemData.c **** }
+ 635              		.loc 1 276 0
+ 636              		@ sp needed
+ 275:./Application/Funtion/SystemData/SystemData.c ****     return gSystemData.fAdjustBatShuntVoltBackup;
+ 637              		.loc 1 275 0
+ 638 0002 D86A     		ldr	r0, [r3, #44]
+ 639              		.loc 1 276 0
+ 640 0004 7047     		bx	lr
+ 641              	.L65:
+ 642 0006 C046     		.align	2
+ 643              	.L64:
+ 644 0008 00000000 		.word	gSystemData
+ 645              		.cfi_endproc
+ 646              	.LFE19:
+ 648              		.section	.text.InPutfBatShuntCurrentBackup,"ax",%progbits
+ 649              		.align	1
+ 650              		.global	InPutfBatShuntCurrentBackup
+ 651              		.syntax unified
+ 652              		.code	16
+ 653              		.thumb_func
+ 654              		.fpu softvfp
+ 656              	InPutfBatShuntCurrentBackup:
+ 657              	.LFB20:
+ 277:./Application/Funtion/SystemData/SystemData.c **** 
+ 278:./Application/Funtion/SystemData/SystemData.c **** 
+ 279:./Application/Funtion/SystemData/SystemData.c **** /*=============================================================================================
+ 280:./Application/Funtion/SystemData/SystemData.c **** ** @Name      : void InPutfBatShuntCurrentBackup(f32 data)
+ARM GAS  /tmp/cco0ytYU.s 			page 17
+
+
+ 281:./Application/Funtion/SystemData/SystemData.c **** ** @Input     : data:电池端分流器电流数据(备份)
+ 282:./Application/Funtion/SystemData/SystemData.c **** ** @Output    : void
+ 283:./Application/Funtion/SystemData/SystemData.c **** ** @Function  : 电池端分流器电流数据（备份）
+ 284:./Application/Funtion/SystemData/SystemData.c **** ** @The notes : 
+ 285:./Application/Funtion/SystemData/SystemData.c **** **===========================================================================================*/
+ 286:./Application/Funtion/SystemData/SystemData.c **** void InPutfBatShuntCurrentBackup(f32 data)
+ 287:./Application/Funtion/SystemData/SystemData.c **** {
+ 658              		.loc 1 287 0
+ 659              		.cfi_startproc
+ 660              		@ args = 0, pretend = 0, frame = 0
+ 661              		@ frame_needed = 0, uses_anonymous_args = 0
+ 662              		@ link register save eliminated.
+ 663              	.LVL17:
+ 288:./Application/Funtion/SystemData/SystemData.c ****     gSystemData.fBatShuntCurrentBackup = data;
+ 664              		.loc 1 288 0
+ 665 0000 014B     		ldr	r3, .L67
+ 289:./Application/Funtion/SystemData/SystemData.c **** }
+ 666              		.loc 1 289 0
+ 667              		@ sp needed
+ 288:./Application/Funtion/SystemData/SystemData.c ****     gSystemData.fBatShuntCurrentBackup = data;
+ 668              		.loc 1 288 0
+ 669 0002 1863     		str	r0, [r3, #48]
+ 670              		.loc 1 289 0
+ 671 0004 7047     		bx	lr
+ 672              	.L68:
+ 673 0006 C046     		.align	2
+ 674              	.L67:
+ 675 0008 00000000 		.word	gSystemData
+ 676              		.cfi_endproc
+ 677              	.LFE20:
+ 679              		.section	.text.GetfBatShuntCurrentBackup,"ax",%progbits
+ 680              		.align	1
+ 681              		.global	GetfBatShuntCurrentBackup
+ 682              		.syntax unified
+ 683              		.code	16
+ 684              		.thumb_func
+ 685              		.fpu softvfp
+ 687              	GetfBatShuntCurrentBackup:
+ 688              	.LFB21:
+ 290:./Application/Funtion/SystemData/SystemData.c **** 
+ 291:./Application/Funtion/SystemData/SystemData.c **** /*=============================================================================================
+ 292:./Application/Funtion/SystemData/SystemData.c **** ** @Name      : f32 GetfBatShuntCurrentBackup(void)
+ 293:./Application/Funtion/SystemData/SystemData.c **** ** @Input     : void
+ 294:./Application/Funtion/SystemData/SystemData.c **** ** @Output    : 返回电池端分流器电流数据（备份）
+ 295:./Application/Funtion/SystemData/SystemData.c **** ** @Function  : 
+ 296:./Application/Funtion/SystemData/SystemData.c **** ** @The notes : 
+ 297:./Application/Funtion/SystemData/SystemData.c **** **===========================================================================================*/
+ 298:./Application/Funtion/SystemData/SystemData.c **** f32 GetfBatShuntCurrentBackup(void)
+ 299:./Application/Funtion/SystemData/SystemData.c **** {
+ 689              		.loc 1 299 0
+ 690              		.cfi_startproc
+ 691              		@ args = 0, pretend = 0, frame = 0
+ 692              		@ frame_needed = 0, uses_anonymous_args = 0
+ 693              		@ link register save eliminated.
+ 300:./Application/Funtion/SystemData/SystemData.c ****     return gSystemData.fBatShuntCurrentBackup;
+ 694              		.loc 1 300 0
+ 695 0000 014B     		ldr	r3, .L70
+ARM GAS  /tmp/cco0ytYU.s 			page 18
+
+
+ 301:./Application/Funtion/SystemData/SystemData.c **** }
+ 696              		.loc 1 301 0
+ 697              		@ sp needed
+ 300:./Application/Funtion/SystemData/SystemData.c ****     return gSystemData.fBatShuntCurrentBackup;
+ 698              		.loc 1 300 0
+ 699 0002 186B     		ldr	r0, [r3, #48]
+ 700              		.loc 1 301 0
+ 701 0004 7047     		bx	lr
+ 702              	.L71:
+ 703 0006 C046     		.align	2
+ 704              	.L70:
+ 705 0008 00000000 		.word	gSystemData
+ 706              		.cfi_endproc
+ 707              	.LFE21:
+ 709              		.section	.text.InPutfAdjustBatShuntCurrentBackup,"ax",%progbits
+ 710              		.align	1
+ 711              		.global	InPutfAdjustBatShuntCurrentBackup
+ 712              		.syntax unified
+ 713              		.code	16
+ 714              		.thumb_func
+ 715              		.fpu softvfp
+ 717              	InPutfAdjustBatShuntCurrentBackup:
+ 718              	.LFB22:
+ 302:./Application/Funtion/SystemData/SystemData.c **** 
+ 303:./Application/Funtion/SystemData/SystemData.c **** /*=============================================================================================
+ 304:./Application/Funtion/SystemData/SystemData.c **** ** @Name      : void InPutfAdjustBatShuntCurrentBackup(f32 data)
+ 305:./Application/Funtion/SystemData/SystemData.c **** ** @Input     : 电池端分流器校准后电流数据（备份）
+ 306:./Application/Funtion/SystemData/SystemData.c **** ** @Output    : void
+ 307:./Application/Funtion/SystemData/SystemData.c **** ** @Function  : 
+ 308:./Application/Funtion/SystemData/SystemData.c **** ** @The notes : 校准后
+ 309:./Application/Funtion/SystemData/SystemData.c **** **===========================================================================================*/
+ 310:./Application/Funtion/SystemData/SystemData.c **** void InPutfAdjustBatShuntCurrentBackup(f32 data)
+ 311:./Application/Funtion/SystemData/SystemData.c **** {
+ 719              		.loc 1 311 0
+ 720              		.cfi_startproc
+ 721              		@ args = 0, pretend = 0, frame = 0
+ 722              		@ frame_needed = 0, uses_anonymous_args = 0
+ 723              		@ link register save eliminated.
+ 724              	.LVL18:
+ 312:./Application/Funtion/SystemData/SystemData.c ****     gSystemData.fAdjustBatShuntCurrentBackup = data;
+ 725              		.loc 1 312 0
+ 726 0000 014B     		ldr	r3, .L73
+ 313:./Application/Funtion/SystemData/SystemData.c **** }
+ 727              		.loc 1 313 0
+ 728              		@ sp needed
+ 312:./Application/Funtion/SystemData/SystemData.c ****     gSystemData.fAdjustBatShuntCurrentBackup = data;
+ 729              		.loc 1 312 0
+ 730 0002 5863     		str	r0, [r3, #52]
+ 731              		.loc 1 313 0
+ 732 0004 7047     		bx	lr
+ 733              	.L74:
+ 734 0006 C046     		.align	2
+ 735              	.L73:
+ 736 0008 00000000 		.word	gSystemData
+ 737              		.cfi_endproc
+ 738              	.LFE22:
+ 740              		.section	.text.GetfAdjustBatShuntCurrentBackup,"ax",%progbits
+ARM GAS  /tmp/cco0ytYU.s 			page 19
+
+
+ 741              		.align	1
+ 742              		.global	GetfAdjustBatShuntCurrentBackup
+ 743              		.syntax unified
+ 744              		.code	16
+ 745              		.thumb_func
+ 746              		.fpu softvfp
+ 748              	GetfAdjustBatShuntCurrentBackup:
+ 749              	.LFB23:
+ 314:./Application/Funtion/SystemData/SystemData.c **** 
+ 315:./Application/Funtion/SystemData/SystemData.c **** /*=============================================================================================
+ 316:./Application/Funtion/SystemData/SystemData.c **** ** @Name      : f32 GetfAdjustBatShuntCurrentBackup(void)
+ 317:./Application/Funtion/SystemData/SystemData.c **** ** @Input     : void
+ 318:./Application/Funtion/SystemData/SystemData.c **** ** @Output    : 返回电池端分流器校准后电流数据（备份）
+ 319:./Application/Funtion/SystemData/SystemData.c **** ** @Function  : 
+ 320:./Application/Funtion/SystemData/SystemData.c **** ** @The notes : 校准后
+ 321:./Application/Funtion/SystemData/SystemData.c **** **===========================================================================================*/
+ 322:./Application/Funtion/SystemData/SystemData.c **** f32 GetfAdjustBatShuntCurrentBackup(void)
+ 323:./Application/Funtion/SystemData/SystemData.c **** {
+ 750              		.loc 1 323 0
+ 751              		.cfi_startproc
+ 752              		@ args = 0, pretend = 0, frame = 0
+ 753              		@ frame_needed = 0, uses_anonymous_args = 0
+ 754              		@ link register save eliminated.
+ 324:./Application/Funtion/SystemData/SystemData.c ****     return gSystemData.fAdjustBatShuntCurrentBackup;
+ 755              		.loc 1 324 0
+ 756 0000 014B     		ldr	r3, .L76
+ 325:./Application/Funtion/SystemData/SystemData.c **** }
+ 757              		.loc 1 325 0
+ 758              		@ sp needed
+ 324:./Application/Funtion/SystemData/SystemData.c ****     return gSystemData.fAdjustBatShuntCurrentBackup;
+ 759              		.loc 1 324 0
+ 760 0002 586B     		ldr	r0, [r3, #52]
+ 761              		.loc 1 325 0
+ 762 0004 7047     		bx	lr
+ 763              	.L77:
+ 764 0006 C046     		.align	2
+ 765              	.L76:
+ 766 0008 00000000 		.word	gSystemData
+ 767              		.cfi_endproc
+ 768              	.LFE23:
+ 770              		.section	.text.InPutHallVolt,"ax",%progbits
+ 771              		.align	1
+ 772              		.global	InPutHallVolt
+ 773              		.syntax unified
+ 774              		.code	16
+ 775              		.thumb_func
+ 776              		.fpu softvfp
+ 778              	InPutHallVolt:
+ 779              	.LFB24:
+ 326:./Application/Funtion/SystemData/SystemData.c **** 
+ 327:./Application/Funtion/SystemData/SystemData.c **** /*=============================================================================================
+ 328:./Application/Funtion/SystemData/SystemData.c **** ** @Name      : void InPutHallVolt(f32 data)
+ 329:./Application/Funtion/SystemData/SystemData.c **** ** @Input     : data:霍尔电压数据
+ 330:./Application/Funtion/SystemData/SystemData.c **** ** @Output    : void
+ 331:./Application/Funtion/SystemData/SystemData.c **** ** @Function  : 霍尔电压数据输入
+ 332:./Application/Funtion/SystemData/SystemData.c **** ** @The notes : 
+ 333:./Application/Funtion/SystemData/SystemData.c **** **===========================================================================================*/
+ARM GAS  /tmp/cco0ytYU.s 			page 20
+
+
+ 334:./Application/Funtion/SystemData/SystemData.c **** void InPutHallVolt(f32 data)
+ 335:./Application/Funtion/SystemData/SystemData.c **** {
+ 780              		.loc 1 335 0
+ 781              		.cfi_startproc
+ 782              		@ args = 0, pretend = 0, frame = 0
+ 783              		@ frame_needed = 0, uses_anonymous_args = 0
+ 784              		@ link register save eliminated.
+ 785              	.LVL19:
+ 336:./Application/Funtion/SystemData/SystemData.c ****     gSystemData.fHallVolt = data;
+ 786              		.loc 1 336 0
+ 787 0000 014B     		ldr	r3, .L79
+ 337:./Application/Funtion/SystemData/SystemData.c **** }
+ 788              		.loc 1 337 0
+ 789              		@ sp needed
+ 336:./Application/Funtion/SystemData/SystemData.c ****     gSystemData.fHallVolt = data;
+ 790              		.loc 1 336 0
+ 791 0002 9863     		str	r0, [r3, #56]
+ 792              		.loc 1 337 0
+ 793 0004 7047     		bx	lr
+ 794              	.L80:
+ 795 0006 C046     		.align	2
+ 796              	.L79:
+ 797 0008 00000000 		.word	gSystemData
+ 798              		.cfi_endproc
+ 799              	.LFE24:
+ 801              		.section	.text.GetHallVolt,"ax",%progbits
+ 802              		.align	1
+ 803              		.global	GetHallVolt
+ 804              		.syntax unified
+ 805              		.code	16
+ 806              		.thumb_func
+ 807              		.fpu softvfp
+ 809              	GetHallVolt:
+ 810              	.LFB25:
+ 338:./Application/Funtion/SystemData/SystemData.c **** 
+ 339:./Application/Funtion/SystemData/SystemData.c **** /*=============================================================================================
+ 340:./Application/Funtion/SystemData/SystemData.c **** ** @Name      : f32 GetHallVolt(void)
+ 341:./Application/Funtion/SystemData/SystemData.c **** ** @Input     : void
+ 342:./Application/Funtion/SystemData/SystemData.c **** ** @Output    : 输出霍尔电压数据
+ 343:./Application/Funtion/SystemData/SystemData.c **** ** @Function  : 
+ 344:./Application/Funtion/SystemData/SystemData.c **** ** @The notes : 
+ 345:./Application/Funtion/SystemData/SystemData.c **** **===========================================================================================*/
+ 346:./Application/Funtion/SystemData/SystemData.c **** f32 GetHallVolt(void)
+ 347:./Application/Funtion/SystemData/SystemData.c **** {
+ 811              		.loc 1 347 0
+ 812              		.cfi_startproc
+ 813              		@ args = 0, pretend = 0, frame = 0
+ 814              		@ frame_needed = 0, uses_anonymous_args = 0
+ 815              		@ link register save eliminated.
+ 348:./Application/Funtion/SystemData/SystemData.c ****     return gSystemData.fHallVolt;
+ 816              		.loc 1 348 0
+ 817 0000 014B     		ldr	r3, .L82
+ 349:./Application/Funtion/SystemData/SystemData.c **** }
+ 818              		.loc 1 349 0
+ 819              		@ sp needed
+ 348:./Application/Funtion/SystemData/SystemData.c ****     return gSystemData.fHallVolt;
+ 820              		.loc 1 348 0
+ARM GAS  /tmp/cco0ytYU.s 			page 21
+
+
+ 821 0002 986B     		ldr	r0, [r3, #56]
+ 822              		.loc 1 349 0
+ 823 0004 7047     		bx	lr
+ 824              	.L83:
+ 825 0006 C046     		.align	2
+ 826              	.L82:
+ 827 0008 00000000 		.word	gSystemData
+ 828              		.cfi_endproc
+ 829              	.LFE25:
+ 831              		.section	.text.InPutfAdjustZeroHallVolt,"ax",%progbits
+ 832              		.align	1
+ 833              		.global	InPutfAdjustZeroHallVolt
+ 834              		.syntax unified
+ 835              		.code	16
+ 836              		.thumb_func
+ 837              		.fpu softvfp
+ 839              	InPutfAdjustZeroHallVolt:
+ 840              	.LFB26:
+ 350:./Application/Funtion/SystemData/SystemData.c **** 
+ 351:./Application/Funtion/SystemData/SystemData.c **** /*=============================================================================================
+ 352:./Application/Funtion/SystemData/SystemData.c **** ** @Name      : void InPutfAdjustZeroHallVolt(f32 data)
+ 353:./Application/Funtion/SystemData/SystemData.c **** ** @Input     : 霍尔校零电压数据
+ 354:./Application/Funtion/SystemData/SystemData.c **** ** @Output    : void
+ 355:./Application/Funtion/SystemData/SystemData.c **** ** @Function  : 
+ 356:./Application/Funtion/SystemData/SystemData.c **** ** @The notes : 
+ 357:./Application/Funtion/SystemData/SystemData.c **** **===========================================================================================*/
+ 358:./Application/Funtion/SystemData/SystemData.c **** void InPutfAdjustZeroHallVolt(f32 data)
+ 359:./Application/Funtion/SystemData/SystemData.c **** {
+ 841              		.loc 1 359 0
+ 842              		.cfi_startproc
+ 843              		@ args = 0, pretend = 0, frame = 0
+ 844              		@ frame_needed = 0, uses_anonymous_args = 0
+ 845              		@ link register save eliminated.
+ 846              	.LVL20:
+ 360:./Application/Funtion/SystemData/SystemData.c ****     gSystemData.fAdjustZeroHallVolt = data;
+ 847              		.loc 1 360 0
+ 848 0000 014B     		ldr	r3, .L85
+ 361:./Application/Funtion/SystemData/SystemData.c **** }
+ 849              		.loc 1 361 0
+ 850              		@ sp needed
+ 360:./Application/Funtion/SystemData/SystemData.c ****     gSystemData.fAdjustZeroHallVolt = data;
+ 851              		.loc 1 360 0
+ 852 0002 D863     		str	r0, [r3, #60]
+ 853              		.loc 1 361 0
+ 854 0004 7047     		bx	lr
+ 855              	.L86:
+ 856 0006 C046     		.align	2
+ 857              	.L85:
+ 858 0008 00000000 		.word	gSystemData
+ 859              		.cfi_endproc
+ 860              	.LFE26:
+ 862              		.section	.text.GetfAdjustZeroHallVolt,"ax",%progbits
+ 863              		.align	1
+ 864              		.global	GetfAdjustZeroHallVolt
+ 865              		.syntax unified
+ 866              		.code	16
+ 867              		.thumb_func
+ARM GAS  /tmp/cco0ytYU.s 			page 22
+
+
+ 868              		.fpu softvfp
+ 870              	GetfAdjustZeroHallVolt:
+ 871              	.LFB27:
+ 362:./Application/Funtion/SystemData/SystemData.c **** 
+ 363:./Application/Funtion/SystemData/SystemData.c **** /*=============================================================================================
+ 364:./Application/Funtion/SystemData/SystemData.c **** ** @Name      : f32 GetfAdjustZeroHallVolt(void)
+ 365:./Application/Funtion/SystemData/SystemData.c **** ** @Input     : void
+ 366:./Application/Funtion/SystemData/SystemData.c **** ** @Output    : 输出霍尔校零电压数据
+ 367:./Application/Funtion/SystemData/SystemData.c **** ** @Function  : 
+ 368:./Application/Funtion/SystemData/SystemData.c **** ** @The notes : 
+ 369:./Application/Funtion/SystemData/SystemData.c **** **===========================================================================================*/
+ 370:./Application/Funtion/SystemData/SystemData.c **** f32 GetfAdjustZeroHallVolt(void)
+ 371:./Application/Funtion/SystemData/SystemData.c **** {
+ 872              		.loc 1 371 0
+ 873              		.cfi_startproc
+ 874              		@ args = 0, pretend = 0, frame = 0
+ 875              		@ frame_needed = 0, uses_anonymous_args = 0
+ 876              		@ link register save eliminated.
+ 372:./Application/Funtion/SystemData/SystemData.c ****     return gSystemData.fAdjustZeroHallVolt;
+ 877              		.loc 1 372 0
+ 878 0000 014B     		ldr	r3, .L88
+ 373:./Application/Funtion/SystemData/SystemData.c **** }
+ 879              		.loc 1 373 0
+ 880              		@ sp needed
+ 372:./Application/Funtion/SystemData/SystemData.c ****     return gSystemData.fAdjustZeroHallVolt;
+ 881              		.loc 1 372 0
+ 882 0002 D86B     		ldr	r0, [r3, #60]
+ 883              		.loc 1 373 0
+ 884 0004 7047     		bx	lr
+ 885              	.L89:
+ 886 0006 C046     		.align	2
+ 887              	.L88:
+ 888 0008 00000000 		.word	gSystemData
+ 889              		.cfi_endproc
+ 890              	.LFE27:
+ 892              		.section	.text.InPutfAdjustHallVolt,"ax",%progbits
+ 893              		.align	1
+ 894              		.global	InPutfAdjustHallVolt
+ 895              		.syntax unified
+ 896              		.code	16
+ 897              		.thumb_func
+ 898              		.fpu softvfp
+ 900              	InPutfAdjustHallVolt:
+ 901              	.LFB28:
+ 374:./Application/Funtion/SystemData/SystemData.c **** 
+ 375:./Application/Funtion/SystemData/SystemData.c **** /*=============================================================================================
+ 376:./Application/Funtion/SystemData/SystemData.c **** ** @Name      : void InPutfAdjustHallVolt(f32 data)
+ 377:./Application/Funtion/SystemData/SystemData.c **** ** @Input     : 霍尔校准后电压
+ 378:./Application/Funtion/SystemData/SystemData.c **** ** @Output    : void
+ 379:./Application/Funtion/SystemData/SystemData.c **** ** @Function  : 
+ 380:./Application/Funtion/SystemData/SystemData.c **** ** @The notes : 
+ 381:./Application/Funtion/SystemData/SystemData.c **** **===========================================================================================*/
+ 382:./Application/Funtion/SystemData/SystemData.c **** void InPutfAdjustHallVolt(f32 data)
+ 383:./Application/Funtion/SystemData/SystemData.c **** {
+ 902              		.loc 1 383 0
+ 903              		.cfi_startproc
+ 904              		@ args = 0, pretend = 0, frame = 0
+ARM GAS  /tmp/cco0ytYU.s 			page 23
+
+
+ 905              		@ frame_needed = 0, uses_anonymous_args = 0
+ 906              		@ link register save eliminated.
+ 907              	.LVL21:
+ 384:./Application/Funtion/SystemData/SystemData.c ****     gSystemData.fAdjustHallVolt = data;
+ 908              		.loc 1 384 0
+ 909 0000 014B     		ldr	r3, .L91
+ 385:./Application/Funtion/SystemData/SystemData.c **** }
+ 910              		.loc 1 385 0
+ 911              		@ sp needed
+ 384:./Application/Funtion/SystemData/SystemData.c ****     gSystemData.fAdjustHallVolt = data;
+ 912              		.loc 1 384 0
+ 913 0002 1864     		str	r0, [r3, #64]
+ 914              		.loc 1 385 0
+ 915 0004 7047     		bx	lr
+ 916              	.L92:
+ 917 0006 C046     		.align	2
+ 918              	.L91:
+ 919 0008 00000000 		.word	gSystemData
+ 920              		.cfi_endproc
+ 921              	.LFE28:
+ 923              		.section	.text.GetfAdjustHallVolt,"ax",%progbits
+ 924              		.align	1
+ 925              		.global	GetfAdjustHallVolt
+ 926              		.syntax unified
+ 927              		.code	16
+ 928              		.thumb_func
+ 929              		.fpu softvfp
+ 931              	GetfAdjustHallVolt:
+ 932              	.LFB29:
+ 386:./Application/Funtion/SystemData/SystemData.c **** 
+ 387:./Application/Funtion/SystemData/SystemData.c **** /*=============================================================================================
+ 388:./Application/Funtion/SystemData/SystemData.c **** ** @Name      : f32 GetfAdjustHallVolt(void)
+ 389:./Application/Funtion/SystemData/SystemData.c **** ** @Input     : void
+ 390:./Application/Funtion/SystemData/SystemData.c **** ** @Output    : 霍尔校准后电压
+ 391:./Application/Funtion/SystemData/SystemData.c **** ** @Function  : 
+ 392:./Application/Funtion/SystemData/SystemData.c **** ** @The notes : 
+ 393:./Application/Funtion/SystemData/SystemData.c **** **===========================================================================================*/
+ 394:./Application/Funtion/SystemData/SystemData.c **** f32 GetfAdjustHallVolt(void)
+ 395:./Application/Funtion/SystemData/SystemData.c **** {
+ 933              		.loc 1 395 0
+ 934              		.cfi_startproc
+ 935              		@ args = 0, pretend = 0, frame = 0
+ 936              		@ frame_needed = 0, uses_anonymous_args = 0
+ 937              		@ link register save eliminated.
+ 396:./Application/Funtion/SystemData/SystemData.c ****     return gSystemData.fAdjustHallVolt;
+ 938              		.loc 1 396 0
+ 939 0000 014B     		ldr	r3, .L94
+ 397:./Application/Funtion/SystemData/SystemData.c **** }
+ 940              		.loc 1 397 0
+ 941              		@ sp needed
+ 396:./Application/Funtion/SystemData/SystemData.c ****     return gSystemData.fAdjustHallVolt;
+ 942              		.loc 1 396 0
+ 943 0002 186C     		ldr	r0, [r3, #64]
+ 944              		.loc 1 397 0
+ 945 0004 7047     		bx	lr
+ 946              	.L95:
+ 947 0006 C046     		.align	2
+ARM GAS  /tmp/cco0ytYU.s 			page 24
+
+
+ 948              	.L94:
+ 949 0008 00000000 		.word	gSystemData
+ 950              		.cfi_endproc
+ 951              	.LFE29:
+ 953              		.section	.text.InPutHallCurrent,"ax",%progbits
+ 954              		.align	1
+ 955              		.global	InPutHallCurrent
+ 956              		.syntax unified
+ 957              		.code	16
+ 958              		.thumb_func
+ 959              		.fpu softvfp
+ 961              	InPutHallCurrent:
+ 962              	.LFB30:
+ 398:./Application/Funtion/SystemData/SystemData.c **** 
+ 399:./Application/Funtion/SystemData/SystemData.c **** /*=============================================================================================
+ 400:./Application/Funtion/SystemData/SystemData.c **** ** @Name      : void InPutHallCurrent(f32 data)
+ 401:./Application/Funtion/SystemData/SystemData.c **** ** @Input     : data:霍尔电流数据
+ 402:./Application/Funtion/SystemData/SystemData.c **** ** @Output    : void
+ 403:./Application/Funtion/SystemData/SystemData.c **** ** @Function  : 霍尔电流数据输入
+ 404:./Application/Funtion/SystemData/SystemData.c **** ** @The notes : 
+ 405:./Application/Funtion/SystemData/SystemData.c **** **===========================================================================================*/
+ 406:./Application/Funtion/SystemData/SystemData.c **** void InPutHallCurrent(f32 data)
+ 407:./Application/Funtion/SystemData/SystemData.c **** {
+ 963              		.loc 1 407 0
+ 964              		.cfi_startproc
+ 965              		@ args = 0, pretend = 0, frame = 0
+ 966              		@ frame_needed = 0, uses_anonymous_args = 0
+ 967              		@ link register save eliminated.
+ 968              	.LVL22:
+ 408:./Application/Funtion/SystemData/SystemData.c ****     gSystemData.fHallCurrent = data;
+ 969              		.loc 1 408 0
+ 970 0000 014B     		ldr	r3, .L97
+ 409:./Application/Funtion/SystemData/SystemData.c **** }
+ 971              		.loc 1 409 0
+ 972              		@ sp needed
+ 408:./Application/Funtion/SystemData/SystemData.c ****     gSystemData.fHallCurrent = data;
+ 973              		.loc 1 408 0
+ 974 0002 5864     		str	r0, [r3, #68]
+ 975              		.loc 1 409 0
+ 976 0004 7047     		bx	lr
+ 977              	.L98:
+ 978 0006 C046     		.align	2
+ 979              	.L97:
+ 980 0008 00000000 		.word	gSystemData
+ 981              		.cfi_endproc
+ 982              	.LFE30:
+ 984              		.section	.text.GetHallCurrent,"ax",%progbits
+ 985              		.align	1
+ 986              		.global	GetHallCurrent
+ 987              		.syntax unified
+ 988              		.code	16
+ 989              		.thumb_func
+ 990              		.fpu softvfp
+ 992              	GetHallCurrent:
+ 993              	.LFB31:
+ 410:./Application/Funtion/SystemData/SystemData.c **** /*=============================================================================================
+ 411:./Application/Funtion/SystemData/SystemData.c **** ** @Name      : f32 GetHallCurrent(void)
+ARM GAS  /tmp/cco0ytYU.s 			page 25
+
+
+ 412:./Application/Funtion/SystemData/SystemData.c **** ** @Input     : void
+ 413:./Application/Funtion/SystemData/SystemData.c **** ** @Output    : 输出霍尔电流数据
+ 414:./Application/Funtion/SystemData/SystemData.c **** ** @Function  : 
+ 415:./Application/Funtion/SystemData/SystemData.c **** ** @The notes : 
+ 416:./Application/Funtion/SystemData/SystemData.c **** **===========================================================================================*/
+ 417:./Application/Funtion/SystemData/SystemData.c **** f32 GetHallCurrent(void)
+ 418:./Application/Funtion/SystemData/SystemData.c **** {
+ 994              		.loc 1 418 0
+ 995              		.cfi_startproc
+ 996              		@ args = 0, pretend = 0, frame = 0
+ 997              		@ frame_needed = 0, uses_anonymous_args = 0
+ 998              		@ link register save eliminated.
+ 419:./Application/Funtion/SystemData/SystemData.c ****     return gSystemData.fHallCurrent;
+ 999              		.loc 1 419 0
+ 1000 0000 014B     		ldr	r3, .L100
+ 420:./Application/Funtion/SystemData/SystemData.c **** }
+ 1001              		.loc 1 420 0
+ 1002              		@ sp needed
+ 419:./Application/Funtion/SystemData/SystemData.c ****     return gSystemData.fHallCurrent;
+ 1003              		.loc 1 419 0
+ 1004 0002 586C     		ldr	r0, [r3, #68]
+ 1005              		.loc 1 420 0
+ 1006 0004 7047     		bx	lr
+ 1007              	.L101:
+ 1008 0006 C046     		.align	2
+ 1009              	.L100:
+ 1010 0008 00000000 		.word	gSystemData
+ 1011              		.cfi_endproc
+ 1012              	.LFE31:
+ 1014              		.section	.text.InPutfAdjustHallCurrent,"ax",%progbits
+ 1015              		.align	1
+ 1016              		.global	InPutfAdjustHallCurrent
+ 1017              		.syntax unified
+ 1018              		.code	16
+ 1019              		.thumb_func
+ 1020              		.fpu softvfp
+ 1022              	InPutfAdjustHallCurrent:
+ 1023              	.LFB32:
+ 421:./Application/Funtion/SystemData/SystemData.c **** 
+ 422:./Application/Funtion/SystemData/SystemData.c **** /*=============================================================================================
+ 423:./Application/Funtion/SystemData/SystemData.c **** ** @Name      : void InPutfAdjustHallCurrent(f32 data)
+ 424:./Application/Funtion/SystemData/SystemData.c **** ** @Input     : 霍尔校准后电流数据
+ 425:./Application/Funtion/SystemData/SystemData.c **** ** @Output    : void
+ 426:./Application/Funtion/SystemData/SystemData.c **** ** @Function  : 
+ 427:./Application/Funtion/SystemData/SystemData.c **** ** @The notes : 
+ 428:./Application/Funtion/SystemData/SystemData.c **** **===========================================================================================*/
+ 429:./Application/Funtion/SystemData/SystemData.c **** void InPutfAdjustHallCurrent(f32 data)
+ 430:./Application/Funtion/SystemData/SystemData.c **** {
+ 1024              		.loc 1 430 0
+ 1025              		.cfi_startproc
+ 1026              		@ args = 0, pretend = 0, frame = 0
+ 1027              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1028              		@ link register save eliminated.
+ 1029              	.LVL23:
+ 431:./Application/Funtion/SystemData/SystemData.c ****     gSystemData.fAdjustHallCurrent = data;
+ 1030              		.loc 1 431 0
+ 1031 0000 014B     		ldr	r3, .L103
+ARM GAS  /tmp/cco0ytYU.s 			page 26
+
+
+ 432:./Application/Funtion/SystemData/SystemData.c **** }
+ 1032              		.loc 1 432 0
+ 1033              		@ sp needed
+ 431:./Application/Funtion/SystemData/SystemData.c ****     gSystemData.fAdjustHallCurrent = data;
+ 1034              		.loc 1 431 0
+ 1035 0002 9864     		str	r0, [r3, #72]
+ 1036              		.loc 1 432 0
+ 1037 0004 7047     		bx	lr
+ 1038              	.L104:
+ 1039 0006 C046     		.align	2
+ 1040              	.L103:
+ 1041 0008 00000000 		.word	gSystemData
+ 1042              		.cfi_endproc
+ 1043              	.LFE32:
+ 1045              		.section	.text.GetfAdjustHallCurrent,"ax",%progbits
+ 1046              		.align	1
+ 1047              		.global	GetfAdjustHallCurrent
+ 1048              		.syntax unified
+ 1049              		.code	16
+ 1050              		.thumb_func
+ 1051              		.fpu softvfp
+ 1053              	GetfAdjustHallCurrent:
+ 1054              	.LFB33:
+ 433:./Application/Funtion/SystemData/SystemData.c **** 
+ 434:./Application/Funtion/SystemData/SystemData.c **** /*=============================================================================================
+ 435:./Application/Funtion/SystemData/SystemData.c **** ** @Name      : f32 GetfAdjustHallCurrent(void)
+ 436:./Application/Funtion/SystemData/SystemData.c **** ** @Input     : void
+ 437:./Application/Funtion/SystemData/SystemData.c **** ** @Output    : 输出霍尔校准后电流数据
+ 438:./Application/Funtion/SystemData/SystemData.c **** ** @Function  : 
+ 439:./Application/Funtion/SystemData/SystemData.c **** ** @The notes : 
+ 440:./Application/Funtion/SystemData/SystemData.c **** **===========================================================================================*/
+ 441:./Application/Funtion/SystemData/SystemData.c **** f32 GetfAdjustHallCurrent(void)
+ 442:./Application/Funtion/SystemData/SystemData.c **** {
+ 1055              		.loc 1 442 0
+ 1056              		.cfi_startproc
+ 1057              		@ args = 0, pretend = 0, frame = 0
+ 1058              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1059              		@ link register save eliminated.
+ 443:./Application/Funtion/SystemData/SystemData.c ****     return gSystemData.fAdjustHallCurrent;
+ 1060              		.loc 1 443 0
+ 1061 0000 014B     		ldr	r3, .L106
+ 444:./Application/Funtion/SystemData/SystemData.c **** }
+ 1062              		.loc 1 444 0
+ 1063              		@ sp needed
+ 443:./Application/Funtion/SystemData/SystemData.c ****     return gSystemData.fAdjustHallCurrent;
+ 1064              		.loc 1 443 0
+ 1065 0002 986C     		ldr	r0, [r3, #72]
+ 1066              		.loc 1 444 0
+ 1067 0004 7047     		bx	lr
+ 1068              	.L107:
+ 1069 0006 C046     		.align	2
+ 1070              	.L106:
+ 1071 0008 00000000 		.word	gSystemData
+ 1072              		.cfi_endproc
+ 1073              	.LFE33:
+ 1075              		.section	.text.InPutHall5Volt,"ax",%progbits
+ 1076              		.align	1
+ARM GAS  /tmp/cco0ytYU.s 			page 27
+
+
+ 1077              		.global	InPutHall5Volt
+ 1078              		.syntax unified
+ 1079              		.code	16
+ 1080              		.thumb_func
+ 1081              		.fpu softvfp
+ 1083              	InPutHall5Volt:
+ 1084              	.LFB34:
+ 445:./Application/Funtion/SystemData/SystemData.c **** 
+ 446:./Application/Funtion/SystemData/SystemData.c **** /*=============================================================================================
+ 447:./Application/Funtion/SystemData/SystemData.c **** ** @Name      : void InPutHall5Volt(f32 data)
+ 448:./Application/Funtion/SystemData/SystemData.c **** ** @Input     : data:霍尔5v供电电压数据
+ 449:./Application/Funtion/SystemData/SystemData.c **** ** @Output    : void
+ 450:./Application/Funtion/SystemData/SystemData.c **** ** @Function  : 霍尔5v供电电压数据输入
+ 451:./Application/Funtion/SystemData/SystemData.c **** ** @The notes : 
+ 452:./Application/Funtion/SystemData/SystemData.c **** **===========================================================================================*/
+ 453:./Application/Funtion/SystemData/SystemData.c **** void InPutHall5Volt(f32 data)
+ 454:./Application/Funtion/SystemData/SystemData.c **** {
+ 1085              		.loc 1 454 0
+ 1086              		.cfi_startproc
+ 1087              		@ args = 0, pretend = 0, frame = 0
+ 1088              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1089              		@ link register save eliminated.
+ 1090              	.LVL24:
+ 455:./Application/Funtion/SystemData/SystemData.c ****     gSystemData.fHall5Volt = data;
+ 1091              		.loc 1 455 0
+ 1092 0000 014B     		ldr	r3, .L109
+ 456:./Application/Funtion/SystemData/SystemData.c **** }
+ 1093              		.loc 1 456 0
+ 1094              		@ sp needed
+ 455:./Application/Funtion/SystemData/SystemData.c ****     gSystemData.fHall5Volt = data;
+ 1095              		.loc 1 455 0
+ 1096 0002 D864     		str	r0, [r3, #76]
+ 1097              		.loc 1 456 0
+ 1098 0004 7047     		bx	lr
+ 1099              	.L110:
+ 1100 0006 C046     		.align	2
+ 1101              	.L109:
+ 1102 0008 00000000 		.word	gSystemData
+ 1103              		.cfi_endproc
+ 1104              	.LFE34:
+ 1106              		.section	.text.InPutVcc5Volt,"ax",%progbits
+ 1107              		.align	1
+ 1108              		.global	InPutVcc5Volt
+ 1109              		.syntax unified
+ 1110              		.code	16
+ 1111              		.thumb_func
+ 1112              		.fpu softvfp
+ 1114              	InPutVcc5Volt:
+ 1115              	.LFB35:
+ 457:./Application/Funtion/SystemData/SystemData.c **** 
+ 458:./Application/Funtion/SystemData/SystemData.c **** /*=============================================================================================
+ 459:./Application/Funtion/SystemData/SystemData.c **** ** @Name      : void InPutVcc5Volt(f32 data)
+ 460:./Application/Funtion/SystemData/SystemData.c **** ** @Input     : data:vcc供电电压数据
+ 461:./Application/Funtion/SystemData/SystemData.c **** ** @Output    : void
+ 462:./Application/Funtion/SystemData/SystemData.c **** ** @Function  : vcc供电电压数据输入
+ 463:./Application/Funtion/SystemData/SystemData.c **** ** @The notes : 
+ 464:./Application/Funtion/SystemData/SystemData.c **** **===========================================================================================*/
+ARM GAS  /tmp/cco0ytYU.s 			page 28
+
+
+ 465:./Application/Funtion/SystemData/SystemData.c **** void InPutVcc5Volt(f32 data)
+ 466:./Application/Funtion/SystemData/SystemData.c **** {
+ 1116              		.loc 1 466 0
+ 1117              		.cfi_startproc
+ 1118              		@ args = 0, pretend = 0, frame = 0
+ 1119              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1120              		@ link register save eliminated.
+ 1121              	.LVL25:
+ 467:./Application/Funtion/SystemData/SystemData.c ****     gSystemData.fVcc5Volt = data;
+ 1122              		.loc 1 467 0
+ 1123 0000 014B     		ldr	r3, .L112
+ 468:./Application/Funtion/SystemData/SystemData.c **** }
+ 1124              		.loc 1 468 0
+ 1125              		@ sp needed
+ 467:./Application/Funtion/SystemData/SystemData.c ****     gSystemData.fVcc5Volt = data;
+ 1126              		.loc 1 467 0
+ 1127 0002 1865     		str	r0, [r3, #80]
+ 1128              		.loc 1 468 0
+ 1129 0004 7047     		bx	lr
+ 1130              	.L113:
+ 1131 0006 C046     		.align	2
+ 1132              	.L112:
+ 1133 0008 00000000 		.word	gSystemData
+ 1134              		.cfi_endproc
+ 1135              	.LFE35:
+ 1137              		.section	.text.InPutHvP5Volt,"ax",%progbits
+ 1138              		.align	1
+ 1139              		.global	InPutHvP5Volt
+ 1140              		.syntax unified
+ 1141              		.code	16
+ 1142              		.thumb_func
+ 1143              		.fpu softvfp
+ 1145              	InPutHvP5Volt:
+ 1146              	.LFB36:
+ 469:./Application/Funtion/SystemData/SystemData.c **** /*=============================================================================================
+ 470:./Application/Funtion/SystemData/SystemData.c **** ** @Name      : void InPutHvP5Volt(f32 data)
+ 471:./Application/Funtion/SystemData/SystemData.c **** ** @Input     : data:高压侧分流器正5v电压数据
+ 472:./Application/Funtion/SystemData/SystemData.c **** ** @Output    : void
+ 473:./Application/Funtion/SystemData/SystemData.c **** ** @Function  : 高压侧分流器正5v电压数据输入
+ 474:./Application/Funtion/SystemData/SystemData.c **** ** @The notes : 
+ 475:./Application/Funtion/SystemData/SystemData.c **** **===========================================================================================*/
+ 476:./Application/Funtion/SystemData/SystemData.c **** void InPutHvP5Volt(f32 data)
+ 477:./Application/Funtion/SystemData/SystemData.c **** {
+ 1147              		.loc 1 477 0
+ 1148              		.cfi_startproc
+ 1149              		@ args = 0, pretend = 0, frame = 0
+ 1150              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1151              		@ link register save eliminated.
+ 1152              	.LVL26:
+ 478:./Application/Funtion/SystemData/SystemData.c ****     gSystemData.fHvP5Volt = data;
+ 1153              		.loc 1 478 0
+ 1154 0000 014B     		ldr	r3, .L115
+ 479:./Application/Funtion/SystemData/SystemData.c **** }
+ 1155              		.loc 1 479 0
+ 1156              		@ sp needed
+ 478:./Application/Funtion/SystemData/SystemData.c ****     gSystemData.fHvP5Volt = data;
+ 1157              		.loc 1 478 0
+ARM GAS  /tmp/cco0ytYU.s 			page 29
+
+
+ 1158 0002 5865     		str	r0, [r3, #84]
+ 1159              		.loc 1 479 0
+ 1160 0004 7047     		bx	lr
+ 1161              	.L116:
+ 1162 0006 C046     		.align	2
+ 1163              	.L115:
+ 1164 0008 00000000 		.word	gSystemData
+ 1165              		.cfi_endproc
+ 1166              	.LFE36:
+ 1168              		.section	.text.InPutHvN5Volt,"ax",%progbits
+ 1169              		.align	1
+ 1170              		.global	InPutHvN5Volt
+ 1171              		.syntax unified
+ 1172              		.code	16
+ 1173              		.thumb_func
+ 1174              		.fpu softvfp
+ 1176              	InPutHvN5Volt:
+ 1177              	.LFB37:
+ 480:./Application/Funtion/SystemData/SystemData.c **** 
+ 481:./Application/Funtion/SystemData/SystemData.c **** /*=============================================================================================
+ 482:./Application/Funtion/SystemData/SystemData.c **** ** @Name      : void InPutHvN5Volt(f32 data)
+ 483:./Application/Funtion/SystemData/SystemData.c **** ** @Input     : data:高压侧分流器负5v电压数据
+ 484:./Application/Funtion/SystemData/SystemData.c **** ** @Output    : void
+ 485:./Application/Funtion/SystemData/SystemData.c **** ** @Function  : 高压侧分流器负5v电压数据输入
+ 486:./Application/Funtion/SystemData/SystemData.c **** ** @The notes : 
+ 487:./Application/Funtion/SystemData/SystemData.c **** **===========================================================================================*/
+ 488:./Application/Funtion/SystemData/SystemData.c **** void InPutHvN5Volt(f32 data)
+ 489:./Application/Funtion/SystemData/SystemData.c **** {
+ 1178              		.loc 1 489 0
+ 1179              		.cfi_startproc
+ 1180              		@ args = 0, pretend = 0, frame = 0
+ 1181              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1182              		@ link register save eliminated.
+ 1183              	.LVL27:
+ 490:./Application/Funtion/SystemData/SystemData.c ****     gSystemData.fHvN5Volt = data;
+ 1184              		.loc 1 490 0
+ 1185 0000 014B     		ldr	r3, .L118
+ 491:./Application/Funtion/SystemData/SystemData.c **** }
+ 1186              		.loc 1 491 0
+ 1187              		@ sp needed
+ 490:./Application/Funtion/SystemData/SystemData.c ****     gSystemData.fHvN5Volt = data;
+ 1188              		.loc 1 490 0
+ 1189 0002 9865     		str	r0, [r3, #88]
+ 1190              		.loc 1 491 0
+ 1191 0004 7047     		bx	lr
+ 1192              	.L119:
+ 1193 0006 C046     		.align	2
+ 1194              	.L118:
+ 1195 0008 00000000 		.word	gSystemData
+ 1196              		.cfi_endproc
+ 1197              	.LFE37:
+ 1199              		.section	.text.InPutBatVolt,"ax",%progbits
+ 1200              		.align	1
+ 1201              		.global	InPutBatVolt
+ 1202              		.syntax unified
+ 1203              		.code	16
+ 1204              		.thumb_func
+ARM GAS  /tmp/cco0ytYU.s 			page 30
+
+
+ 1205              		.fpu softvfp
+ 1207              	InPutBatVolt:
+ 1208              	.LFB38:
+ 492:./Application/Funtion/SystemData/SystemData.c **** 
+ 493:./Application/Funtion/SystemData/SystemData.c **** /*=============================================================================================
+ 494:./Application/Funtion/SystemData/SystemData.c **** ** @Name      : void InPutBatVolt(f32 data)
+ 495:./Application/Funtion/SystemData/SystemData.c **** ** @Input     : data:电压数据
+ 496:./Application/Funtion/SystemData/SystemData.c **** ** @Output    : void
+ 497:./Application/Funtion/SystemData/SystemData.c **** ** @Function  : 电池电压数据
+ 498:./Application/Funtion/SystemData/SystemData.c **** ** @The notes : 
+ 499:./Application/Funtion/SystemData/SystemData.c **** **===========================================================================================*/
+ 500:./Application/Funtion/SystemData/SystemData.c **** void InPutBatVolt(f32 data)
+ 501:./Application/Funtion/SystemData/SystemData.c **** {
+ 1209              		.loc 1 501 0
+ 1210              		.cfi_startproc
+ 1211              		@ args = 0, pretend = 0, frame = 0
+ 1212              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1213              		@ link register save eliminated.
+ 1214              	.LVL28:
+ 502:./Application/Funtion/SystemData/SystemData.c ****     gSystemData.fBatVolt = data;
+ 1215              		.loc 1 502 0
+ 1216 0000 014B     		ldr	r3, .L121
+ 503:./Application/Funtion/SystemData/SystemData.c **** }
+ 1217              		.loc 1 503 0
+ 1218              		@ sp needed
+ 502:./Application/Funtion/SystemData/SystemData.c ****     gSystemData.fBatVolt = data;
+ 1219              		.loc 1 502 0
+ 1220 0002 1861     		str	r0, [r3, #16]
+ 1221              		.loc 1 503 0
+ 1222 0004 7047     		bx	lr
+ 1223              	.L122:
+ 1224 0006 C046     		.align	2
+ 1225              	.L121:
+ 1226 0008 00000000 		.word	gSystemData
+ 1227              		.cfi_endproc
+ 1228              	.LFE38:
+ 1230              		.section	.text.GetBatVolt,"ax",%progbits
+ 1231              		.align	1
+ 1232              		.global	GetBatVolt
+ 1233              		.syntax unified
+ 1234              		.code	16
+ 1235              		.thumb_func
+ 1236              		.fpu softvfp
+ 1238              	GetBatVolt:
+ 1239              	.LFB39:
+ 504:./Application/Funtion/SystemData/SystemData.c **** /*=============================================================================================
+ 505:./Application/Funtion/SystemData/SystemData.c **** ** @Name      : f32 GetBatVolt(void)
+ 506:./Application/Funtion/SystemData/SystemData.c **** ** @Input     : void
+ 507:./Application/Funtion/SystemData/SystemData.c **** ** @Output    : 获取电池电压数据
+ 508:./Application/Funtion/SystemData/SystemData.c **** ** @Function  : 
+ 509:./Application/Funtion/SystemData/SystemData.c **** ** @The notes : 
+ 510:./Application/Funtion/SystemData/SystemData.c **** **===========================================================================================*/
+ 511:./Application/Funtion/SystemData/SystemData.c **** f32 GetBatVolt(void)
+ 512:./Application/Funtion/SystemData/SystemData.c **** {
+ 1240              		.loc 1 512 0
+ 1241              		.cfi_startproc
+ 1242              		@ args = 0, pretend = 0, frame = 0
+ARM GAS  /tmp/cco0ytYU.s 			page 31
+
+
+ 1243              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1244              		@ link register save eliminated.
+ 513:./Application/Funtion/SystemData/SystemData.c ****     return gSystemData.fBatVolt;
+ 1245              		.loc 1 513 0
+ 1246 0000 014B     		ldr	r3, .L124
+ 514:./Application/Funtion/SystemData/SystemData.c **** }
+ 1247              		.loc 1 514 0
+ 1248              		@ sp needed
+ 513:./Application/Funtion/SystemData/SystemData.c ****     return gSystemData.fBatVolt;
+ 1249              		.loc 1 513 0
+ 1250 0002 1869     		ldr	r0, [r3, #16]
+ 1251              		.loc 1 514 0
+ 1252 0004 7047     		bx	lr
+ 1253              	.L125:
+ 1254 0006 C046     		.align	2
+ 1255              	.L124:
+ 1256 0008 00000000 		.word	gSystemData
+ 1257              		.cfi_endproc
+ 1258              	.LFE39:
+ 1260              		.section	.text.InPutfAdjustBatVolt,"ax",%progbits
+ 1261              		.align	1
+ 1262              		.global	InPutfAdjustBatVolt
+ 1263              		.syntax unified
+ 1264              		.code	16
+ 1265              		.thumb_func
+ 1266              		.fpu softvfp
+ 1268              	InPutfAdjustBatVolt:
+ 1269              	.LFB40:
+ 515:./Application/Funtion/SystemData/SystemData.c **** /*=============================================================================================
+ 516:./Application/Funtion/SystemData/SystemData.c **** ** @Name      : void InPutfAdjustBatVolt(f32 data)
+ 517:./Application/Funtion/SystemData/SystemData.c **** ** @Input     : 获取校准后电池电压数据
+ 518:./Application/Funtion/SystemData/SystemData.c **** ** @Output    : void
+ 519:./Application/Funtion/SystemData/SystemData.c **** ** @Function  : 
+ 520:./Application/Funtion/SystemData/SystemData.c **** ** @The notes : 
+ 521:./Application/Funtion/SystemData/SystemData.c **** **===========================================================================================*/
+ 522:./Application/Funtion/SystemData/SystemData.c **** void InPutfAdjustBatVolt(f32 data)
+ 523:./Application/Funtion/SystemData/SystemData.c **** {
+ 1270              		.loc 1 523 0
+ 1271              		.cfi_startproc
+ 1272              		@ args = 0, pretend = 0, frame = 0
+ 1273              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1274              		@ link register save eliminated.
+ 1275              	.LVL29:
+ 524:./Application/Funtion/SystemData/SystemData.c ****     gSystemData.fAdjustBatVolt = data;
+ 1276              		.loc 1 524 0
+ 1277 0000 014B     		ldr	r3, .L127
+ 525:./Application/Funtion/SystemData/SystemData.c **** }
+ 1278              		.loc 1 525 0
+ 1279              		@ sp needed
+ 524:./Application/Funtion/SystemData/SystemData.c ****     gSystemData.fAdjustBatVolt = data;
+ 1280              		.loc 1 524 0
+ 1281 0002 5861     		str	r0, [r3, #20]
+ 1282              		.loc 1 525 0
+ 1283 0004 7047     		bx	lr
+ 1284              	.L128:
+ 1285 0006 C046     		.align	2
+ 1286              	.L127:
+ARM GAS  /tmp/cco0ytYU.s 			page 32
+
+
+ 1287 0008 00000000 		.word	gSystemData
+ 1288              		.cfi_endproc
+ 1289              	.LFE40:
+ 1291              		.section	.text.GetfAdjustBatVolt,"ax",%progbits
+ 1292              		.align	1
+ 1293              		.global	GetfAdjustBatVolt
+ 1294              		.syntax unified
+ 1295              		.code	16
+ 1296              		.thumb_func
+ 1297              		.fpu softvfp
+ 1299              	GetfAdjustBatVolt:
+ 1300              	.LFB41:
+ 526:./Application/Funtion/SystemData/SystemData.c **** 
+ 527:./Application/Funtion/SystemData/SystemData.c **** /*=============================================================================================
+ 528:./Application/Funtion/SystemData/SystemData.c **** ** @Name      : f32 GetfAdjustBatVolt(void)
+ 529:./Application/Funtion/SystemData/SystemData.c **** ** @Input     : void
+ 530:./Application/Funtion/SystemData/SystemData.c **** ** @Output    : 校准后电池电压数据
+ 531:./Application/Funtion/SystemData/SystemData.c **** ** @Function  : 
+ 532:./Application/Funtion/SystemData/SystemData.c **** ** @The notes : 
+ 533:./Application/Funtion/SystemData/SystemData.c **** **===========================================================================================*/
+ 534:./Application/Funtion/SystemData/SystemData.c **** f32 GetfAdjustBatVolt(void)
+ 535:./Application/Funtion/SystemData/SystemData.c **** {
+ 1301              		.loc 1 535 0
+ 1302              		.cfi_startproc
+ 1303              		@ args = 0, pretend = 0, frame = 0
+ 1304              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1305              		@ link register save eliminated.
+ 536:./Application/Funtion/SystemData/SystemData.c ****     return gSystemData.fAdjustBatVolt;
+ 1306              		.loc 1 536 0
+ 1307 0000 014B     		ldr	r3, .L130
+ 537:./Application/Funtion/SystemData/SystemData.c **** }
+ 1308              		.loc 1 537 0
+ 1309              		@ sp needed
+ 536:./Application/Funtion/SystemData/SystemData.c ****     return gSystemData.fAdjustBatVolt;
+ 1310              		.loc 1 536 0
+ 1311 0002 5869     		ldr	r0, [r3, #20]
+ 1312              		.loc 1 537 0
+ 1313 0004 7047     		bx	lr
+ 1314              	.L131:
+ 1315 0006 C046     		.align	2
+ 1316              	.L130:
+ 1317 0008 00000000 		.word	gSystemData
+ 1318              		.cfi_endproc
+ 1319              	.LFE41:
+ 1321              		.section	.text.InPutLinkVolt,"ax",%progbits
+ 1322              		.align	1
+ 1323              		.global	InPutLinkVolt
+ 1324              		.syntax unified
+ 1325              		.code	16
+ 1326              		.thumb_func
+ 1327              		.fpu softvfp
+ 1329              	InPutLinkVolt:
+ 1330              	.LFB42:
+ 538:./Application/Funtion/SystemData/SystemData.c **** 
+ 539:./Application/Funtion/SystemData/SystemData.c **** /*=============================================================================================
+ 540:./Application/Funtion/SystemData/SystemData.c **** ** @Name      : void InPutLinkVolt(f32 data)
+ 541:./Application/Funtion/SystemData/SystemData.c **** ** @Input     : data:接触器外端电压数据
+ARM GAS  /tmp/cco0ytYU.s 			page 33
+
+
+ 542:./Application/Funtion/SystemData/SystemData.c **** ** @Output    : void
+ 543:./Application/Funtion/SystemData/SystemData.c **** ** @Function  : 接触器外端电压数据
+ 544:./Application/Funtion/SystemData/SystemData.c **** ** @The notes : 
+ 545:./Application/Funtion/SystemData/SystemData.c **** **===========================================================================================*/
+ 546:./Application/Funtion/SystemData/SystemData.c **** void InPutLinkVolt(f32 data)
+ 547:./Application/Funtion/SystemData/SystemData.c **** {
+ 1331              		.loc 1 547 0
+ 1332              		.cfi_startproc
+ 1333              		@ args = 0, pretend = 0, frame = 0
+ 1334              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1335              		@ link register save eliminated.
+ 1336              	.LVL30:
+ 548:./Application/Funtion/SystemData/SystemData.c ****     gSystemData.fLinkVolt = data;
+ 1337              		.loc 1 548 0
+ 1338 0000 014B     		ldr	r3, .L133
+ 549:./Application/Funtion/SystemData/SystemData.c **** }
+ 1339              		.loc 1 549 0
+ 1340              		@ sp needed
+ 548:./Application/Funtion/SystemData/SystemData.c ****     gSystemData.fLinkVolt = data;
+ 1341              		.loc 1 548 0
+ 1342 0002 D865     		str	r0, [r3, #92]
+ 1343              		.loc 1 549 0
+ 1344 0004 7047     		bx	lr
+ 1345              	.L134:
+ 1346 0006 C046     		.align	2
+ 1347              	.L133:
+ 1348 0008 00000000 		.word	gSystemData
+ 1349              		.cfi_endproc
+ 1350              	.LFE42:
+ 1352              		.section	.text.GetLinkVolt,"ax",%progbits
+ 1353              		.align	1
+ 1354              		.global	GetLinkVolt
+ 1355              		.syntax unified
+ 1356              		.code	16
+ 1357              		.thumb_func
+ 1358              		.fpu softvfp
+ 1360              	GetLinkVolt:
+ 1361              	.LFB43:
+ 550:./Application/Funtion/SystemData/SystemData.c **** /*=============================================================================================
+ 551:./Application/Funtion/SystemData/SystemData.c **** ** @Name      : f32 GetLinkVolt(void)
+ 552:./Application/Funtion/SystemData/SystemData.c **** ** @Input     : void
+ 553:./Application/Funtion/SystemData/SystemData.c **** ** @Output    : 获取Link电压数据
+ 554:./Application/Funtion/SystemData/SystemData.c **** ** @Function  : 
+ 555:./Application/Funtion/SystemData/SystemData.c **** ** @The notes : 
+ 556:./Application/Funtion/SystemData/SystemData.c **** **===========================================================================================*/
+ 557:./Application/Funtion/SystemData/SystemData.c **** f32 GetLinkVolt(void)
+ 558:./Application/Funtion/SystemData/SystemData.c **** {
+ 1362              		.loc 1 558 0
+ 1363              		.cfi_startproc
+ 1364              		@ args = 0, pretend = 0, frame = 0
+ 1365              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1366              		@ link register save eliminated.
+ 559:./Application/Funtion/SystemData/SystemData.c ****     return gSystemData.fLinkVolt;
+ 1367              		.loc 1 559 0
+ 1368 0000 014B     		ldr	r3, .L136
+ 560:./Application/Funtion/SystemData/SystemData.c **** }
+ 1369              		.loc 1 560 0
+ARM GAS  /tmp/cco0ytYU.s 			page 34
+
+
+ 1370              		@ sp needed
+ 559:./Application/Funtion/SystemData/SystemData.c ****     return gSystemData.fLinkVolt;
+ 1371              		.loc 1 559 0
+ 1372 0002 D86D     		ldr	r0, [r3, #92]
+ 1373              		.loc 1 560 0
+ 1374 0004 7047     		bx	lr
+ 1375              	.L137:
+ 1376 0006 C046     		.align	2
+ 1377              	.L136:
+ 1378 0008 00000000 		.word	gSystemData
+ 1379              		.cfi_endproc
+ 1380              	.LFE43:
+ 1382              		.section	.text.InPutfAdjustLinkVolt,"ax",%progbits
+ 1383              		.align	1
+ 1384              		.global	InPutfAdjustLinkVolt
+ 1385              		.syntax unified
+ 1386              		.code	16
+ 1387              		.thumb_func
+ 1388              		.fpu softvfp
+ 1390              	InPutfAdjustLinkVolt:
+ 1391              	.LFB44:
+ 561:./Application/Funtion/SystemData/SystemData.c **** 
+ 562:./Application/Funtion/SystemData/SystemData.c **** /*=============================================================================================
+ 563:./Application/Funtion/SystemData/SystemData.c **** ** @Name      : void InPutfAdjustLinkVolt(f32 data)
+ 564:./Application/Funtion/SystemData/SystemData.c **** ** @Input     :
+ 565:./Application/Funtion/SystemData/SystemData.c **** ** @Output    : void
+ 566:./Application/Funtion/SystemData/SystemData.c **** ** @Function  : 
+ 567:./Application/Funtion/SystemData/SystemData.c **** ** @The notes : 
+ 568:./Application/Funtion/SystemData/SystemData.c **** **===========================================================================================*/
+ 569:./Application/Funtion/SystemData/SystemData.c **** void InPutfAdjustLinkVolt(f32 data)
+ 570:./Application/Funtion/SystemData/SystemData.c **** {
+ 1392              		.loc 1 570 0
+ 1393              		.cfi_startproc
+ 1394              		@ args = 0, pretend = 0, frame = 0
+ 1395              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1396              		@ link register save eliminated.
+ 1397              	.LVL31:
+ 571:./Application/Funtion/SystemData/SystemData.c ****     gSystemData.fAdjustLinkVolt = data;
+ 1398              		.loc 1 571 0
+ 1399 0000 014B     		ldr	r3, .L139
+ 572:./Application/Funtion/SystemData/SystemData.c **** }
+ 1400              		.loc 1 572 0
+ 1401              		@ sp needed
+ 571:./Application/Funtion/SystemData/SystemData.c ****     gSystemData.fAdjustLinkVolt = data;
+ 1402              		.loc 1 571 0
+ 1403 0002 1866     		str	r0, [r3, #96]
+ 1404              		.loc 1 572 0
+ 1405 0004 7047     		bx	lr
+ 1406              	.L140:
+ 1407 0006 C046     		.align	2
+ 1408              	.L139:
+ 1409 0008 00000000 		.word	gSystemData
+ 1410              		.cfi_endproc
+ 1411              	.LFE44:
+ 1413              		.section	.text.GetfAdjustLinkVolt,"ax",%progbits
+ 1414              		.align	1
+ 1415              		.global	GetfAdjustLinkVolt
+ARM GAS  /tmp/cco0ytYU.s 			page 35
+
+
+ 1416              		.syntax unified
+ 1417              		.code	16
+ 1418              		.thumb_func
+ 1419              		.fpu softvfp
+ 1421              	GetfAdjustLinkVolt:
+ 1422              	.LFB45:
+ 573:./Application/Funtion/SystemData/SystemData.c **** 
+ 574:./Application/Funtion/SystemData/SystemData.c **** /*=============================================================================================
+ 575:./Application/Funtion/SystemData/SystemData.c **** ** @Name      : f32 GetfAdjustLinkVolt(void)
+ 576:./Application/Funtion/SystemData/SystemData.c **** ** @Input     : void
+ 577:./Application/Funtion/SystemData/SystemData.c **** ** @Output    : 
+ 578:./Application/Funtion/SystemData/SystemData.c **** ** @Function  : 
+ 579:./Application/Funtion/SystemData/SystemData.c **** ** @The notes : 
+ 580:./Application/Funtion/SystemData/SystemData.c **** **===========================================================================================*/
+ 581:./Application/Funtion/SystemData/SystemData.c **** f32 GetfAdjustLinkVolt(void)
+ 582:./Application/Funtion/SystemData/SystemData.c **** {
+ 1423              		.loc 1 582 0
+ 1424              		.cfi_startproc
+ 1425              		@ args = 0, pretend = 0, frame = 0
+ 1426              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1427              		@ link register save eliminated.
+ 583:./Application/Funtion/SystemData/SystemData.c ****     return gSystemData.fAdjustLinkVolt;
+ 1428              		.loc 1 583 0
+ 1429 0000 014B     		ldr	r3, .L142
+ 584:./Application/Funtion/SystemData/SystemData.c **** }
+ 1430              		.loc 1 584 0
+ 1431              		@ sp needed
+ 583:./Application/Funtion/SystemData/SystemData.c ****     return gSystemData.fAdjustLinkVolt;
+ 1432              		.loc 1 583 0
+ 1433 0002 186E     		ldr	r0, [r3, #96]
+ 1434              		.loc 1 584 0
+ 1435 0004 7047     		bx	lr
+ 1436              	.L143:
+ 1437 0006 C046     		.align	2
+ 1438              	.L142:
+ 1439 0008 00000000 		.word	gSystemData
+ 1440              		.cfi_endproc
+ 1441              	.LFE45:
+ 1443              		.section	.text.InPutLinkShuntVolt,"ax",%progbits
+ 1444              		.align	1
+ 1445              		.global	InPutLinkShuntVolt
+ 1446              		.syntax unified
+ 1447              		.code	16
+ 1448              		.thumb_func
+ 1449              		.fpu softvfp
+ 1451              	InPutLinkShuntVolt:
+ 1452              	.LFB46:
+ 585:./Application/Funtion/SystemData/SystemData.c **** 
+ 586:./Application/Funtion/SystemData/SystemData.c **** /*=============================================================================================
+ 587:./Application/Funtion/SystemData/SystemData.c **** ** @Name      : void InPutLinkShuntVolt(f32 data)
+ 588:./Application/Funtion/SystemData/SystemData.c **** ** @Input     : data:负载端分流器电压数据
+ 589:./Application/Funtion/SystemData/SystemData.c **** ** @Output    : void
+ 590:./Application/Funtion/SystemData/SystemData.c **** ** @Function  : 负载端分流器电压数据
+ 591:./Application/Funtion/SystemData/SystemData.c **** ** @The notes : 
+ 592:./Application/Funtion/SystemData/SystemData.c **** **===========================================================================================*/
+ 593:./Application/Funtion/SystemData/SystemData.c **** void InPutLinkShuntVolt(f32 data)
+ 594:./Application/Funtion/SystemData/SystemData.c **** {
+ARM GAS  /tmp/cco0ytYU.s 			page 36
+
+
+ 1453              		.loc 1 594 0
+ 1454              		.cfi_startproc
+ 1455              		@ args = 0, pretend = 0, frame = 0
+ 1456              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1457              		@ link register save eliminated.
+ 1458              	.LVL32:
+ 595:./Application/Funtion/SystemData/SystemData.c ****     gSystemData.fLinkShuntVolt = data;
+ 1459              		.loc 1 595 0
+ 1460 0000 014B     		ldr	r3, .L145
+ 596:./Application/Funtion/SystemData/SystemData.c **** }
+ 1461              		.loc 1 596 0
+ 1462              		@ sp needed
+ 595:./Application/Funtion/SystemData/SystemData.c ****     gSystemData.fLinkShuntVolt = data;
+ 1463              		.loc 1 595 0
+ 1464 0002 5866     		str	r0, [r3, #100]
+ 1465              		.loc 1 596 0
+ 1466 0004 7047     		bx	lr
+ 1467              	.L146:
+ 1468 0006 C046     		.align	2
+ 1469              	.L145:
+ 1470 0008 00000000 		.word	gSystemData
+ 1471              		.cfi_endproc
+ 1472              	.LFE46:
+ 1474              		.section	.text.GetLinkShuntVolt,"ax",%progbits
+ 1475              		.align	1
+ 1476              		.global	GetLinkShuntVolt
+ 1477              		.syntax unified
+ 1478              		.code	16
+ 1479              		.thumb_func
+ 1480              		.fpu softvfp
+ 1482              	GetLinkShuntVolt:
+ 1483              	.LFB47:
+ 597:./Application/Funtion/SystemData/SystemData.c **** /*=============================================================================================
+ 598:./Application/Funtion/SystemData/SystemData.c **** ** @Name      : f32 GetLinkShuntVolt(void)
+ 599:./Application/Funtion/SystemData/SystemData.c **** ** @Input     : void
+ 600:./Application/Funtion/SystemData/SystemData.c **** ** @Output    : 输出负载端分流器电压数据
+ 601:./Application/Funtion/SystemData/SystemData.c **** ** @Function  : 
+ 602:./Application/Funtion/SystemData/SystemData.c **** ** @The notes : 
+ 603:./Application/Funtion/SystemData/SystemData.c **** **===========================================================================================*/
+ 604:./Application/Funtion/SystemData/SystemData.c **** f32 GetLinkShuntVolt(void)
+ 605:./Application/Funtion/SystemData/SystemData.c **** {
+ 1484              		.loc 1 605 0
+ 1485              		.cfi_startproc
+ 1486              		@ args = 0, pretend = 0, frame = 0
+ 1487              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1488              		@ link register save eliminated.
+ 606:./Application/Funtion/SystemData/SystemData.c ****     return gSystemData.fLinkShuntVolt;
+ 1489              		.loc 1 606 0
+ 1490 0000 014B     		ldr	r3, .L148
+ 607:./Application/Funtion/SystemData/SystemData.c **** }
+ 1491              		.loc 1 607 0
+ 1492              		@ sp needed
+ 606:./Application/Funtion/SystemData/SystemData.c ****     return gSystemData.fLinkShuntVolt;
+ 1493              		.loc 1 606 0
+ 1494 0002 586E     		ldr	r0, [r3, #100]
+ 1495              		.loc 1 607 0
+ 1496 0004 7047     		bx	lr
+ARM GAS  /tmp/cco0ytYU.s 			page 37
+
+
+ 1497              	.L149:
+ 1498 0006 C046     		.align	2
+ 1499              	.L148:
+ 1500 0008 00000000 		.word	gSystemData
+ 1501              		.cfi_endproc
+ 1502              	.LFE47:
+ 1504              		.section	.text.InPutfAdjustLinkShuntVolt,"ax",%progbits
+ 1505              		.align	1
+ 1506              		.global	InPutfAdjustLinkShuntVolt
+ 1507              		.syntax unified
+ 1508              		.code	16
+ 1509              		.thumb_func
+ 1510              		.fpu softvfp
+ 1512              	InPutfAdjustLinkShuntVolt:
+ 1513              	.LFB48:
+ 608:./Application/Funtion/SystemData/SystemData.c **** 
+ 609:./Application/Funtion/SystemData/SystemData.c **** /*=============================================================================================
+ 610:./Application/Funtion/SystemData/SystemData.c **** ** @Name      :void InPutfAdjustLinkShuntVolt(f32 data)
+ 611:./Application/Funtion/SystemData/SystemData.c **** ** @Input     : 校准后接触器外端分流器电流数据
+ 612:./Application/Funtion/SystemData/SystemData.c **** ** @Output    : void
+ 613:./Application/Funtion/SystemData/SystemData.c **** ** @Function  : 
+ 614:./Application/Funtion/SystemData/SystemData.c **** ** @The notes : 
+ 615:./Application/Funtion/SystemData/SystemData.c **** **===========================================================================================*/
+ 616:./Application/Funtion/SystemData/SystemData.c **** void InPutfAdjustLinkShuntVolt(f32 data)
+ 617:./Application/Funtion/SystemData/SystemData.c **** {
+ 1514              		.loc 1 617 0
+ 1515              		.cfi_startproc
+ 1516              		@ args = 0, pretend = 0, frame = 0
+ 1517              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1518              		@ link register save eliminated.
+ 1519              	.LVL33:
+ 618:./Application/Funtion/SystemData/SystemData.c ****     gSystemData.fAdjustLinkShuntVolt = data;
+ 1520              		.loc 1 618 0
+ 1521 0000 014B     		ldr	r3, .L151
+ 619:./Application/Funtion/SystemData/SystemData.c **** }
+ 1522              		.loc 1 619 0
+ 1523              		@ sp needed
+ 618:./Application/Funtion/SystemData/SystemData.c ****     gSystemData.fAdjustLinkShuntVolt = data;
+ 1524              		.loc 1 618 0
+ 1525 0002 9866     		str	r0, [r3, #104]
+ 1526              		.loc 1 619 0
+ 1527 0004 7047     		bx	lr
+ 1528              	.L152:
+ 1529 0006 C046     		.align	2
+ 1530              	.L151:
+ 1531 0008 00000000 		.word	gSystemData
+ 1532              		.cfi_endproc
+ 1533              	.LFE48:
+ 1535              		.section	.text.GetfAdjustLinkShuntVolt,"ax",%progbits
+ 1536              		.align	1
+ 1537              		.global	GetfAdjustLinkShuntVolt
+ 1538              		.syntax unified
+ 1539              		.code	16
+ 1540              		.thumb_func
+ 1541              		.fpu softvfp
+ 1543              	GetfAdjustLinkShuntVolt:
+ 1544              	.LFB49:
+ARM GAS  /tmp/cco0ytYU.s 			page 38
+
+
+ 620:./Application/Funtion/SystemData/SystemData.c **** 
+ 621:./Application/Funtion/SystemData/SystemData.c **** /*=============================================================================================
+ 622:./Application/Funtion/SystemData/SystemData.c **** ** @Name      : f32 GetfAdjustLinkShuntVolt(void)
+ 623:./Application/Funtion/SystemData/SystemData.c **** ** @Input     : void
+ 624:./Application/Funtion/SystemData/SystemData.c **** ** @Output    : 
+ 625:./Application/Funtion/SystemData/SystemData.c **** ** @Function  : 返回校准后接触器外端分流器电流数据
+ 626:./Application/Funtion/SystemData/SystemData.c **** ** @The notes : 
+ 627:./Application/Funtion/SystemData/SystemData.c **** **===========================================================================================*/
+ 628:./Application/Funtion/SystemData/SystemData.c **** f32 GetfAdjustLinkShuntVolt(void)
+ 629:./Application/Funtion/SystemData/SystemData.c **** {
+ 1545              		.loc 1 629 0
+ 1546              		.cfi_startproc
+ 1547              		@ args = 0, pretend = 0, frame = 0
+ 1548              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1549              		@ link register save eliminated.
+ 630:./Application/Funtion/SystemData/SystemData.c ****     return gSystemData.fAdjustLinkShuntVolt;
+ 1550              		.loc 1 630 0
+ 1551 0000 014B     		ldr	r3, .L154
+ 631:./Application/Funtion/SystemData/SystemData.c **** }
+ 1552              		.loc 1 631 0
+ 1553              		@ sp needed
+ 630:./Application/Funtion/SystemData/SystemData.c ****     return gSystemData.fAdjustLinkShuntVolt;
+ 1554              		.loc 1 630 0
+ 1555 0002 986E     		ldr	r0, [r3, #104]
+ 1556              		.loc 1 631 0
+ 1557 0004 7047     		bx	lr
+ 1558              	.L155:
+ 1559 0006 C046     		.align	2
+ 1560              	.L154:
+ 1561 0008 00000000 		.word	gSystemData
+ 1562              		.cfi_endproc
+ 1563              	.LFE49:
+ 1565              		.section	.text.InPutLinkShuntCurrent,"ax",%progbits
+ 1566              		.align	1
+ 1567              		.global	InPutLinkShuntCurrent
+ 1568              		.syntax unified
+ 1569              		.code	16
+ 1570              		.thumb_func
+ 1571              		.fpu softvfp
+ 1573              	InPutLinkShuntCurrent:
+ 1574              	.LFB50:
+ 632:./Application/Funtion/SystemData/SystemData.c **** 
+ 633:./Application/Funtion/SystemData/SystemData.c **** /*=============================================================================================
+ 634:./Application/Funtion/SystemData/SystemData.c **** ** @Name      : void InPutBShuntCurrent(f32 data)
+ 635:./Application/Funtion/SystemData/SystemData.c **** ** @Input     : data:接触器外端分流器电流数据
+ 636:./Application/Funtion/SystemData/SystemData.c **** ** @Output    : void
+ 637:./Application/Funtion/SystemData/SystemData.c **** ** @Function  : 接触器外端分流器电流数据
+ 638:./Application/Funtion/SystemData/SystemData.c **** ** @The notes : 
+ 639:./Application/Funtion/SystemData/SystemData.c **** **===========================================================================================*/
+ 640:./Application/Funtion/SystemData/SystemData.c **** void InPutLinkShuntCurrent(f32 data)
+ 641:./Application/Funtion/SystemData/SystemData.c **** {
+ 1575              		.loc 1 641 0
+ 1576              		.cfi_startproc
+ 1577              		@ args = 0, pretend = 0, frame = 0
+ 1578              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1579              		@ link register save eliminated.
+ 1580              	.LVL34:
+ARM GAS  /tmp/cco0ytYU.s 			page 39
+
+
+ 642:./Application/Funtion/SystemData/SystemData.c ****     gSystemData.fLinkShuntCurrent = data;
+ 1581              		.loc 1 642 0
+ 1582 0000 014B     		ldr	r3, .L157
+ 643:./Application/Funtion/SystemData/SystemData.c **** }
+ 1583              		.loc 1 643 0
+ 1584              		@ sp needed
+ 642:./Application/Funtion/SystemData/SystemData.c ****     gSystemData.fLinkShuntCurrent = data;
+ 1585              		.loc 1 642 0
+ 1586 0002 D866     		str	r0, [r3, #108]
+ 1587              		.loc 1 643 0
+ 1588 0004 7047     		bx	lr
+ 1589              	.L158:
+ 1590 0006 C046     		.align	2
+ 1591              	.L157:
+ 1592 0008 00000000 		.word	gSystemData
+ 1593              		.cfi_endproc
+ 1594              	.LFE50:
+ 1596              		.section	.text.GetLinkShuntCurrent,"ax",%progbits
+ 1597              		.align	1
+ 1598              		.global	GetLinkShuntCurrent
+ 1599              		.syntax unified
+ 1600              		.code	16
+ 1601              		.thumb_func
+ 1602              		.fpu softvfp
+ 1604              	GetLinkShuntCurrent:
+ 1605              	.LFB51:
+ 644:./Application/Funtion/SystemData/SystemData.c **** 
+ 645:./Application/Funtion/SystemData/SystemData.c **** /*=============================================================================================
+ 646:./Application/Funtion/SystemData/SystemData.c **** ** @Name      : f32 GetLinkShuntCurrent(void)
+ 647:./Application/Funtion/SystemData/SystemData.c **** ** @Input     : void 
+ 648:./Application/Funtion/SystemData/SystemData.c **** ** @Output    : data:接触器外端分流器电流数据
+ 649:./Application/Funtion/SystemData/SystemData.c **** ** @Function  : 返回接触器外端分流器电流数据
+ 650:./Application/Funtion/SystemData/SystemData.c **** ** @The notes : 
+ 651:./Application/Funtion/SystemData/SystemData.c **** **===========================================================================================*/
+ 652:./Application/Funtion/SystemData/SystemData.c **** f32 GetLinkShuntCurrent(void)
+ 653:./Application/Funtion/SystemData/SystemData.c **** {
+ 1606              		.loc 1 653 0
+ 1607              		.cfi_startproc
+ 1608              		@ args = 0, pretend = 0, frame = 0
+ 1609              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1610              		@ link register save eliminated.
+ 654:./Application/Funtion/SystemData/SystemData.c ****     return gSystemData.fLinkShuntCurrent;
+ 1611              		.loc 1 654 0
+ 1612 0000 014B     		ldr	r3, .L160
+ 655:./Application/Funtion/SystemData/SystemData.c **** }
+ 1613              		.loc 1 655 0
+ 1614              		@ sp needed
+ 654:./Application/Funtion/SystemData/SystemData.c ****     return gSystemData.fLinkShuntCurrent;
+ 1615              		.loc 1 654 0
+ 1616 0002 D86E     		ldr	r0, [r3, #108]
+ 1617              		.loc 1 655 0
+ 1618 0004 7047     		bx	lr
+ 1619              	.L161:
+ 1620 0006 C046     		.align	2
+ 1621              	.L160:
+ 1622 0008 00000000 		.word	gSystemData
+ 1623              		.cfi_endproc
+ARM GAS  /tmp/cco0ytYU.s 			page 40
+
+
+ 1624              	.LFE51:
+ 1626              		.section	.text.InPutfAdjustLinkShuntCurrent,"ax",%progbits
+ 1627              		.align	1
+ 1628              		.global	InPutfAdjustLinkShuntCurrent
+ 1629              		.syntax unified
+ 1630              		.code	16
+ 1631              		.thumb_func
+ 1632              		.fpu softvfp
+ 1634              	InPutfAdjustLinkShuntCurrent:
+ 1635              	.LFB52:
+ 656:./Application/Funtion/SystemData/SystemData.c **** 
+ 657:./Application/Funtion/SystemData/SystemData.c **** /*=============================================================================================
+ 658:./Application/Funtion/SystemData/SystemData.c **** ** @Name      : void InPutfAdjustLinkShuntCurrent(f32 data)
+ 659:./Application/Funtion/SystemData/SystemData.c **** ** @Input     : 校准后接触器外端分流器电流数据
+ 660:./Application/Funtion/SystemData/SystemData.c **** ** @Output    : void
+ 661:./Application/Funtion/SystemData/SystemData.c **** ** @Function  : 
+ 662:./Application/Funtion/SystemData/SystemData.c **** ** @The notes : 
+ 663:./Application/Funtion/SystemData/SystemData.c **** **===========================================================================================*/
+ 664:./Application/Funtion/SystemData/SystemData.c **** void InPutfAdjustLinkShuntCurrent(f32 data)
+ 665:./Application/Funtion/SystemData/SystemData.c **** {
+ 1636              		.loc 1 665 0
+ 1637              		.cfi_startproc
+ 1638              		@ args = 0, pretend = 0, frame = 0
+ 1639              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1640              		@ link register save eliminated.
+ 1641              	.LVL35:
+ 666:./Application/Funtion/SystemData/SystemData.c ****     gSystemData.fAdjustLinkShuntCurrent = data;
+ 1642              		.loc 1 666 0
+ 1643 0000 014B     		ldr	r3, .L163
+ 667:./Application/Funtion/SystemData/SystemData.c **** }
+ 1644              		.loc 1 667 0
+ 1645              		@ sp needed
+ 666:./Application/Funtion/SystemData/SystemData.c ****     gSystemData.fAdjustLinkShuntCurrent = data;
+ 1646              		.loc 1 666 0
+ 1647 0002 1867     		str	r0, [r3, #112]
+ 1648              		.loc 1 667 0
+ 1649 0004 7047     		bx	lr
+ 1650              	.L164:
+ 1651 0006 C046     		.align	2
+ 1652              	.L163:
+ 1653 0008 00000000 		.word	gSystemData
+ 1654              		.cfi_endproc
+ 1655              	.LFE52:
+ 1657              		.section	.text.GetfAdjustLinkShuntCurrent,"ax",%progbits
+ 1658              		.align	1
+ 1659              		.global	GetfAdjustLinkShuntCurrent
+ 1660              		.syntax unified
+ 1661              		.code	16
+ 1662              		.thumb_func
+ 1663              		.fpu softvfp
+ 1665              	GetfAdjustLinkShuntCurrent:
+ 1666              	.LFB53:
+ 668:./Application/Funtion/SystemData/SystemData.c **** 
+ 669:./Application/Funtion/SystemData/SystemData.c **** /*=============================================================================================
+ 670:./Application/Funtion/SystemData/SystemData.c **** ** @Name      : f32 GetfAdjustLinkShuntCurrent(void)
+ 671:./Application/Funtion/SystemData/SystemData.c **** ** @Input     : void
+ 672:./Application/Funtion/SystemData/SystemData.c **** ** @Output    : 
+ARM GAS  /tmp/cco0ytYU.s 			page 41
+
+
+ 673:./Application/Funtion/SystemData/SystemData.c **** ** @Function  : 返回校准后接触器外端分流器电流数据
+ 674:./Application/Funtion/SystemData/SystemData.c **** ** @The notes : 
+ 675:./Application/Funtion/SystemData/SystemData.c **** **===========================================================================================*/
+ 676:./Application/Funtion/SystemData/SystemData.c **** f32 GetfAdjustLinkShuntCurrent(void)
+ 677:./Application/Funtion/SystemData/SystemData.c **** {
+ 1667              		.loc 1 677 0
+ 1668              		.cfi_startproc
+ 1669              		@ args = 0, pretend = 0, frame = 0
+ 1670              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1671              		@ link register save eliminated.
+ 678:./Application/Funtion/SystemData/SystemData.c ****     return gSystemData.fAdjustLinkShuntCurrent;
+ 1672              		.loc 1 678 0
+ 1673 0000 014B     		ldr	r3, .L166
+ 679:./Application/Funtion/SystemData/SystemData.c **** }
+ 1674              		.loc 1 679 0
+ 1675              		@ sp needed
+ 678:./Application/Funtion/SystemData/SystemData.c ****     return gSystemData.fAdjustLinkShuntCurrent;
+ 1676              		.loc 1 678 0
+ 1677 0002 186F     		ldr	r0, [r3, #112]
+ 1678              		.loc 1 679 0
+ 1679 0004 7047     		bx	lr
+ 1680              	.L167:
+ 1681 0006 C046     		.align	2
+ 1682              	.L166:
+ 1683 0008 00000000 		.word	gSystemData
+ 1684              		.cfi_endproc
+ 1685              	.LFE53:
+ 1687              		.section	.text.InPutNpeVolt,"ax",%progbits
+ 1688              		.align	1
+ 1689              		.global	InPutNpeVolt
+ 1690              		.syntax unified
+ 1691              		.code	16
+ 1692              		.thumb_func
+ 1693              		.fpu softvfp
+ 1695              	InPutNpeVolt:
+ 1696              	.LFB54:
+ 680:./Application/Funtion/SystemData/SystemData.c **** 
+ 681:./Application/Funtion/SystemData/SystemData.c **** 
+ 682:./Application/Funtion/SystemData/SystemData.c **** /*=============================================================================================
+ 683:./Application/Funtion/SystemData/SystemData.c **** ** @Name      : void InPutNpeVolt(f32 data)
+ 684:./Application/Funtion/SystemData/SystemData.c **** ** @Input     : data:npe采样电压数据
+ 685:./Application/Funtion/SystemData/SystemData.c **** ** @Output    : void
+ 686:./Application/Funtion/SystemData/SystemData.c **** ** @Function  : npe采样电压数据输入
+ 687:./Application/Funtion/SystemData/SystemData.c **** ** @The notes : 
+ 688:./Application/Funtion/SystemData/SystemData.c **** **===========================================================================================*/
+ 689:./Application/Funtion/SystemData/SystemData.c **** void InPutNpeVolt(f32 data)
+ 690:./Application/Funtion/SystemData/SystemData.c **** {
+ 1697              		.loc 1 690 0
+ 1698              		.cfi_startproc
+ 1699              		@ args = 0, pretend = 0, frame = 0
+ 1700              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1701              		@ link register save eliminated.
+ 1702              	.LVL36:
+ 691:./Application/Funtion/SystemData/SystemData.c ****     gSystemData.fNpeVolt = data;
+ 1703              		.loc 1 691 0
+ 1704 0000 014B     		ldr	r3, .L169
+ 692:./Application/Funtion/SystemData/SystemData.c **** }
+ARM GAS  /tmp/cco0ytYU.s 			page 42
+
+
+ 1705              		.loc 1 692 0
+ 1706              		@ sp needed
+ 691:./Application/Funtion/SystemData/SystemData.c ****     gSystemData.fNpeVolt = data;
+ 1707              		.loc 1 691 0
+ 1708 0002 5867     		str	r0, [r3, #116]
+ 1709              		.loc 1 692 0
+ 1710 0004 7047     		bx	lr
+ 1711              	.L170:
+ 1712 0006 C046     		.align	2
+ 1713              	.L169:
+ 1714 0008 00000000 		.word	gSystemData
+ 1715              		.cfi_endproc
+ 1716              	.LFE54:
+ 1718              		.section	.text.InPutPeGndVolt,"ax",%progbits
+ 1719              		.align	1
+ 1720              		.global	InPutPeGndVolt
+ 1721              		.syntax unified
+ 1722              		.code	16
+ 1723              		.thumb_func
+ 1724              		.fpu softvfp
+ 1726              	InPutPeGndVolt:
+ 1727              	.LFB55:
+ 693:./Application/Funtion/SystemData/SystemData.c **** /*=============================================================================================
+ 694:./Application/Funtion/SystemData/SystemData.c **** ** @Name      : void InPutPeGndVolt(f32 data)
+ 695:./Application/Funtion/SystemData/SystemData.c **** ** @Input     : data:pe对负极电压数据
+ 696:./Application/Funtion/SystemData/SystemData.c **** ** @Output    : void
+ 697:./Application/Funtion/SystemData/SystemData.c **** ** @Function  : pe对负极电压数据
+ 698:./Application/Funtion/SystemData/SystemData.c **** ** @The notes : 
+ 699:./Application/Funtion/SystemData/SystemData.c **** **===========================================================================================*/
+ 700:./Application/Funtion/SystemData/SystemData.c **** void InPutPeGndVolt(f32 data)
+ 701:./Application/Funtion/SystemData/SystemData.c **** {
+ 1728              		.loc 1 701 0
+ 1729              		.cfi_startproc
+ 1730              		@ args = 0, pretend = 0, frame = 0
+ 1731              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1732              		@ link register save eliminated.
+ 1733              	.LVL37:
+ 702:./Application/Funtion/SystemData/SystemData.c ****     gSystemData.fPeGndVolt = data;
+ 1734              		.loc 1 702 0
+ 1735 0000 014B     		ldr	r3, .L172
+ 703:./Application/Funtion/SystemData/SystemData.c **** }
+ 1736              		.loc 1 703 0
+ 1737              		@ sp needed
+ 702:./Application/Funtion/SystemData/SystemData.c ****     gSystemData.fPeGndVolt = data;
+ 1738              		.loc 1 702 0
+ 1739 0002 9867     		str	r0, [r3, #120]
+ 1740              		.loc 1 703 0
+ 1741 0004 7047     		bx	lr
+ 1742              	.L173:
+ 1743 0006 C046     		.align	2
+ 1744              	.L172:
+ 1745 0008 00000000 		.word	gSystemData
+ 1746              		.cfi_endproc
+ 1747              	.LFE55:
+ 1749              		.section	.text.GetPeGndVolt,"ax",%progbits
+ 1750              		.align	1
+ 1751              		.global	GetPeGndVolt
+ARM GAS  /tmp/cco0ytYU.s 			page 43
+
+
+ 1752              		.syntax unified
+ 1753              		.code	16
+ 1754              		.thumb_func
+ 1755              		.fpu softvfp
+ 1757              	GetPeGndVolt:
+ 1758              	.LFB56:
+ 704:./Application/Funtion/SystemData/SystemData.c **** /*=============================================================================================
+ 705:./Application/Funtion/SystemData/SystemData.c **** ** @Name      : f32 GetPeGndVolt(void)
+ 706:./Application/Funtion/SystemData/SystemData.c **** ** @Input     : void
+ 707:./Application/Funtion/SystemData/SystemData.c **** ** @Output    : 输出pe对负极电压数据
+ 708:./Application/Funtion/SystemData/SystemData.c **** ** @Function  : 
+ 709:./Application/Funtion/SystemData/SystemData.c **** ** @The notes : 
+ 710:./Application/Funtion/SystemData/SystemData.c **** **===========================================================================================*/
+ 711:./Application/Funtion/SystemData/SystemData.c **** f32 GetPeGndVolt(void)
+ 712:./Application/Funtion/SystemData/SystemData.c **** {
+ 1759              		.loc 1 712 0
+ 1760              		.cfi_startproc
+ 1761              		@ args = 0, pretend = 0, frame = 0
+ 1762              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1763              		@ link register save eliminated.
+ 713:./Application/Funtion/SystemData/SystemData.c ****     return gSystemData.fPeGndVolt;
+ 1764              		.loc 1 713 0
+ 1765 0000 014B     		ldr	r3, .L175
+ 714:./Application/Funtion/SystemData/SystemData.c **** }
+ 1766              		.loc 1 714 0
+ 1767              		@ sp needed
+ 713:./Application/Funtion/SystemData/SystemData.c ****     return gSystemData.fPeGndVolt;
+ 1768              		.loc 1 713 0
+ 1769 0002 986F     		ldr	r0, [r3, #120]
+ 1770              		.loc 1 714 0
+ 1771 0004 7047     		bx	lr
+ 1772              	.L176:
+ 1773 0006 C046     		.align	2
+ 1774              	.L175:
+ 1775 0008 00000000 		.word	gSystemData
+ 1776              		.cfi_endproc
+ 1777              	.LFE56:
+ 1779              		.section	.text.InPutfAdjustPeGndVolt,"ax",%progbits
+ 1780              		.align	1
+ 1781              		.global	InPutfAdjustPeGndVolt
+ 1782              		.syntax unified
+ 1783              		.code	16
+ 1784              		.thumb_func
+ 1785              		.fpu softvfp
+ 1787              	InPutfAdjustPeGndVolt:
+ 1788              	.LFB57:
+ 715:./Application/Funtion/SystemData/SystemData.c **** 
+ 716:./Application/Funtion/SystemData/SystemData.c **** /*=============================================================================================
+ 717:./Application/Funtion/SystemData/SystemData.c **** ** @Name      : void InPutfAdjustPeGndVolt(f32 data)
+ 718:./Application/Funtion/SystemData/SystemData.c **** ** @Input     : 输出校准后pe对负极电压数据
+ 719:./Application/Funtion/SystemData/SystemData.c **** ** @Output    : void
+ 720:./Application/Funtion/SystemData/SystemData.c **** ** @Function  : 
+ 721:./Application/Funtion/SystemData/SystemData.c **** ** @The notes : 
+ 722:./Application/Funtion/SystemData/SystemData.c **** **===========================================================================================*/
+ 723:./Application/Funtion/SystemData/SystemData.c **** void InPutfAdjustPeGndVolt(f32 data)
+ 724:./Application/Funtion/SystemData/SystemData.c **** {
+ 1789              		.loc 1 724 0
+ARM GAS  /tmp/cco0ytYU.s 			page 44
+
+
+ 1790              		.cfi_startproc
+ 1791              		@ args = 0, pretend = 0, frame = 0
+ 1792              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1793              		@ link register save eliminated.
+ 1794              	.LVL38:
+ 725:./Application/Funtion/SystemData/SystemData.c ****     gSystemData.fAdjustPeGndVolt = data;
+ 1795              		.loc 1 725 0
+ 1796 0000 014B     		ldr	r3, .L178
+ 726:./Application/Funtion/SystemData/SystemData.c **** }
+ 1797              		.loc 1 726 0
+ 1798              		@ sp needed
+ 725:./Application/Funtion/SystemData/SystemData.c ****     gSystemData.fAdjustPeGndVolt = data;
+ 1799              		.loc 1 725 0
+ 1800 0002 D867     		str	r0, [r3, #124]
+ 1801              		.loc 1 726 0
+ 1802 0004 7047     		bx	lr
+ 1803              	.L179:
+ 1804 0006 C046     		.align	2
+ 1805              	.L178:
+ 1806 0008 00000000 		.word	gSystemData
+ 1807              		.cfi_endproc
+ 1808              	.LFE57:
+ 1810              		.section	.text.GetfAdjustPeGndVolt,"ax",%progbits
+ 1811              		.align	1
+ 1812              		.global	GetfAdjustPeGndVolt
+ 1813              		.syntax unified
+ 1814              		.code	16
+ 1815              		.thumb_func
+ 1816              		.fpu softvfp
+ 1818              	GetfAdjustPeGndVolt:
+ 1819              	.LFB58:
+ 727:./Application/Funtion/SystemData/SystemData.c **** 
+ 728:./Application/Funtion/SystemData/SystemData.c **** /*=============================================================================================
+ 729:./Application/Funtion/SystemData/SystemData.c **** ** @Name      : f32 GetfAdjustPeGndVolt(void)
+ 730:./Application/Funtion/SystemData/SystemData.c **** ** @Input     : void
+ 731:./Application/Funtion/SystemData/SystemData.c **** ** @Output    : 校准后pe对负极电压数据
+ 732:./Application/Funtion/SystemData/SystemData.c **** ** @Function  : 
+ 733:./Application/Funtion/SystemData/SystemData.c **** ** @The notes : 
+ 734:./Application/Funtion/SystemData/SystemData.c **** **===========================================================================================*/
+ 735:./Application/Funtion/SystemData/SystemData.c **** f32 GetfAdjustPeGndVolt(void)
+ 736:./Application/Funtion/SystemData/SystemData.c **** {
+ 1820              		.loc 1 736 0
+ 1821              		.cfi_startproc
+ 1822              		@ args = 0, pretend = 0, frame = 0
+ 1823              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1824              		@ link register save eliminated.
+ 737:./Application/Funtion/SystemData/SystemData.c ****     return gSystemData.fAdjustPeGndVolt;
+ 1825              		.loc 1 737 0
+ 1826 0000 014B     		ldr	r3, .L181
+ 738:./Application/Funtion/SystemData/SystemData.c **** }
+ 1827              		.loc 1 738 0
+ 1828              		@ sp needed
+ 737:./Application/Funtion/SystemData/SystemData.c ****     return gSystemData.fAdjustPeGndVolt;
+ 1829              		.loc 1 737 0
+ 1830 0002 D86F     		ldr	r0, [r3, #124]
+ 1831              		.loc 1 738 0
+ 1832 0004 7047     		bx	lr
+ARM GAS  /tmp/cco0ytYU.s 			page 45
+
+
+ 1833              	.L182:
+ 1834 0006 C046     		.align	2
+ 1835              	.L181:
+ 1836 0008 00000000 		.word	gSystemData
+ 1837              		.cfi_endproc
+ 1838              	.LFE58:
+ 1840              		.comm	SystemData_51,40,2
+ 1841              		.comm	gSystemData,128,4
+ 1842              		.text
+ 1843              	.Letext0:
+ 1844              		.file 2 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/lock.h"
+ 1845              		.file 3 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_types.h"
+ 1846              		.file 4 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/lib/gcc/arm-none-eabi/7.3.1/include/stddef.h"
+ 1847              		.file 5 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/reent.h"
+ 1848              		.file 6 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/stdlib.h"
+ 1849              		.file 7 "Application/BSPSys/Util/BSPTypeDef.h"
+ 1850              		.file 8 "./Application/Funtion/SystemData/SystemData.h"
+ARM GAS  /tmp/cco0ytYU.s 			page 46
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 SystemData.c
+     /tmp/cco0ytYU.s:16     .text.InPutSystemDataArray:0000000000000000 $t
+     /tmp/cco0ytYU.s:23     .text.InPutSystemDataArray:0000000000000000 InPutSystemDataArray
+     /tmp/cco0ytYU.s:47     .text.InPutSystemDataArray:000000000000000c $d
+                            *COM*:0000000000000028 SystemData_51
+     /tmp/cco0ytYU.s:52     .text.GetSystemDataArray:0000000000000000 $t
+     /tmp/cco0ytYU.s:59     .text.GetSystemDataArray:0000000000000000 GetSystemDataArray
+     /tmp/cco0ytYU.s:84     .text.GetSystemDataArray:0000000000000010 $d
+     /tmp/cco0ytYU.s:89     .text.InPutDiState:0000000000000000 $t
+     /tmp/cco0ytYU.s:96     .text.InPutDiState:0000000000000000 InPutDiState
+     /tmp/cco0ytYU.s:115    .text.InPutDiState:0000000000000008 $d
+                            *COM*:0000000000000080 gSystemData
+     /tmp/cco0ytYU.s:120    .text.GetSwAddr:0000000000000000 $t
+     /tmp/cco0ytYU.s:127    .text.GetSwAddr:0000000000000000 GetSwAddr
+     /tmp/cco0ytYU.s:145    .text.GetSwAddr:0000000000000008 $d
+     /tmp/cco0ytYU.s:150    .text.InPutDoState:0000000000000000 $t
+     /tmp/cco0ytYU.s:157    .text.InPutDoState:0000000000000000 InPutDoState
+     /tmp/cco0ytYU.s:180    .text.InPutDoState:000000000000000c $d
+     /tmp/cco0ytYU.s:185    .text.InPutSwAddr:0000000000000000 $t
+     /tmp/cco0ytYU.s:192    .text.InPutSwAddr:0000000000000000 InPutSwAddr
+     /tmp/cco0ytYU.s:211    .text.InPutSwAddr:0000000000000008 $d
+     /tmp/cco0ytYU.s:216    .text.InPutNtcTemp:0000000000000000 $t
+     /tmp/cco0ytYU.s:223    .text.InPutNtcTemp:0000000000000000 InPutNtcTemp
+     /tmp/cco0ytYU.s:247    .text.InPutNtcTemp:0000000000000010 $d
+     /tmp/cco0ytYU.s:252    .text.InPutBatShuntTemp:0000000000000000 $t
+     /tmp/cco0ytYU.s:259    .text.InPutBatShuntTemp:0000000000000000 InPutBatShuntTemp
+     /tmp/cco0ytYU.s:278    .text.InPutBatShuntTemp:0000000000000008 $d
+     /tmp/cco0ytYU.s:283    .text.InPutBatShuntVolt:0000000000000000 $t
+     /tmp/cco0ytYU.s:290    .text.InPutBatShuntVolt:0000000000000000 InPutBatShuntVolt
+     /tmp/cco0ytYU.s:309    .text.InPutBatShuntVolt:0000000000000008 $d
+     /tmp/cco0ytYU.s:314    .text.GetBatShuntVolt:0000000000000000 $t
+     /tmp/cco0ytYU.s:321    .text.GetBatShuntVolt:0000000000000000 GetBatShuntVolt
+     /tmp/cco0ytYU.s:339    .text.GetBatShuntVolt:0000000000000008 $d
+     /tmp/cco0ytYU.s:344    .text.InPutfAdjustBatShuntVolt:0000000000000000 $t
+     /tmp/cco0ytYU.s:351    .text.InPutfAdjustBatShuntVolt:0000000000000000 InPutfAdjustBatShuntVolt
+     /tmp/cco0ytYU.s:370    .text.InPutfAdjustBatShuntVolt:0000000000000008 $d
+     /tmp/cco0ytYU.s:375    .text.GetfAdjustBatShuntVolt:0000000000000000 $t
+     /tmp/cco0ytYU.s:382    .text.GetfAdjustBatShuntVolt:0000000000000000 GetfAdjustBatShuntVolt
+     /tmp/cco0ytYU.s:400    .text.GetfAdjustBatShuntVolt:0000000000000008 $d
+     /tmp/cco0ytYU.s:405    .text.InPutBatShuntCurrent:0000000000000000 $t
+     /tmp/cco0ytYU.s:412    .text.InPutBatShuntCurrent:0000000000000000 InPutBatShuntCurrent
+     /tmp/cco0ytYU.s:431    .text.InPutBatShuntCurrent:0000000000000008 $d
+     /tmp/cco0ytYU.s:436    .text.GetBatShuntCurrent:0000000000000000 $t
+     /tmp/cco0ytYU.s:443    .text.GetBatShuntCurrent:0000000000000000 GetBatShuntCurrent
+     /tmp/cco0ytYU.s:461    .text.GetBatShuntCurrent:0000000000000008 $d
+     /tmp/cco0ytYU.s:466    .text.InPutfAdjustBatShuntCurrent:0000000000000000 $t
+     /tmp/cco0ytYU.s:473    .text.InPutfAdjustBatShuntCurrent:0000000000000000 InPutfAdjustBatShuntCurrent
+     /tmp/cco0ytYU.s:492    .text.InPutfAdjustBatShuntCurrent:0000000000000008 $d
+     /tmp/cco0ytYU.s:497    .text.GetfAdjustBatShuntCurrent:0000000000000000 $t
+     /tmp/cco0ytYU.s:504    .text.GetfAdjustBatShuntCurrent:0000000000000000 GetfAdjustBatShuntCurrent
+     /tmp/cco0ytYU.s:522    .text.GetfAdjustBatShuntCurrent:0000000000000008 $d
+     /tmp/cco0ytYU.s:527    .text.InPutfBatShuntVoltBackup:0000000000000000 $t
+     /tmp/cco0ytYU.s:534    .text.InPutfBatShuntVoltBackup:0000000000000000 InPutfBatShuntVoltBackup
+     /tmp/cco0ytYU.s:553    .text.InPutfBatShuntVoltBackup:0000000000000008 $d
+     /tmp/cco0ytYU.s:558    .text.GetfBatShuntVoltBackup:0000000000000000 $t
+     /tmp/cco0ytYU.s:565    .text.GetfBatShuntVoltBackup:0000000000000000 GetfBatShuntVoltBackup
+ARM GAS  /tmp/cco0ytYU.s 			page 47
+
+
+     /tmp/cco0ytYU.s:583    .text.GetfBatShuntVoltBackup:0000000000000008 $d
+     /tmp/cco0ytYU.s:588    .text.InPutfAdjustBatShuntVoltBackup:0000000000000000 $t
+     /tmp/cco0ytYU.s:595    .text.InPutfAdjustBatShuntVoltBackup:0000000000000000 InPutfAdjustBatShuntVoltBackup
+     /tmp/cco0ytYU.s:614    .text.InPutfAdjustBatShuntVoltBackup:0000000000000008 $d
+     /tmp/cco0ytYU.s:619    .text.GetfAdjustBatShuntVoltBackup:0000000000000000 $t
+     /tmp/cco0ytYU.s:626    .text.GetfAdjustBatShuntVoltBackup:0000000000000000 GetfAdjustBatShuntVoltBackup
+     /tmp/cco0ytYU.s:644    .text.GetfAdjustBatShuntVoltBackup:0000000000000008 $d
+     /tmp/cco0ytYU.s:649    .text.InPutfBatShuntCurrentBackup:0000000000000000 $t
+     /tmp/cco0ytYU.s:656    .text.InPutfBatShuntCurrentBackup:0000000000000000 InPutfBatShuntCurrentBackup
+     /tmp/cco0ytYU.s:675    .text.InPutfBatShuntCurrentBackup:0000000000000008 $d
+     /tmp/cco0ytYU.s:680    .text.GetfBatShuntCurrentBackup:0000000000000000 $t
+     /tmp/cco0ytYU.s:687    .text.GetfBatShuntCurrentBackup:0000000000000000 GetfBatShuntCurrentBackup
+     /tmp/cco0ytYU.s:705    .text.GetfBatShuntCurrentBackup:0000000000000008 $d
+     /tmp/cco0ytYU.s:710    .text.InPutfAdjustBatShuntCurrentBackup:0000000000000000 $t
+     /tmp/cco0ytYU.s:717    .text.InPutfAdjustBatShuntCurrentBackup:0000000000000000 InPutfAdjustBatShuntCurrentBackup
+     /tmp/cco0ytYU.s:736    .text.InPutfAdjustBatShuntCurrentBackup:0000000000000008 $d
+     /tmp/cco0ytYU.s:741    .text.GetfAdjustBatShuntCurrentBackup:0000000000000000 $t
+     /tmp/cco0ytYU.s:748    .text.GetfAdjustBatShuntCurrentBackup:0000000000000000 GetfAdjustBatShuntCurrentBackup
+     /tmp/cco0ytYU.s:766    .text.GetfAdjustBatShuntCurrentBackup:0000000000000008 $d
+     /tmp/cco0ytYU.s:771    .text.InPutHallVolt:0000000000000000 $t
+     /tmp/cco0ytYU.s:778    .text.InPutHallVolt:0000000000000000 InPutHallVolt
+     /tmp/cco0ytYU.s:797    .text.InPutHallVolt:0000000000000008 $d
+     /tmp/cco0ytYU.s:802    .text.GetHallVolt:0000000000000000 $t
+     /tmp/cco0ytYU.s:809    .text.GetHallVolt:0000000000000000 GetHallVolt
+     /tmp/cco0ytYU.s:827    .text.GetHallVolt:0000000000000008 $d
+     /tmp/cco0ytYU.s:832    .text.InPutfAdjustZeroHallVolt:0000000000000000 $t
+     /tmp/cco0ytYU.s:839    .text.InPutfAdjustZeroHallVolt:0000000000000000 InPutfAdjustZeroHallVolt
+     /tmp/cco0ytYU.s:858    .text.InPutfAdjustZeroHallVolt:0000000000000008 $d
+     /tmp/cco0ytYU.s:863    .text.GetfAdjustZeroHallVolt:0000000000000000 $t
+     /tmp/cco0ytYU.s:870    .text.GetfAdjustZeroHallVolt:0000000000000000 GetfAdjustZeroHallVolt
+     /tmp/cco0ytYU.s:888    .text.GetfAdjustZeroHallVolt:0000000000000008 $d
+     /tmp/cco0ytYU.s:893    .text.InPutfAdjustHallVolt:0000000000000000 $t
+     /tmp/cco0ytYU.s:900    .text.InPutfAdjustHallVolt:0000000000000000 InPutfAdjustHallVolt
+     /tmp/cco0ytYU.s:919    .text.InPutfAdjustHallVolt:0000000000000008 $d
+     /tmp/cco0ytYU.s:924    .text.GetfAdjustHallVolt:0000000000000000 $t
+     /tmp/cco0ytYU.s:931    .text.GetfAdjustHallVolt:0000000000000000 GetfAdjustHallVolt
+     /tmp/cco0ytYU.s:949    .text.GetfAdjustHallVolt:0000000000000008 $d
+     /tmp/cco0ytYU.s:954    .text.InPutHallCurrent:0000000000000000 $t
+     /tmp/cco0ytYU.s:961    .text.InPutHallCurrent:0000000000000000 InPutHallCurrent
+     /tmp/cco0ytYU.s:980    .text.InPutHallCurrent:0000000000000008 $d
+     /tmp/cco0ytYU.s:985    .text.GetHallCurrent:0000000000000000 $t
+     /tmp/cco0ytYU.s:992    .text.GetHallCurrent:0000000000000000 GetHallCurrent
+     /tmp/cco0ytYU.s:1010   .text.GetHallCurrent:0000000000000008 $d
+     /tmp/cco0ytYU.s:1015   .text.InPutfAdjustHallCurrent:0000000000000000 $t
+     /tmp/cco0ytYU.s:1022   .text.InPutfAdjustHallCurrent:0000000000000000 InPutfAdjustHallCurrent
+     /tmp/cco0ytYU.s:1041   .text.InPutfAdjustHallCurrent:0000000000000008 $d
+     /tmp/cco0ytYU.s:1046   .text.GetfAdjustHallCurrent:0000000000000000 $t
+     /tmp/cco0ytYU.s:1053   .text.GetfAdjustHallCurrent:0000000000000000 GetfAdjustHallCurrent
+     /tmp/cco0ytYU.s:1071   .text.GetfAdjustHallCurrent:0000000000000008 $d
+     /tmp/cco0ytYU.s:1076   .text.InPutHall5Volt:0000000000000000 $t
+     /tmp/cco0ytYU.s:1083   .text.InPutHall5Volt:0000000000000000 InPutHall5Volt
+     /tmp/cco0ytYU.s:1102   .text.InPutHall5Volt:0000000000000008 $d
+     /tmp/cco0ytYU.s:1107   .text.InPutVcc5Volt:0000000000000000 $t
+     /tmp/cco0ytYU.s:1114   .text.InPutVcc5Volt:0000000000000000 InPutVcc5Volt
+     /tmp/cco0ytYU.s:1133   .text.InPutVcc5Volt:0000000000000008 $d
+     /tmp/cco0ytYU.s:1138   .text.InPutHvP5Volt:0000000000000000 $t
+     /tmp/cco0ytYU.s:1145   .text.InPutHvP5Volt:0000000000000000 InPutHvP5Volt
+ARM GAS  /tmp/cco0ytYU.s 			page 48
+
+
+     /tmp/cco0ytYU.s:1164   .text.InPutHvP5Volt:0000000000000008 $d
+     /tmp/cco0ytYU.s:1169   .text.InPutHvN5Volt:0000000000000000 $t
+     /tmp/cco0ytYU.s:1176   .text.InPutHvN5Volt:0000000000000000 InPutHvN5Volt
+     /tmp/cco0ytYU.s:1195   .text.InPutHvN5Volt:0000000000000008 $d
+     /tmp/cco0ytYU.s:1200   .text.InPutBatVolt:0000000000000000 $t
+     /tmp/cco0ytYU.s:1207   .text.InPutBatVolt:0000000000000000 InPutBatVolt
+     /tmp/cco0ytYU.s:1226   .text.InPutBatVolt:0000000000000008 $d
+     /tmp/cco0ytYU.s:1231   .text.GetBatVolt:0000000000000000 $t
+     /tmp/cco0ytYU.s:1238   .text.GetBatVolt:0000000000000000 GetBatVolt
+     /tmp/cco0ytYU.s:1256   .text.GetBatVolt:0000000000000008 $d
+     /tmp/cco0ytYU.s:1261   .text.InPutfAdjustBatVolt:0000000000000000 $t
+     /tmp/cco0ytYU.s:1268   .text.InPutfAdjustBatVolt:0000000000000000 InPutfAdjustBatVolt
+     /tmp/cco0ytYU.s:1287   .text.InPutfAdjustBatVolt:0000000000000008 $d
+     /tmp/cco0ytYU.s:1292   .text.GetfAdjustBatVolt:0000000000000000 $t
+     /tmp/cco0ytYU.s:1299   .text.GetfAdjustBatVolt:0000000000000000 GetfAdjustBatVolt
+     /tmp/cco0ytYU.s:1317   .text.GetfAdjustBatVolt:0000000000000008 $d
+     /tmp/cco0ytYU.s:1322   .text.InPutLinkVolt:0000000000000000 $t
+     /tmp/cco0ytYU.s:1329   .text.InPutLinkVolt:0000000000000000 InPutLinkVolt
+     /tmp/cco0ytYU.s:1348   .text.InPutLinkVolt:0000000000000008 $d
+     /tmp/cco0ytYU.s:1353   .text.GetLinkVolt:0000000000000000 $t
+     /tmp/cco0ytYU.s:1360   .text.GetLinkVolt:0000000000000000 GetLinkVolt
+     /tmp/cco0ytYU.s:1378   .text.GetLinkVolt:0000000000000008 $d
+     /tmp/cco0ytYU.s:1383   .text.InPutfAdjustLinkVolt:0000000000000000 $t
+     /tmp/cco0ytYU.s:1390   .text.InPutfAdjustLinkVolt:0000000000000000 InPutfAdjustLinkVolt
+     /tmp/cco0ytYU.s:1409   .text.InPutfAdjustLinkVolt:0000000000000008 $d
+     /tmp/cco0ytYU.s:1414   .text.GetfAdjustLinkVolt:0000000000000000 $t
+     /tmp/cco0ytYU.s:1421   .text.GetfAdjustLinkVolt:0000000000000000 GetfAdjustLinkVolt
+     /tmp/cco0ytYU.s:1439   .text.GetfAdjustLinkVolt:0000000000000008 $d
+     /tmp/cco0ytYU.s:1444   .text.InPutLinkShuntVolt:0000000000000000 $t
+     /tmp/cco0ytYU.s:1451   .text.InPutLinkShuntVolt:0000000000000000 InPutLinkShuntVolt
+     /tmp/cco0ytYU.s:1470   .text.InPutLinkShuntVolt:0000000000000008 $d
+     /tmp/cco0ytYU.s:1475   .text.GetLinkShuntVolt:0000000000000000 $t
+     /tmp/cco0ytYU.s:1482   .text.GetLinkShuntVolt:0000000000000000 GetLinkShuntVolt
+     /tmp/cco0ytYU.s:1500   .text.GetLinkShuntVolt:0000000000000008 $d
+     /tmp/cco0ytYU.s:1505   .text.InPutfAdjustLinkShuntVolt:0000000000000000 $t
+     /tmp/cco0ytYU.s:1512   .text.InPutfAdjustLinkShuntVolt:0000000000000000 InPutfAdjustLinkShuntVolt
+     /tmp/cco0ytYU.s:1531   .text.InPutfAdjustLinkShuntVolt:0000000000000008 $d
+     /tmp/cco0ytYU.s:1536   .text.GetfAdjustLinkShuntVolt:0000000000000000 $t
+     /tmp/cco0ytYU.s:1543   .text.GetfAdjustLinkShuntVolt:0000000000000000 GetfAdjustLinkShuntVolt
+     /tmp/cco0ytYU.s:1561   .text.GetfAdjustLinkShuntVolt:0000000000000008 $d
+     /tmp/cco0ytYU.s:1566   .text.InPutLinkShuntCurrent:0000000000000000 $t
+     /tmp/cco0ytYU.s:1573   .text.InPutLinkShuntCurrent:0000000000000000 InPutLinkShuntCurrent
+     /tmp/cco0ytYU.s:1592   .text.InPutLinkShuntCurrent:0000000000000008 $d
+     /tmp/cco0ytYU.s:1597   .text.GetLinkShuntCurrent:0000000000000000 $t
+     /tmp/cco0ytYU.s:1604   .text.GetLinkShuntCurrent:0000000000000000 GetLinkShuntCurrent
+     /tmp/cco0ytYU.s:1622   .text.GetLinkShuntCurrent:0000000000000008 $d
+     /tmp/cco0ytYU.s:1627   .text.InPutfAdjustLinkShuntCurrent:0000000000000000 $t
+     /tmp/cco0ytYU.s:1634   .text.InPutfAdjustLinkShuntCurrent:0000000000000000 InPutfAdjustLinkShuntCurrent
+     /tmp/cco0ytYU.s:1653   .text.InPutfAdjustLinkShuntCurrent:0000000000000008 $d
+     /tmp/cco0ytYU.s:1658   .text.GetfAdjustLinkShuntCurrent:0000000000000000 $t
+     /tmp/cco0ytYU.s:1665   .text.GetfAdjustLinkShuntCurrent:0000000000000000 GetfAdjustLinkShuntCurrent
+     /tmp/cco0ytYU.s:1683   .text.GetfAdjustLinkShuntCurrent:0000000000000008 $d
+     /tmp/cco0ytYU.s:1688   .text.InPutNpeVolt:0000000000000000 $t
+     /tmp/cco0ytYU.s:1695   .text.InPutNpeVolt:0000000000000000 InPutNpeVolt
+     /tmp/cco0ytYU.s:1714   .text.InPutNpeVolt:0000000000000008 $d
+     /tmp/cco0ytYU.s:1719   .text.InPutPeGndVolt:0000000000000000 $t
+     /tmp/cco0ytYU.s:1726   .text.InPutPeGndVolt:0000000000000000 InPutPeGndVolt
+ARM GAS  /tmp/cco0ytYU.s 			page 49
+
+
+     /tmp/cco0ytYU.s:1745   .text.InPutPeGndVolt:0000000000000008 $d
+     /tmp/cco0ytYU.s:1750   .text.GetPeGndVolt:0000000000000000 $t
+     /tmp/cco0ytYU.s:1757   .text.GetPeGndVolt:0000000000000000 GetPeGndVolt
+     /tmp/cco0ytYU.s:1775   .text.GetPeGndVolt:0000000000000008 $d
+     /tmp/cco0ytYU.s:1780   .text.InPutfAdjustPeGndVolt:0000000000000000 $t
+     /tmp/cco0ytYU.s:1787   .text.InPutfAdjustPeGndVolt:0000000000000000 InPutfAdjustPeGndVolt
+     /tmp/cco0ytYU.s:1806   .text.InPutfAdjustPeGndVolt:0000000000000008 $d
+     /tmp/cco0ytYU.s:1811   .text.GetfAdjustPeGndVolt:0000000000000000 $t
+     /tmp/cco0ytYU.s:1818   .text.GetfAdjustPeGndVolt:0000000000000000 GetfAdjustPeGndVolt
+     /tmp/cco0ytYU.s:1836   .text.GetfAdjustPeGndVolt:0000000000000008 $d
+
+NO UNDEFINED SYMBOLS

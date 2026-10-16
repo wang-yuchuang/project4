@@ -1,0 +1,575 @@
+ARM GAS  /tmp/ccVXboAF.s 			page 1
+
+
+   1              		.cpu cortex-m0plus
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 4
+   9              		.eabi_attribute 34, 0
+  10              		.eabi_attribute 18, 4
+  11              		.file	"sid36_transfer_data.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.sid36_transfer_data_solve,"ax",%progbits
+  16              		.align	1
+  17              		.global	sid36_transfer_data_solve
+  18              		.syntax unified
+  19              		.code	16
+  20              		.thumb_func
+  21              		.fpu softvfp
+  23              	sid36_transfer_data_solve:
+  24              	.LFB493:
+  25              		.file 1 "./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c"
+   1:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c **** 
+   2:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c **** /* ******************* 
+   3:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****  * can uds 36h服务的实现
+   4:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****  **********************/
+   5:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c **** #include <string.h>
+   6:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c **** #include "network_layer/can_uds_network_layer.h"
+   7:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c **** #include "services_layer/device_role/sid_internal_header.h"
+   8:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c **** #include "services_layer/device_role/can_uds_services_layer.h"
+   9:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c **** #include "BSPTypeDef.h"
+  10:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c **** #include "BSPIRQ.h"
+  11:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c **** #include "BSPKA84917_async.h"
+  12:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c **** 
+  13:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c **** unsigned long  WholePackCrc;
+  14:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c **** void sid36_transfer_data_solve(unsigned char *msg_buff,unsigned short msg_len)
+  15:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c **** {
+  26              		.loc 1 15 0
+  27              		.cfi_startproc
+  28              		@ args = 0, pretend = 0, frame = 24
+  29              		@ frame_needed = 0, uses_anonymous_args = 0
+  30              	.LVL0:
+  31 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+  32              	.LCFI0:
+  33              		.cfi_def_cfa_offset 20
+  34              		.cfi_offset 4, -20
+  35              		.cfi_offset 5, -16
+  36              		.cfi_offset 6, -12
+  37              		.cfi_offset 7, -8
+  38              		.cfi_offset 14, -4
+  39 0002 0600     		movs	r6, r0
+  16:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****     //static unsigned char last_block_counter = 0;
+  17:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****     unsigned char rsp_msg[4] = {0};
+  40              		.loc 1 17 0
+  41 0004 0020     		movs	r0, #0
+ARM GAS  /tmp/ccVXboAF.s 			page 2
+
+
+  42              	.LVL1:
+  15:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****     //static unsigned char last_block_counter = 0;
+  43              		.loc 1 15 0
+  44 0006 89B0     		sub	sp, sp, #36
+  45              	.LCFI1:
+  46              		.cfi_def_cfa_offset 56
+  15:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****     //static unsigned char last_block_counter = 0;
+  47              		.loc 1 15 0
+  48 0008 0C00     		movs	r4, r1
+  49              		.loc 1 17 0
+  50 000a 07AF     		add	r7, sp, #28
+  51 000c 0790     		str	r0, [sp, #28]
+  52              	.LVL2:
+  18:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****     unsigned char is_crc_err = 0;
+  19:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****     unsigned long crc = 0,recv_crc = 0;
+  20:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****     
+  21:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****     if(msg_len < 2)//如果数据长度低于2，说明不是正常报文，不用解析
+  53              		.loc 1 21 0
+  54 000e 0129     		cmp	r1, #1
+  55 0010 35D9     		bls	.L1
+  22:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****         return;
+  23:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****     rsp_msg[0] = ds_transfer_data | UDS_SRV_RET_ID_OFFSET; //0x76
+  56              		.loc 1 23 0
+  57 0012 7623     		movs	r3, #118
+  24:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****     rsp_msg[1] = msg_buff[1];
+  25:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****     //cur_transfer_ctrl.last_block_counter = cur_transfer_ctrl.block_counter;//先记录上一次�
+  26:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****     cur_transfer_ctrl.block_counter = msg_buff[1];       //记录当前block
+  58              		.loc 1 26 0
+  59 0014 4A4D     		ldr	r5, .L18
+  24:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****     rsp_msg[1] = msg_buff[1];
+  60              		.loc 1 24 0
+  61 0016 7278     		ldrb	r2, [r6, #1]
+  23:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****     rsp_msg[1] = msg_buff[1];
+  62              		.loc 1 23 0
+  63 0018 3B70     		strb	r3, [r7]
+  27:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c **** 
+  28:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****     if ((cur_transfer_ctrl.direction != TRANSFER_DOWNLOAD) && 
+  64              		.loc 1 28 0
+  65 001a 2B78     		ldrb	r3, [r5]
+  24:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****     //cur_transfer_ctrl.last_block_counter = cur_transfer_ctrl.block_counter;//先记录上一次�
+  66              		.loc 1 24 0
+  67 001c 7A70     		strb	r2, [r7, #1]
+  26:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c **** 
+  68              		.loc 1 26 0
+  69 001e AA70     		strb	r2, [r5, #2]
+  70              		.loc 1 28 0
+  71 0020 9C46     		mov	ip, r3
+  72 0022 012B     		cmp	r3, #1
+  73 0024 08D9     		bls	.L3
+  29:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****         (cur_transfer_ctrl.direction != TRANSFER_UPLOAD))
+  30:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****     {
+  31:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****         d_printf("sid36, refuse %x\r\n",nrc_request_sequence_error);
+  74              		.loc 1 31 0
+  75 0026 4749     		ldr	r1, .L18+4
+  76              	.LVL3:
+  77 0028 2422     		movs	r2, #36
+  78 002a FFF7FEFF 		bl	SEGGER_RTT_printf
+ARM GAS  /tmp/ccVXboAF.s 			page 3
+
+
+  79              	.LVL4:
+  32:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****         uds_ack_refuse(ds_transfer_data, nrc_request_sequence_error);
+  80              		.loc 1 32 0
+  81 002e 2421     		movs	r1, #36
+  82              	.LVL5:
+  83              	.L16:
+  33:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****     }
+  34:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****     else if ((unsigned char)(cur_transfer_ctrl.block_counter - cur_transfer_ctrl.last_block_counter
+  35:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****     {
+  36:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****         d_printf("sid36, refuse %x,(%d,%d)\r\n",nrc_wrong_block_sequence_counter,
+  37:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                                           cur_transfer_ctrl.block_counter,cur_transfer_ctrl.last_bl
+  38:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****         uds_ack_refuse(ds_transfer_data, nrc_wrong_block_sequence_counter);
+  39:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****     }
+  40:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****     else
+  41:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****     {
+  42:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****         if(cur_transfer_ctrl.direction == TRANSFER_DOWNLOAD)
+  43:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****         {
+  44:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****              //如果是重复帧,正确回应
+  45:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****             if((cur_transfer_ctrl.last_block_counter == cur_transfer_ctrl.block_counter) && 
+  46:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                !(cur_transfer_ctrl.is_first_block))
+  47:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                {
+  48:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                 d_printf("sid36,last=(%d), now=(%d)\r\n",cur_transfer_ctrl.last_block_counter,cur_t
+  49:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****             	
+  50:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                 uds_ack_accept(rsp_msg, 2);
+  51:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c **** 
+  52:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                 }
+  53:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****             else{
+  54:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                 d_printf("sid36, busy CRC CHECK\r\n");
+  55:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                 cur_transfer_ctrl.is_first_block = 0;//清除首包标志
+  56:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                 //uds_ack_refuse(ds_transfer_data, nrc_service_busy);
+  57:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                 if(g_uds_config.pack_with_crc){//如果crc附带功能打开，则先校验crc
+  58:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                     msg_len -= 4;
+  59:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                     crc = uds_crc(0xfffffffful,&msg_buff[2],msg_len-2);//由于最后四个字节�
+  60:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                     recv_crc  = msg_buff[msg_len+0];
+  61:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                     recv_crc += (unsigned long)(msg_buff[msg_len+1]<<8);
+  62:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                     recv_crc += (unsigned long)(msg_buff[msg_len+2]<<16);
+  63:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                     recv_crc += (unsigned long)(msg_buff[msg_len+3]<<24);
+  64:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                     if(crc != recv_crc){
+  65:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                         is_crc_err = 1;
+  66:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                         d_printf("crc err, addr[%04x], (%08x,%08x)\r\n",cur_transfer_ctrl.prog_addr
+  67:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                         d_printf("crc err, %04x, %04x,%04x,%04x\r\n",msg_buff[2],msg_buff[msg_len+1
+  68:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                     }else{
+  69:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                         d_printf("crc correct, addr[%04x], (%08x)\r\n",cur_transfer_ctrl.prog_addr,
+  70:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                     }
+  71:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                 }
+  72:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                 if(is_crc_err)
+  73:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                 {//如果crc校验失败,返回单包校验错误使tester重发
+  74:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                     uds_ack_refuse(ds_transfer_data, nrc_single_pack_crc_check_error);
+  75:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                 }
+  76:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                 else if(program_data_by_logic_addr(cur_transfer_ctrl.prog_addr,&msg_buff[2],(msg_le
+  77:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                     cur_transfer_ctrl.prog_addr += (msg_len-2);
+  78:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                     cur_transfer_ctrl.last_block_counter = cur_transfer_ctrl.block_counter;//先记
+  79:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                     uds_wholepackcrc(&WholePackCrc,&msg_buff[2],msg_len-2);
+  80:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                     uds_ack_accept(rsp_msg,2);
+  81:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                     // d_printf("sid36, accpect, (%d,%d)\r\n",cur_transfer_ctrl.block_counter,cur_t
+  82:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                 }else{                                                                             
+  83:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                     uds_ack_refuse(ds_transfer_data, nrc_general_programming_failure);
+ARM GAS  /tmp/ccVXboAF.s 			page 4
+
+
+  84              		.loc 1 83 0
+  85 0030 3620     		movs	r0, #54
+  86 0032 FFF7FEFF 		bl	uds_ack_refuse
+  87              	.LVL6:
+  88 0036 1CE0     		b	.L4
+  89              	.LVL7:
+  90              	.L3:
+  34:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****     {
+  91              		.loc 1 34 0
+  92 0038 EB78     		ldrb	r3, [r5, #3]
+  93 003a D11A     		subs	r1, r2, r3
+  94              	.LVL8:
+  95 003c C9B2     		uxtb	r1, r1
+  96 003e 0129     		cmp	r1, #1
+  97 0040 07D9     		bls	.L5
+  36:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                                           cur_transfer_ctrl.block_counter,cur_transfer_ctrl.last_bl
+  98              		.loc 1 36 0
+  99 0042 0093     		str	r3, [sp]
+ 100 0044 4049     		ldr	r1, .L18+8
+ 101 0046 1300     		movs	r3, r2
+ 102 0048 7322     		movs	r2, #115
+ 103 004a FFF7FEFF 		bl	SEGGER_RTT_printf
+ 104              	.LVL9:
+  38:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****     }
+ 105              		.loc 1 38 0
+ 106 004e 7321     		movs	r1, #115
+ 107 0050 EEE7     		b	.L16
+ 108              	.L5:
+  42:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****         {
+ 109              		.loc 1 42 0
+ 110 0052 6146     		mov	r1, ip
+ 111 0054 0029     		cmp	r1, #0
+ 112 0056 0CD1     		bne	.L4
+  45:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                !(cur_transfer_ctrl.is_first_block))
+ 113              		.loc 1 45 0
+ 114 0058 9A42     		cmp	r2, r3
+ 115 005a 12D1     		bne	.L6
+  45:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                !(cur_transfer_ctrl.is_first_block))
+ 116              		.loc 1 45 0 is_stmt 0 discriminator 1
+ 117 005c 6878     		ldrb	r0, [r5, #1]
+ 118 005e 0028     		cmp	r0, #0
+ 119 0060 0FD1     		bne	.L6
+  48:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****             	
+ 120              		.loc 1 48 0 is_stmt 1
+ 121 0062 3A49     		ldr	r1, .L18+12
+ 122 0064 1300     		movs	r3, r2
+ 123 0066 FFF7FEFF 		bl	SEGGER_RTT_printf
+ 124              	.LVL10:
+  50:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c **** 
+ 125              		.loc 1 50 0
+ 126 006a 0221     		movs	r1, #2
+ 127 006c 3800     		movs	r0, r7
+ 128              	.LVL11:
+ 129              	.L17:
+  80:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                     // d_printf("sid36, accpect, (%d,%d)\r\n",cur_transfer_ctrl.block_counter,cur_t
+ 130              		.loc 1 80 0
+ 131 006e FFF7FEFF 		bl	uds_ack_accept
+ARM GAS  /tmp/ccVXboAF.s 			page 5
+
+
+ 132              	.LVL12:
+ 133              	.L4:
+  84:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                 }
+  85:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****             }
+  86:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****         }
+  87:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****     }
+  88:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c **** 
+  89:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****     if (irq_disabled) 
+ 134              		.loc 1 89 0
+ 135 0072 374B     		ldr	r3, .L18+16
+ 136 0074 1B78     		ldrb	r3, [r3]
+ 137 0076 002B     		cmp	r3, #0
+ 138 0078 01D0     		beq	.L1
+  90:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****     {
+  91:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****        ENABLEIRQHANDLE(); 
+ 139              		.loc 1 91 0
+ 140 007a FFF7FEFF 		bl	ENABLEIRQHANDLE
+ 141              	.LVL13:
+ 142              	.L1:
+  92:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****     }
+  93:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c **** }
+ 143              		.loc 1 93 0
+ 144 007e 09B0     		add	sp, sp, #36
+ 145              		@ sp needed
+ 146 0080 F0BD     		pop	{r4, r5, r6, r7, pc}
+ 147              	.LVL14:
+ 148              	.L6:
+  55:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                 //uds_ack_refuse(ds_transfer_data, nrc_service_busy);
+ 149              		.loc 1 55 0
+ 150 0082 0027     		movs	r7, #0
+  54:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                 cur_transfer_ctrl.is_first_block = 0;//清除首包标志
+ 151              		.loc 1 54 0
+ 152 0084 3349     		ldr	r1, .L18+20
+ 153 0086 0020     		movs	r0, #0
+ 154 0088 FFF7FEFF 		bl	SEGGER_RTT_printf
+ 155              	.LVL15:
+ 156 008c B31C     		adds	r3, r6, #2
+ 157 008e 0593     		str	r3, [sp, #20]
+  57:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                     msg_len -= 4;
+ 158              		.loc 1 57 0
+ 159 0090 314B     		ldr	r3, .L18+24
+  55:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                 //uds_ack_refuse(ds_transfer_data, nrc_service_busy);
+ 160              		.loc 1 55 0
+ 161 0092 6F70     		strb	r7, [r5, #1]
+  57:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                     msg_len -= 4;
+ 162              		.loc 1 57 0
+ 163 0094 5B7C     		ldrb	r3, [r3, #17]
+ 164 0096 BB42     		cmp	r3, r7
+ 165 0098 39D0     		beq	.L7
+  59:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                     recv_crc  = msg_buff[msg_len+0];
+ 166              		.loc 1 59 0
+ 167 009a 0120     		movs	r0, #1
+  58:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                     crc = uds_crc(0xfffffffful,&msg_buff[2],msg_len-2);//由于最后四个字节�
+ 168              		.loc 1 58 0
+ 169 009c 043C     		subs	r4, r4, #4
+ 170 009e A4B2     		uxth	r4, r4
+ 171              	.LVL16:
+ARM GAS  /tmp/ccVXboAF.s 			page 6
+
+
+  59:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                     recv_crc  = msg_buff[msg_len+0];
+ 172              		.loc 1 59 0
+ 173 00a0 A21E     		subs	r2, r4, #2
+ 174 00a2 B11C     		adds	r1, r6, #2
+ 175 00a4 4042     		rsbs	r0, r0, #0
+ 176 00a6 FFF7FEFF 		bl	uds_crc
+ 177              	.LVL17:
+  61:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                     recv_crc += (unsigned long)(msg_buff[msg_len+2]<<16);
+ 178              		.loc 1 61 0
+ 179 00aa 621C     		adds	r2, r4, #1
+ 180 00ac B218     		adds	r2, r6, r2
+ 181 00ae 0292     		str	r2, [sp, #8]
+  62:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                     recv_crc += (unsigned long)(msg_buff[msg_len+3]<<24);
+ 182              		.loc 1 62 0
+ 183 00b0 A21C     		adds	r2, r4, #2
+ 184 00b2 B218     		adds	r2, r6, r2
+ 185 00b4 0392     		str	r2, [sp, #12]
+  59:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                     recv_crc  = msg_buff[msg_len+0];
+ 186              		.loc 1 59 0
+ 187 00b6 0300     		movs	r3, r0
+ 188              	.LVL18:
+  61:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                     recv_crc += (unsigned long)(msg_buff[msg_len+2]<<16);
+ 189              		.loc 1 61 0
+ 190 00b8 029A     		ldr	r2, [sp, #8]
+  62:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                     recv_crc += (unsigned long)(msg_buff[msg_len+3]<<24);
+ 191              		.loc 1 62 0
+ 192 00ba 0398     		ldr	r0, [sp, #12]
+ 193              	.LVL19:
+  61:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                     recv_crc += (unsigned long)(msg_buff[msg_len+2]<<16);
+ 194              		.loc 1 61 0
+ 195 00bc 1278     		ldrb	r2, [r2]
+  62:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                     recv_crc += (unsigned long)(msg_buff[msg_len+3]<<24);
+ 196              		.loc 1 62 0
+ 197 00be 0078     		ldrb	r0, [r0]
+  60:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                     recv_crc += (unsigned long)(msg_buff[msg_len+1]<<8);
+ 198              		.loc 1 60 0
+ 199 00c0 315D     		ldrb	r1, [r6, r4]
+ 200              	.LVL20:
+  61:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                     recv_crc += (unsigned long)(msg_buff[msg_len+2]<<16);
+ 201              		.loc 1 61 0
+ 202 00c2 1202     		lsls	r2, r2, #8
+  62:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                     recv_crc += (unsigned long)(msg_buff[msg_len+3]<<24);
+ 203              		.loc 1 62 0
+ 204 00c4 0004     		lsls	r0, r0, #16
+ 205 00c6 1218     		adds	r2, r2, r0
+ 206 00c8 5218     		adds	r2, r2, r1
+ 207              	.LVL21:
+  63:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                     if(crc != recv_crc){
+ 208              		.loc 1 63 0
+ 209 00ca E11C     		adds	r1, r4, #3
+ 210 00cc 7118     		adds	r1, r6, r1
+ 211 00ce 0491     		str	r1, [sp, #16]
+ 212 00d0 0978     		ldrb	r1, [r1]
+ 213 00d2 0906     		lsls	r1, r1, #24
+ 214 00d4 8A18     		adds	r2, r1, r2
+ 215              	.LVL22:
+  64:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                         is_crc_err = 1;
+ARM GAS  /tmp/ccVXboAF.s 			page 7
+
+
+ 216              		.loc 1 64 0
+ 217 00d6 9342     		cmp	r3, r2
+ 218 00d8 14D0     		beq	.L8
+ 219              	.LVL23:
+  66:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                         d_printf("crc err, %04x, %04x,%04x,%04x\r\n",msg_buff[2],msg_buff[msg_len+1
+ 220              		.loc 1 66 0
+ 221 00da 0092     		str	r2, [sp]
+ 222 00dc 6A68     		ldr	r2, [r5, #4]
+ 223              	.LVL24:
+ 224 00de 1F49     		ldr	r1, .L18+28
+ 225 00e0 3800     		movs	r0, r7
+ 226 00e2 FFF7FEFF 		bl	SEGGER_RTT_printf
+ 227              	.LVL25:
+  67:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                     }else{
+ 228              		.loc 1 67 0
+ 229 00e6 0499     		ldr	r1, [sp, #16]
+ 230 00e8 029B     		ldr	r3, [sp, #8]
+ 231 00ea 0978     		ldrb	r1, [r1]
+ 232 00ec 1B78     		ldrb	r3, [r3]
+ 233 00ee B278     		ldrb	r2, [r6, #2]
+ 234 00f0 0191     		str	r1, [sp, #4]
+ 235 00f2 0399     		ldr	r1, [sp, #12]
+ 236 00f4 3800     		movs	r0, r7
+ 237 00f6 0978     		ldrb	r1, [r1]
+ 238 00f8 0091     		str	r1, [sp]
+ 239 00fa 1949     		ldr	r1, .L18+32
+ 240 00fc FFF7FEFF 		bl	SEGGER_RTT_printf
+ 241              	.LVL26:
+  74:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                 }
+ 242              		.loc 1 74 0
+ 243 0100 F221     		movs	r1, #242
+ 244 0102 95E7     		b	.L16
+ 245              	.LVL27:
+ 246              	.L8:
+  69:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                     }
+ 247              		.loc 1 69 0
+ 248 0104 6A68     		ldr	r2, [r5, #4]
+ 249              	.LVL28:
+ 250 0106 1749     		ldr	r1, .L18+36
+ 251              	.LVL29:
+ 252 0108 3800     		movs	r0, r7
+ 253              	.LVL30:
+ 254 010a FFF7FEFF 		bl	SEGGER_RTT_printf
+ 255              	.LVL31:
+ 256              	.L7:
+  76:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                     cur_transfer_ctrl.prog_addr += (msg_len-2);
+ 257              		.loc 1 76 0
+ 258 010e 0C4D     		ldr	r5, .L18
+ 259 0110 A61E     		subs	r6, r4, #2
+ 260              	.LVL32:
+ 261 0112 B2B2     		uxth	r2, r6
+ 262 0114 0599     		ldr	r1, [sp, #20]
+ 263 0116 6868     		ldr	r0, [r5, #4]
+ 264 0118 FFF7FEFF 		bl	program_data_by_logic_addr
+ 265              	.LVL33:
+ 266 011c 0028     		cmp	r0, #0
+ 267 011e 0DDD     		ble	.L9
+ARM GAS  /tmp/ccVXboAF.s 			page 8
+
+
+  77:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                     cur_transfer_ctrl.last_block_counter = cur_transfer_ctrl.block_counter;//先记
+ 268              		.loc 1 77 0
+ 269 0120 6B68     		ldr	r3, [r5, #4]
+  79:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                     uds_ack_accept(rsp_msg,2);
+ 270              		.loc 1 79 0
+ 271 0122 0599     		ldr	r1, [sp, #20]
+  77:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                     cur_transfer_ctrl.last_block_counter = cur_transfer_ctrl.block_counter;//先记
+ 272              		.loc 1 77 0
+ 273 0124 023B     		subs	r3, r3, #2
+ 274 0126 1C19     		adds	r4, r3, r4
+  78:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                     uds_wholepackcrc(&WholePackCrc,&msg_buff[2],msg_len-2);
+ 275              		.loc 1 78 0
+ 276 0128 AB78     		ldrb	r3, [r5, #2]
+  79:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                     uds_ack_accept(rsp_msg,2);
+ 277              		.loc 1 79 0
+ 278 012a 0F48     		ldr	r0, .L18+40
+ 279 012c 3200     		movs	r2, r6
+  77:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                     cur_transfer_ctrl.last_block_counter = cur_transfer_ctrl.block_counter;//先记
+ 280              		.loc 1 77 0
+ 281 012e 6C60     		str	r4, [r5, #4]
+  78:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                     uds_wholepackcrc(&WholePackCrc,&msg_buff[2],msg_len-2);
+ 282              		.loc 1 78 0
+ 283 0130 EB70     		strb	r3, [r5, #3]
+  79:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                     uds_ack_accept(rsp_msg,2);
+ 284              		.loc 1 79 0
+ 285 0132 FFF7FEFF 		bl	uds_wholepackcrc
+ 286              	.LVL34:
+  80:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                     // d_printf("sid36, accpect, (%d,%d)\r\n",cur_transfer_ctrl.block_counter,cur_t
+ 287              		.loc 1 80 0
+ 288 0136 0221     		movs	r1, #2
+ 289 0138 07A8     		add	r0, sp, #28
+ 290 013a 98E7     		b	.L17
+ 291              	.L9:
+  83:./Application/Addition/UDSCanfd/services_layer/device_role/sid36_transfer_data.c ****                 }
+ 292              		.loc 1 83 0
+ 293 013c 7221     		movs	r1, #114
+ 294 013e 77E7     		b	.L16
+ 295              	.L19:
+ 296              		.align	2
+ 297              	.L18:
+ 298 0140 00000000 		.word	cur_transfer_ctrl
+ 299 0144 00000000 		.word	.LC1
+ 300 0148 13000000 		.word	.LC3
+ 301 014c 2E000000 		.word	.LC5
+ 302 0150 00000000 		.word	irq_disabled
+ 303 0154 4A000000 		.word	.LC7
+ 304 0158 00000000 		.word	g_uds_config
+ 305 015c 62000000 		.word	.LC10
+ 306 0160 85000000 		.word	.LC12
+ 307 0164 A5000000 		.word	.LC14
+ 308 0168 00000000 		.word	WholePackCrc
+ 309              		.cfi_endproc
+ 310              	.LFE493:
+ 312              		.comm	WholePackCrc,4,4
+ 313              		.section	.rodata.sid36_transfer_data_solve.str1.1,"aMS",%progbits,1
+ 314              	.LC1:
+ 315 0000 73696433 		.ascii	"sid36, refuse %x\015\012\000"
+ARM GAS  /tmp/ccVXboAF.s 			page 9
+
+
+ 315      362C2072 
+ 315      65667573 
+ 315      65202578 
+ 315      0D0A00
+ 316              	.LC3:
+ 317 0013 73696433 		.ascii	"sid36, refuse %x,(%d,%d)\015\012\000"
+ 317      362C2072 
+ 317      65667573 
+ 317      65202578 
+ 317      2C282564 
+ 318              	.LC5:
+ 319 002e 73696433 		.ascii	"sid36,last=(%d), now=(%d)\015\012\000"
+ 319      362C6C61 
+ 319      73743D28 
+ 319      2564292C 
+ 319      206E6F77 
+ 320              	.LC7:
+ 321 004a 73696433 		.ascii	"sid36, busy CRC CHECK\015\012\000"
+ 321      362C2062 
+ 321      75737920 
+ 321      43524320 
+ 321      43484543 
+ 322              	.LC10:
+ 323 0062 63726320 		.ascii	"crc err, addr[%04x], (%08x,%08x)\015\012\000"
+ 323      6572722C 
+ 323      20616464 
+ 323      725B2530 
+ 323      34785D2C 
+ 324              	.LC12:
+ 325 0085 63726320 		.ascii	"crc err, %04x, %04x,%04x,%04x\015\012\000"
+ 325      6572722C 
+ 325      20253034 
+ 325      782C2025 
+ 325      3034782C 
+ 326              	.LC14:
+ 327 00a5 63726320 		.ascii	"crc correct, addr[%04x], (%08x)\015\012\000"
+ 327      636F7272 
+ 327      6563742C 
+ 327      20616464 
+ 327      725B2530 
+ 328              		.text
+ 329              	.Letext0:
+ 330              		.file 2 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/machine/_default_types.h"
+ 331              		.file 3 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/lock.h"
+ 332              		.file 4 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_types.h"
+ 333              		.file 5 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/lib/gcc/arm-none-eabi/7.3.1/include/stddef.h"
+ 334              		.file 6 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/reent.h"
+ 335              		.file 7 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/stdlib.h"
+ 336              		.file 8 "Application/BSPSys/Util/BSPTypeDef.h"
+ 337              		.file 9 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_stdint.h"
+ 338              		.file 10 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/system_stm32g0xx.h"
+ 339              		.file 11 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/stm32g0b1xx.h"
+ 340              		.file 12 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_def.h"
+ 341              		.file 13 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_dma.h"
+ 342              		.file 14 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_flash.h"
+ 343              		.file 15 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_spi.h"
+ 344              		.file 16 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_uart.h"
+ARM GAS  /tmp/ccVXboAF.s 			page 10
+
+
+ 345              		.file 17 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal.h"
+ 346              		.file 18 "Core/Inc/main.h"
+ 347              		.file 19 "Core/Inc/spi.h"
+ 348              		.file 20 "Application/BSPSys/BSPDevice/gd25q32e/BSPGD25Q32E.h"
+ 349              		.file 21 "Application/Addition/UDSCanfd/can_uds_arch.h"
+ 350              		.file 22 "Application/Addition/UDSCanfd/network_layer/can_uds_network_layer.h"
+ 351              		.file 23 "Application/Addition/RTT/SEGGER_RTT.h"
+ 352              		.file 24 "Application/Addition/UDSCanfd/services_layer/device_role/sid_internal_header.h"
+ 353              		.file 25 "Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.h"
+ 354              		.file 26 "Application/BSPSys/BSPDevice/KA84917/BSPKA84917_async.h"
+ 355              		.file 27 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_ll_dma.h"
+ARM GAS  /tmp/ccVXboAF.s 			page 11
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 sid36_transfer_data.c
+     /tmp/ccVXboAF.s:16     .text.sid36_transfer_data_solve:0000000000000000 $t
+     /tmp/ccVXboAF.s:23     .text.sid36_transfer_data_solve:0000000000000000 sid36_transfer_data_solve
+     /tmp/ccVXboAF.s:298    .text.sid36_transfer_data_solve:0000000000000140 $d
+                            *COM*:0000000000000004 WholePackCrc
+
+UNDEFINED SYMBOLS
+SEGGER_RTT_printf
+uds_ack_refuse
+uds_ack_accept
+ENABLEIRQHANDLE
+uds_crc
+program_data_by_logic_addr
+uds_wholepackcrc
+cur_transfer_ctrl
+irq_disabled
+g_uds_config

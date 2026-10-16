@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "mqttpacket.h": "c",
+        "includes.h": "c",
+        "os_cpu.h": "c",
+        "ucos_ii.h": "c",
+        "app_cfg.h": "c",
+        "main.h": "c"
+    }
+}

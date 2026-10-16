@@ -1,0 +1,1438 @@
+ARM GAS  /tmp/ccNmtkAE.s 			page 1
+
+
+   1              		.cpu cortex-m0plus
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 4
+   9              		.eabi_attribute 34, 0
+  10              		.eabi_attribute 18, 4
+  11              		.file	"BSPSPI.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.BSPSPIInit,"ax",%progbits
+  16              		.align	1
+  17              		.global	BSPSPIInit
+  18              		.syntax unified
+  19              		.code	16
+  20              		.thumb_func
+  21              		.fpu softvfp
+  23              	BSPSPIInit:
+  24              	.LFB493:
+  25              		.file 1 "./Application/BSPSys/BSPDriver/BSPSPI.c"
+   1:./Application/BSPSys/BSPDriver/BSPSPI.c **** /*==========================================Copyright(c)=======================================
+   2:./Application/BSPSys/BSPDriver/BSPSPI.c **** **                                  Shenzhen Infypower Co., Ltd.
+   3:./Application/BSPSys/BSPDriver/BSPSPI.c **** **                                  Power conversion Department
+   4:./Application/BSPSys/BSPDriver/BSPSPI.c **** **                                       BMS Product Line
+   5:./Application/BSPSys/BSPDriver/BSPSPI.c **** **
+   6:./Application/BSPSys/BSPDriver/BSPSPI.c **** **---------------------------------------File Information--------------------------------------
+   7:./Application/BSPSys/BSPDriver/BSPSPI.c **** ** @File Name    : BSPSPI.c
+   8:./Application/BSPSys/BSPDriver/BSPSPI.c **** ** @Founder      : WYC834
+   9:./Application/BSPSys/BSPDriver/BSPSPI.c **** ** @Date         : 2025.09.08
+  10:./Application/BSPSys/BSPDriver/BSPSPI.c **** ** @Function     : SPI通讯驱动函数模块
+  11:./Application/BSPSys/BSPDriver/BSPSPI.c **** ** @Instructions :
+  12:./Application/BSPSys/BSPDriver/BSPSPI.c **** **===========================================================================================*/
+  13:./Application/BSPSys/BSPDriver/BSPSPI.c **** 
+  14:./Application/BSPSys/BSPDriver/BSPSPI.c **** /*=============================================================================================
+  15:./Application/BSPSys/BSPDriver/BSPSPI.c **** ** @Header file definition
+  16:./Application/BSPSys/BSPDriver/BSPSPI.c **** **===========================================================================================*/
+  17:./Application/BSPSys/BSPDriver/BSPSPI.c **** #include "main.h"
+  18:./Application/BSPSys/BSPDriver/BSPSPI.c **** #include "BSPTypeDef.h"
+  19:./Application/BSPSys/BSPDriver/BSPSPI.c **** #include "BSPConfig.h"
+  20:./Application/BSPSys/BSPDriver/BSPSPI.c **** #include "BSPIRQ.h"
+  21:./Application/BSPSys/BSPDriver/BSPSPI.c **** #include "BSPSPI.h"
+  22:./Application/BSPSys/BSPDriver/BSPSPI.c **** #include "spi.h"
+  23:./Application/BSPSys/BSPDriver/BSPSPI.c **** 
+  24:./Application/BSPSys/BSPDriver/BSPSPI.c **** 
+  25:./Application/BSPSys/BSPDriver/BSPSPI.c **** /*=============================================================================================
+  26:./Application/BSPSys/BSPDriver/BSPSPI.c **** ** @Global variable definition
+  27:./Application/BSPSys/BSPDriver/BSPSPI.c **** **===========================================================================================*/
+  28:./Application/BSPSys/BSPDriver/BSPSPI.c **** static u8 sSpiWorkState[eSPINUM] = {0};
+  29:./Application/BSPSys/BSPDriver/BSPSPI.c **** static u8 sSpiRcvData[eSPINUM] = {0};
+  30:./Application/BSPSys/BSPDriver/BSPSPI.c **** 
+  31:./Application/BSPSys/BSPDriver/BSPSPI.c **** M_SPI_t GdSpiTab[eSPINUM] = 
+  32:./Application/BSPSys/BSPDriver/BSPSPI.c **** {
+  33:./Application/BSPSys/BSPDriver/BSPSPI.c ****     {
+ARM GAS  /tmp/ccNmtkAE.s 			page 2
+
+
+  34:./Application/BSPSys/BSPDriver/BSPSPI.c **** //        .spi = (u32)&SPI1,
+  35:./Application/BSPSys/BSPDriver/BSPSPI.c **** //        .dma = (u32)&DMA1,
+  36:./Application/BSPSys/BSPDriver/BSPSPI.c **** //        .dmaTxCh=DMA_CH2,
+  37:./Application/BSPSys/BSPDriver/BSPSPI.c **** //        .dmaRxCh=DMA_CH1,
+  38:./Application/BSPSys/BSPDriver/BSPSPI.c **** 		.dmaTxDone = true,
+  39:./Application/BSPSys/BSPDriver/BSPSPI.c **** 		.dmaRxDone = true,
+  40:./Application/BSPSys/BSPDriver/BSPSPI.c ****     },
+  41:./Application/BSPSys/BSPDriver/BSPSPI.c ****     {
+  42:./Application/BSPSys/BSPDriver/BSPSPI.c **** //        .spi = (u32)&SPI2,
+  43:./Application/BSPSys/BSPDriver/BSPSPI.c **** //        .dma = (u32)&DMA1,
+  44:./Application/BSPSys/BSPDriver/BSPSPI.c **** //        .dmaTxCh=DMA_CH4,
+  45:./Application/BSPSys/BSPDriver/BSPSPI.c **** //        .dmaRxCh=DMA_CH3,
+  46:./Application/BSPSys/BSPDriver/BSPSPI.c **** 		.dmaTxDone = true,
+  47:./Application/BSPSys/BSPDriver/BSPSPI.c **** 		.dmaRxDone = true,
+  48:./Application/BSPSys/BSPDriver/BSPSPI.c ****     }
+  49:./Application/BSPSys/BSPDriver/BSPSPI.c **** };
+  50:./Application/BSPSys/BSPDriver/BSPSPI.c **** 
+  51:./Application/BSPSys/BSPDriver/BSPSPI.c **** /*=============================================================================================
+  52:./Application/BSPSys/BSPDriver/BSPSPI.c **** ** @Static function declaration
+  53:./Application/BSPSys/BSPDriver/BSPSPI.c **** **===========================================================================================*/
+  54:./Application/BSPSys/BSPDriver/BSPSPI.c **** 
+  55:./Application/BSPSys/BSPDriver/BSPSPI.c **** /*=============================================================================================
+  56:./Application/BSPSys/BSPDriver/BSPSPI.c **** ** @Interface function definition
+  57:./Application/BSPSys/BSPDriver/BSPSPI.c **** **===========================================================================================*/
+  58:./Application/BSPSys/BSPDriver/BSPSPI.c **** /*=============================================================================================
+  59:./Application/BSPSys/BSPDriver/BSPSPI.c **** ** @Name      : void BSPSPIInit(e_SPINum spiNum)
+  60:./Application/BSPSys/BSPDriver/BSPSPI.c **** ** @Input     : spiNum:SPI通道号
+  61:./Application/BSPSys/BSPDriver/BSPSPI.c **** ** @Output    : 初始化结果 TRUE:成功 FALSE:失败
+  62:./Application/BSPSys/BSPDriver/BSPSPI.c **** ** @Function  : SPI驱动模块初始化
+  63:./Application/BSPSys/BSPDriver/BSPSPI.c **** ** @The notes : BSP调用
+  64:./Application/BSPSys/BSPDriver/BSPSPI.c **** **===========================================================================================*/
+  65:./Application/BSPSys/BSPDriver/BSPSPI.c **** void BSPSPIInit(e_SPINum spiNum)
+  66:./Application/BSPSys/BSPDriver/BSPSPI.c **** {    
+  26              		.loc 1 66 0
+  27              		.cfi_startproc
+  28              		@ args = 0, pretend = 0, frame = 0
+  29              		@ frame_needed = 0, uses_anonymous_args = 0
+  30              	.LVL0:
+  31 0000 10B5     		push	{r4, lr}
+  32              	.LCFI0:
+  33              		.cfi_def_cfa_offset 8
+  34              		.cfi_offset 4, -8
+  35              		.cfi_offset 14, -4
+  67:./Application/BSPSys/BSPDriver/BSPSPI.c ****     if(spiNum >= eSPINUM)
+  36              		.loc 1 67 0
+  37 0002 0228     		cmp	r0, #2
+  38 0004 05D8     		bhi	.L1
+  68:./Application/BSPSys/BSPDriver/BSPSPI.c ****     {
+  69:./Application/BSPSys/BSPDriver/BSPSPI.c ****         return;
+  70:./Application/BSPSys/BSPDriver/BSPSPI.c ****     }
+  71:./Application/BSPSys/BSPDriver/BSPSPI.c ****     if(((eSPI1 == spiNum) && (1 != gBSPFunCfg.Bits.SPI1En))
+  39              		.loc 1 71 0
+  40 0006 0028     		cmp	r0, #0
+  41 0008 04D1     		bne	.L3
+  42              		.loc 1 71 0 is_stmt 0 discriminator 1
+  43 000a 0C4B     		ldr	r3, .L10
+  44 000c 1B88     		ldrh	r3, [r3]
+ARM GAS  /tmp/ccNmtkAE.s 			page 3
+
+
+  45 000e 5B07     		lsls	r3, r3, #29
+  46 0010 06D4     		bmi	.L4
+  47              	.LVL1:
+  48              	.L1:
+  72:./Application/BSPSys/BSPDriver/BSPSPI.c ****         || ((eSPI3 == spiNum) && (1 != gBSPFunCfg.Bits.SPI3En)))
+  73:./Application/BSPSys/BSPDriver/BSPSPI.c ****     {
+  74:./Application/BSPSys/BSPDriver/BSPSPI.c ****         return;
+  75:./Application/BSPSys/BSPDriver/BSPSPI.c ****     }
+  76:./Application/BSPSys/BSPDriver/BSPSPI.c ****     sSpiWorkState[spiNum] = 0;
+  77:./Application/BSPSys/BSPDriver/BSPSPI.c ****     switch(spiNum)
+  78:./Application/BSPSys/BSPDriver/BSPSPI.c ****     {
+  79:./Application/BSPSys/BSPDriver/BSPSPI.c ****         case eSPI1:
+  80:./Application/BSPSys/BSPDriver/BSPSPI.c ****             MX_SPI1_Init();
+  81:./Application/BSPSys/BSPDriver/BSPSPI.c ****             break;
+  82:./Application/BSPSys/BSPDriver/BSPSPI.c ****               
+  83:./Application/BSPSys/BSPDriver/BSPSPI.c ****         case eSPI3:       
+  84:./Application/BSPSys/BSPDriver/BSPSPI.c ****             MX_SPI3_Init();
+  85:./Application/BSPSys/BSPDriver/BSPSPI.c ****             break;
+  86:./Application/BSPSys/BSPDriver/BSPSPI.c ****                       
+  87:./Application/BSPSys/BSPDriver/BSPSPI.c ****         default:
+  88:./Application/BSPSys/BSPDriver/BSPSPI.c ****             break;
+  89:./Application/BSPSys/BSPDriver/BSPSPI.c ****     }
+  90:./Application/BSPSys/BSPDriver/BSPSPI.c **** }
+  49              		.loc 1 90 0 is_stmt 1
+  50              		@ sp needed
+  51 0012 10BD     		pop	{r4, pc}
+  52              	.LVL2:
+  53              	.L3:
+  72:./Application/BSPSys/BSPDriver/BSPSPI.c ****         || ((eSPI3 == spiNum) && (1 != gBSPFunCfg.Bits.SPI3En)))
+  54              		.loc 1 72 0
+  55 0014 0228     		cmp	r0, #2
+  56 0016 03D1     		bne	.L4
+  72:./Application/BSPSys/BSPDriver/BSPSPI.c ****         || ((eSPI3 == spiNum) && (1 != gBSPFunCfg.Bits.SPI3En)))
+  57              		.loc 1 72 0 is_stmt 0 discriminator 1
+  58 0018 084B     		ldr	r3, .L10
+  59 001a 1B88     		ldrh	r3, [r3]
+  60 001c 1B07     		lsls	r3, r3, #28
+  61 001e F8D5     		bpl	.L1
+  62              	.L4:
+  76:./Application/BSPSys/BSPDriver/BSPSPI.c ****     switch(spiNum)
+  63              		.loc 1 76 0 is_stmt 1
+  64 0020 0022     		movs	r2, #0
+  65 0022 074B     		ldr	r3, .L10+4
+  66 0024 1A54     		strb	r2, [r3, r0]
+  77:./Application/BSPSys/BSPDriver/BSPSPI.c ****     {
+  67              		.loc 1 77 0
+  68 0026 9042     		cmp	r0, r2
+  69 0028 04D0     		beq	.L5
+  70 002a 0228     		cmp	r0, #2
+  71 002c F1D1     		bne	.L1
+  84:./Application/BSPSys/BSPDriver/BSPSPI.c ****             break;
+  72              		.loc 1 84 0
+  73 002e FFF7FEFF 		bl	MX_SPI3_Init
+  74              	.LVL3:
+  85:./Application/BSPSys/BSPDriver/BSPSPI.c ****                       
+  75              		.loc 1 85 0
+  76 0032 EEE7     		b	.L1
+ARM GAS  /tmp/ccNmtkAE.s 			page 4
+
+
+  77              	.LVL4:
+  78              	.L5:
+  80:./Application/BSPSys/BSPDriver/BSPSPI.c ****             break;
+  79              		.loc 1 80 0
+  80 0034 FFF7FEFF 		bl	MX_SPI1_Init
+  81              	.LVL5:
+  81:./Application/BSPSys/BSPDriver/BSPSPI.c ****               
+  82              		.loc 1 81 0
+  83 0038 EBE7     		b	.L1
+  84              	.L11:
+  85 003a C046     		.align	2
+  86              	.L10:
+  87 003c 00000000 		.word	gBSPFunCfg
+  88 0040 00000000 		.word	.LANCHOR0
+  89              		.cfi_endproc
+  90              	.LFE493:
+  92              		.section	.text.BSPSPIGetWorkState,"ax",%progbits
+  93              		.align	1
+  94              		.global	BSPSPIGetWorkState
+  95              		.syntax unified
+  96              		.code	16
+  97              		.thumb_func
+  98              		.fpu softvfp
+ 100              	BSPSPIGetWorkState:
+ 101              	.LFB494:
+  91:./Application/BSPSys/BSPDriver/BSPSPI.c **** 
+  92:./Application/BSPSys/BSPDriver/BSPSPI.c **** /*=============================================================================================
+  93:./Application/BSPSys/BSPDriver/BSPSPI.c **** ** @Name      : u8 BSPSPIGetWorkState(e_SPINum spiNum)
+  94:./Application/BSPSys/BSPDriver/BSPSPI.c **** ** @Input     : sspiNum:SPI通道号
+  95:./Application/BSPSys/BSPDriver/BSPSPI.c **** ** @Output    : SPI工作状态 0:空闲 1:忙
+  96:./Application/BSPSys/BSPDriver/BSPSPI.c **** ** @Function  : 获取SPI工作状态
+  97:./Application/BSPSys/BSPDriver/BSPSPI.c **** ** @The notes : 用户调用
+  98:./Application/BSPSys/BSPDriver/BSPSPI.c **** **===========================================================================================*/
+  99:./Application/BSPSys/BSPDriver/BSPSPI.c **** u8 BSPSPIGetWorkState(e_SPINum spiNum)
+ 100:./Application/BSPSys/BSPDriver/BSPSPI.c **** {
+ 102              		.loc 1 100 0
+ 103              		.cfi_startproc
+ 104              		@ args = 0, pretend = 0, frame = 0
+ 105              		@ frame_needed = 0, uses_anonymous_args = 0
+ 106              		@ link register save eliminated.
+ 107              	.LVL6:
+ 101:./Application/BSPSys/BSPDriver/BSPSPI.c ****     //模块未使能不进行初始化
+ 102:./Application/BSPSys/BSPDriver/BSPSPI.c ****     if(((eSPI1 == spiNum) && (1 != gBSPFunCfg.Bits.SPI1En))
+ 108              		.loc 1 102 0
+ 109 0000 0028     		cmp	r0, #0
+ 110 0002 06D1     		bne	.L13
+ 111              		.loc 1 102 0 is_stmt 0 discriminator 1
+ 112 0004 094B     		ldr	r3, .L19
+ 113 0006 1B88     		ldrh	r3, [r3]
+ 114 0008 5B07     		lsls	r3, r3, #29
+ 115 000a 08D4     		bmi	.L14
+ 116              	.L18:
+ 103:./Application/BSPSys/BSPDriver/BSPSPI.c ****         || ((eSPI3 == spiNum) && (1 != gBSPFunCfg.Bits.SPI3En)))
+ 104:./Application/BSPSys/BSPDriver/BSPSPI.c ****     {
+ 105:./Application/BSPSys/BSPDriver/BSPSPI.c ****         return(0xff);
+ 117              		.loc 1 105 0 is_stmt 1
+ 118 000c FF23     		movs	r3, #255
+ARM GAS  /tmp/ccNmtkAE.s 			page 5
+
+
+ 119              	.L15:
+ 106:./Application/BSPSys/BSPDriver/BSPSPI.c ****     }
+ 107:./Application/BSPSys/BSPDriver/BSPSPI.c ****     
+ 108:./Application/BSPSys/BSPDriver/BSPSPI.c ****     if(spiNum >= eSPINUM)
+ 109:./Application/BSPSys/BSPDriver/BSPSPI.c ****     {
+ 110:./Application/BSPSys/BSPDriver/BSPSPI.c ****         return(0xff);
+ 111:./Application/BSPSys/BSPDriver/BSPSPI.c ****     }
+ 112:./Application/BSPSys/BSPDriver/BSPSPI.c ****     
+ 113:./Application/BSPSys/BSPDriver/BSPSPI.c ****     return(sSpiWorkState[spiNum]);
+ 114:./Application/BSPSys/BSPDriver/BSPSPI.c **** }
+ 120              		.loc 1 114 0
+ 121 000e 1800     		movs	r0, r3
+ 122              	.LVL7:
+ 123              		@ sp needed
+ 124 0010 7047     		bx	lr
+ 125              	.LVL8:
+ 126              	.L13:
+ 103:./Application/BSPSys/BSPDriver/BSPSPI.c ****         || ((eSPI3 == spiNum) && (1 != gBSPFunCfg.Bits.SPI3En)))
+ 127              		.loc 1 103 0
+ 128 0012 0228     		cmp	r0, #2
+ 129 0014 06D1     		bne	.L16
+ 103:./Application/BSPSys/BSPDriver/BSPSPI.c ****         || ((eSPI3 == spiNum) && (1 != gBSPFunCfg.Bits.SPI3En)))
+ 130              		.loc 1 103 0 is_stmt 0 discriminator 1
+ 131 0016 054B     		ldr	r3, .L19
+ 132 0018 1B88     		ldrh	r3, [r3]
+ 133 001a 1B07     		lsls	r3, r3, #28
+ 134 001c F6D5     		bpl	.L18
+ 135              	.L14:
+ 113:./Application/BSPSys/BSPDriver/BSPSPI.c **** }
+ 136              		.loc 1 113 0 is_stmt 1
+ 137 001e 044B     		ldr	r3, .L19+4
+ 138 0020 1B5C     		ldrb	r3, [r3, r0]
+ 139 0022 F4E7     		b	.L15
+ 140              	.L16:
+ 105:./Application/BSPSys/BSPDriver/BSPSPI.c ****     }
+ 141              		.loc 1 105 0
+ 142 0024 FF23     		movs	r3, #255
+ 108:./Application/BSPSys/BSPDriver/BSPSPI.c ****     {
+ 143              		.loc 1 108 0
+ 144 0026 0228     		cmp	r0, #2
+ 145 0028 F1D8     		bhi	.L15
+ 146 002a F8E7     		b	.L14
+ 147              	.L20:
+ 148              		.align	2
+ 149              	.L19:
+ 150 002c 00000000 		.word	gBSPFunCfg
+ 151 0030 00000000 		.word	.LANCHOR0
+ 152              		.cfi_endproc
+ 153              	.LFE494:
+ 155              		.section	.text.BSPSPIDmaSendRcvData,"ax",%progbits
+ 156              		.align	1
+ 157              		.global	BSPSPIDmaSendRcvData
+ 158              		.syntax unified
+ 159              		.code	16
+ 160              		.thumb_func
+ 161              		.fpu softvfp
+ 163              	BSPSPIDmaSendRcvData:
+ARM GAS  /tmp/ccNmtkAE.s 			page 6
+
+
+ 164              	.LFB495:
+ 115:./Application/BSPSys/BSPDriver/BSPSPI.c **** 
+ 116:./Application/BSPSys/BSPDriver/BSPSPI.c **** /*=============================================================================================
+ 117:./Application/BSPSys/BSPDriver/BSPSPI.c **** ** @Name      : u8 BSPSPIDmaSendRcvData(e_SPINum spiNum, u8 * tdata, u8 *rdata, u8 size)
+ 118:./Application/BSPSys/BSPDriver/BSPSPI.c **** ** @Input     : sspiNum:SPI通道号 *tdata:需要发送的数据 *rdata:需要接收的数据 size
+ 119:./Application/BSPSys/BSPDriver/BSPSPI.c **** ** @Output    : TRUE:成功 FALSE:失败
+ 120:./Application/BSPSys/BSPDriver/BSPSPI.c **** ** @Function  : SPI通过DMA发送和接收数据
+ 121:./Application/BSPSys/BSPDriver/BSPSPI.c **** ** @The notes : 用户调用
+ 122:./Application/BSPSys/BSPDriver/BSPSPI.c **** **===========================================================================================*/
+ 123:./Application/BSPSys/BSPDriver/BSPSPI.c **** u8 BSPSPIDmaSendRcvData(e_SPINum spiNum, u8 *tdata, u8 *rdata, u8 size)
+ 124:./Application/BSPSys/BSPDriver/BSPSPI.c **** {
+ 165              		.loc 1 124 0
+ 166              		.cfi_startproc
+ 167              		@ args = 0, pretend = 0, frame = 0
+ 168              		@ frame_needed = 0, uses_anonymous_args = 0
+ 169              	.LVL9:
+ 170 0000 70B5     		push	{r4, r5, r6, lr}
+ 171              	.LCFI1:
+ 172              		.cfi_def_cfa_offset 16
+ 173              		.cfi_offset 4, -16
+ 174              		.cfi_offset 5, -12
+ 175              		.cfi_offset 6, -8
+ 176              		.cfi_offset 14, -4
+ 177              		.loc 1 124 0
+ 178 0002 051E     		subs	r5, r0, #0
+ 179 0004 1448     		ldr	r0, .L37
+ 180              	.LVL10:
+ 125:./Application/BSPSys/BSPDriver/BSPSPI.c ****     //模块未使能不进行初始化
+ 126:./Application/BSPSys/BSPDriver/BSPSPI.c ****     if(((eSPI1 == spiNum) && (1 != gBSPFunCfg.Bits.SPI1En))
+ 181              		.loc 1 126 0
+ 182 0006 04D1     		bne	.L22
+ 183              		.loc 1 126 0 is_stmt 0 discriminator 1
+ 184 0008 0488     		ldrh	r4, [r0]
+ 185 000a 6407     		lsls	r4, r4, #29
+ 186 000c 06D4     		bmi	.L23
+ 187              	.LVL11:
+ 188              	.L35:
+ 127:./Application/BSPSys/BSPDriver/BSPSPI.c ****         || ((eSPI3 == spiNum) && (1 != gBSPFunCfg.Bits.SPI3En)))
+ 128:./Application/BSPSys/BSPDriver/BSPSPI.c ****     {
+ 129:./Application/BSPSys/BSPDriver/BSPSPI.c ****         return(FALSE);
+ 130:./Application/BSPSys/BSPDriver/BSPSPI.c ****     }
+ 131:./Application/BSPSys/BSPDriver/BSPSPI.c ****     if(1 != gBSPFunCfg.Bits.DMAEn)                                              /*DMA使能*/
+ 132:./Application/BSPSys/BSPDriver/BSPSPI.c ****     {
+ 133:./Application/BSPSys/BSPDriver/BSPSPI.c ****         return(FALSE);                                                             
+ 134:./Application/BSPSys/BSPDriver/BSPSPI.c ****     } 
+ 135:./Application/BSPSys/BSPDriver/BSPSPI.c ****     switch(spiNum)
+ 136:./Application/BSPSys/BSPDriver/BSPSPI.c ****     {
+ 137:./Application/BSPSys/BSPDriver/BSPSPI.c ****         /*SPI1发送*/
+ 138:./Application/BSPSys/BSPDriver/BSPSPI.c ****         case eSPI1:
+ 139:./Application/BSPSys/BSPDriver/BSPSPI.c ****             /*SPI正忙*/
+ 140:./Application/BSPSys/BSPDriver/BSPSPI.c ****             if(1 == sSpiWorkState[spiNum])
+ 141:./Application/BSPSys/BSPDriver/BSPSPI.c ****             {
+ 142:./Application/BSPSys/BSPDriver/BSPSPI.c ****                 //return(FALSE);
+ 143:./Application/BSPSys/BSPDriver/BSPSPI.c ****             }
+ 144:./Application/BSPSys/BSPDriver/BSPSPI.c ****             
+ 145:./Application/BSPSys/BSPDriver/BSPSPI.c ****             /*SPI切换为忙*/
+ 146:./Application/BSPSys/BSPDriver/BSPSPI.c ****             sSpiWorkState[spiNum] = 1;
+ARM GAS  /tmp/ccNmtkAE.s 			page 7
+
+
+ 147:./Application/BSPSys/BSPDriver/BSPSPI.c ****             if(HAL_OK !=HAL_SPI_TransmitReceive_DMA(&hspi1,tdata,rdata,size))
+ 148:./Application/BSPSys/BSPDriver/BSPSPI.c ****             {
+ 149:./Application/BSPSys/BSPDriver/BSPSPI.c ****                 return (FALSE);
+ 150:./Application/BSPSys/BSPDriver/BSPSPI.c ****             }
+ 151:./Application/BSPSys/BSPDriver/BSPSPI.c ****             /*SPI切换为空闲*/
+ 152:./Application/BSPSys/BSPDriver/BSPSPI.c ****             sSpiWorkState[spiNum] = 0;
+ 153:./Application/BSPSys/BSPDriver/BSPSPI.c ****             break;
+ 154:./Application/BSPSys/BSPDriver/BSPSPI.c ****      
+ 155:./Application/BSPSys/BSPDriver/BSPSPI.c ****         /*SPI3发送*/
+ 156:./Application/BSPSys/BSPDriver/BSPSPI.c ****         case eSPI3:
+ 157:./Application/BSPSys/BSPDriver/BSPSPI.c ****             /*SPI正忙*/
+ 158:./Application/BSPSys/BSPDriver/BSPSPI.c ****             if(1 == sSpiWorkState[spiNum])
+ 159:./Application/BSPSys/BSPDriver/BSPSPI.c ****             {
+ 160:./Application/BSPSys/BSPDriver/BSPSPI.c ****                 //return(FALSE);
+ 161:./Application/BSPSys/BSPDriver/BSPSPI.c ****             }
+ 162:./Application/BSPSys/BSPDriver/BSPSPI.c ****             
+ 163:./Application/BSPSys/BSPDriver/BSPSPI.c ****             /*SPI切换为忙*/
+ 164:./Application/BSPSys/BSPDriver/BSPSPI.c ****             sSpiWorkState[spiNum] = 1;
+ 165:./Application/BSPSys/BSPDriver/BSPSPI.c ****             if(HAL_OK !=HAL_SPI_TransmitReceive_DMA(&hspi3,tdata,rdata,size))
+ 166:./Application/BSPSys/BSPDriver/BSPSPI.c ****             {
+ 167:./Application/BSPSys/BSPDriver/BSPSPI.c ****                 return (FALSE);
+ 168:./Application/BSPSys/BSPDriver/BSPSPI.c ****             }
+ 169:./Application/BSPSys/BSPDriver/BSPSPI.c ****             /*SPI切换为空闲*/
+ 170:./Application/BSPSys/BSPDriver/BSPSPI.c ****             sSpiWorkState[spiNum] = 0;
+ 171:./Application/BSPSys/BSPDriver/BSPSPI.c ****             break; 
+ 172:./Application/BSPSys/BSPDriver/BSPSPI.c ****             
+ 173:./Application/BSPSys/BSPDriver/BSPSPI.c ****         default:
+ 174:./Application/BSPSys/BSPDriver/BSPSPI.c ****             return(FALSE);
+ 189              		.loc 1 174 0 is_stmt 1
+ 190 000e 0020     		movs	r0, #0
+ 191 0010 21E0     		b	.L24
+ 192              	.LVL12:
+ 193              	.L22:
+ 127:./Application/BSPSys/BSPDriver/BSPSPI.c ****         || ((eSPI3 == spiNum) && (1 != gBSPFunCfg.Bits.SPI3En)))
+ 194              		.loc 1 127 0
+ 195 0012 022D     		cmp	r5, #2
+ 196 0014 02D1     		bne	.L23
+ 127:./Application/BSPSys/BSPDriver/BSPSPI.c ****         || ((eSPI3 == spiNum) && (1 != gBSPFunCfg.Bits.SPI3En)))
+ 197              		.loc 1 127 0 is_stmt 0 discriminator 1
+ 198 0016 0488     		ldrh	r4, [r0]
+ 199 0018 2407     		lsls	r4, r4, #28
+ 200 001a F8D5     		bpl	.L35
+ 201              	.L23:
+ 131:./Application/BSPSys/BSPDriver/BSPSPI.c ****     {
+ 202              		.loc 1 131 0 is_stmt 1
+ 203 001c 0088     		ldrh	r0, [r0]
+ 204 001e C005     		lsls	r0, r0, #23
+ 205 0020 F5D5     		bpl	.L35
+ 135:./Application/BSPSys/BSPDriver/BSPSPI.c ****     {
+ 206              		.loc 1 135 0
+ 207 0022 002D     		cmp	r5, #0
+ 208 0024 0CD0     		beq	.L26
+ 209 0026 022D     		cmp	r5, #2
+ 210 0028 F1D1     		bne	.L35
+ 164:./Application/BSPSys/BSPDriver/BSPSPI.c ****             if(HAL_OK !=HAL_SPI_TransmitReceive_DMA(&hspi3,tdata,rdata,size))
+ 211              		.loc 1 164 0
+ 212 002a 0124     		movs	r4, #1
+ARM GAS  /tmp/ccNmtkAE.s 			page 8
+
+
+ 213 002c 0B4D     		ldr	r5, .L37+4
+ 165:./Application/BSPSys/BSPDriver/BSPSPI.c ****             {
+ 214              		.loc 1 165 0
+ 215 002e 9BB2     		uxth	r3, r3
+ 216              	.LVL13:
+ 217 0030 0B48     		ldr	r0, .L37+8
+ 164:./Application/BSPSys/BSPDriver/BSPSPI.c ****             if(HAL_OK !=HAL_SPI_TransmitReceive_DMA(&hspi3,tdata,rdata,size))
+ 218              		.loc 1 164 0
+ 219 0032 AC70     		strb	r4, [r5, #2]
+ 165:./Application/BSPSys/BSPDriver/BSPSPI.c ****             {
+ 220              		.loc 1 165 0
+ 221 0034 FFF7FEFF 		bl	HAL_SPI_TransmitReceive_DMA
+ 222              	.LVL14:
+ 223 0038 0028     		cmp	r0, #0
+ 224 003a E8D1     		bne	.L35
+ 170:./Application/BSPSys/BSPDriver/BSPSPI.c ****             break; 
+ 225              		.loc 1 170 0
+ 226 003c A870     		strb	r0, [r5, #2]
+ 227 003e 09E0     		b	.L36
+ 228              	.LVL15:
+ 229              	.L26:
+ 146:./Application/BSPSys/BSPDriver/BSPSPI.c ****             if(HAL_OK !=HAL_SPI_TransmitReceive_DMA(&hspi1,tdata,rdata,size))
+ 230              		.loc 1 146 0
+ 231 0040 0124     		movs	r4, #1
+ 232 0042 064E     		ldr	r6, .L37+4
+ 147:./Application/BSPSys/BSPDriver/BSPSPI.c ****             {
+ 233              		.loc 1 147 0
+ 234 0044 9BB2     		uxth	r3, r3
+ 235              	.LVL16:
+ 236 0046 0748     		ldr	r0, .L37+12
+ 146:./Application/BSPSys/BSPDriver/BSPSPI.c ****             if(HAL_OK !=HAL_SPI_TransmitReceive_DMA(&hspi1,tdata,rdata,size))
+ 237              		.loc 1 146 0
+ 238 0048 3470     		strb	r4, [r6]
+ 147:./Application/BSPSys/BSPDriver/BSPSPI.c ****             {
+ 239              		.loc 1 147 0
+ 240 004a FFF7FEFF 		bl	HAL_SPI_TransmitReceive_DMA
+ 241              	.LVL17:
+ 242 004e 0028     		cmp	r0, #0
+ 243 0050 DDD1     		bne	.L35
+ 152:./Application/BSPSys/BSPDriver/BSPSPI.c ****             break;
+ 244              		.loc 1 152 0
+ 245 0052 3570     		strb	r5, [r6]
+ 246              	.L36:
+ 175:./Application/BSPSys/BSPDriver/BSPSPI.c ****     }
+ 176:./Application/BSPSys/BSPDriver/BSPSPI.c ****     
+ 177:./Application/BSPSys/BSPDriver/BSPSPI.c ****     return(TRUE);
+ 247              		.loc 1 177 0
+ 248 0054 2000     		movs	r0, r4
+ 249              	.L24:
+ 178:./Application/BSPSys/BSPDriver/BSPSPI.c **** }
+ 250              		.loc 1 178 0
+ 251              		@ sp needed
+ 252 0056 70BD     		pop	{r4, r5, r6, pc}
+ 253              	.L38:
+ 254              		.align	2
+ 255              	.L37:
+ 256 0058 00000000 		.word	gBSPFunCfg
+ARM GAS  /tmp/ccNmtkAE.s 			page 9
+
+
+ 257 005c 00000000 		.word	.LANCHOR0
+ 258 0060 00000000 		.word	hspi3
+ 259 0064 00000000 		.word	hspi1
+ 260              		.cfi_endproc
+ 261              	.LFE495:
+ 263              		.section	.text.BSPSPISendRcvData,"ax",%progbits
+ 264              		.align	1
+ 265              		.global	BSPSPISendRcvData
+ 266              		.syntax unified
+ 267              		.code	16
+ 268              		.thumb_func
+ 269              		.fpu softvfp
+ 271              	BSPSPISendRcvData:
+ 272              	.LFB496:
+ 179:./Application/BSPSys/BSPDriver/BSPSPI.c **** 
+ 180:./Application/BSPSys/BSPDriver/BSPSPI.c **** /*=============================================================================================
+ 181:./Application/BSPSys/BSPDriver/BSPSPI.c **** ** @Name      : u8 BSPSPISendRcvData(e_SPINum spiNum, u8 *tdata, u8 *rdata, u8 size)
+ 182:./Application/BSPSys/BSPDriver/BSPSPI.c **** ** @Input     : sspiNum:SPI通道号 *tdata 需要发送的数据 *rdata 接收的数据 size:数�
+ 183:./Application/BSPSys/BSPDriver/BSPSPI.c **** ** @Output    : TRUE:成功 FALSE:失败
+ 184:./Application/BSPSys/BSPDriver/BSPSPI.c **** ** @Function  : SPI直接发送和接收数据
+ 185:./Application/BSPSys/BSPDriver/BSPSPI.c **** ** @The notes : 用户调用
+ 186:./Application/BSPSys/BSPDriver/BSPSPI.c **** **===========================================================================================*/
+ 187:./Application/BSPSys/BSPDriver/BSPSPI.c **** u8 BSPSPISendRcvData(e_SPINum spiNum, u8 *tdata, u8 *rdata, u8 size)
+ 188:./Application/BSPSys/BSPDriver/BSPSPI.c **** {
+ 273              		.loc 1 188 0
+ 274              		.cfi_startproc
+ 275              		@ args = 0, pretend = 0, frame = 0
+ 276              		@ frame_needed = 0, uses_anonymous_args = 0
+ 277              	.LVL18:
+ 278 0000 73B5     		push	{r0, r1, r4, r5, r6, lr}
+ 279              	.LCFI2:
+ 280              		.cfi_def_cfa_offset 24
+ 281              		.cfi_offset 0, -24
+ 282              		.cfi_offset 1, -20
+ 283              		.cfi_offset 4, -16
+ 284              		.cfi_offset 5, -12
+ 285              		.cfi_offset 6, -8
+ 286              		.cfi_offset 14, -4
+ 287              		.loc 1 188 0
+ 288 0002 051E     		subs	r5, r0, #0
+ 289 0004 1648     		ldr	r0, .L55
+ 290              	.LVL19:
+ 189:./Application/BSPSys/BSPDriver/BSPSPI.c ****     //模块未使能不进行初始化
+ 190:./Application/BSPSys/BSPDriver/BSPSPI.c ****     if(((eSPI1 == spiNum) && (1 != gBSPFunCfg.Bits.SPI1En))
+ 291              		.loc 1 190 0
+ 292 0006 04D1     		bne	.L40
+ 293              		.loc 1 190 0 is_stmt 0 discriminator 1
+ 294 0008 0488     		ldrh	r4, [r0]
+ 295 000a 6407     		lsls	r4, r4, #29
+ 296 000c 06D4     		bmi	.L41
+ 297              	.LVL20:
+ 298              	.L53:
+ 191:./Application/BSPSys/BSPDriver/BSPSPI.c ****         || ((eSPI3 == spiNum) && (1 != gBSPFunCfg.Bits.SPI3En)))
+ 192:./Application/BSPSys/BSPDriver/BSPSPI.c ****     {
+ 193:./Application/BSPSys/BSPDriver/BSPSPI.c ****         return(FALSE);
+ 194:./Application/BSPSys/BSPDriver/BSPSPI.c ****     }
+ 195:./Application/BSPSys/BSPDriver/BSPSPI.c ****     if(1 != gBSPFunCfg.Bits.DMAEn)                                              /*DMA使能*/
+ARM GAS  /tmp/ccNmtkAE.s 			page 10
+
+
+ 196:./Application/BSPSys/BSPDriver/BSPSPI.c ****     {
+ 197:./Application/BSPSys/BSPDriver/BSPSPI.c ****         return(FALSE);                                                             
+ 198:./Application/BSPSys/BSPDriver/BSPSPI.c ****     } 
+ 199:./Application/BSPSys/BSPDriver/BSPSPI.c ****     switch(spiNum)
+ 200:./Application/BSPSys/BSPDriver/BSPSPI.c ****     {
+ 201:./Application/BSPSys/BSPDriver/BSPSPI.c ****         /*SPI1发送*/
+ 202:./Application/BSPSys/BSPDriver/BSPSPI.c ****         case eSPI1:
+ 203:./Application/BSPSys/BSPDriver/BSPSPI.c ****             /*SPI正忙*/
+ 204:./Application/BSPSys/BSPDriver/BSPSPI.c ****             if(1 == sSpiWorkState[spiNum])
+ 205:./Application/BSPSys/BSPDriver/BSPSPI.c ****             {
+ 206:./Application/BSPSys/BSPDriver/BSPSPI.c ****                 //return(FALSE);
+ 207:./Application/BSPSys/BSPDriver/BSPSPI.c ****             }
+ 208:./Application/BSPSys/BSPDriver/BSPSPI.c ****             
+ 209:./Application/BSPSys/BSPDriver/BSPSPI.c ****             /*SPI切换为忙*/
+ 210:./Application/BSPSys/BSPDriver/BSPSPI.c ****             sSpiWorkState[spiNum] = 1;
+ 211:./Application/BSPSys/BSPDriver/BSPSPI.c ****             if(HAL_OK !=HAL_SPI_TransmitReceive(&hspi1,tdata,rdata,size,100))
+ 212:./Application/BSPSys/BSPDriver/BSPSPI.c ****             {
+ 213:./Application/BSPSys/BSPDriver/BSPSPI.c ****                 return (FALSE);
+ 214:./Application/BSPSys/BSPDriver/BSPSPI.c ****             }
+ 215:./Application/BSPSys/BSPDriver/BSPSPI.c ****             /*SPI切换为空闲*/
+ 216:./Application/BSPSys/BSPDriver/BSPSPI.c ****             sSpiWorkState[spiNum] = 0;
+ 217:./Application/BSPSys/BSPDriver/BSPSPI.c ****             break;
+ 218:./Application/BSPSys/BSPDriver/BSPSPI.c ****      
+ 219:./Application/BSPSys/BSPDriver/BSPSPI.c ****         /*SPI3发送*/
+ 220:./Application/BSPSys/BSPDriver/BSPSPI.c ****         case eSPI3:
+ 221:./Application/BSPSys/BSPDriver/BSPSPI.c ****             /*SPI正忙*/
+ 222:./Application/BSPSys/BSPDriver/BSPSPI.c ****             if(1 == sSpiWorkState[spiNum])
+ 223:./Application/BSPSys/BSPDriver/BSPSPI.c ****             {
+ 224:./Application/BSPSys/BSPDriver/BSPSPI.c ****                 //return(FALSE);
+ 225:./Application/BSPSys/BSPDriver/BSPSPI.c ****             }
+ 226:./Application/BSPSys/BSPDriver/BSPSPI.c ****             
+ 227:./Application/BSPSys/BSPDriver/BSPSPI.c ****             /*SPI切换为忙*/
+ 228:./Application/BSPSys/BSPDriver/BSPSPI.c ****             sSpiWorkState[spiNum] = 1;
+ 229:./Application/BSPSys/BSPDriver/BSPSPI.c ****             if(HAL_OK !=HAL_SPI_TransmitReceive(&hspi3,tdata,rdata,size,100))
+ 230:./Application/BSPSys/BSPDriver/BSPSPI.c ****             {
+ 231:./Application/BSPSys/BSPDriver/BSPSPI.c ****                 return (FALSE);
+ 232:./Application/BSPSys/BSPDriver/BSPSPI.c ****             }
+ 233:./Application/BSPSys/BSPDriver/BSPSPI.c ****             /*SPI切换为空闲*/
+ 234:./Application/BSPSys/BSPDriver/BSPSPI.c ****             sSpiWorkState[spiNum] = 0;
+ 235:./Application/BSPSys/BSPDriver/BSPSPI.c ****             break; 
+ 236:./Application/BSPSys/BSPDriver/BSPSPI.c ****             
+ 237:./Application/BSPSys/BSPDriver/BSPSPI.c ****         default:
+ 238:./Application/BSPSys/BSPDriver/BSPSPI.c ****             return(FALSE);
+ 299              		.loc 1 238 0 is_stmt 1
+ 300 000e 0020     		movs	r0, #0
+ 301 0010 25E0     		b	.L42
+ 302              	.LVL21:
+ 303              	.L40:
+ 191:./Application/BSPSys/BSPDriver/BSPSPI.c ****         || ((eSPI3 == spiNum) && (1 != gBSPFunCfg.Bits.SPI3En)))
+ 304              		.loc 1 191 0
+ 305 0012 022D     		cmp	r5, #2
+ 306 0014 02D1     		bne	.L41
+ 191:./Application/BSPSys/BSPDriver/BSPSPI.c ****         || ((eSPI3 == spiNum) && (1 != gBSPFunCfg.Bits.SPI3En)))
+ 307              		.loc 1 191 0 is_stmt 0 discriminator 1
+ 308 0016 0488     		ldrh	r4, [r0]
+ 309 0018 2407     		lsls	r4, r4, #28
+ 310 001a F8D5     		bpl	.L53
+ARM GAS  /tmp/ccNmtkAE.s 			page 11
+
+
+ 311              	.L41:
+ 195:./Application/BSPSys/BSPDriver/BSPSPI.c ****     {
+ 312              		.loc 1 195 0 is_stmt 1
+ 313 001c 0088     		ldrh	r0, [r0]
+ 314 001e C005     		lsls	r0, r0, #23
+ 315 0020 F5D5     		bpl	.L53
+ 199:./Application/BSPSys/BSPDriver/BSPSPI.c ****     {
+ 316              		.loc 1 199 0
+ 317 0022 002D     		cmp	r5, #0
+ 318 0024 0ED0     		beq	.L44
+ 319 0026 022D     		cmp	r5, #2
+ 320 0028 F1D1     		bne	.L53
+ 229:./Application/BSPSys/BSPDriver/BSPSPI.c ****             {
+ 321              		.loc 1 229 0
+ 322 002a 6420     		movs	r0, #100
+ 228:./Application/BSPSys/BSPDriver/BSPSPI.c ****             if(HAL_OK !=HAL_SPI_TransmitReceive(&hspi3,tdata,rdata,size,100))
+ 323              		.loc 1 228 0
+ 324 002c 0124     		movs	r4, #1
+ 325 002e 0D4D     		ldr	r5, .L55+4
+ 229:./Application/BSPSys/BSPDriver/BSPSPI.c ****             {
+ 326              		.loc 1 229 0
+ 327 0030 9BB2     		uxth	r3, r3
+ 328              	.LVL22:
+ 228:./Application/BSPSys/BSPDriver/BSPSPI.c ****             if(HAL_OK !=HAL_SPI_TransmitReceive(&hspi3,tdata,rdata,size,100))
+ 329              		.loc 1 228 0
+ 330 0032 AC70     		strb	r4, [r5, #2]
+ 229:./Application/BSPSys/BSPDriver/BSPSPI.c ****             {
+ 331              		.loc 1 229 0
+ 332 0034 0090     		str	r0, [sp]
+ 333 0036 0C48     		ldr	r0, .L55+8
+ 334 0038 FFF7FEFF 		bl	HAL_SPI_TransmitReceive
+ 335              	.LVL23:
+ 336 003c 0028     		cmp	r0, #0
+ 337 003e E6D1     		bne	.L53
+ 234:./Application/BSPSys/BSPDriver/BSPSPI.c ****             break; 
+ 338              		.loc 1 234 0
+ 339 0040 A870     		strb	r0, [r5, #2]
+ 340 0042 0BE0     		b	.L54
+ 341              	.LVL24:
+ 342              	.L44:
+ 211:./Application/BSPSys/BSPDriver/BSPSPI.c ****             {
+ 343              		.loc 1 211 0
+ 344 0044 6420     		movs	r0, #100
+ 210:./Application/BSPSys/BSPDriver/BSPSPI.c ****             if(HAL_OK !=HAL_SPI_TransmitReceive(&hspi1,tdata,rdata,size,100))
+ 345              		.loc 1 210 0
+ 346 0046 0124     		movs	r4, #1
+ 347 0048 064E     		ldr	r6, .L55+4
+ 211:./Application/BSPSys/BSPDriver/BSPSPI.c ****             {
+ 348              		.loc 1 211 0
+ 349 004a 9BB2     		uxth	r3, r3
+ 350              	.LVL25:
+ 210:./Application/BSPSys/BSPDriver/BSPSPI.c ****             if(HAL_OK !=HAL_SPI_TransmitReceive(&hspi1,tdata,rdata,size,100))
+ 351              		.loc 1 210 0
+ 352 004c 3470     		strb	r4, [r6]
+ 211:./Application/BSPSys/BSPDriver/BSPSPI.c ****             {
+ 353              		.loc 1 211 0
+ 354 004e 0090     		str	r0, [sp]
+ARM GAS  /tmp/ccNmtkAE.s 			page 12
+
+
+ 355 0050 0648     		ldr	r0, .L55+12
+ 356 0052 FFF7FEFF 		bl	HAL_SPI_TransmitReceive
+ 357              	.LVL26:
+ 358 0056 0028     		cmp	r0, #0
+ 359 0058 D9D1     		bne	.L53
+ 216:./Application/BSPSys/BSPDriver/BSPSPI.c ****             break;
+ 360              		.loc 1 216 0
+ 361 005a 3570     		strb	r5, [r6]
+ 362              	.L54:
+ 239:./Application/BSPSys/BSPDriver/BSPSPI.c ****     }
+ 240:./Application/BSPSys/BSPDriver/BSPSPI.c ****     
+ 241:./Application/BSPSys/BSPDriver/BSPSPI.c ****     return(TRUE);
+ 363              		.loc 1 241 0
+ 364 005c 2000     		movs	r0, r4
+ 365              	.L42:
+ 242:./Application/BSPSys/BSPDriver/BSPSPI.c **** }
+ 366              		.loc 1 242 0
+ 367              		@ sp needed
+ 368 005e 76BD     		pop	{r1, r2, r4, r5, r6, pc}
+ 369              	.L56:
+ 370              		.align	2
+ 371              	.L55:
+ 372 0060 00000000 		.word	gBSPFunCfg
+ 373 0064 00000000 		.word	.LANCHOR0
+ 374 0068 00000000 		.word	hspi3
+ 375 006c 00000000 		.word	hspi1
+ 376              		.cfi_endproc
+ 377              	.LFE496:
+ 379              		.section	.text.BSPSPIGetRegData,"ax",%progbits
+ 380              		.align	1
+ 381              		.global	BSPSPIGetRegData
+ 382              		.syntax unified
+ 383              		.code	16
+ 384              		.thumb_func
+ 385              		.fpu softvfp
+ 387              	BSPSPIGetRegData:
+ 388              	.LFB497:
+ 243:./Application/BSPSys/BSPDriver/BSPSPI.c **** 
+ 244:./Application/BSPSys/BSPDriver/BSPSPI.c **** /*=============================================================================================
+ 245:./Application/BSPSys/BSPDriver/BSPSPI.c **** ** @Name      : u16 BSPSPIGetRegData(e_SPINum spiNum)
+ 246:./Application/BSPSys/BSPDriver/BSPSPI.c **** ** @Input     : spiNum:SPI通道号
+ 247:./Application/BSPSys/BSPDriver/BSPSPI.c **** ** @Output    : void
+ 248:./Application/BSPSys/BSPDriver/BSPSPI.c **** ** @Function  : 获得SPI接收到寄存器的数据
+ 249:./Application/BSPSys/BSPDriver/BSPSPI.c **** ** @The notes : 用户调用
+ 250:./Application/BSPSys/BSPDriver/BSPSPI.c **** **===========================================================================================*/
+ 251:./Application/BSPSys/BSPDriver/BSPSPI.c **** u16 BSPSPIGetRegData(e_SPINum spiNum)
+ 252:./Application/BSPSys/BSPDriver/BSPSPI.c **** {
+ 389              		.loc 1 252 0
+ 390              		.cfi_startproc
+ 391              		@ args = 0, pretend = 0, frame = 0
+ 392              		@ frame_needed = 0, uses_anonymous_args = 0
+ 393              		@ link register save eliminated.
+ 394              	.LVL27:
+ 253:./Application/BSPSys/BSPDriver/BSPSPI.c ****     //模块未使能不进行初始化
+ 254:./Application/BSPSys/BSPDriver/BSPSPI.c ****     if(((eSPI1 == spiNum) && (1 != gBSPFunCfg.Bits.SPI1En))
+ 395              		.loc 1 254 0
+ 396 0000 0028     		cmp	r0, #0
+ARM GAS  /tmp/ccNmtkAE.s 			page 13
+
+
+ 397 0002 05D1     		bne	.L58
+ 398              		.loc 1 254 0 is_stmt 0 discriminator 1
+ 399 0004 0E4B     		ldr	r3, .L69
+ 400 0006 1B88     		ldrh	r3, [r3]
+ 401 0008 5B07     		lsls	r3, r3, #29
+ 402 000a 10D4     		bmi	.L59
+ 403              	.L68:
+ 255:./Application/BSPSys/BSPDriver/BSPSPI.c ****         || ((eSPI3 == spiNum) && (1 != gBSPFunCfg.Bits.SPI3En)))
+ 256:./Application/BSPSys/BSPDriver/BSPSPI.c ****     {
+ 257:./Application/BSPSys/BSPDriver/BSPSPI.c ****         return(0xffff);
+ 258:./Application/BSPSys/BSPDriver/BSPSPI.c ****     }
+ 259:./Application/BSPSys/BSPDriver/BSPSPI.c ****     //检测是否已进行数据接收
+ 260:./Application/BSPSys/BSPDriver/BSPSPI.c ****     switch(spiNum)
+ 261:./Application/BSPSys/BSPDriver/BSPSPI.c ****     {
+ 262:./Application/BSPSys/BSPDriver/BSPSPI.c ****         //SPI1接收
+ 263:./Application/BSPSys/BSPDriver/BSPSPI.c ****         case eSPI1:
+ 264:./Application/BSPSys/BSPDriver/BSPSPI.c ****             //未进行接收
+ 265:./Application/BSPSys/BSPDriver/BSPSPI.c ****             if(1 == sSpiWorkState[spiNum])
+ 266:./Application/BSPSys/BSPDriver/BSPSPI.c ****             {
+ 267:./Application/BSPSys/BSPDriver/BSPSPI.c ****                 //读取接收数据
+ 268:./Application/BSPSys/BSPDriver/BSPSPI.c ****                 //sSpiRcvData[spiNum] = SPI_receive1(0);
+ 269:./Application/BSPSys/BSPDriver/BSPSPI.c ****                 
+ 270:./Application/BSPSys/BSPDriver/BSPSPI.c ****                 //SPI切换为空闲
+ 271:./Application/BSPSys/BSPDriver/BSPSPI.c ****                 sSpiWorkState[spiNum] = 0;
+ 272:./Application/BSPSys/BSPDriver/BSPSPI.c ****             }
+ 273:./Application/BSPSys/BSPDriver/BSPSPI.c ****             break;
+ 274:./Application/BSPSys/BSPDriver/BSPSPI.c **** 
+ 275:./Application/BSPSys/BSPDriver/BSPSPI.c ****         //SPI3接收
+ 276:./Application/BSPSys/BSPDriver/BSPSPI.c ****         case eSPI3:
+ 277:./Application/BSPSys/BSPDriver/BSPSPI.c ****             //未进行接收
+ 278:./Application/BSPSys/BSPDriver/BSPSPI.c ****             if(1 == sSpiWorkState[spiNum])
+ 279:./Application/BSPSys/BSPDriver/BSPSPI.c ****             {
+ 280:./Application/BSPSys/BSPDriver/BSPSPI.c ****                 //读取接收数据
+ 281:./Application/BSPSys/BSPDriver/BSPSPI.c ****                 //sSpiRcvData[spiNum] = SPI_receive1(1);
+ 282:./Application/BSPSys/BSPDriver/BSPSPI.c ****                 
+ 283:./Application/BSPSys/BSPDriver/BSPSPI.c ****                 //SPI切换为空闲
+ 284:./Application/BSPSys/BSPDriver/BSPSPI.c ****                 sSpiWorkState[spiNum] = 0;
+ 285:./Application/BSPSys/BSPDriver/BSPSPI.c ****             }
+ 286:./Application/BSPSys/BSPDriver/BSPSPI.c ****             break;  
+ 287:./Application/BSPSys/BSPDriver/BSPSPI.c **** 
+ 288:./Application/BSPSys/BSPDriver/BSPSPI.c ****         default:
+ 289:./Application/BSPSys/BSPDriver/BSPSPI.c ****             return(0xffff);
+ 404              		.loc 1 289 0 is_stmt 1
+ 405 000c 0D48     		ldr	r0, .L69+4
+ 406              	.LVL28:
+ 407 000e 16E0     		b	.L60
+ 408              	.LVL29:
+ 409              	.L58:
+ 255:./Application/BSPSys/BSPDriver/BSPSPI.c ****         || ((eSPI3 == spiNum) && (1 != gBSPFunCfg.Bits.SPI3En)))
+ 410              		.loc 1 255 0
+ 411 0010 0228     		cmp	r0, #2
+ 412 0012 0AD1     		bne	.L61
+ 255:./Application/BSPSys/BSPDriver/BSPSPI.c ****         || ((eSPI3 == spiNum) && (1 != gBSPFunCfg.Bits.SPI3En)))
+ 413              		.loc 1 255 0 is_stmt 0 discriminator 1
+ 414 0014 0A4B     		ldr	r3, .L69
+ 415 0016 1B88     		ldrh	r3, [r3]
+ 416 0018 1B07     		lsls	r3, r3, #28
+ARM GAS  /tmp/ccNmtkAE.s 			page 14
+
+
+ 417 001a F7D5     		bpl	.L68
+ 278:./Application/BSPSys/BSPDriver/BSPSPI.c ****             {
+ 418              		.loc 1 278 0 is_stmt 1
+ 419 001c 0A4B     		ldr	r3, .L69+8
+ 420 001e 9A78     		ldrb	r2, [r3, #2]
+ 421 0020 012A     		cmp	r2, #1
+ 422 0022 0AD1     		bne	.L63
+ 284:./Application/BSPSys/BSPDriver/BSPSPI.c ****             }
+ 423              		.loc 1 284 0
+ 424 0024 0022     		movs	r2, #0
+ 425 0026 9A70     		strb	r2, [r3, #2]
+ 426 0028 07E0     		b	.L63
+ 427              	.L61:
+ 260:./Application/BSPSys/BSPDriver/BSPSPI.c ****     {
+ 428              		.loc 1 260 0
+ 429 002a 0028     		cmp	r0, #0
+ 430 002c EED1     		bne	.L68
+ 431              	.L59:
+ 265:./Application/BSPSys/BSPDriver/BSPSPI.c ****             {
+ 432              		.loc 1 265 0
+ 433 002e 064B     		ldr	r3, .L69+8
+ 434 0030 1A78     		ldrb	r2, [r3]
+ 435 0032 012A     		cmp	r2, #1
+ 436 0034 01D1     		bne	.L63
+ 271:./Application/BSPSys/BSPDriver/BSPSPI.c ****             }
+ 437              		.loc 1 271 0
+ 438 0036 0022     		movs	r2, #0
+ 439 0038 1A70     		strb	r2, [r3]
+ 440              	.L63:
+ 290:./Application/BSPSys/BSPDriver/BSPSPI.c ****     }
+ 291:./Application/BSPSys/BSPDriver/BSPSPI.c ****     
+ 292:./Application/BSPSys/BSPDriver/BSPSPI.c ****     return(sSpiRcvData[spiNum]);
+ 441              		.loc 1 292 0
+ 442 003a 044B     		ldr	r3, .L69+12
+ 443 003c 185C     		ldrb	r0, [r3, r0]
+ 444              	.LVL30:
+ 445              	.L60:
+ 293:./Application/BSPSys/BSPDriver/BSPSPI.c **** }
+ 446              		.loc 1 293 0
+ 447              		@ sp needed
+ 448 003e 7047     		bx	lr
+ 449              	.L70:
+ 450              		.align	2
+ 451              	.L69:
+ 452 0040 00000000 		.word	gBSPFunCfg
+ 453 0044 FFFF0000 		.word	65535
+ 454 0048 00000000 		.word	.LANCHOR0
+ 455 004c 00000000 		.word	.LANCHOR1
+ 456              		.cfi_endproc
+ 457              	.LFE497:
+ 459              		.section	.text.BSPSPIRcvData,"ax",%progbits
+ 460              		.align	1
+ 461              		.global	BSPSPIRcvData
+ 462              		.syntax unified
+ 463              		.code	16
+ 464              		.thumb_func
+ 465              		.fpu softvfp
+ARM GAS  /tmp/ccNmtkAE.s 			page 15
+
+
+ 467              	BSPSPIRcvData:
+ 468              	.LFB498:
+ 294:./Application/BSPSys/BSPDriver/BSPSPI.c **** 
+ 295:./Application/BSPSys/BSPDriver/BSPSPI.c **** /*=============================================================================================
+ 296:./Application/BSPSys/BSPDriver/BSPSPI.c **** ** @Name      : u8 BSPSPIRcvData(e_SPINum spiNum, u8 *data, u8 size)
+ 297:./Application/BSPSys/BSPDriver/BSPSPI.c **** ** @Input     : spiNum:SPI通道号 data:接收的数据 size:数据大小
+ 298:./Application/BSPSys/BSPDriver/BSPSPI.c **** ** @Output    : 是否接收成功
+ 299:./Application/BSPSys/BSPDriver/BSPSPI.c **** ** @Function  : 获取SPI接收数据
+ 300:./Application/BSPSys/BSPDriver/BSPSPI.c **** ** @The notes :
+ 301:./Application/BSPSys/BSPDriver/BSPSPI.c **** **===========================================================================================*/
+ 302:./Application/BSPSys/BSPDriver/BSPSPI.c **** u8 BSPSPIRcvData(e_SPINum spiNum, u8 *data, u8 size)
+ 303:./Application/BSPSys/BSPDriver/BSPSPI.c **** {
+ 469              		.loc 1 303 0
+ 470              		.cfi_startproc
+ 471              		@ args = 0, pretend = 0, frame = 0
+ 472              		@ frame_needed = 0, uses_anonymous_args = 0
+ 473              	.LVL31:
+ 474 0000 70B5     		push	{r4, r5, r6, lr}
+ 475              	.LCFI3:
+ 476              		.cfi_def_cfa_offset 16
+ 477              		.cfi_offset 4, -16
+ 478              		.cfi_offset 5, -12
+ 479              		.cfi_offset 6, -8
+ 480              		.cfi_offset 14, -4
+ 304:./Application/BSPSys/BSPDriver/BSPSPI.c ****     if(eSPI1 == spiNum)
+ 481              		.loc 1 304 0
+ 482 0002 0028     		cmp	r0, #0
+ 483 0004 12D1     		bne	.L72
+ 305:./Application/BSPSys/BSPDriver/BSPSPI.c ****     {   
+ 306:./Application/BSPSys/BSPDriver/BSPSPI.c ****         if(1 == sSpiWorkState[spiNum])
+ 484              		.loc 1 306 0
+ 485 0006 124D     		ldr	r5, .L80
+ 486 0008 2B78     		ldrb	r3, [r5]
+ 487 000a 012B     		cmp	r3, #1
+ 488 000c 02D1     		bne	.L73
+ 489              	.LVL32:
+ 490              	.L75:
+ 307:./Application/BSPSys/BSPDriver/BSPSPI.c ****         {
+ 308:./Application/BSPSys/BSPDriver/BSPSPI.c ****             return(FALSE);
+ 491              		.loc 1 308 0
+ 492 000e 0024     		movs	r4, #0
+ 493              	.L74:
+ 309:./Application/BSPSys/BSPDriver/BSPSPI.c ****         }
+ 310:./Application/BSPSys/BSPDriver/BSPSPI.c ****         /*SPI切换为忙*/
+ 311:./Application/BSPSys/BSPDriver/BSPSPI.c ****         sSpiWorkState[spiNum] = 1;
+ 312:./Application/BSPSys/BSPDriver/BSPSPI.c ****         if(HAL_OK != HAL_SPI_Receive(&hspi1, data, size, 1000))
+ 313:./Application/BSPSys/BSPDriver/BSPSPI.c ****         {
+ 314:./Application/BSPSys/BSPDriver/BSPSPI.c ****             // Error_Handler();      
+ 315:./Application/BSPSys/BSPDriver/BSPSPI.c ****             return (FALSE);          
+ 316:./Application/BSPSys/BSPDriver/BSPSPI.c ****         }
+ 317:./Application/BSPSys/BSPDriver/BSPSPI.c ****         /*SPI切换为空闲*/
+ 318:./Application/BSPSys/BSPDriver/BSPSPI.c ****         sSpiWorkState[spiNum] = 0;  
+ 319:./Application/BSPSys/BSPDriver/BSPSPI.c ****     }
+ 320:./Application/BSPSys/BSPDriver/BSPSPI.c ****     else if(eSPI3 == spiNum)
+ 321:./Application/BSPSys/BSPDriver/BSPSPI.c ****     {
+ 322:./Application/BSPSys/BSPDriver/BSPSPI.c ****         if(1 == sSpiWorkState[spiNum])
+ 323:./Application/BSPSys/BSPDriver/BSPSPI.c ****         {
+ARM GAS  /tmp/ccNmtkAE.s 			page 16
+
+
+ 324:./Application/BSPSys/BSPDriver/BSPSPI.c ****             return(FALSE);
+ 325:./Application/BSPSys/BSPDriver/BSPSPI.c ****         }
+ 326:./Application/BSPSys/BSPDriver/BSPSPI.c ****         /*SPI切换为忙*/
+ 327:./Application/BSPSys/BSPDriver/BSPSPI.c ****         sSpiWorkState[spiNum] = 1;
+ 328:./Application/BSPSys/BSPDriver/BSPSPI.c ****         if(HAL_OK != HAL_SPI_Receive(&hspi3, data, size, 1000))
+ 329:./Application/BSPSys/BSPDriver/BSPSPI.c ****         {
+ 330:./Application/BSPSys/BSPDriver/BSPSPI.c ****             // Error_Handler(); 
+ 331:./Application/BSPSys/BSPDriver/BSPSPI.c ****             return (FALSE);           
+ 332:./Application/BSPSys/BSPDriver/BSPSPI.c ****         }
+ 333:./Application/BSPSys/BSPDriver/BSPSPI.c ****         /*SPI切换为空闲*/
+ 334:./Application/BSPSys/BSPDriver/BSPSPI.c ****         sSpiWorkState[spiNum] = 0;
+ 335:./Application/BSPSys/BSPDriver/BSPSPI.c ****     }
+ 336:./Application/BSPSys/BSPDriver/BSPSPI.c ****     return(TRUE);
+ 337:./Application/BSPSys/BSPDriver/BSPSPI.c **** }
+ 494              		.loc 1 337 0
+ 495 0010 2000     		movs	r0, r4
+ 496              		@ sp needed
+ 497 0012 70BD     		pop	{r4, r5, r6, pc}
+ 498              	.LVL33:
+ 499              	.L73:
+ 312:./Application/BSPSys/BSPDriver/BSPSPI.c ****         {
+ 500              		.loc 1 312 0
+ 501 0014 FA23     		movs	r3, #250
+ 311:./Application/BSPSys/BSPDriver/BSPSPI.c ****         if(HAL_OK != HAL_SPI_Receive(&hspi1, data, size, 1000))
+ 502              		.loc 1 311 0
+ 503 0016 0124     		movs	r4, #1
+ 312:./Application/BSPSys/BSPDriver/BSPSPI.c ****         {
+ 504              		.loc 1 312 0
+ 505 0018 92B2     		uxth	r2, r2
+ 506              	.LVL34:
+ 507 001a 9B00     		lsls	r3, r3, #2
+ 508 001c 0D48     		ldr	r0, .L80+4
+ 509              	.LVL35:
+ 311:./Application/BSPSys/BSPDriver/BSPSPI.c ****         if(HAL_OK != HAL_SPI_Receive(&hspi1, data, size, 1000))
+ 510              		.loc 1 311 0
+ 511 001e 2C70     		strb	r4, [r5]
+ 312:./Application/BSPSys/BSPDriver/BSPSPI.c ****         {
+ 512              		.loc 1 312 0
+ 513 0020 FFF7FEFF 		bl	HAL_SPI_Receive
+ 514              	.LVL36:
+ 515 0024 0028     		cmp	r0, #0
+ 516 0026 F2D1     		bne	.L75
+ 318:./Application/BSPSys/BSPDriver/BSPSPI.c ****     }
+ 517              		.loc 1 318 0
+ 518 0028 2870     		strb	r0, [r5]
+ 519 002a F1E7     		b	.L74
+ 520              	.LVL37:
+ 521              	.L72:
+ 336:./Application/BSPSys/BSPDriver/BSPSPI.c **** }
+ 522              		.loc 1 336 0
+ 523 002c 0124     		movs	r4, #1
+ 320:./Application/BSPSys/BSPDriver/BSPSPI.c ****     {
+ 524              		.loc 1 320 0
+ 525 002e 0228     		cmp	r0, #2
+ 526 0030 EED1     		bne	.L74
+ 322:./Application/BSPSys/BSPDriver/BSPSPI.c ****         {
+ 527              		.loc 1 322 0
+ARM GAS  /tmp/ccNmtkAE.s 			page 17
+
+
+ 528 0032 074D     		ldr	r5, .L80
+ 529 0034 AB78     		ldrb	r3, [r5, #2]
+ 530 0036 A342     		cmp	r3, r4
+ 531 0038 E9D0     		beq	.L75
+ 328:./Application/BSPSys/BSPDriver/BSPSPI.c ****         {
+ 532              		.loc 1 328 0
+ 533 003a FA23     		movs	r3, #250
+ 534 003c 92B2     		uxth	r2, r2
+ 535              	.LVL38:
+ 536 003e 9B00     		lsls	r3, r3, #2
+ 537 0040 0548     		ldr	r0, .L80+8
+ 538              	.LVL39:
+ 327:./Application/BSPSys/BSPDriver/BSPSPI.c ****         if(HAL_OK != HAL_SPI_Receive(&hspi3, data, size, 1000))
+ 539              		.loc 1 327 0
+ 540 0042 AC70     		strb	r4, [r5, #2]
+ 328:./Application/BSPSys/BSPDriver/BSPSPI.c ****         {
+ 541              		.loc 1 328 0
+ 542 0044 FFF7FEFF 		bl	HAL_SPI_Receive
+ 543              	.LVL40:
+ 544 0048 0028     		cmp	r0, #0
+ 545 004a E0D1     		bne	.L75
+ 334:./Application/BSPSys/BSPDriver/BSPSPI.c ****     }
+ 546              		.loc 1 334 0
+ 547 004c A870     		strb	r0, [r5, #2]
+ 548 004e DFE7     		b	.L74
+ 549              	.L81:
+ 550              		.align	2
+ 551              	.L80:
+ 552 0050 00000000 		.word	.LANCHOR0
+ 553 0054 00000000 		.word	hspi1
+ 554 0058 00000000 		.word	hspi3
+ 555              		.cfi_endproc
+ 556              	.LFE498:
+ 558              		.section	.text.BSPSPISendData,"ax",%progbits
+ 559              		.align	1
+ 560              		.global	BSPSPISendData
+ 561              		.syntax unified
+ 562              		.code	16
+ 563              		.thumb_func
+ 564              		.fpu softvfp
+ 566              	BSPSPISendData:
+ 567              	.LFB499:
+ 338:./Application/BSPSys/BSPDriver/BSPSPI.c **** 
+ 339:./Application/BSPSys/BSPDriver/BSPSPI.c **** /*=============================================================================================
+ 340:./Application/BSPSys/BSPDriver/BSPSPI.c **** ** @Name      : u8 BSPSPISendData(e_SPINum spiNum, u8 *data ,u8 size)
+ 341:./Application/BSPSys/BSPDriver/BSPSPI.c **** ** @Input     : spiNum:SPI通道号  data:需要发送的数据 size:数据大小
+ 342:./Application/BSPSys/BSPDriver/BSPSPI.c **** ** @Output    : 发送是否成功
+ 343:./Application/BSPSys/BSPDriver/BSPSPI.c **** ** @Function  : SPI发送数据
+ 344:./Application/BSPSys/BSPDriver/BSPSPI.c **** ** @The notes :
+ 345:./Application/BSPSys/BSPDriver/BSPSPI.c **** **===========================================================================================*/
+ 346:./Application/BSPSys/BSPDriver/BSPSPI.c **** u8 BSPSPISendData(e_SPINum spiNum, u8 *data ,u8 size)
+ 347:./Application/BSPSys/BSPDriver/BSPSPI.c **** {
+ 568              		.loc 1 347 0
+ 569              		.cfi_startproc
+ 570              		@ args = 0, pretend = 0, frame = 0
+ 571              		@ frame_needed = 0, uses_anonymous_args = 0
+ 572              	.LVL41:
+ARM GAS  /tmp/ccNmtkAE.s 			page 18
+
+
+ 573 0000 70B5     		push	{r4, r5, r6, lr}
+ 574              	.LCFI4:
+ 575              		.cfi_def_cfa_offset 16
+ 576              		.cfi_offset 4, -16
+ 577              		.cfi_offset 5, -12
+ 578              		.cfi_offset 6, -8
+ 579              		.cfi_offset 14, -4
+ 348:./Application/BSPSys/BSPDriver/BSPSPI.c **** 
+ 349:./Application/BSPSys/BSPDriver/BSPSPI.c ****     if(eSPI1 == spiNum)
+ 580              		.loc 1 349 0
+ 581 0002 0028     		cmp	r0, #0
+ 582 0004 12D1     		bne	.L83
+ 350:./Application/BSPSys/BSPDriver/BSPSPI.c ****     {     
+ 351:./Application/BSPSys/BSPDriver/BSPSPI.c ****         if(1 == sSpiWorkState[spiNum])
+ 583              		.loc 1 351 0
+ 584 0006 124D     		ldr	r5, .L91
+ 585 0008 2B78     		ldrb	r3, [r5]
+ 586 000a 012B     		cmp	r3, #1
+ 587 000c 02D1     		bne	.L84
+ 588              	.LVL42:
+ 589              	.L86:
+ 352:./Application/BSPSys/BSPDriver/BSPSPI.c ****         {
+ 353:./Application/BSPSys/BSPDriver/BSPSPI.c ****             return(FALSE);
+ 590              		.loc 1 353 0
+ 591 000e 0024     		movs	r4, #0
+ 592              	.L85:
+ 354:./Application/BSPSys/BSPDriver/BSPSPI.c ****         } 
+ 355:./Application/BSPSys/BSPDriver/BSPSPI.c ****         /*SPI切换为忙*/
+ 356:./Application/BSPSys/BSPDriver/BSPSPI.c ****         sSpiWorkState[spiNum] = 1;      
+ 357:./Application/BSPSys/BSPDriver/BSPSPI.c ****         if(HAL_OK !=HAL_SPI_Transmit(&hspi1, data, size, 1000))
+ 358:./Application/BSPSys/BSPDriver/BSPSPI.c ****         {
+ 359:./Application/BSPSys/BSPDriver/BSPSPI.c ****             // Error_Handler();   
+ 360:./Application/BSPSys/BSPDriver/BSPSPI.c ****             return (FALSE);  
+ 361:./Application/BSPSys/BSPDriver/BSPSPI.c ****         }
+ 362:./Application/BSPSys/BSPDriver/BSPSPI.c ****         /*SPI切换为空闲*/
+ 363:./Application/BSPSys/BSPDriver/BSPSPI.c ****         sSpiWorkState[spiNum] = 0;
+ 364:./Application/BSPSys/BSPDriver/BSPSPI.c ****     } 
+ 365:./Application/BSPSys/BSPDriver/BSPSPI.c ****     else if(eSPI3 == spiNum)
+ 366:./Application/BSPSys/BSPDriver/BSPSPI.c ****     {    
+ 367:./Application/BSPSys/BSPDriver/BSPSPI.c ****         if(1 == sSpiWorkState[spiNum])
+ 368:./Application/BSPSys/BSPDriver/BSPSPI.c ****         {
+ 369:./Application/BSPSys/BSPDriver/BSPSPI.c ****             return(FALSE);
+ 370:./Application/BSPSys/BSPDriver/BSPSPI.c ****         }
+ 371:./Application/BSPSys/BSPDriver/BSPSPI.c ****         /*SPI切换为忙*/
+ 372:./Application/BSPSys/BSPDriver/BSPSPI.c ****         sSpiWorkState[spiNum] = 1;
+ 373:./Application/BSPSys/BSPDriver/BSPSPI.c ****         if(HAL_OK !=HAL_SPI_Transmit(&hspi3, data, size, 1000))
+ 374:./Application/BSPSys/BSPDriver/BSPSPI.c ****         {
+ 375:./Application/BSPSys/BSPDriver/BSPSPI.c ****             // Error_Handler(); 
+ 376:./Application/BSPSys/BSPDriver/BSPSPI.c ****             return (FALSE);   
+ 377:./Application/BSPSys/BSPDriver/BSPSPI.c ****         }
+ 378:./Application/BSPSys/BSPDriver/BSPSPI.c ****         /*SPI切换为空闲*/
+ 379:./Application/BSPSys/BSPDriver/BSPSPI.c ****         sSpiWorkState[spiNum] = 0;
+ 380:./Application/BSPSys/BSPDriver/BSPSPI.c ****     }	
+ 381:./Application/BSPSys/BSPDriver/BSPSPI.c **** 
+ 382:./Application/BSPSys/BSPDriver/BSPSPI.c ****     return(TRUE);
+ 383:./Application/BSPSys/BSPDriver/BSPSPI.c **** 
+ 384:./Application/BSPSys/BSPDriver/BSPSPI.c **** }
+ARM GAS  /tmp/ccNmtkAE.s 			page 19
+
+
+ 593              		.loc 1 384 0
+ 594 0010 2000     		movs	r0, r4
+ 595              		@ sp needed
+ 596 0012 70BD     		pop	{r4, r5, r6, pc}
+ 597              	.LVL43:
+ 598              	.L84:
+ 357:./Application/BSPSys/BSPDriver/BSPSPI.c ****         {
+ 599              		.loc 1 357 0
+ 600 0014 FA23     		movs	r3, #250
+ 356:./Application/BSPSys/BSPDriver/BSPSPI.c ****         if(HAL_OK !=HAL_SPI_Transmit(&hspi1, data, size, 1000))
+ 601              		.loc 1 356 0
+ 602 0016 0124     		movs	r4, #1
+ 357:./Application/BSPSys/BSPDriver/BSPSPI.c ****         {
+ 603              		.loc 1 357 0
+ 604 0018 92B2     		uxth	r2, r2
+ 605              	.LVL44:
+ 606 001a 9B00     		lsls	r3, r3, #2
+ 607 001c 0D48     		ldr	r0, .L91+4
+ 608              	.LVL45:
+ 356:./Application/BSPSys/BSPDriver/BSPSPI.c ****         if(HAL_OK !=HAL_SPI_Transmit(&hspi1, data, size, 1000))
+ 609              		.loc 1 356 0
+ 610 001e 2C70     		strb	r4, [r5]
+ 357:./Application/BSPSys/BSPDriver/BSPSPI.c ****         {
+ 611              		.loc 1 357 0
+ 612 0020 FFF7FEFF 		bl	HAL_SPI_Transmit
+ 613              	.LVL46:
+ 614 0024 0028     		cmp	r0, #0
+ 615 0026 F2D1     		bne	.L86
+ 363:./Application/BSPSys/BSPDriver/BSPSPI.c ****     } 
+ 616              		.loc 1 363 0
+ 617 0028 2870     		strb	r0, [r5]
+ 618 002a F1E7     		b	.L85
+ 619              	.LVL47:
+ 620              	.L83:
+ 382:./Application/BSPSys/BSPDriver/BSPSPI.c **** 
+ 621              		.loc 1 382 0
+ 622 002c 0124     		movs	r4, #1
+ 365:./Application/BSPSys/BSPDriver/BSPSPI.c ****     {    
+ 623              		.loc 1 365 0
+ 624 002e 0228     		cmp	r0, #2
+ 625 0030 EED1     		bne	.L85
+ 367:./Application/BSPSys/BSPDriver/BSPSPI.c ****         {
+ 626              		.loc 1 367 0
+ 627 0032 074D     		ldr	r5, .L91
+ 628 0034 AB78     		ldrb	r3, [r5, #2]
+ 629 0036 A342     		cmp	r3, r4
+ 630 0038 E9D0     		beq	.L86
+ 373:./Application/BSPSys/BSPDriver/BSPSPI.c ****         {
+ 631              		.loc 1 373 0
+ 632 003a FA23     		movs	r3, #250
+ 633 003c 92B2     		uxth	r2, r2
+ 634              	.LVL48:
+ 635 003e 9B00     		lsls	r3, r3, #2
+ 636 0040 0548     		ldr	r0, .L91+8
+ 637              	.LVL49:
+ 372:./Application/BSPSys/BSPDriver/BSPSPI.c ****         if(HAL_OK !=HAL_SPI_Transmit(&hspi3, data, size, 1000))
+ 638              		.loc 1 372 0
+ARM GAS  /tmp/ccNmtkAE.s 			page 20
+
+
+ 639 0042 AC70     		strb	r4, [r5, #2]
+ 373:./Application/BSPSys/BSPDriver/BSPSPI.c ****         {
+ 640              		.loc 1 373 0
+ 641 0044 FFF7FEFF 		bl	HAL_SPI_Transmit
+ 642              	.LVL50:
+ 643 0048 0028     		cmp	r0, #0
+ 644 004a E0D1     		bne	.L86
+ 379:./Application/BSPSys/BSPDriver/BSPSPI.c ****     }	
+ 645              		.loc 1 379 0
+ 646 004c A870     		strb	r0, [r5, #2]
+ 647 004e DFE7     		b	.L85
+ 648              	.L92:
+ 649              		.align	2
+ 650              	.L91:
+ 651 0050 00000000 		.word	.LANCHOR0
+ 652 0054 00000000 		.word	hspi1
+ 653 0058 00000000 		.word	hspi3
+ 654              		.cfi_endproc
+ 655              	.LFE499:
+ 657              		.section	.text.DRV_SPI2_SendByteBurst,"ax",%progbits
+ 658              		.align	1
+ 659              		.global	DRV_SPI2_SendByteBurst
+ 660              		.syntax unified
+ 661              		.code	16
+ 662              		.thumb_func
+ 663              		.fpu softvfp
+ 665              	DRV_SPI2_SendByteBurst:
+ 666              	.LFB500:
+ 385:./Application/BSPSys/BSPDriver/BSPSPI.c **** 
+ 386:./Application/BSPSys/BSPDriver/BSPSPI.c **** 
+ 387:./Application/BSPSys/BSPDriver/BSPSPI.c **** //GD25q32e
+ 388:./Application/BSPSys/BSPDriver/BSPSPI.c **** uint8 DRV_SPI2_SendByteBurst(uint8 *u8SendByte, uint8 *u8ReadByte, uint16 u16Size)
+ 389:./Application/BSPSys/BSPDriver/BSPSPI.c **** {
+ 667              		.loc 1 389 0
+ 668              		.cfi_startproc
+ 669              		@ args = 0, pretend = 0, frame = 0
+ 670              		@ frame_needed = 0, uses_anonymous_args = 0
+ 671              	.LVL51:
+ 672 0000 1300     		movs	r3, r2
+ 390:./Application/BSPSys/BSPDriver/BSPSPI.c ****     uint8 u8SpiStatus;
+ 391:./Application/BSPSys/BSPDriver/BSPSPI.c **** 
+ 392:./Application/BSPSys/BSPDriver/BSPSPI.c ****     if (HAL_SPI_TransmitReceive(&hspi1, u8SendByte, u8ReadByte, u16Size, SPI_TIMEOUT) != HAL_OK)
+ 673              		.loc 1 392 0
+ 674 0002 0522     		movs	r2, #5
+ 675              	.LVL52:
+ 389:./Application/BSPSys/BSPDriver/BSPSPI.c ****     uint8 u8SpiStatus;
+ 676              		.loc 1 389 0
+ 677 0004 13B5     		push	{r0, r1, r4, lr}
+ 678              	.LCFI5:
+ 679              		.cfi_def_cfa_offset 16
+ 680              		.cfi_offset 0, -16
+ 681              		.cfi_offset 1, -12
+ 682              		.cfi_offset 4, -8
+ 683              		.cfi_offset 14, -4
+ 684              		.loc 1 392 0
+ 685 0006 084C     		ldr	r4, .L98
+ 686 0008 0092     		str	r2, [sp]
+ARM GAS  /tmp/ccNmtkAE.s 			page 21
+
+
+ 687 000a 0A00     		movs	r2, r1
+ 688 000c 0100     		movs	r1, r0
+ 689              	.LVL53:
+ 690 000e 2000     		movs	r0, r4
+ 691              	.LVL54:
+ 692 0010 FFF7FEFF 		bl	HAL_SPI_TransmitReceive
+ 693              	.LVL55:
+ 694 0014 0028     		cmp	r0, #0
+ 695 0016 05D0     		beq	.L94
+ 696              	.LVL56:
+ 393:./Application/BSPSys/BSPDriver/BSPSPI.c ****     {
+ 394:./Application/BSPSys/BSPDriver/BSPSPI.c ****         u8SpiStatus = FLASH_STATUS_ACCESS_FAIL;
+ 395:./Application/BSPSys/BSPDriver/BSPSPI.c ****         HAL_SPI_DeInit(&hspi1);
+ 697              		.loc 1 395 0
+ 698 0018 2000     		movs	r0, r4
+ 699 001a FFF7FEFF 		bl	HAL_SPI_DeInit
+ 700              	.LVL57:
+ 396:./Application/BSPSys/BSPDriver/BSPSPI.c ****         HAL_SPI_Init(&hspi1);
+ 701              		.loc 1 396 0
+ 702 001e 2000     		movs	r0, r4
+ 703 0020 FFF7FEFF 		bl	HAL_SPI_Init
+ 704              	.LVL58:
+ 705              	.L94:
+ 397:./Application/BSPSys/BSPDriver/BSPSPI.c ****     }
+ 398:./Application/BSPSys/BSPDriver/BSPSPI.c ****     u8SpiStatus = FLASH_STATUS_ACCESS_OK;
+ 399:./Application/BSPSys/BSPDriver/BSPSPI.c ****     return u8SpiStatus;
+ 400:./Application/BSPSys/BSPDriver/BSPSPI.c **** }
+ 706              		.loc 1 400 0
+ 707 0024 0020     		movs	r0, #0
+ 708              		@ sp needed
+ 709 0026 16BD     		pop	{r1, r2, r4, pc}
+ 710              	.L99:
+ 711              		.align	2
+ 712              	.L98:
+ 713 0028 00000000 		.word	hspi1
+ 714              		.cfi_endproc
+ 715              	.LFE500:
+ 717              		.section	.text.DRV_SPI2_SendByte,"ax",%progbits
+ 718              		.align	1
+ 719              		.global	DRV_SPI2_SendByte
+ 720              		.syntax unified
+ 721              		.code	16
+ 722              		.thumb_func
+ 723              		.fpu softvfp
+ 725              	DRV_SPI2_SendByte:
+ 726              	.LFB501:
+ 401:./Application/BSPSys/BSPDriver/BSPSPI.c **** 
+ 402:./Application/BSPSys/BSPDriver/BSPSPI.c **** uint8 DRV_SPI2_SendByte(uint8 u8Byte, uint8 *u8ReadByte)
+ 403:./Application/BSPSys/BSPDriver/BSPSPI.c **** {
+ 727              		.loc 1 403 0
+ 728              		.cfi_startproc
+ 729              		@ args = 0, pretend = 0, frame = 16
+ 730              		@ frame_needed = 0, uses_anonymous_args = 0
+ 731              	.LVL59:
+ 732 0000 70B5     		push	{r4, r5, r6, lr}
+ 733              	.LCFI6:
+ 734              		.cfi_def_cfa_offset 16
+ARM GAS  /tmp/ccNmtkAE.s 			page 22
+
+
+ 735              		.cfi_offset 4, -16
+ 736              		.cfi_offset 5, -12
+ 737              		.cfi_offset 6, -8
+ 738              		.cfi_offset 14, -4
+ 404:./Application/BSPSys/BSPDriver/BSPSPI.c ****     uint8 u8Dummy = 0;
+ 739              		.loc 1 404 0
+ 740 0002 1724     		movs	r4, #23
+ 741 0004 0023     		movs	r3, #0
+ 403:./Application/BSPSys/BSPDriver/BSPSPI.c ****     uint8 u8Dummy = 0;
+ 742              		.loc 1 403 0
+ 743 0006 0E00     		movs	r6, r1
+ 744 0008 0F21     		movs	r1, #15
+ 745              	.LVL60:
+ 746 000a 86B0     		sub	sp, sp, #24
+ 747              	.LCFI7:
+ 748              		.cfi_def_cfa_offset 40
+ 749              		.loc 1 404 0
+ 750 000c 6C44     		add	r4, r4, sp
+ 405:./Application/BSPSys/BSPDriver/BSPSPI.c ****     uint8 u8SpiStatus;
+ 406:./Application/BSPSys/BSPDriver/BSPSPI.c ****     if (HAL_SPI_TransmitReceive(&hspi1, (uint8 *)(&u8Byte), (uint8 *)(&u8Dummy), 1, SPI_TIMEOUT) !=
+ 751              		.loc 1 406 0
+ 752 000e 0C4D     		ldr	r5, .L105
+ 404:./Application/BSPSys/BSPDriver/BSPSPI.c ****     uint8 u8SpiStatus;
+ 753              		.loc 1 404 0
+ 754 0010 2370     		strb	r3, [r4]
+ 403:./Application/BSPSys/BSPDriver/BSPSPI.c ****     uint8 u8Dummy = 0;
+ 755              		.loc 1 403 0
+ 756 0012 6944     		add	r1, r1, sp
+ 757              		.loc 1 406 0
+ 758 0014 0533     		adds	r3, r3, #5
+ 403:./Application/BSPSys/BSPDriver/BSPSPI.c ****     uint8 u8Dummy = 0;
+ 759              		.loc 1 403 0
+ 760 0016 0870     		strb	r0, [r1]
+ 761              		.loc 1 406 0
+ 762 0018 2200     		movs	r2, r4
+ 763 001a 0093     		str	r3, [sp]
+ 764 001c 2800     		movs	r0, r5
+ 765              	.LVL61:
+ 766 001e 043B     		subs	r3, r3, #4
+ 767 0020 FFF7FEFF 		bl	HAL_SPI_TransmitReceive
+ 768              	.LVL62:
+ 769 0024 0028     		cmp	r0, #0
+ 770 0026 05D0     		beq	.L101
+ 771              	.LVL63:
+ 407:./Application/BSPSys/BSPDriver/BSPSPI.c ****     {
+ 408:./Application/BSPSys/BSPDriver/BSPSPI.c ****         u8SpiStatus = FLASH_STATUS_ACCESS_FAIL;
+ 409:./Application/BSPSys/BSPDriver/BSPSPI.c ****         HAL_SPI_DeInit(&hspi1);
+ 772              		.loc 1 409 0
+ 773 0028 2800     		movs	r0, r5
+ 774 002a FFF7FEFF 		bl	HAL_SPI_DeInit
+ 775              	.LVL64:
+ 410:./Application/BSPSys/BSPDriver/BSPSPI.c ****         HAL_SPI_Init(&hspi1);
+ 776              		.loc 1 410 0
+ 777 002e 2800     		movs	r0, r5
+ 778 0030 FFF7FEFF 		bl	HAL_SPI_Init
+ 779              	.LVL65:
+ 780              	.L101:
+ARM GAS  /tmp/ccNmtkAE.s 			page 23
+
+
+ 411:./Application/BSPSys/BSPDriver/BSPSPI.c ****     }
+ 412:./Application/BSPSys/BSPDriver/BSPSPI.c ****     u8SpiStatus = FLASH_STATUS_ACCESS_OK;
+ 413:./Application/BSPSys/BSPDriver/BSPSPI.c ****     *u8ReadByte = u8Dummy;
+ 414:./Application/BSPSys/BSPDriver/BSPSPI.c ****     return u8SpiStatus;
+ 415:./Application/BSPSys/BSPDriver/BSPSPI.c **** }
+ 781              		.loc 1 415 0
+ 782 0034 0020     		movs	r0, #0
+ 413:./Application/BSPSys/BSPDriver/BSPSPI.c ****     return u8SpiStatus;
+ 783              		.loc 1 413 0
+ 784 0036 2378     		ldrb	r3, [r4]
+ 785 0038 3370     		strb	r3, [r6]
+ 786              		.loc 1 415 0
+ 787 003a 06B0     		add	sp, sp, #24
+ 788              		@ sp needed
+ 789              	.LVL66:
+ 790 003c 70BD     		pop	{r4, r5, r6, pc}
+ 791              	.L106:
+ 792 003e C046     		.align	2
+ 793              	.L105:
+ 794 0040 00000000 		.word	hspi1
+ 795              		.cfi_endproc
+ 796              	.LFE501:
+ 798              		.global	GdSpiTab
+ 799              		.section	.bss.sSpiWorkState,"aw",%nobits
+ 800              		.set	.LANCHOR0,. + 0
+ 803              	sSpiWorkState:
+ 804 0000 000000   		.space	3
+ 805              		.section	.data.GdSpiTab,"aw",%progbits
+ 808              	GdSpiTab:
+ 809 0000 01       		.byte	1
+ 810 0001 01       		.byte	1
+ 811 0002 01       		.byte	1
+ 812 0003 01       		.byte	1
+ 813 0004 0000     		.space	2
+ 814              		.section	.rodata.sSpiRcvData,"a",%progbits
+ 815              		.set	.LANCHOR1,. + 0
+ 818              	sSpiRcvData:
+ 819 0000 000000   		.space	3
+ 820              		.text
+ 821              	.Letext0:
+ 822              		.file 2 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/machine/_default_types.h"
+ 823              		.file 3 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_stdint.h"
+ 824              		.file 4 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/system_stm32g0xx.h"
+ 825              		.file 5 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/stm32g0b1xx.h"
+ 826              		.file 6 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_def.h"
+ 827              		.file 7 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_dma.h"
+ 828              		.file 8 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_flash.h"
+ 829              		.file 9 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_spi.h"
+ 830              		.file 10 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_uart.h"
+ 831              		.file 11 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal.h"
+ 832              		.file 12 "Core/Inc/main.h"
+ 833              		.file 13 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/lock.h"
+ 834              		.file 14 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_types.h"
+ 835              		.file 15 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/lib/gcc/arm-none-eabi/7.3.1/include/stddef.h"
+ 836              		.file 16 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/reent.h"
+ 837              		.file 17 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/stdlib.h"
+ 838              		.file 18 "Application/BSPSys/Util/BSPTypeDef.h"
+ARM GAS  /tmp/ccNmtkAE.s 			page 24
+
+
+ 839              		.file 19 "Application/BSPSys/BSPCfg/BSPConfig.h"
+ 840              		.file 20 "./Application/BSPSys/BSPDriver/BSPSPI.h"
+ 841              		.file 21 "Core/Inc/spi.h"
+ 842              		.file 22 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_ll_dma.h"
+ARM GAS  /tmp/ccNmtkAE.s 			page 25
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 BSPSPI.c
+     /tmp/ccNmtkAE.s:16     .text.BSPSPIInit:0000000000000000 $t
+     /tmp/ccNmtkAE.s:23     .text.BSPSPIInit:0000000000000000 BSPSPIInit
+     /tmp/ccNmtkAE.s:87     .text.BSPSPIInit:000000000000003c $d
+     /tmp/ccNmtkAE.s:93     .text.BSPSPIGetWorkState:0000000000000000 $t
+     /tmp/ccNmtkAE.s:100    .text.BSPSPIGetWorkState:0000000000000000 BSPSPIGetWorkState
+     /tmp/ccNmtkAE.s:150    .text.BSPSPIGetWorkState:000000000000002c $d
+     /tmp/ccNmtkAE.s:156    .text.BSPSPIDmaSendRcvData:0000000000000000 $t
+     /tmp/ccNmtkAE.s:163    .text.BSPSPIDmaSendRcvData:0000000000000000 BSPSPIDmaSendRcvData
+     /tmp/ccNmtkAE.s:256    .text.BSPSPIDmaSendRcvData:0000000000000058 $d
+     /tmp/ccNmtkAE.s:264    .text.BSPSPISendRcvData:0000000000000000 $t
+     /tmp/ccNmtkAE.s:271    .text.BSPSPISendRcvData:0000000000000000 BSPSPISendRcvData
+     /tmp/ccNmtkAE.s:372    .text.BSPSPISendRcvData:0000000000000060 $d
+     /tmp/ccNmtkAE.s:380    .text.BSPSPIGetRegData:0000000000000000 $t
+     /tmp/ccNmtkAE.s:387    .text.BSPSPIGetRegData:0000000000000000 BSPSPIGetRegData
+     /tmp/ccNmtkAE.s:452    .text.BSPSPIGetRegData:0000000000000040 $d
+     /tmp/ccNmtkAE.s:460    .text.BSPSPIRcvData:0000000000000000 $t
+     /tmp/ccNmtkAE.s:467    .text.BSPSPIRcvData:0000000000000000 BSPSPIRcvData
+     /tmp/ccNmtkAE.s:552    .text.BSPSPIRcvData:0000000000000050 $d
+     /tmp/ccNmtkAE.s:559    .text.BSPSPISendData:0000000000000000 $t
+     /tmp/ccNmtkAE.s:566    .text.BSPSPISendData:0000000000000000 BSPSPISendData
+     /tmp/ccNmtkAE.s:651    .text.BSPSPISendData:0000000000000050 $d
+     /tmp/ccNmtkAE.s:658    .text.DRV_SPI2_SendByteBurst:0000000000000000 $t
+     /tmp/ccNmtkAE.s:665    .text.DRV_SPI2_SendByteBurst:0000000000000000 DRV_SPI2_SendByteBurst
+     /tmp/ccNmtkAE.s:713    .text.DRV_SPI2_SendByteBurst:0000000000000028 $d
+     /tmp/ccNmtkAE.s:718    .text.DRV_SPI2_SendByte:0000000000000000 $t
+     /tmp/ccNmtkAE.s:725    .text.DRV_SPI2_SendByte:0000000000000000 DRV_SPI2_SendByte
+     /tmp/ccNmtkAE.s:794    .text.DRV_SPI2_SendByte:0000000000000040 $d
+     /tmp/ccNmtkAE.s:808    .data.GdSpiTab:0000000000000000 GdSpiTab
+     /tmp/ccNmtkAE.s:803    .bss.sSpiWorkState:0000000000000000 sSpiWorkState
+     /tmp/ccNmtkAE.s:804    .bss.sSpiWorkState:0000000000000000 $d
+     /tmp/ccNmtkAE.s:813    .data.GdSpiTab:0000000000000004 $d
+     /tmp/ccNmtkAE.s:818    .rodata.sSpiRcvData:0000000000000000 sSpiRcvData
+     /tmp/ccNmtkAE.s:819    .rodata.sSpiRcvData:0000000000000000 $d
+
+UNDEFINED SYMBOLS
+MX_SPI3_Init
+MX_SPI1_Init
+gBSPFunCfg
+HAL_SPI_TransmitReceive_DMA
+hspi3
+hspi1
+HAL_SPI_TransmitReceive
+HAL_SPI_Receive
+HAL_SPI_Transmit
+HAL_SPI_DeInit
+HAL_SPI_Init

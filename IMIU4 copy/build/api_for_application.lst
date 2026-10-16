@@ -1,0 +1,408 @@
+ARM GAS  /tmp/cciZeBHj.s 			page 1
+
+
+   1              		.cpu cortex-m0plus
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 4
+   9              		.eabi_attribute 34, 0
+  10              		.eabi_attribute 18, 4
+  11              		.file	"api_for_application.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.write_update_flag_for_app,"ax",%progbits
+  16              		.align	1
+  17              		.global	write_update_flag_for_app
+  18              		.syntax unified
+  19              		.code	16
+  20              		.thumb_func
+  21              		.fpu softvfp
+  23              	write_update_flag_for_app:
+  24              	.LFB516:
+  25              		.file 1 "./Application/Addition/UDSCanfd/api_for_application.c"
+   1:./Application/Addition/UDSCanfd/api_for_application.c **** #include "stm32g0xx_hal.h"
+   2:./Application/Addition/UDSCanfd/api_for_application.c **** #include "stm32g0xx_ll_gpio.h"
+   3:./Application/Addition/UDSCanfd/api_for_application.c **** #include "api_for_application.h"
+   4:./Application/Addition/UDSCanfd/api_for_application.c **** #include "stm32g0xx_hal_rcc.h"
+   5:./Application/Addition/UDSCanfd/api_for_application.c **** 
+   6:./Application/Addition/UDSCanfd/api_for_application.c **** 
+   7:./Application/Addition/UDSCanfd/api_for_application.c **** /**
+   8:./Application/Addition/UDSCanfd/api_for_application.c ****  * @brief 写入升级标志
+   9:./Application/Addition/UDSCanfd/api_for_application.c ****  * 升级标志段包含几个内容：
+  10:./Application/Addition/UDSCanfd/api_for_application.c ****  * [0~1]字节，AA55, 用于标记 存在升级数据，需要升级
+  11:./Application/Addition/UDSCanfd/api_for_application.c ****  * [2]字节，外部FLASH标识  如果使用外部nor-flash作为升级数据暂存，则该段�
+  12:./Application/Addition/UDSCanfd/api_for_application.c ****  * [4~7]字节，待升级数据的大小，小端排序
+  13:./Application/Addition/UDSCanfd/api_for_application.c ****  * 
+  14:./Application/Addition/UDSCanfd/api_for_application.c ****  * @param file_size ,升级数据(文件)的大小
+  15:./Application/Addition/UDSCanfd/api_for_application.c ****  * @param flash_addr ,外部norflash存放升级数据的起始地址
+  16:./Application/Addition/UDSCanfd/api_for_application.c ****  * @param save_to_ext ,升级文件暂存是否保存在外部flash, 1表示存在外部扩展的NO
+  17:./Application/Addition/UDSCanfd/api_for_application.c ****  * @return int ，成功返回0，失败返回-1
+  18:./Application/Addition/UDSCanfd/api_for_application.c ****  */
+  19:./Application/Addition/UDSCanfd/api_for_application.c **** int write_update_flag_for_app(uint32_t file_size,uint32_t flash_addr,uint8_t save_to_ext, uint8_t u
+  20:./Application/Addition/UDSCanfd/api_for_application.c **** {//写入升级标志
+  26              		.loc 1 20 0
+  27              		.cfi_startproc
+  28              		@ args = 0, pretend = 0, frame = 40
+  29              		@ frame_needed = 0, uses_anonymous_args = 0
+  30              	.LVL0:
+  21:./Application/Addition/UDSCanfd/api_for_application.c ****     FLASH_EraseInitTypeDef EraseInitStruct;
+  22:./Application/Addition/UDSCanfd/api_for_application.c ****     // app_procedure_t procedure_stuct;
+  23:./Application/Addition/UDSCanfd/api_for_application.c ****     uint32_t PageError = 0;
+  31              		.loc 1 23 0
+  32 0000 0023     		movs	r3, #0
+  33              	.LVL1:
+  20:./Application/Addition/UDSCanfd/api_for_application.c ****     FLASH_EraseInitTypeDef EraseInitStruct;
+  34              		.loc 1 20 0
+ARM GAS  /tmp/cciZeBHj.s 			page 2
+
+
+  35 0002 F0B5     		push	{r4, r5, r6, r7, lr}
+  36              	.LCFI0:
+  37              		.cfi_def_cfa_offset 20
+  38              		.cfi_offset 4, -20
+  39              		.cfi_offset 5, -16
+  40              		.cfi_offset 6, -12
+  41              		.cfi_offset 7, -8
+  42              		.cfi_offset 14, -4
+  24:./Application/Addition/UDSCanfd/api_for_application.c ****     uint32_t write_addr = FLASH_USER_UPDATE_FLAG_ADDR;
+  43              		.loc 1 24 0
+  44 0004 304E     		ldr	r6, .L15
+  20:./Application/Addition/UDSCanfd/api_for_application.c ****     FLASH_EraseInitTypeDef EraseInitStruct;
+  45              		.loc 1 20 0
+  46 0006 8BB0     		sub	sp, sp, #44
+  47              	.LCFI1:
+  48              		.cfi_def_cfa_offset 64
+  23:./Application/Addition/UDSCanfd/api_for_application.c ****     uint32_t write_addr = FLASH_USER_UPDATE_FLAG_ADDR;
+  49              		.loc 1 23 0
+  50 0008 0393     		str	r3, [sp, #12]
+  51              		.loc 1 24 0
+  52 000a 3368     		ldr	r3, [r6]
+  53 000c 2F4F     		ldr	r7, .L15+4
+  20:./Application/Addition/UDSCanfd/api_for_application.c ****     FLASH_EraseInitTypeDef EraseInitStruct;
+  54              		.loc 1 20 0
+  55 000e 0D00     		movs	r5, r1
+  56              		.loc 1 24 0
+  57 0010 9902     		lsls	r1, r3, #10
+  58              	.LVL2:
+  59 0012 2F4B     		ldr	r3, .L15+8
+  60 0014 0F40     		ands	r7, r1
+  61 0016 FB18     		adds	r3, r7, r3
+  62 0018 0193     		str	r3, [sp, #4]
+  63              	.LVL3:
+  25:./Application/Addition/UDSCanfd/api_for_application.c ****     uint64_t *pdata = 0;
+  26:./Application/Addition/UDSCanfd/api_for_application.c ****     uint8_t tmp_array[8] = {UPDATE_FLAG_BYTE0,UPDATE_FLAG_BYTE1,0,0,0,0,0,0};
+  64              		.loc 1 26 0
+  65 001a 2E4B     		ldr	r3, .L15+12
+  66              	.LVL4:
+  67 001c 04AC     		add	r4, sp, #16
+  68 001e 0493     		str	r3, [sp, #16]
+  27:./Application/Addition/UDSCanfd/api_for_application.c **** 
+  28:./Application/Addition/UDSCanfd/api_for_application.c ****     //标识升级暂存文件是否为外部FLASH, 值为三种状态（第三字节），00表示
+  29:./Application/Addition/UDSCanfd/api_for_application.c ****     if(save_to_ext)//参数非0表示存在外部，否则为内部eflash
+  30:./Application/Addition/UDSCanfd/api_for_application.c ****         tmp_array[2] = UPDATE_FLAG_EXFLASH;
+  69              		.loc 1 30 0
+  70 0020 A023     		movs	r3, #160
+  29:./Application/Addition/UDSCanfd/api_for_application.c ****         tmp_array[2] = UPDATE_FLAG_EXFLASH;
+  71              		.loc 1 29 0
+  72 0022 002A     		cmp	r2, #0
+  73 0024 00D1     		bne	.L13
+  31:./Application/Addition/UDSCanfd/api_for_application.c ****     else
+  32:./Application/Addition/UDSCanfd/api_for_application.c ****         tmp_array[2] = UPDATE_FLAG_INFLASH;
+  74              		.loc 1 32 0
+  75 0026 5023     		movs	r3, #80
+  76              	.L13:
+  77 0028 A370     		strb	r3, [r4, #2]
+  33:./Application/Addition/UDSCanfd/api_for_application.c **** 
+ARM GAS  /tmp/cciZeBHj.s 			page 3
+
+
+  34:./Application/Addition/UDSCanfd/api_for_application.c ****     //小端写入 
+  35:./Application/Addition/UDSCanfd/api_for_application.c ****     tmp_array[4] = (uint8_t)(file_size & 0xff);
+  36:./Application/Addition/UDSCanfd/api_for_application.c ****     tmp_array[5] = (uint8_t)((file_size>>8) & 0xff);
+  78              		.loc 1 36 0
+  79 002a 030A     		lsrs	r3, r0, #8
+  35:./Application/Addition/UDSCanfd/api_for_application.c ****     tmp_array[5] = (uint8_t)((file_size>>8) & 0xff);
+  80              		.loc 1 35 0
+  81 002c 2071     		strb	r0, [r4, #4]
+  82              		.loc 1 36 0
+  83 002e 6371     		strb	r3, [r4, #5]
+  37:./Application/Addition/UDSCanfd/api_for_application.c ****     tmp_array[6] = (uint8_t)((file_size>>16) & 0xff);
+  84              		.loc 1 37 0
+  85 0030 030C     		lsrs	r3, r0, #16
+  38:./Application/Addition/UDSCanfd/api_for_application.c ****     tmp_array[7] = (uint8_t)((file_size>>24) & 0xff);
+  86              		.loc 1 38 0
+  87 0032 000E     		lsrs	r0, r0, #24
+  88              	.LVL5:
+  37:./Application/Addition/UDSCanfd/api_for_application.c ****     tmp_array[6] = (uint8_t)((file_size>>16) & 0xff);
+  89              		.loc 1 37 0
+  90 0034 A371     		strb	r3, [r4, #6]
+  91              		.loc 1 38 0
+  92 0036 E071     		strb	r0, [r4, #7]
+  39:./Application/Addition/UDSCanfd/api_for_application.c ****     HAL_FLASH_Unlock();
+  93              		.loc 1 39 0
+  94 0038 FFF7FEFF 		bl	HAL_FLASH_Unlock
+  95              	.LVL6:
+  40:./Application/Addition/UDSCanfd/api_for_application.c ****     EraseInitStruct.TypeErase     = FLASH_CR_PER;
+  96              		.loc 1 40 0
+  97 003c 0223     		movs	r3, #2
+  98 003e 0693     		str	r3, [sp, #24]
+  41:./Application/Addition/UDSCanfd/api_for_application.c ****     EraseInitStruct.Banks         = FLASH_BANK_2;       //要擦除的位置位于flash尾部，BAN
+  99              		.loc 1 41 0
+ 100 0040 8023     		movs	r3, #128
+  42:./Application/Addition/UDSCanfd/api_for_application.c ****     EraseInitStruct.Page          = FLASH_PAGE_NB-2;    //擦除起始的sector编号,倒数第2个
+ 101              		.loc 1 42 0
+ 102 0042 C022     		movs	r2, #192
+  41:./Application/Addition/UDSCanfd/api_for_application.c ****     EraseInitStruct.Banks         = FLASH_BANK_2;       //要擦除的位置位于flash尾部，BAN
+ 103              		.loc 1 41 0
+ 104 0044 1B02     		lsls	r3, r3, #8
+ 105 0046 0793     		str	r3, [sp, #28]
+ 106              		.loc 1 42 0
+ 107 0048 234B     		ldr	r3, .L15+16
+ 108 004a 9204     		lsls	r2, r2, #18
+ 109 004c 1B68     		ldr	r3, [r3]
+ 110 004e 1340     		ands	r3, r2
+ 111 0050 07D0     		beq	.L4
+ 112              		.loc 1 42 0 is_stmt 0 discriminator 2
+ 113 0052 8022     		movs	r2, #128
+ 114 0054 5204     		lsls	r2, r2, #17
+ 115 0056 9342     		cmp	r3, r2
+ 116 0058 16D1     		bne	.L5
+ 117              		.loc 1 42 0 discriminator 3
+ 118 005a 204B     		ldr	r3, .L15+20
+ 119 005c 1B68     		ldr	r3, [r3]
+ 120 005e 9B02     		lsls	r3, r3, #10
+ 121 0060 12D4     		bmi	.L5
+ 122              	.L4:
+ARM GAS  /tmp/cciZeBHj.s 			page 4
+
+
+ 123              		.loc 1 42 0 discriminator 5
+ 124 0062 3368     		ldr	r3, [r6]
+ 125 0064 9B05     		lsls	r3, r3, #22
+ 126 0066 DB0D     		lsrs	r3, r3, #23
+ 127              	.L14:
+  43:./Application/Addition/UDSCanfd/api_for_application.c ****     EraseInitStruct.NbPages       = 1;                  //擦除的sector数量
+ 128              		.loc 1 43 0 is_stmt 1 discriminator 6
+ 129 0068 0126     		movs	r6, #1
+  42:./Application/Addition/UDSCanfd/api_for_application.c ****     EraseInitStruct.Page          = FLASH_PAGE_NB-2;    //擦除起始的sector编号,倒数第2个
+ 130              		.loc 1 42 0 discriminator 6
+ 131 006a 023B     		subs	r3, r3, #2
+  44:./Application/Addition/UDSCanfd/api_for_application.c **** 
+  45:./Application/Addition/UDSCanfd/api_for_application.c **** 
+  46:./Application/Addition/UDSCanfd/api_for_application.c ****     if (HAL_FLASHEx_Erase(&EraseInitStruct, &PageError) != HAL_OK){
+ 132              		.loc 1 46 0 discriminator 6
+ 133 006c 03A9     		add	r1, sp, #12
+ 134 006e 06A8     		add	r0, sp, #24
+  42:./Application/Addition/UDSCanfd/api_for_application.c ****     EraseInitStruct.NbPages       = 1;                  //擦除的sector数量
+ 135              		.loc 1 42 0 discriminator 6
+ 136 0070 0893     		str	r3, [sp, #32]
+  43:./Application/Addition/UDSCanfd/api_for_application.c ****     EraseInitStruct.NbPages       = 1;                  //擦除的sector数量
+ 137              		.loc 1 43 0 discriminator 6
+ 138 0072 0996     		str	r6, [sp, #36]
+ 139              		.loc 1 46 0 discriminator 6
+ 140 0074 FFF7FEFF 		bl	HAL_FLASHEx_Erase
+ 141              	.LVL7:
+ 142 0078 0028     		cmp	r0, #0
+ 143 007a 09D0     		beq	.L7
+ 144              	.LVL8:
+ 145              	.L9:
+  47:./Application/Addition/UDSCanfd/api_for_application.c ****         HAL_FLASH_Lock();
+ 146              		.loc 1 47 0
+ 147 007c FFF7FEFF 		bl	HAL_FLASH_Lock
+ 148              	.LVL9:
+  48:./Application/Addition/UDSCanfd/api_for_application.c ****         return -1;
+ 149              		.loc 1 48 0
+ 150 0080 0120     		movs	r0, #1
+ 151 0082 4042     		rsbs	r0, r0, #0
+ 152              	.L1:
+  49:./Application/Addition/UDSCanfd/api_for_application.c ****     }
+  50:./Application/Addition/UDSCanfd/api_for_application.c **** 
+  51:./Application/Addition/UDSCanfd/api_for_application.c ****     //写入升级标志和文件大小
+  52:./Application/Addition/UDSCanfd/api_for_application.c ****     pdata = (uint64_t*)&tmp_array[0];
+  53:./Application/Addition/UDSCanfd/api_for_application.c ****     if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, 
+  54:./Application/Addition/UDSCanfd/api_for_application.c ****                               write_addr, 
+  55:./Application/Addition/UDSCanfd/api_for_application.c ****                               ((uint64_t)*pdata)) == HAL_OK){
+  56:./Application/Addition/UDSCanfd/api_for_application.c ****         write_addr += 8;
+  57:./Application/Addition/UDSCanfd/api_for_application.c ****     }else{
+  58:./Application/Addition/UDSCanfd/api_for_application.c ****         HAL_FLASH_Lock();
+  59:./Application/Addition/UDSCanfd/api_for_application.c ****         return -1;
+  60:./Application/Addition/UDSCanfd/api_for_application.c ****     }
+  61:./Application/Addition/UDSCanfd/api_for_application.c ****     
+  62:./Application/Addition/UDSCanfd/api_for_application.c ****     //写入外部flash存放升级文件的起始地址
+  63:./Application/Addition/UDSCanfd/api_for_application.c ****     tmp_array[0] = (uint8_t)(flash_addr & 0xff);
+  64:./Application/Addition/UDSCanfd/api_for_application.c ****     tmp_array[1] = (uint8_t)((flash_addr>>8) & 0xff);
+  65:./Application/Addition/UDSCanfd/api_for_application.c ****     tmp_array[2] = (uint8_t)((flash_addr>>16) & 0xff);
+  66:./Application/Addition/UDSCanfd/api_for_application.c ****     tmp_array[3] = (uint8_t)((flash_addr>>24) & 0xff);
+ARM GAS  /tmp/cciZeBHj.s 			page 5
+
+
+  67:./Application/Addition/UDSCanfd/api_for_application.c ****     
+  68:./Application/Addition/UDSCanfd/api_for_application.c ****     pdata = (uint64_t*)&tmp_array[0];
+  69:./Application/Addition/UDSCanfd/api_for_application.c ****     if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, 
+  70:./Application/Addition/UDSCanfd/api_for_application.c ****                               write_addr, 
+  71:./Application/Addition/UDSCanfd/api_for_application.c ****                               ((uint64_t)*pdata)) == HAL_OK){
+  72:./Application/Addition/UDSCanfd/api_for_application.c ****     }else{
+  73:./Application/Addition/UDSCanfd/api_for_application.c ****         HAL_FLASH_Lock();
+  74:./Application/Addition/UDSCanfd/api_for_application.c ****         return -1;
+  75:./Application/Addition/UDSCanfd/api_for_application.c ****     }
+  76:./Application/Addition/UDSCanfd/api_for_application.c **** 
+  77:./Application/Addition/UDSCanfd/api_for_application.c ****     HAL_FLASH_Lock();
+  78:./Application/Addition/UDSCanfd/api_for_application.c ****     return 0;
+  79:./Application/Addition/UDSCanfd/api_for_application.c **** 
+  80:./Application/Addition/UDSCanfd/api_for_application.c **** #if 0
+  81:./Application/Addition/UDSCanfd/api_for_application.c ****     //写入外部flash的app操作行为结构体
+  82:./Application/Addition/UDSCanfd/api_for_application.c ****     if(use_procedure){
+  83:./Application/Addition/UDSCanfd/api_for_application.c ****         magic_num_in_ram = PROCEDURE_MAGICNUM;
+  84:./Application/Addition/UDSCanfd/api_for_application.c ****         procedure_stuct.magic_num = &magic_num_in_ram;
+  85:./Application/Addition/UDSCanfd/api_for_application.c ****         procedure_stuct.procedure_init = app_procedure_init;
+  86:./Application/Addition/UDSCanfd/api_for_application.c ****         procedure_stuct.procedure_run = app_procedure_run;
+  87:./Application/Addition/UDSCanfd/api_for_application.c ****         procedure_stuct.procedure_exit = app_procedure_exit;
+  88:./Application/Addition/UDSCanfd/api_for_application.c ****         for(int i=0;i<32;i++){//对reserved位填0xff
+  89:./Application/Addition/UDSCanfd/api_for_application.c ****             procedure_stuct.reserved[i] = 0xfffffffful;
+  90:./Application/Addition/UDSCanfd/api_for_application.c ****         }
+  91:./Application/Addition/UDSCanfd/api_for_application.c ****         pdata = (uint64_t*)&procedure_stuct;
+  92:./Application/Addition/UDSCanfd/api_for_application.c ****         write_addr += 8;
+  93:./Application/Addition/UDSCanfd/api_for_application.c ****         for(int i=0; i<sizeof(app_procedure_t); ){
+  94:./Application/Addition/UDSCanfd/api_for_application.c ****             if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, 
+  95:./Application/Addition/UDSCanfd/api_for_application.c ****                               write_addr, 
+  96:./Application/Addition/UDSCanfd/api_for_application.c ****                               ((uint64_t)*pdata)) == HAL_OK){
+  97:./Application/Addition/UDSCanfd/api_for_application.c ****             }else{
+  98:./Application/Addition/UDSCanfd/api_for_application.c ****                 HAL_FLASH_Lock();
+  99:./Application/Addition/UDSCanfd/api_for_application.c ****                 return -1;
+ 100:./Application/Addition/UDSCanfd/api_for_application.c ****             }
+ 101:./Application/Addition/UDSCanfd/api_for_application.c ****             i += 8;
+ 102:./Application/Addition/UDSCanfd/api_for_application.c ****             pdata += 1;
+ 103:./Application/Addition/UDSCanfd/api_for_application.c ****             write_addr += 8;
+ 104:./Application/Addition/UDSCanfd/api_for_application.c ****         }
+ 105:./Application/Addition/UDSCanfd/api_for_application.c ****     }
+ 106:./Application/Addition/UDSCanfd/api_for_application.c **** #endif
+ 107:./Application/Addition/UDSCanfd/api_for_application.c **** }
+ 153              		.loc 1 107 0
+ 154 0084 0BB0     		add	sp, sp, #44
+ 155              		@ sp needed
+ 156 0086 F0BD     		pop	{r4, r5, r6, r7, pc}
+ 157              	.LVL10:
+ 158              	.L5:
+  42:./Application/Addition/UDSCanfd/api_for_application.c ****     EraseInitStruct.NbPages       = 1;                  //擦除的sector数量
+ 159              		.loc 1 42 0 discriminator 6
+ 160 0088 3368     		ldr	r3, [r6]
+ 161 008a 9B05     		lsls	r3, r3, #22
+ 162 008c 1B0E     		lsrs	r3, r3, #24
+ 163 008e EBE7     		b	.L14
+ 164              	.L7:
+ 165              	.LVL11:
+  53:./Application/Addition/UDSCanfd/api_for_application.c ****                               write_addr, 
+ 166              		.loc 1 53 0
+ARM GAS  /tmp/cciZeBHj.s 			page 6
+
+
+ 167 0090 049A     		ldr	r2, [sp, #16]
+ 168 0092 059B     		ldr	r3, [sp, #20]
+ 169 0094 0199     		ldr	r1, [sp, #4]
+ 170 0096 3000     		movs	r0, r6
+ 171 0098 FFF7FEFF 		bl	HAL_FLASH_Program
+ 172              	.LVL12:
+ 173 009c 0028     		cmp	r0, #0
+ 174 009e EDD1     		bne	.L9
+ 175              	.LVL13:
+  64:./Application/Addition/UDSCanfd/api_for_application.c ****     tmp_array[2] = (uint8_t)((flash_addr>>16) & 0xff);
+ 176              		.loc 1 64 0
+ 177 00a0 2B0A     		lsrs	r3, r5, #8
+ 178 00a2 6370     		strb	r3, [r4, #1]
+  65:./Application/Addition/UDSCanfd/api_for_application.c ****     tmp_array[3] = (uint8_t)((flash_addr>>24) & 0xff);
+ 179              		.loc 1 65 0
+ 180 00a4 2B0C     		lsrs	r3, r5, #16
+  63:./Application/Addition/UDSCanfd/api_for_application.c ****     tmp_array[1] = (uint8_t)((flash_addr>>8) & 0xff);
+ 181              		.loc 1 63 0
+ 182 00a6 2570     		strb	r5, [r4]
+  65:./Application/Addition/UDSCanfd/api_for_application.c ****     tmp_array[3] = (uint8_t)((flash_addr>>24) & 0xff);
+ 183              		.loc 1 65 0
+ 184 00a8 A370     		strb	r3, [r4, #2]
+  66:./Application/Addition/UDSCanfd/api_for_application.c ****     
+ 185              		.loc 1 66 0
+ 186 00aa 2D0E     		lsrs	r5, r5, #24
+ 187              	.LVL14:
+  56:./Application/Addition/UDSCanfd/api_for_application.c ****     }else{
+ 188              		.loc 1 56 0
+ 189 00ac 0C4B     		ldr	r3, .L15+24
+  66:./Application/Addition/UDSCanfd/api_for_application.c ****     
+ 190              		.loc 1 66 0
+ 191 00ae E570     		strb	r5, [r4, #3]
+  56:./Application/Addition/UDSCanfd/api_for_application.c ****     }else{
+ 192              		.loc 1 56 0
+ 193 00b0 F918     		adds	r1, r7, r3
+ 194              	.LVL15:
+  69:./Application/Addition/UDSCanfd/api_for_application.c ****                               write_addr, 
+ 195              		.loc 1 69 0
+ 196 00b2 3000     		movs	r0, r6
+ 197 00b4 049A     		ldr	r2, [sp, #16]
+ 198 00b6 059B     		ldr	r3, [sp, #20]
+ 199 00b8 FFF7FEFF 		bl	HAL_FLASH_Program
+ 200              	.LVL16:
+ 201 00bc 041E     		subs	r4, r0, #0
+ 202              	.LVL17:
+ 203 00be DDD1     		bne	.L9
+  77:./Application/Addition/UDSCanfd/api_for_application.c ****     return 0;
+ 204              		.loc 1 77 0
+ 205 00c0 FFF7FEFF 		bl	HAL_FLASH_Lock
+ 206              	.LVL18:
+  78:./Application/Addition/UDSCanfd/api_for_application.c **** 
+ 207              		.loc 1 78 0
+ 208 00c4 2000     		movs	r0, r4
+ 209 00c6 DDE7     		b	.L1
+ 210              	.L16:
+ 211              		.align	2
+ 212              	.L15:
+ARM GAS  /tmp/cciZeBHj.s 			page 7
+
+
+ 213 00c8 E075FF1F 		.word	536835552
+ 214 00cc 00FC0F00 		.word	1047552
+ 215 00d0 00F0FF07 		.word	134213632
+ 216 00d4 AA550000 		.word	21930
+ 217 00d8 0075FF1F 		.word	536835328
+ 218 00dc 20200240 		.word	1073881120
+ 219 00e0 08F0FF07 		.word	134213640
+ 220              		.cfi_endproc
+ 221              	.LFE516:
+ 223              		.text
+ 224              	.Letext0:
+ 225              		.file 2 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/machine/_default_types.h"
+ 226              		.file 3 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_stdint.h"
+ 227              		.file 4 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/system_stm32g0xx.h"
+ 228              		.file 5 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/stm32g0b1xx.h"
+ 229              		.file 6 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_def.h"
+ 230              		.file 7 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_dma.h"
+ 231              		.file 8 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_flash.h"
+ 232              		.file 9 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_spi.h"
+ 233              		.file 10 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_uart.h"
+ 234              		.file 11 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal.h"
+ 235              		.file 12 "Core/Inc/main.h"
+ 236              		.file 13 "Core/Inc/spi.h"
+ 237              		.file 14 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/lock.h"
+ 238              		.file 15 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_types.h"
+ 239              		.file 16 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/lib/gcc/arm-none-eabi/7.3.1/include/stddef.h"
+ 240              		.file 17 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/reent.h"
+ 241              		.file 18 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/stdlib.h"
+ 242              		.file 19 "Application/BSPSys/BSPDevice/gd25q32e/BSPGD25Q32E.h"
+ 243              		.file 20 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_ll_dma.h"
+ 244              		.file 21 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_flash_ex.h"
+ARM GAS  /tmp/cciZeBHj.s 			page 8
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 api_for_application.c
+     /tmp/cciZeBHj.s:16     .text.write_update_flag_for_app:0000000000000000 $t
+     /tmp/cciZeBHj.s:23     .text.write_update_flag_for_app:0000000000000000 write_update_flag_for_app
+     /tmp/cciZeBHj.s:213    .text.write_update_flag_for_app:00000000000000c8 $d
+
+UNDEFINED SYMBOLS
+HAL_FLASH_Unlock
+HAL_FLASHEx_Erase
+HAL_FLASH_Lock
+HAL_FLASH_Program

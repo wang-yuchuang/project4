@@ -1,0 +1,292 @@
+ARM GAS  /tmp/ccmff9F3.s 			page 1
+
+
+   1              		.cpu cortex-m0plus
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 4
+   9              		.eabi_attribute 34, 0
+  10              		.eabi_attribute 18, 4
+  11              		.file	"sid22_read_data_by_id.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.sid22_read_data_by_id_solve,"ax",%progbits
+  16              		.align	1
+  17              		.global	sid22_read_data_by_id_solve
+  18              		.syntax unified
+  19              		.code	16
+  20              		.thumb_func
+  21              		.fpu softvfp
+  23              	sid22_read_data_by_id_solve:
+  24              	.LFB493:
+  25              		.file 1 "./Application/Addition/UDSCanfd/services_layer/device_role/sid22_read_data_by_id.c"
+   1:./Application/Addition/UDSCanfd/services_layer/device_role/sid22_read_data_by_id.c **** /* ******************* 
+   2:./Application/Addition/UDSCanfd/services_layer/device_role/sid22_read_data_by_id.c ****  * can uds 22h服务的实现
+   3:./Application/Addition/UDSCanfd/services_layer/device_role/sid22_read_data_by_id.c ****  **********************/
+   4:./Application/Addition/UDSCanfd/services_layer/device_role/sid22_read_data_by_id.c **** #include <string.h>
+   5:./Application/Addition/UDSCanfd/services_layer/device_role/sid22_read_data_by_id.c **** #include "network_layer/can_uds_network_layer.h"
+   6:./Application/Addition/UDSCanfd/services_layer/device_role/sid22_read_data_by_id.c **** #include "services_layer/device_role/sid_internal_header.h"
+   7:./Application/Addition/UDSCanfd/services_layer/device_role/sid22_read_data_by_id.c **** #include "services_layer/device_role/can_uds_services_layer.h"
+   8:./Application/Addition/UDSCanfd/services_layer/device_role/sid22_read_data_by_id.c **** 
+   9:./Application/Addition/UDSCanfd/services_layer/device_role/sid22_read_data_by_id.c **** unsigned char crc16_save[4] = {'0','0','0','0'};
+  10:./Application/Addition/UDSCanfd/services_layer/device_role/sid22_read_data_by_id.c **** 
+  11:./Application/Addition/UDSCanfd/services_layer/device_role/sid22_read_data_by_id.c **** void sid22_read_data_by_id_solve(unsigned char *msg_buff,unsigned short msg_len)
+  12:./Application/Addition/UDSCanfd/services_layer/device_role/sid22_read_data_by_id.c **** {//
+  26              		.loc 1 12 0
+  27              		.cfi_startproc
+  28              		@ args = 0, pretend = 0, frame = 72
+  29              		@ frame_needed = 0, uses_anonymous_args = 0
+  30              	.LVL0:
+  31 0000 30B5     		push	{r4, r5, lr}
+  32              	.LCFI0:
+  33              		.cfi_def_cfa_offset 12
+  34              		.cfi_offset 4, -12
+  35              		.cfi_offset 5, -8
+  36              		.cfi_offset 14, -4
+  37 0002 93B0     		sub	sp, sp, #76
+  38              	.LCFI1:
+  39              		.cfi_def_cfa_offset 88
+  13:./Application/Addition/UDSCanfd/services_layer/device_role/sid22_read_data_by_id.c ****     unsigned short read_did = 0;
+  14:./Application/Addition/UDSCanfd/services_layer/device_role/sid22_read_data_by_id.c ****     unsigned char rsp_msg[3+MAX_DID_CHARACTORS_NUM] = {0};//多三个字节，SID(1字节)+DID(2字
+  40              		.loc 1 14 0
+  41 0004 01AC     		add	r4, sp, #4
+  12:./Application/Addition/UDSCanfd/services_layer/device_role/sid22_read_data_by_id.c ****     unsigned short read_did = 0;
+  42              		.loc 1 12 0
+  43 0006 0500     		movs	r5, r0
+ARM GAS  /tmp/ccmff9F3.s 			page 2
+
+
+  44              		.loc 1 14 0
+  45 0008 4322     		movs	r2, #67
+  46 000a 0021     		movs	r1, #0
+  47              	.LVL1:
+  48 000c 2000     		movs	r0, r4
+  49              	.LVL2:
+  50 000e FFF7FEFF 		bl	memset
+  51              	.LVL3:
+  15:./Application/Addition/UDSCanfd/services_layer/device_role/sid22_read_data_by_id.c **** 
+  16:./Application/Addition/UDSCanfd/services_layer/device_role/sid22_read_data_by_id.c ****     if(cur_session_type == DEFAULT_SESSION ||
+  17:./Application/Addition/UDSCanfd/services_layer/device_role/sid22_read_data_by_id.c ****         cur_session_type == PROGRAMMING_SESSION ||
+  52              		.loc 1 17 0
+  53 0012 1B4B     		ldr	r3, .L9
+  54 0014 1B78     		ldrb	r3, [r3]
+  16:./Application/Addition/UDSCanfd/services_layer/device_role/sid22_read_data_by_id.c ****         cur_session_type == PROGRAMMING_SESSION ||
+  55              		.loc 1 16 0
+  56 0016 013B     		subs	r3, r3, #1
+  57 0018 022B     		cmp	r3, #2
+  58 001a 0FD8     		bhi	.L2
+  18:./Application/Addition/UDSCanfd/services_layer/device_role/sid22_read_data_by_id.c ****         cur_session_type == EXTENDED_SESSION){
+  19:./Application/Addition/UDSCanfd/services_layer/device_role/sid22_read_data_by_id.c ****         read_did = msg_buff[1];  //LSB
+  20:./Application/Addition/UDSCanfd/services_layer/device_role/sid22_read_data_by_id.c ****         read_did += (unsigned short)(msg_buff[2] << 8);
+  59              		.loc 1 20 0
+  60 001c AA78     		ldrb	r2, [r5, #2]
+  19:./Application/Addition/UDSCanfd/services_layer/device_role/sid22_read_data_by_id.c ****         read_did += (unsigned short)(msg_buff[2] << 8);
+  61              		.loc 1 19 0
+  62 001e 6B78     		ldrb	r3, [r5, #1]
+  63              	.LVL4:
+  64              		.loc 1 20 0
+  65 0020 1202     		lsls	r2, r2, #8
+  66 0022 9B18     		adds	r3, r3, r2
+  67              	.LVL5:
+  21:./Application/Addition/UDSCanfd/services_layer/device_role/sid22_read_data_by_id.c ****         rsp_msg[0] = ds_read_data_by_id | UDS_SRV_RET_ID_OFFSET;
+  68              		.loc 1 21 0
+  69 0024 6222     		movs	r2, #98
+  20:./Application/Addition/UDSCanfd/services_layer/device_role/sid22_read_data_by_id.c ****         rsp_msg[0] = ds_read_data_by_id | UDS_SRV_RET_ID_OFFSET;
+  70              		.loc 1 20 0
+  71 0026 9BB2     		uxth	r3, r3
+  72              	.LVL6:
+  73              		.loc 1 21 0
+  74 0028 2270     		strb	r2, [r4]
+  22:./Application/Addition/UDSCanfd/services_layer/device_role/sid22_read_data_by_id.c ****         rsp_msg[1] = read_did&0x00ff;       //LSB
+  23:./Application/Addition/UDSCanfd/services_layer/device_role/sid22_read_data_by_id.c ****         rsp_msg[2] = (read_did&0xff00) >> 8;//MSB
+  75              		.loc 1 23 0
+  76 002a 1A0A     		lsrs	r2, r3, #8
+  77 002c A270     		strb	r2, [r4, #2]
+  24:./Application/Addition/UDSCanfd/services_layer/device_role/sid22_read_data_by_id.c ****         switch(read_did)
+  78              		.loc 1 24 0
+  79 002e 154A     		ldr	r2, .L9+4
+  22:./Application/Addition/UDSCanfd/services_layer/device_role/sid22_read_data_by_id.c ****         rsp_msg[1] = read_did&0x00ff;       //LSB
+  80              		.loc 1 22 0
+  81 0030 6370     		strb	r3, [r4, #1]
+  82              		.loc 1 24 0
+  83 0032 9342     		cmp	r3, r2
+  84 0034 07D0     		beq	.L4
+  85 0036 144A     		ldr	r2, .L9+8
+  86 0038 9342     		cmp	r3, r2
+ARM GAS  /tmp/ccmff9F3.s 			page 3
+
+
+  87 003a 14D0     		beq	.L5
+  88              	.LVL7:
+  89              	.L2:
+  25:./Application/Addition/UDSCanfd/services_layer/device_role/sid22_read_data_by_id.c ****         {// para 3 is len, str is id+content
+  26:./Application/Addition/UDSCanfd/services_layer/device_role/sid22_read_data_by_id.c ****         case app_sw_id:
+  27:./Application/Addition/UDSCanfd/services_layer/device_role/sid22_read_data_by_id.c ****             memcpy(&rsp_msg[3],app_sw_version_str,sizeof(app_sw_version_str)-1);
+  28:./Application/Addition/UDSCanfd/services_layer/device_role/sid22_read_data_by_id.c ****             uds_ack_accept(rsp_msg,3 + sizeof(app_sw_version_str) - 1);
+  29:./Application/Addition/UDSCanfd/services_layer/device_role/sid22_read_data_by_id.c ****             d_printf("sid22, ack app_sw_id\r\n");
+  30:./Application/Addition/UDSCanfd/services_layer/device_role/sid22_read_data_by_id.c ****             break;
+  31:./Application/Addition/UDSCanfd/services_layer/device_role/sid22_read_data_by_id.c ****         case app_crc_value:
+  32:./Application/Addition/UDSCanfd/services_layer/device_role/sid22_read_data_by_id.c ****             memcpy(&rsp_msg[3],crc16_save,4);
+  33:./Application/Addition/UDSCanfd/services_layer/device_role/sid22_read_data_by_id.c ****             uds_ack_accept(rsp_msg,3 + 4);
+  34:./Application/Addition/UDSCanfd/services_layer/device_role/sid22_read_data_by_id.c ****             d_printf("sid22, ack app_crc_value\r\n");
+  35:./Application/Addition/UDSCanfd/services_layer/device_role/sid22_read_data_by_id.c ****             break;
+  36:./Application/Addition/UDSCanfd/services_layer/device_role/sid22_read_data_by_id.c ****         default:
+  37:./Application/Addition/UDSCanfd/services_layer/device_role/sid22_read_data_by_id.c ****             uds_ack_refuse(ds_read_data_by_id,nrc_request_out_of_range);
+  38:./Application/Addition/UDSCanfd/services_layer/device_role/sid22_read_data_by_id.c ****             break;
+  39:./Application/Addition/UDSCanfd/services_layer/device_role/sid22_read_data_by_id.c ****         }
+  40:./Application/Addition/UDSCanfd/services_layer/device_role/sid22_read_data_by_id.c ****     }else{
+  41:./Application/Addition/UDSCanfd/services_layer/device_role/sid22_read_data_by_id.c ****         uds_ack_refuse(ds_read_data_by_id,nrc_request_out_of_range);
+  90              		.loc 1 41 0
+  91 003c 3121     		movs	r1, #49
+  92 003e 2220     		movs	r0, #34
+  93 0040 FFF7FEFF 		bl	uds_ack_refuse
+  94              	.LVL8:
+  42:./Application/Addition/UDSCanfd/services_layer/device_role/sid22_read_data_by_id.c ****     }
+  43:./Application/Addition/UDSCanfd/services_layer/device_role/sid22_read_data_by_id.c **** }...
+  95              		.loc 1 43 0
+  96 0044 0DE0     		b	.L1
+  97              	.LVL9:
+  98              	.L4:
+  27:./Application/Addition/UDSCanfd/services_layer/device_role/sid22_read_data_by_id.c ****             memcpy(&rsp_msg[3],app_sw_version_str,sizeof(app_sw_version_str)-1);
+  99              		.loc 1 27 0
+ 100 0046 0722     		movs	r2, #7
+ 101 0048 6B46     		mov	r3, sp
+ 102              	.LVL10:
+ 103 004a 1049     		ldr	r1, .L9+12
+ 104 004c 9818     		adds	r0, r3, r2
+ 105 004e FFF7FEFF 		bl	memcpy
+ 106              	.LVL11:
+  28:./Application/Addition/UDSCanfd/services_layer/device_role/sid22_read_data_by_id.c ****             uds_ack_accept(rsp_msg,3 + sizeof(app_sw_version_str) - 1);
+ 107              		.loc 1 28 0
+ 108 0052 0A21     		movs	r1, #10
+ 109 0054 2000     		movs	r0, r4
+ 110 0056 FFF7FEFF 		bl	uds_ack_accept
+ 111              	.LVL12:
+  29:./Application/Addition/UDSCanfd/services_layer/device_role/sid22_read_data_by_id.c ****             d_printf("sid22, ack app_sw_id\r\n");
+ 112              		.loc 1 29 0
+ 113 005a 0D49     		ldr	r1, .L9+16
+ 114              	.L8:
+  34:./Application/Addition/UDSCanfd/services_layer/device_role/sid22_read_data_by_id.c ****             d_printf("sid22, ack app_crc_value\r\n");
+ 115              		.loc 1 34 0
+ 116 005c 0020     		movs	r0, #0
+ 117 005e FFF7FEFF 		bl	SEGGER_RTT_printf
+ 118              	.LVL13:
+ 119              	.L1:
+ 120              		.loc 1 43 0
+ARM GAS  /tmp/ccmff9F3.s 			page 4
+
+
+ 121 0062 13B0     		add	sp, sp, #76
+ 122              		@ sp needed
+ 123              	.LVL14:
+ 124 0064 30BD     		pop	{r4, r5, pc}
+ 125              	.LVL15:
+ 126              	.L5:
+  32:./Application/Addition/UDSCanfd/services_layer/device_role/sid22_read_data_by_id.c ****             memcpy(&rsp_msg[3],crc16_save,4);
+ 127              		.loc 1 32 0
+ 128 0066 6B46     		mov	r3, sp
+ 129              	.LVL16:
+ 130 0068 0422     		movs	r2, #4
+ 131 006a 0A49     		ldr	r1, .L9+20
+ 132 006c D81D     		adds	r0, r3, #7
+ 133 006e FFF7FEFF 		bl	memcpy
+ 134              	.LVL17:
+  33:./Application/Addition/UDSCanfd/services_layer/device_role/sid22_read_data_by_id.c ****             uds_ack_accept(rsp_msg,3 + 4);
+ 135              		.loc 1 33 0
+ 136 0072 0721     		movs	r1, #7
+ 137 0074 2000     		movs	r0, r4
+ 138 0076 FFF7FEFF 		bl	uds_ack_accept
+ 139              	.LVL18:
+  34:./Application/Addition/UDSCanfd/services_layer/device_role/sid22_read_data_by_id.c ****             d_printf("sid22, ack app_crc_value\r\n");
+ 140              		.loc 1 34 0
+ 141 007a 0749     		ldr	r1, .L9+24
+ 142 007c EEE7     		b	.L8
+ 143              	.L10:
+ 144 007e C046     		.align	2
+ 145              	.L9:
+ 146 0080 00000000 		.word	cur_session_type
+ 147 0084 81F10000 		.word	61825
+ 148 0088 82F10000 		.word	61826
+ 149 008c 00000000 		.word	.LC1
+ 150 0090 08000000 		.word	.LC3
+ 151 0094 00000000 		.word	.LANCHOR0
+ 152 0098 1F000000 		.word	.LC6
+ 153              		.cfi_endproc
+ 154              	.LFE493:
+ 156              		.global	crc16_save
+ 157              		.section	.data.crc16_save,"aw",%progbits
+ 158              		.set	.LANCHOR0,. + 0
+ 161              	crc16_save:
+ 162 0000 30       		.byte	48
+ 163 0001 30       		.byte	48
+ 164 0002 30       		.byte	48
+ 165 0003 30       		.byte	48
+ 166              		.section	.rodata.sid22_read_data_by_id_solve.str1.1,"aMS",%progbits,1
+ 167              	.LC1:
+ 168 0000 76657231 		.ascii	"ver1.00\000"
+ 168      2E303000 
+ 169              	.LC3:
+ 170 0008 73696432 		.ascii	"sid22, ack app_sw_id\015\012\000"
+ 170      322C2061 
+ 170      636B2061 
+ 170      70705F73 
+ 170      775F6964 
+ 171              	.LC6:
+ 172 001f 73696432 		.ascii	"sid22, ack app_crc_value\015\012\000"
+ARM GAS  /tmp/ccmff9F3.s 			page 5
+
+
+ 172      322C2061 
+ 172      636B2061 
+ 172      70705F63 
+ 172      72635F76 
+ 173              		.text
+ 174              	.Letext0:
+ 175              		.file 2 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/machine/_default_types.h"
+ 176              		.file 3 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/lock.h"
+ 177              		.file 4 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_types.h"
+ 178              		.file 5 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/lib/gcc/arm-none-eabi/7.3.1/include/stddef.h"
+ 179              		.file 6 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/reent.h"
+ 180              		.file 7 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/stdlib.h"
+ 181              		.file 8 "Application/BSPSys/Util/BSPTypeDef.h"
+ 182              		.file 9 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_stdint.h"
+ 183              		.file 10 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/system_stm32g0xx.h"
+ 184              		.file 11 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/stm32g0b1xx.h"
+ 185              		.file 12 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_def.h"
+ 186              		.file 13 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_dma.h"
+ 187              		.file 14 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_flash.h"
+ 188              		.file 15 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_spi.h"
+ 189              		.file 16 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_uart.h"
+ 190              		.file 17 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal.h"
+ 191              		.file 18 "Core/Inc/main.h"
+ 192              		.file 19 "Core/Inc/spi.h"
+ 193              		.file 20 "Application/BSPSys/BSPDevice/gd25q32e/BSPGD25Q32E.h"
+ 194              		.file 21 "Application/Addition/UDSCanfd/can_uds_arch.h"
+ 195              		.file 22 "Application/Addition/UDSCanfd/network_layer/can_uds_network_layer.h"
+ 196              		.file 23 "Application/Addition/RTT/SEGGER_RTT.h"
+ 197              		.file 24 "Application/Addition/UDSCanfd/services_layer/device_role/sid_internal_header.h"
+ 198              		.file 25 "Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.h"
+ 199              		.file 26 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_ll_dma.h"
+ 200              		.file 27 "<built-in>"
+ARM GAS  /tmp/ccmff9F3.s 			page 6
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 sid22_read_data_by_id.c
+     /tmp/ccmff9F3.s:16     .text.sid22_read_data_by_id_solve:0000000000000000 $t
+     /tmp/ccmff9F3.s:23     .text.sid22_read_data_by_id_solve:0000000000000000 sid22_read_data_by_id_solve
+     /tmp/ccmff9F3.s:146    .text.sid22_read_data_by_id_solve:0000000000000080 $d
+     /tmp/ccmff9F3.s:161    .data.crc16_save:0000000000000000 crc16_save
+
+UNDEFINED SYMBOLS
+memset
+uds_ack_refuse
+memcpy
+uds_ack_accept
+SEGGER_RTT_printf
+cur_session_type

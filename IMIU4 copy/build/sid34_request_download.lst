@@ -1,0 +1,350 @@
+ARM GAS  /tmp/cc4R8naW.s 			page 1
+
+
+   1              		.cpu cortex-m0plus
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 4
+   9              		.eabi_attribute 34, 0
+  10              		.eabi_attribute 18, 4
+  11              		.file	"sid34_request_download.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.sid34_request_download_solve,"ax",%progbits
+  16              		.align	1
+  17              		.global	sid34_request_download_solve
+  18              		.syntax unified
+  19              		.code	16
+  20              		.thumb_func
+  21              		.fpu softvfp
+  23              	sid34_request_download_solve:
+  24              	.LFB493:
+  25              		.file 1 "./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c"
+   1:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c **** 
+   2:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c **** /* ******************* 
+   3:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c ****  * can uds 34h服务的实现
+   4:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c ****  **********************/
+   5:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c **** #include <string.h>
+   6:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c **** #include "network_layer/can_uds_network_layer.h"
+   7:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c **** #include "services_layer/device_role/sid_internal_header.h"
+   8:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c **** #include "services_layer/device_role/can_uds_services_layer.h"
+   9:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c **** extern unsigned long  WholePackCrc;
+  10:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c **** /// @brief 
+  11:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c **** struct TRANSFER_CTRL cur_transfer_ctrl = {
+  12:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c ****     .direction = TRANSFER_DOWNLOAD,
+  13:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c ****     .block_counter = 0,
+  14:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c ****     .last_block_counter = 0,
+  15:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c ****     .is_first_block = 1,
+  16:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c ****     .prog_addr = 0,
+  17:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c **** };
+  18:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c **** 
+  19:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c **** 
+  20:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c **** /// @brief SID34 请求下载
+  21:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c **** /// @param msg_buff 
+  22:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c **** /// @param msg_len 
+  23:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c **** void sid34_request_download_solve(unsigned char *msg_buff,unsigned short msg_len)
+  24:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c **** {
+  26              		.loc 1 24 0
+  27              		.cfi_startproc
+  28              		@ args = 0, pretend = 0, frame = 8
+  29              		@ frame_needed = 0, uses_anonymous_args = 0
+  30              	.LVL0:
+  31 0000 F7B5     		push	{r0, r1, r2, r4, r5, r6, r7, lr}
+  32              	.LCFI0:
+  33              		.cfi_def_cfa_offset 32
+  34              		.cfi_offset 0, -32
+ARM GAS  /tmp/cc4R8naW.s 			page 2
+
+
+  35              		.cfi_offset 1, -28
+  36              		.cfi_offset 2, -24
+  37              		.cfi_offset 4, -20
+  38              		.cfi_offset 5, -16
+  39              		.cfi_offset 6, -12
+  40              		.cfi_offset 7, -8
+  41              		.cfi_offset 14, -4
+  25:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c ****     unsigned char rsp_msg[4];
+  26:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c ****     unsigned char mem_bytes_len = 0, addr_bytes_len = 0;
+  27:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c ****     pg_memory_address = 0;
+  42              		.loc 1 27 0
+  43 0002 0021     		movs	r1, #0
+  44              	.LVL1:
+  28:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c ****     pg_memory_size = 0;
+  29:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c **** 
+  30:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c ****     rsp_msg[0] = ds_request_download | UDS_SRV_RET_ID_OFFSET;
+  31:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c ****     rsp_msg[1] = 0x20;
+  32:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c ****     rsp_msg[2] = (unsigned char)(MAX_NUMBERS_OF_BLOCK>>8);//MSB在前，大头序
+  33:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c ****     rsp_msg[3] = (unsigned char)(MAX_NUMBERS_OF_BLOCK);
+  34:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c ****     mem_bytes_len = (unsigned char)(msg_buff[2] >> 4);    //获取最大
+  35:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c ****     addr_bytes_len = (unsigned char)(msg_buff[2] & 0x0f);
+  45              		.loc 1 35 0
+  46 0004 0F24     		movs	r4, #15
+  27:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c ****     pg_memory_size = 0;
+  47              		.loc 1 27 0
+  48 0006 214E     		ldr	r6, .L9
+  28:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c ****     pg_memory_size = 0;
+  49              		.loc 1 28 0
+  50 0008 214D     		ldr	r5, .L9+4
+  30:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c ****     rsp_msg[1] = 0x20;
+  51              		.loc 1 30 0
+  52 000a 224B     		ldr	r3, .L9+8
+  27:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c ****     pg_memory_size = 0;
+  53              		.loc 1 27 0
+  54 000c 3160     		str	r1, [r6]
+  28:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c ****     pg_memory_size = 0;
+  55              		.loc 1 28 0
+  56 000e 2960     		str	r1, [r5]
+  30:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c ****     rsp_msg[1] = 0x20;
+  57              		.loc 1 30 0
+  58 0010 0193     		str	r3, [sp, #4]
+  34:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c ****     addr_bytes_len = (unsigned char)(msg_buff[2] & 0x0f);
+  59              		.loc 1 34 0
+  60 0012 8378     		ldrb	r3, [r0, #2]
+  61 0014 1A09     		lsrs	r2, r3, #4
+  62              	.LVL2:
+  63              		.loc 1 35 0
+  64 0016 2340     		ands	r3, r4
+  65              	.LVL3:
+  66              	.L2:
+  67              	.LBB2:
+  36:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c **** 
+  37:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c ****     for(int i = 0; i < addr_bytes_len; i++){
+  68              		.loc 1 37 0 discriminator 1
+  69 0018 8B42     		cmp	r3, r1
+  70 001a 0BDC     		bgt	.L3
+  71              	.LBE2:
+ARM GAS  /tmp/cc4R8naW.s 			page 3
+
+
+  72              	.LBB3:
+  38:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c ****         pg_memory_address |= ((unsigned long)msg_buff[3 + i] << (i * 8));
+  39:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c ****     }
+  40:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c ****     for(int i = 0; i < mem_bytes_len; i++){
+  73              		.loc 1 40 0
+  74 001c 0021     		movs	r1, #0
+  75              	.LVL4:
+  76              	.L4:
+  77              		.loc 1 40 0 is_stmt 0 discriminator 1
+  78 001e 8A42     		cmp	r2, r1
+  79 0020 11DC     		bgt	.L5
+  80              	.LBE3:
+  41:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c ****         pg_memory_size |= ((unsigned long)msg_buff[3 + addr_bytes_len + i] << (i * 8));
+  42:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c ****     }
+  43:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c **** 
+  44:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c ****     if ((addr_bytes_len > 4) || (mem_bytes_len > 4)){ //memory宽度和地址宽度不能超过4字
+  81              		.loc 1 44 0 is_stmt 1
+  82 0022 042B     		cmp	r3, #4
+  83 0024 01D8     		bhi	.L6
+  84              		.loc 1 44 0 is_stmt 0 discriminator 1
+  85 0026 042A     		cmp	r2, #4
+  86 0028 17D9     		bls	.L7
+  87              	.L6:
+  45:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c ****         uds_ack_refuse(ds_request_download, nrc_request_out_of_range);
+  88              		.loc 1 45 0 is_stmt 1
+  89 002a 3121     		movs	r1, #49
+  90              	.LVL5:
+  91 002c 3420     		movs	r0, #52
+  92              	.LVL6:
+  93 002e FFF7FEFF 		bl	uds_ack_refuse
+  94              	.LVL7:
+  95              	.L1:
+  46:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c ****     }else{
+  47:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c ****         d_printf("sid34, (%d,%d)\r\n",mem_bytes_len,addr_bytes_len);
+  48:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c ****         uds_ack_accept(rsp_msg,4);
+  49:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c ****         cur_transfer_ctrl.is_first_block = 1;
+  50:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c ****         cur_transfer_ctrl.last_block_counter = 0;
+  51:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c ****         cur_transfer_ctrl.block_counter = 0;
+  52:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c ****         cur_transfer_ctrl.prog_addr = 0;
+  53:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c ****         uds_crc_init(&WholePackCrc);
+  54:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c **** 
+  55:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c ****         d_printf("sid34, (%d)\r\n",cur_transfer_ctrl.is_first_block);
+  56:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c ****     }
+  57:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c **** }
+  96              		.loc 1 57 0
+  97              		@ sp needed
+  98 0032 F7BD     		pop	{r0, r1, r2, r4, r5, r6, r7, pc}
+  99              	.LVL8:
+ 100              	.L3:
+ 101              	.LBB4:
+  38:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c ****     }
+ 102              		.loc 1 38 0 discriminator 3
+ 103 0034 4418     		adds	r4, r0, r1
+ 104 0036 E478     		ldrb	r4, [r4, #3]
+ 105 0038 CF00     		lsls	r7, r1, #3
+ 106 003a BC40     		lsls	r4, r4, r7
+ 107 003c 3768     		ldr	r7, [r6]
+ARM GAS  /tmp/cc4R8naW.s 			page 4
+
+
+  37:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c ****         pg_memory_address |= ((unsigned long)msg_buff[3 + i] << (i * 8));
+ 108              		.loc 1 37 0 discriminator 3
+ 109 003e 0131     		adds	r1, r1, #1
+ 110              	.LVL9:
+  38:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c ****     }
+ 111              		.loc 1 38 0 discriminator 3
+ 112 0040 3C43     		orrs	r4, r7
+ 113 0042 3460     		str	r4, [r6]
+ 114 0044 E8E7     		b	.L2
+ 115              	.LVL10:
+ 116              	.L5:
+ 117              	.LBE4:
+ 118              	.LBB5:
+  41:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c ****     }
+ 119              		.loc 1 41 0 discriminator 3
+ 120 0046 5C18     		adds	r4, r3, r1
+ 121 0048 0419     		adds	r4, r0, r4
+ 122 004a E478     		ldrb	r4, [r4, #3]
+ 123 004c CE00     		lsls	r6, r1, #3
+ 124 004e B440     		lsls	r4, r4, r6
+ 125 0050 2E68     		ldr	r6, [r5]
+  40:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c ****         pg_memory_size |= ((unsigned long)msg_buff[3 + addr_bytes_len + i] << (i * 8));
+ 126              		.loc 1 40 0 discriminator 3
+ 127 0052 0131     		adds	r1, r1, #1
+ 128              	.LVL11:
+  41:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c ****     }
+ 129              		.loc 1 41 0 discriminator 3
+ 130 0054 3443     		orrs	r4, r6
+ 131 0056 2C60     		str	r4, [r5]
+ 132 0058 E1E7     		b	.L4
+ 133              	.L7:
+ 134              	.LBE5:
+  47:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c ****         uds_ack_accept(rsp_msg,4);
+ 135              		.loc 1 47 0
+ 136 005a 0F49     		ldr	r1, .L9+12
+ 137              	.LVL12:
+ 138 005c 0020     		movs	r0, #0
+ 139              	.LVL13:
+ 140 005e FFF7FEFF 		bl	SEGGER_RTT_printf
+ 141              	.LVL14:
+  48:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c ****         cur_transfer_ctrl.is_first_block = 1;
+ 142              		.loc 1 48 0
+ 143 0062 0421     		movs	r1, #4
+ 144 0064 01A8     		add	r0, sp, #4
+ 145 0066 FFF7FEFF 		bl	uds_ack_accept
+ 146              	.LVL15:
+  50:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c ****         cur_transfer_ctrl.block_counter = 0;
+ 147              		.loc 1 50 0
+ 148 006a 0025     		movs	r5, #0
+  49:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c ****         cur_transfer_ctrl.last_block_counter = 0;
+ 149              		.loc 1 49 0
+ 150 006c 0123     		movs	r3, #1
+ 151 006e 0B4C     		ldr	r4, .L9+16
+  53:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c **** 
+ 152              		.loc 1 53 0
+ 153 0070 0B48     		ldr	r0, .L9+20
+  49:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c ****         cur_transfer_ctrl.last_block_counter = 0;
+ARM GAS  /tmp/cc4R8naW.s 			page 5
+
+
+ 154              		.loc 1 49 0
+ 155 0072 6370     		strb	r3, [r4, #1]
+  50:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c ****         cur_transfer_ctrl.block_counter = 0;
+ 156              		.loc 1 50 0
+ 157 0074 E570     		strb	r5, [r4, #3]
+  51:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c ****         cur_transfer_ctrl.prog_addr = 0;
+ 158              		.loc 1 51 0
+ 159 0076 A570     		strb	r5, [r4, #2]
+  52:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c ****         uds_crc_init(&WholePackCrc);
+ 160              		.loc 1 52 0
+ 161 0078 6560     		str	r5, [r4, #4]
+  53:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c **** 
+ 162              		.loc 1 53 0
+ 163 007a FFF7FEFF 		bl	uds_crc_init
+ 164              	.LVL16:
+  55:./Application/Addition/UDSCanfd/services_layer/device_role/sid34_request_download.c ****     }
+ 165              		.loc 1 55 0
+ 166 007e 6278     		ldrb	r2, [r4, #1]
+ 167 0080 0849     		ldr	r1, .L9+24
+ 168 0082 2800     		movs	r0, r5
+ 169 0084 FFF7FEFF 		bl	SEGGER_RTT_printf
+ 170              	.LVL17:
+ 171              		.loc 1 57 0
+ 172 0088 D3E7     		b	.L1
+ 173              	.L10:
+ 174 008a C046     		.align	2
+ 175              	.L9:
+ 176 008c 00000000 		.word	pg_memory_address
+ 177 0090 00000000 		.word	pg_memory_size
+ 178 0094 74200400 		.word	270452
+ 179 0098 00000000 		.word	.LC4
+ 180 009c 00000000 		.word	.LANCHOR0
+ 181 00a0 00000000 		.word	WholePackCrc
+ 182 00a4 11000000 		.word	.LC8
+ 183              		.cfi_endproc
+ 184              	.LFE493:
+ 186              		.global	cur_transfer_ctrl
+ 187              		.section	.data.cur_transfer_ctrl,"aw",%progbits
+ 188              		.align	2
+ 189              		.set	.LANCHOR0,. + 0
+ 192              	cur_transfer_ctrl:
+ 193 0000 00       		.byte	0
+ 194 0001 01       		.byte	1
+ 195 0002 00       		.byte	0
+ 196 0003 00       		.byte	0
+ 197 0004 00000000 		.word	0
+ 198              		.section	.rodata.sid34_request_download_solve.str1.1,"aMS",%progbits,1
+ 199              	.LC4:
+ 200 0000 73696433 		.ascii	"sid34, (%d,%d)\015\012\000"
+ 200      342C2028 
+ 200      25642C25 
+ 200      64290D0A 
+ 200      00
+ 201              	.LC8:
+ 202 0011 73696433 		.ascii	"sid34, (%d)\015\012\000"
+ 202      342C2028 
+ 202      2564290D 
+ARM GAS  /tmp/cc4R8naW.s 			page 6
+
+
+ 202      0A00
+ 203              		.text
+ 204              	.Letext0:
+ 205              		.file 2 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/machine/_default_types.h"
+ 206              		.file 3 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/lock.h"
+ 207              		.file 4 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_types.h"
+ 208              		.file 5 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/lib/gcc/arm-none-eabi/7.3.1/include/stddef.h"
+ 209              		.file 6 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/reent.h"
+ 210              		.file 7 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/stdlib.h"
+ 211              		.file 8 "Application/BSPSys/Util/BSPTypeDef.h"
+ 212              		.file 9 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_stdint.h"
+ 213              		.file 10 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/system_stm32g0xx.h"
+ 214              		.file 11 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/stm32g0b1xx.h"
+ 215              		.file 12 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_def.h"
+ 216              		.file 13 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_dma.h"
+ 217              		.file 14 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_flash.h"
+ 218              		.file 15 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_spi.h"
+ 219              		.file 16 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_uart.h"
+ 220              		.file 17 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal.h"
+ 221              		.file 18 "Core/Inc/main.h"
+ 222              		.file 19 "Core/Inc/spi.h"
+ 223              		.file 20 "Application/BSPSys/BSPDevice/gd25q32e/BSPGD25Q32E.h"
+ 224              		.file 21 "Application/Addition/UDSCanfd/can_uds_arch.h"
+ 225              		.file 22 "Application/Addition/UDSCanfd/network_layer/can_uds_network_layer.h"
+ 226              		.file 23 "Application/Addition/RTT/SEGGER_RTT.h"
+ 227              		.file 24 "Application/Addition/UDSCanfd/services_layer/device_role/sid_internal_header.h"
+ 228              		.file 25 "Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.h"
+ 229              		.file 26 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_ll_dma.h"
+ARM GAS  /tmp/cc4R8naW.s 			page 7
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 sid34_request_download.c
+     /tmp/cc4R8naW.s:16     .text.sid34_request_download_solve:0000000000000000 $t
+     /tmp/cc4R8naW.s:23     .text.sid34_request_download_solve:0000000000000000 sid34_request_download_solve
+     /tmp/cc4R8naW.s:176    .text.sid34_request_download_solve:000000000000008c $d
+     /tmp/cc4R8naW.s:192    .data.cur_transfer_ctrl:0000000000000000 cur_transfer_ctrl
+     /tmp/cc4R8naW.s:188    .data.cur_transfer_ctrl:0000000000000000 $d
+
+UNDEFINED SYMBOLS
+uds_ack_refuse
+SEGGER_RTT_printf
+uds_ack_accept
+uds_crc_init
+pg_memory_address
+pg_memory_size
+WholePackCrc

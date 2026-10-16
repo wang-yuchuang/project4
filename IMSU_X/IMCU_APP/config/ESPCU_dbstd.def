@@ -1,0 +1,352 @@
+#define GRP_BAT    2
+#define GRP_PCS    2
+#define GRP_MPPT    0
+#define GRP_B2B_CHG    0
+#define GRP_B2B_DIS    0
+#define GRP_BIB2B    0
+#define GRP_BIBUS2AC    0
+#define GRP_BIBUS2DC    0
+#define GRP_ABU    0
+#define IMEU    1
+#define IMIU    0
+#define ADDR_PCS1    0x01
+#define ADDR_PCS2    0x02
+#define ADDR_PCS3    0x03
+#define ADDR_PCS4    0x04
+#define ADDR_PCS5    0x05
+#define ADDR_MPPT1    0x00
+#define ADDR_MPPT2    0x00
+#define ADDR_MPPT3    0x00
+#define ADDR_MPPT4    0x00
+#define ADDR_MPPT5    0x00
+#define ADDR_B2B_CHG1    0x00
+#define ADDR_B2B_CHG2    0x00
+#define ADDR_B2B_CHG3    0x00
+#define ADDR_B2B_CHG4    0x00
+#define ADDR_B2B_CHG5    0x00
+#define ADDR_B2B_DISCHG1    0x00
+#define ADDR_B2B_DISCHG2    0x00
+#define ADDR_B2B_DISCHG3    0x00
+#define ADDR_B2B_DISCHG4    0x00
+#define ADDR_B2B_DISCHG5    0x00
+#define ADDR_BIB2B1    0x00
+#define ADDR_BIB2B2    0x00
+#define ADDR_BIB2B3    0x00
+#define ADDR_BIB2B4    0x00
+#define ADDR_BIB2B5    0x00
+#define ADDR_BIBUS2AC1    0x00
+#define ADDR_BIBUS2AC2    0x00
+#define ADDR_BIBUS2AC3    0x00
+#define ADDR_BIBUS2AC4    0x00
+#define ADDR_BIBUS2AC5    0x00
+#define ADDR_BIBUS2DC1    0x00
+#define ADDR_BIBUS2DC2    0x00
+#define ADDR_BIBUS2DC3    0x00
+#define ADDR_BIBUS2DC4    0x00
+#define ADDR_BIBUS2DC5    0x00
+#define GRPMAX   2
+#ifdef ESPCU_DBSTD_BMS_DATA
+#pragma message("ESPCU_DBSTD_ BMS_DATA compiling ...")
+ESPCU_DBSTD(0x01,Statu,Type_int_array,NULL)
+ESPCU_DBSTD(0x02,RackV,Type_float_array,NULL)
+ESPCU_DBSTD(0x03,RackA,Type_float_array,NULL)
+ESPCU_DBSTD(0x04,SOC,Type_int_array,NULL)
+ESPCU_DBSTD(0x05,ChgLmtV,Type_float_array,NULL)
+ESPCU_DBSTD(0x06,ChgLmtA,Type_float_array,NULL)
+ESPCU_DBSTD(0x07,DischgLmtV,Type_float_array,NULL)
+ESPCU_DBSTD(0x08,DischgLmtA,Type_float_array,NULL)
+#undef ESPCU_DBSTD_BMS_DATA
+#endif
+#ifdef ESPCU_DBSTD_PCS_ADJ
+#pragma message("ESPCU_DBSTD_ PCS_ADJ compiling ...")
+ESPCU_DBSTD(0x01,Mode_PCS,Type_int_array,NULL)
+ESPCU_DBSTD(0x02,Vdc_PCS,Type_float_array,NULL)
+ESPCU_DBSTD(0x03,Idc_PCS,Type_float_array,NULL)
+ESPCU_DBSTD(0x04,Pdischg_PCS,Type_float_array,NULL)
+ESPCU_DBSTD(0x05,Pchg_pcs,Type_float_array,NULL)
+ESPCU_DBSTD(0x06,Qout_PCS,Type_float_array,NULL)
+ESPCU_DBSTD(0x07,Pchg_sdB2B,Type_float_array,NULL)
+ESPCU_DBSTD(0x08,Pdischg_sdB2B,Type_float_array,NULL)
+#undef ESPCU_DBSTD_PCS_ADJ
+#endif
+#ifdef ESPCU_DBSTD_HEARTBEATESPCU
+#pragma message("ESPCU_DBSTD_ HEARTBEATESPCU compiling ...")
+ESPCU_DBSTD(0x01,Statu,Type_int,NULL)
+ESPCU_DBSTD(0x02,Sys_WorkMode,Type_int,NULL)
+ESPCU_DBSTD(0x03,TM,Type_int,NULL)
+ESPCU_DBSTD(0x04,TRC,Type_int,NULL)
+ESPCU_DBSTD(0x05,LRT,Type_int,NULL)
+ESPCU_DBSTD(0x06,Alm1_Sys,Type_int,NULL)
+ESPCU_DBSTD(0x07,Alm2_Sys,Type_int,NULL)
+ESPCU_DBSTD(0x08,Alm_IMIU,Type_int,NULL)
+ESPCU_DBSTD(0x09,Alm_BAT,Type_int,NULL)
+ESPCU_DBSTD(0xA,Alm_PV1,Type_int,NULL)
+ESPCU_DBSTD(0xB,Alm_PCS,Type_int,NULL)
+ESPCU_DBSTD(0xC,Alm_PV2,Type_int,NULL)
+ESPCU_DBSTD(0xD,Alm_biBus2Bus,Type_int,NULL)
+ESPCU_DBSTD(0xE,CCUFaultCode,Type_int,NULL)
+ESPCU_DBSTD(0xF,PCS1CtrlFailCode,Type_int,NULL)
+ESPCU_DBSTD(0x10,PCS2CtrlFailCode,Type_int,NULL)
+ESPCU_DBSTD(0x11,PCS3CtrlFailCode,Type_int,NULL)
+ESPCU_DBSTD(0x12,PCS4CtrlFailCode,Type_int,NULL)
+ESPCU_DBSTD(0x13,PCS5CtrlFailCode,Type_int,NULL)
+ESPCU_DBSTD(0x14,ABUAlmStatus,Type_int,NULL)
+ESPCU_DBSTD(0x15,A_Leakage,Type_float,NULL)
+ESPCU_DBSTD(0x16,T1,Type_float,NULL)
+ESPCU_DBSTD(0x17,T2,Type_float,NULL)
+ESPCU_DBSTD(0x18,T3,Type_float,NULL)
+ESPCU_DBSTD(0x19,T4,Type_float,NULL)
+ESPCU_DBSTD(0x00,PV1_KWH,Type_float,NULL)
+ESPCU_DBSTD(0x1B,PV2_KWH,Type_float,NULL)
+ESPCU_DBSTD(0x1C,PV3_KWH,Type_float,NULL)
+ESPCU_DBSTD(0x1D,PV4_KWH,Type_float,NULL)
+ESPCU_DBSTD(0x1E,PV5_KWH,Type_float,NULL)
+#undef ESPCU_DBSTD_HEARTBEATESPCU
+#endif
+#ifdef ESPCU_DBSTD_SETREQ
+#pragma message("ESPCU_DBSTD_ SETREQ compiling ...")
+ESPCU_DBSTD(0x01,Addr,Type_int,NULL)
+ESPCU_DBSTD(0x02,Barcode,Type_string,NULL)
+ESPCU_DBSTD(0x03,Mac,Type_string,NULL)
+ESPCU_DBSTD(0x04,IP,Type_string,NULL)
+ESPCU_DBSTD(0x05,SW_Ver,Type_string,NULL)
+ESPCU_DBSTD(0x06,HW_Ver,Type_string,NULL)
+ESPCU_DBSTD(0x07,Scene,Type_int,NULL)
+ESPCU_DBSTD(0x08,RealTimeClk,Type_int,NULL)
+ESPCU_DBSTD(0x09,Map1,Type_int,NULL)
+ESPCU_DBSTD(0xA,Map2,Type_int,NULL)
+ESPCU_DBSTD(0xB,Map3,Type_int,NULL)
+ESPCU_DBSTD(0xC,Map4,Type_int,NULL)
+ESPCU_DBSTD(0xD,Map5,Type_int,NULL)
+ESPCU_DBSTD(0xE,Map6,Type_int,NULL)
+ESPCU_DBSTD(0xF,Map7,Type_int,NULL)
+ESPCU_DBSTD(0x10,Map8,Type_int,NULL)
+ESPCU_DBSTD(0x11,Map9,Type_int,NULL)
+ESPCU_DBSTD(0x12,Map10,Type_int,NULL)
+ESPCU_DBSTD(0x13,Map11,Type_int,NULL)
+ESPCU_DBSTD(0x14,Map12,Type_int,NULL)
+ESPCU_DBSTD(0x15,PWM1,Type_int,NULL)
+ESPCU_DBSTD(0x16,PWM2,Type_int,NULL)
+ESPCU_DBSTD(0x17,PWM3,Type_int,NULL)
+ESPCU_DBSTD(0x18,PCSG1,Type_int,NULL)
+ESPCU_DBSTD(0x19,PCSG2,Type_int,NULL)
+ESPCU_DBSTD(0x00,PCSG3,Type_int,NULL)
+ESPCU_DBSTD(0x1B,PCSG4,Type_int,NULL)
+ESPCU_DBSTD(0x1C,PCSG5,Type_int,NULL)
+ESPCU_DBSTD(0x1D,PVG1,Type_int,NULL)
+ESPCU_DBSTD(0x1E,PVG2,Type_int,NULL)
+ESPCU_DBSTD(0x1F,PVG3,Type_int,NULL)
+ESPCU_DBSTD(0x20,PVG4,Type_int,NULL)
+ESPCU_DBSTD(0x21,PVG5,Type_int,NULL)
+ESPCU_DBSTD(0x22,biB2BG1,Type_int,NULL)
+ESPCU_DBSTD(0x23,biB2BG2,Type_int,NULL)
+ESPCU_DBSTD(0x24,biB2BG3,Type_int,NULL)
+ESPCU_DBSTD(0x25,biB2BG4,Type_int,NULL)
+ESPCU_DBSTD(0x26,biB2BG5,Type_int,NULL)
+ESPCU_DBSTD(0x27,sdB2B_Chg_G1,Type_int,NULL)
+ESPCU_DBSTD(0x28,sdB2B_Chg_G2,Type_int,NULL)
+ESPCU_DBSTD(0x29,sdB2B_Chg_G3,Type_int,NULL)
+ESPCU_DBSTD(0x00,sdB2B_Chg_G4,Type_int,NULL)
+ESPCU_DBSTD(0x2B,sdB2B_Chg_G5,Type_int,NULL)
+ESPCU_DBSTD(0x2C,sdB2B_Dischg_G1,Type_int,NULL)
+ESPCU_DBSTD(0x2D,sdB2B_Dischg_G2,Type_int,NULL)
+ESPCU_DBSTD(0x2E,sdB2B_Dischg_G3,Type_int,NULL)
+ESPCU_DBSTD(0x2F,sdB2B_Dischg_G4,Type_int,NULL)
+ESPCU_DBSTD(0x30,sdB2B_Dischg_G5,Type_int,NULL)
+ESPCU_DBSTD(0x31,biBus2ACOutG1,Type_int,NULL)
+ESPCU_DBSTD(0x32,biBus2ACOutG2,Type_int,NULL)
+ESPCU_DBSTD(0x33,biBus2ACOutG3,Type_int,NULL)
+ESPCU_DBSTD(0x34,biBus2ACOutG4,Type_int,NULL)
+ESPCU_DBSTD(0x35,biBus2ACOutG5,Type_int,NULL)
+ESPCU_DBSTD(0x36,biBus2DCOutG1,Type_int,NULL)
+ESPCU_DBSTD(0x37,biBus2DCOutG2,Type_int,NULL)
+ESPCU_DBSTD(0x38,biBus2DCOutG3,Type_int,NULL)
+ESPCU_DBSTD(0x39,biBus2DCOutG4,Type_int,NULL)
+ESPCU_DBSTD(0x00,biBus2DCOutG5,Type_int,NULL)
+ESPCU_DBSTD(0x3B,Mode_FAN1,Type_int,NULL)
+ESPCU_DBSTD(0x3C,OTP_FAN1,Type_int,NULL)
+ESPCU_DBSTD(0x3D,UTP_FAN1,Type_int,NULL)
+ESPCU_DBSTD(0x3E,Mode_FAN2,Type_int,NULL)
+ESPCU_DBSTD(0x3F,OTP_FAN2,Type_int,NULL)
+ESPCU_DBSTD(0x40,UTP_FAN2,Type_int,NULL)
+ESPCU_DBSTD(0x41,Mode_FAN3,Type_int,NULL)
+ESPCU_DBSTD(0x42,OTP_FAN3,Type_int,NULL)
+ESPCU_DBSTD(0x43,UTP_FAN3,Type_int,NULL)
+ESPCU_DBSTD(0x44,PCS_Tp,Type_int,NULL)
+ESPCU_DBSTD(0x45,EAdj,Type_int,NULL)
+ESPCU_DBSTD(0x46,Mppt_Mode,Type_int,NULL)
+ESPCU_DBSTD(0x47,CommFail_waitS,Type_int,NULL)
+ESPCU_DBSTD(0x48,LED_LightTp,Type_int,NULL)
+ESPCU_DBSTD(0x49,LED_ColorTp,Type_int,NULL)
+ESPCU_DBSTD(0x00,LED_Addr,Type_int,NULL)
+ESPCU_DBSTD(0x4B,LED_Numb,Type_int,NULL)
+ESPCU_DBSTD(0x4C,LED_Sec_Numb,Type_int,NULL)
+ESPCU_DBSTD(0x4D,LED_Sec1_StartNo,Type_int,NULL)
+ESPCU_DBSTD(0x4E,LED_Sec1_endNo,Type_int,NULL)
+ESPCU_DBSTD(0x4F,LED_Sec2_StartNo,Type_int,NULL)
+ESPCU_DBSTD(0x50,LED_Sec2_EndNo,Type_int,NULL)
+ESPCU_DBSTD(0x51,LED_Sec3_StartNo,Type_int,NULL)
+ESPCU_DBSTD(0x52,LED_Sec3_EndNo,Type_int,NULL)
+ESPCU_DBSTD(0x53,LED_RunMode,Type_int,NULL)
+ESPCU_DBSTD(0x54,Flashing_Light_Freq,Type_int,NULL)
+ESPCU_DBSTD(0x55,Can2_Baud,Type_int,NULL)
+ESPCU_DBSTD(0x56,Can3_Baud,Type_int,NULL)
+#undef ESPCU_DBSTD_SETREQ
+#endif
+#ifdef ESPCU_DBSTD_CTRLREQ
+#pragma message("ESPCU_DBSTD_ CTRLREQ compiling ...")
+ESPCU_DBSTD(0x01,OnOffGrid_Mode,1,1)
+ESPCU_DBSTD(0x02,ONorOffGrid,2,1)
+ESPCU_DBSTD(0x03,PwrONorOFF,3,1)
+ESPCU_DBSTD(0x04,N_CTR,4,1)
+ESPCU_DBSTD(0x05,RESV1,5,1)
+ESPCU_DBSTD(0x06,RESV2,6,1)
+ESPCU_DBSTD(0xB,PwrCube_AudioVisual,7,1)
+ESPCU_DBSTD(0xC,PwrCube_Light,8,1)
+ESPCU_DBSTD(0xD,AC_QF1,9,1)
+ESPCU_DBSTD(0xE,AC_QF2,10,1)
+ESPCU_DBSTD(0xF,Ctrl_SysFan1_Run,11,1)
+ESPCU_DBSTD(0x10,Ctrl_SysFan2_Run,12,1)
+ESPCU_DBSTD(0x11,Ctrl_SysFan3_Run,13,1)
+ESPCU_DBSTD(0x12,Reset_ESPCU,14,1)
+ESPCU_DBSTD(0x13,Clear_ESPCU_KWH,15,1)
+ESPCU_DBSTD(0x22,Sys_MainACInputContactor,16,1)
+ESPCU_DBSTD(0x23,ACLoadOutputContactor,1,2)
+ESPCU_DBSTD(0x24,PCS1_ACIN_CTR,2,2)
+ESPCU_DBSTD(0x25,PCS2_ACIN_CTR,3,2)
+ESPCU_DBSTD(0x26,PCS3_ACIN_CTR,4,2)
+ESPCU_DBSTD(0x27,PCS4_ACIN_CTR,5,2)
+ESPCU_DBSTD(0x28,PCS5_ACIN_CTR,6,2)
+ESPCU_DBSTD(0x29,PV1_Out_CTR,7,2)
+ESPCU_DBSTD(0x00,PV2_Out_CTR,8,2)
+ESPCU_DBSTD(0x2B,PV3_Out_CTR,9,2)
+ESPCU_DBSTD(0x2C,PV4_Out_CTR,10,2)
+ESPCU_DBSTD(0x2D,PV5_Out_CTR,11,2)
+ESPCU_DBSTD(0x2E,BC1_AC_QF,12,2)
+ESPCU_DBSTD(0x2F,BC2_AC_QF,13,2)
+ESPCU_DBSTD(0x30,BC3_AC_QF,14,2)
+ESPCU_DBSTD(0x31,BC4_AC_QF,15,2)
+ESPCU_DBSTD(0x32,BC5_AC_QF,16,2)
+ESPCU_DBSTD(0x40,Sys_WorkMode,0,0)
+ESPCU_DBSTD(0x41,WorkMode,0,0)
+ESPCU_DBSTD(0x41,GrpNo,0,0)
+ESPCU_DBSTD(0x41,EgCtrl,0,0)
+ESPCU_DBSTD(0x41,Vdc,0,0)
+ESPCU_DBSTD(0x41,Idc,0,0)
+ESPCU_DBSTD(0x41,PacSet,0,0)
+ESPCU_DBSTD(0x41,QacSet,0,0)
+ESPCU_DBSTD(0x60,DCBus1_Insulation,0,0)
+ESPCU_DBSTD(0x61,DCBus2_Insulation,0,0)
+#undef ESPCU_DBSTD_CTRLREQ
+#endif
+#ifdef ESPCU_DBSTD_PM_GRP_DATA
+#pragma message("ESPCU_DBSTD_ PM_GRP_DATA compiling ...")
+ESPCU_DBSTD(0x01,Statu,Type_int_array,NULL)
+ESPCU_DBSTD(0x02,Online,Type_int_array,NULL)
+ESPCU_DBSTD(0x03,Prate,Type_float_array,NULL)
+ESPCU_DBSTD(0x04,Irate,Type_float_array,NULL)
+ESPCU_DBSTD(0x05,Imax,Type_float_array,NULL)
+ESPCU_DBSTD(0x06,ModeSet,Type_int_array,NULL)
+ESPCU_DBSTD(0x07,Run_Mode,Type_int_array,NULL)
+ESPCU_DBSTD(0x08,VdcSet,Type_float_array,NULL)
+ESPCU_DBSTD(0x09,IdcSet,Type_float_array,NULL)
+ESPCU_DBSTD(0xA,PacSet,Type_float_array,NULL)
+ESPCU_DBSTD(0xB,QacSet,Type_float_array,NULL)
+ESPCU_DBSTD(0xC,VdcOut,Type_float_array,NULL)
+ESPCU_DBSTD(0xD,IdcOut,Type_float_array,NULL)
+ESPCU_DBSTD(0xE,VdcIN,Type_float_array,NULL)
+ESPCU_DBSTD(0xF,IdcIN,Type_float_array,NULL)
+ESPCU_DBSTD(0x10,Vrly_Out,Type_float_array,NULL)
+ESPCU_DBSTD(0x11,PacOut,Type_float_array,NULL)
+ESPCU_DBSTD(0x12,QacOut,Type_float_array,NULL)
+#undef ESPCU_DBSTD_PM_GRP_DATA
+#endif
+#ifdef ESPCU_DBSTD_SIG_GRP_DATA
+#pragma message("ESPCU_DBSTD_ SIG_GRP_DATA compiling ...")
+ESPCU_DBSTD(0x01,Grp,Type_int_array,NULL)
+ESPCU_DBSTD(0x02,Comm,Type_int_array,NULL)
+ESPCU_DBSTD(0x03,VdcOut,Type_float_array,NULL)
+ESPCU_DBSTD(0x04,IdcOut,Type_float_array,NULL)
+ESPCU_DBSTD(0x05,DCVer,Type_float_array,NULL)
+ESPCU_DBSTD(0x06,PFCVer,Type_float_array,NULL)
+ESPCU_DBSTD(0x07,BarCode,Type_string_array,NULL)
+ESPCU_DBSTD(0x08,Byteseq1110,Type_float_array,NULL)
+ESPCU_DBSTD(0x09,Byteseq1111,Type_float_array,NULL)
+ESPCU_DBSTD(0xA,Byteseq1112,Type_float_array,NULL)
+ESPCU_DBSTD(0xB,Byteseq1113,Type_float_array,NULL)
+ESPCU_DBSTD(0xC,Byteseq1114,Type_float_array,NULL)
+ESPCU_DBSTD(0xD,Byteseq1115,Type_float_array,NULL)
+ESPCU_DBSTD(0xE,Va,Type_float_array,NULL)
+ESPCU_DBSTD(0xF,Vb,Type_float_array,NULL)
+ESPCU_DBSTD(0x10,Vc,Type_float_array,NULL)
+ESPCU_DBSTD(0x11,Ia,Type_float_array,NULL)
+ESPCU_DBSTD(0x12,Ib,Type_float_array,NULL)
+ESPCU_DBSTD(0x13,Ic,Type_float_array,NULL)
+ESPCU_DBSTD(0x14,Hz,Type_float_array,NULL)
+ESPCU_DBSTD(0x15,T,Type_float_array,NULL)
+ESPCU_DBSTD(0x16,VaOut,Type_float_array,NULL)
+ESPCU_DBSTD(0x17,VbOut,Type_float_array,NULL)
+ESPCU_DBSTD(0x18,VcOut,Type_float_array,NULL)
+ESPCU_DBSTD(0x19,Psum,Type_float_array,NULL)
+ESPCU_DBSTD(0x00,Qsum,Type_float_array,NULL)
+ESPCU_DBSTD(0x1B,PF,Type_float_array,NULL)
+ESPCU_DBSTD(0x1C,Pa,Type_float_array,NULL)
+ESPCU_DBSTD(0x1D,Pb,Type_float_array,NULL)
+ESPCU_DBSTD(0x1E,Pc,Type_float_array,NULL)
+ESPCU_DBSTD(0x1F,Qa,Type_float_array,NULL)
+ESPCU_DBSTD(0x20,Qb,Type_float_array,NULL)
+ESPCU_DBSTD(0x21,Qc,Type_float_array,NULL)
+#undef ESPCU_DBSTD_SIG_GRP_DATA
+#endif
+#ifdef ESPCU_DBSTD_AUX_DEV_UPLOAD
+#pragma message("ESPCU_DBSTD_ AUX_DEV_UPLOAD compiling ...")
+ESPCU_DBSTD(0x01,Statu,Type_int_array,NULL)
+ESPCU_DBSTD(0x02,SW_Ver,Type_string,NULL)
+ESPCU_DBSTD(0x03,HW_Ver,Type_string,NULL)
+ESPCU_DBSTD(0x04,DO1_TMS,Type_int_array,NULL)
+ESPCU_DBSTD(0x05,DO2_TMS,Type_int_array,NULL)
+ESPCU_DBSTD(0x06,DO3_TMS,Type_int_array,NULL)
+ESPCU_DBSTD(0x07,DO4_TMS,Type_int_array,NULL)
+ESPCU_DBSTD(0x08,DO5_TMS,Type_int_array,NULL)
+ESPCU_DBSTD(0x09,DO6_TMS,Type_int_array,NULL)
+ESPCU_DBSTD(0xA,DO7_TMS,Type_int_array,NULL)
+ESPCU_DBSTD(0xB,DO8_TMS,Type_int_array,NULL)
+ESPCU_DBSTD(0xC,DO9_TMS,Type_int_array,NULL)
+ESPCU_DBSTD(0xD,DO10_TMS,Type_int_array,NULL)
+ESPCU_DBSTD(0xE,DO11_TMS,Type_int_array,NULL)
+#undef ESPCU_DBSTD_AUX_DEV_UPLOAD
+#endif
+#ifdef ESPCU_DBSTD_IMIU_UPLOAD
+#pragma message("ESPCU_DBSTD_ IMIU_UPLOAD compiling ...")
+ESPCU_DBSTD(0x01,R1_P,Type_int,NULL)
+ESPCU_DBSTD(0x02,R1_N,Type_float,NULL)
+ESPCU_DBSTD(0x03,Ins1Res,Type_float,NULL)
+ESPCU_DBSTD(0x04,R2_P,Type_int,NULL)
+ESPCU_DBSTD(0x05,R2_N,Type_float,NULL)
+ESPCU_DBSTD(0x06,Ins2Res,Type_float,NULL)
+ESPCU_DBSTD(0x07,R3_P,Type_int,NULL)
+ESPCU_DBSTD(0x08,R3_N,Type_float,NULL)
+ESPCU_DBSTD(0x09,Ins3Res,Type_float,NULL)
+ESPCU_DBSTD(0xA,R4_P,Type_int,NULL)
+ESPCU_DBSTD(0xB,R4_N,Type_float,NULL)
+ESPCU_DBSTD(0xC,Ins4Res,Type_float,NULL)
+ESPCU_DBSTD(0xD,R5_P,Type_int,NULL)
+ESPCU_DBSTD(0xE,R5_N,Type_float,NULL)
+ESPCU_DBSTD(0xF,Ins5Res,Type_float,NULL)
+ESPCU_DBSTD(0x10,R6_P,Type_int,NULL)
+ESPCU_DBSTD(0x11,R6_N,Type_float,NULL)
+ESPCU_DBSTD(0x12,Ins6Res,Type_float,NULL)
+ESPCU_DBSTD(0x13,R7_P,Type_int,NULL)
+ESPCU_DBSTD(0x14,R7_N,Type_float,NULL)
+ESPCU_DBSTD(0x15,Ins7Res,Type_float,NULL)
+ESPCU_DBSTD(0x16,R8_P,Type_int,NULL)
+ESPCU_DBSTD(0x17,R8_N,Type_float,NULL)
+ESPCU_DBSTD(0x18,Ins8Res,Type_float,NULL)
+ESPCU_DBSTD(0x19,R9_P,Type_int,NULL)
+ESPCU_DBSTD(0x00,R9_N,Type_float,NULL)
+ESPCU_DBSTD(0x1B,Ins9Res,Type_float,NULL)
+ESPCU_DBSTD(0x1C,R10_P,Type_int,NULL)
+ESPCU_DBSTD(0x1D,R10_N,Type_float,NULL)
+ESPCU_DBSTD(0x1E,Ins10Res,Type_float,NULL)
+#undef ESPCU_DBSTD_IMIU_UPLOAD
+#endif

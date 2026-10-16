@@ -1,0 +1,3917 @@
+ARM GAS  /tmp/ccJERq31.s 			page 1
+
+
+   1              		.cpu cortex-m0plus
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 4
+   9              		.eabi_attribute 34, 0
+  10              		.eabi_attribute 18, 4
+  11              		.file	"TEST.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.Track_Sample,"ax",%progbits
+  16              		.align	1
+  17              		.global	Track_Sample
+  18              		.syntax unified
+  19              		.code	16
+  20              		.thumb_func
+  21              		.fpu softvfp
+  23              	Track_Sample:
+  24              	.LFB0:
+  25              		.file 1 "./Application/Funtion/Test/TEST.c"
+   1:./Application/Funtion/Test/TEST.c **** /*==========================================Copyright(c)=======================================
+   2:./Application/Funtion/Test/TEST.c **** **                                  Shenzhen Infypower Co., Ltd.
+   3:./Application/Funtion/Test/TEST.c **** **                                  Power conversion Department
+   4:./Application/Funtion/Test/TEST.c **** **                                       BMS Product Line
+   5:./Application/Funtion/Test/TEST.c **** **
+   6:./Application/Funtion/Test/TEST.c **** **---------------------------------------File Information--------------------------------------
+   7:./Application/Funtion/Test/TEST.c **** ** @File Name    : TEST.c
+   8:./Application/Funtion/Test/TEST.c **** ** @Founder      :
+   9:./Application/Funtion/Test/TEST.c **** ** @Date         : 2026.05.25
+  10:./Application/Funtion/Test/TEST.c **** ** @Function     : 测试辅助模块 — 采样周期追踪 + 绝缘检测超时诊断工具
+  11:./Application/Funtion/Test/TEST.c **** ** @Instructions : RTT 命令: test <子命令>
+  12:./Application/Funtion/Test/TEST.c **** **===========================================================================================*/
+  13:./Application/Funtion/Test/TEST.c **** 
+  14:./Application/Funtion/Test/TEST.c **** /*=============================================================================================
+  15:./Application/Funtion/Test/TEST.c **** ** @Header file definition
+  16:./Application/Funtion/Test/TEST.c **** **===========================================================================================*/
+  17:./Application/Funtion/Test/TEST.c **** #include "Insulation.h"  /* INSULATION_TEST 宏定义在此,必须在 TEST.h 之前 */
+  18:./Application/Funtion/Test/TEST.c **** #include "TEST.h"
+  19:./Application/Funtion/Test/TEST.c **** #include "SystemPara.h"
+  20:./Application/Funtion/Test/TEST.c **** #include "SystemData.h"
+  21:./Application/Funtion/Test/TEST.c **** #include "SEGGER_RTT.h"
+  22:./Application/Funtion/Test/TEST.c **** #include <string.h>
+  23:./Application/Funtion/Test/TEST.c **** #include "BSPDIDO.h"
+  24:./Application/Funtion/Test/TEST.c **** #include "SystemDiag.h"
+  25:./Application/Funtion/Test/TEST.c **** #include "BSPKA84917_async.h"
+  26:./Application/Funtion/Test/TEST.c **** #include <stdlib.h>
+  27:./Application/Funtion/Test/TEST.c **** #include "DoControl.h"
+  28:./Application/Funtion/Test/TEST.c **** 
+  29:./Application/Funtion/Test/TEST.c **** 
+  30:./Application/Funtion/Test/TEST.c **** /* ======================== 采样周期追踪 ======================== */
+  31:./Application/Funtion/Test/TEST.c **** 
+  32:./Application/Funtion/Test/TEST.c **** /* 每个追踪点的上次时间戳 */
+  33:./Application/Funtion/Test/TEST.c **** static TickType_t gTrackLastTick[TRACK_MAX] = {0};
+ARM GAS  /tmp/ccJERq31.s 			page 2
+
+
+  34:./Application/Funtion/Test/TEST.c **** static u8 gTrackInitDone = 0;
+  35:./Application/Funtion/Test/TEST.c **** 
+  36:./Application/Funtion/Test/TEST.c **** /*
+  37:./Application/Funtion/Test/TEST.c ****  * @Name     : Track_Sample
+  38:./Application/Funtion/Test/TEST.c ****  * @Input    : id    — 追踪点ID (TRACK_MAIN_LOOP / TRACK_FULL_ROUND / TRACK_CALC_DONE)
+  39:./Application/Funtion/Test/TEST.c ****  *             label — 打印标签
+  40:./Application/Funtion/Test/TEST.c ****  * @Output   : 无
+  41:./Application/Funtion/Test/TEST.c ****  * @Function : 记录采样周期时间戳, 计算与上次调用的时间间隔, 打印到RTT
+  42:./Application/Funtion/Test/TEST.c ****  *             用于检测KA84917异步采样流程中各环节的实际耗时
+  43:./Application/Funtion/Test/TEST.c ****  * @The notes : 在BSPKA84917_async.c的EvtFastSample中各关键点调用
+  44:./Application/Funtion/Test/TEST.c ****  */
+  45:./Application/Funtion/Test/TEST.c **** void Track_Sample(TrackerID id, const char *label)
+  46:./Application/Funtion/Test/TEST.c **** {
+  26              		.loc 1 46 0
+  27              		.cfi_startproc
+  28              		@ args = 0, pretend = 0, frame = 0
+  29              		@ frame_needed = 0, uses_anonymous_args = 0
+  30              	.LVL0:
+  31 0000 37B5     		push	{r0, r1, r2, r4, r5, lr}
+  32              	.LCFI0:
+  33              		.cfi_def_cfa_offset 24
+  34              		.cfi_offset 0, -24
+  35              		.cfi_offset 1, -20
+  36              		.cfi_offset 2, -16
+  37              		.cfi_offset 4, -12
+  38              		.cfi_offset 5, -8
+  39              		.cfi_offset 14, -4
+  40              		.loc 1 46 0
+  41 0002 0400     		movs	r4, r0
+  42 0004 0D00     		movs	r5, r1
+  47:./Application/Funtion/Test/TEST.c ****     TickType_t now = xTaskGetTickCount();
+  43              		.loc 1 47 0
+  44 0006 FFF7FEFF 		bl	xTaskGetTickCount
+  45              	.LVL1:
+  48:./Application/Funtion/Test/TEST.c ****     TickType_t dt_ms;
+  49:./Application/Funtion/Test/TEST.c **** 
+  50:./Application/Funtion/Test/TEST.c ****     if (id >= TRACK_MAX) return;
+  46              		.loc 1 50 0
+  47 000a 022C     		cmp	r4, #2
+  48 000c 15D8     		bhi	.L1
+  51:./Application/Funtion/Test/TEST.c **** 
+  52:./Application/Funtion/Test/TEST.c ****     if (!gTrackInitDone)
+  49              		.loc 1 52 0
+  50 000e 0B4A     		ldr	r2, .L4
+  51 0010 0B4B     		ldr	r3, .L4+4
+  52 0012 1178     		ldrb	r1, [r2]
+  53 0014 0029     		cmp	r1, #0
+  54 0016 04D1     		bne	.L3
+  55              	.LVL2:
+  56              	.LBB25:
+  53:./Application/Funtion/Test/TEST.c ****     {
+  54:./Application/Funtion/Test/TEST.c ****         u8 i;
+  55:./Application/Funtion/Test/TEST.c ****         for (i = 0; i < TRACK_MAX; i++)
+  56:./Application/Funtion/Test/TEST.c ****         {
+  57:./Application/Funtion/Test/TEST.c ****             gTrackLastTick[i] = now;
+  58:./Application/Funtion/Test/TEST.c ****         }
+  59:./Application/Funtion/Test/TEST.c ****         gTrackInitDone = 1;
+ARM GAS  /tmp/ccJERq31.s 			page 3
+
+
+  57              		.loc 1 59 0
+  58 0018 0131     		adds	r1, r1, #1
+  57:./Application/Funtion/Test/TEST.c ****         }
+  59              		.loc 1 57 0
+  60 001a 1860     		str	r0, [r3]
+  61              	.LVL3:
+  62 001c 5860     		str	r0, [r3, #4]
+  63              	.LVL4:
+  64 001e 9860     		str	r0, [r3, #8]
+  65              	.LVL5:
+  66              		.loc 1 59 0
+  67 0020 1170     		strb	r1, [r2]
+  68              	.LVL6:
+  69              	.L3:
+  70              	.LBE25:
+  60:./Application/Funtion/Test/TEST.c ****     }
+  61:./Application/Funtion/Test/TEST.c **** 
+  62:./Application/Funtion/Test/TEST.c ****     dt_ms = (now - gTrackLastTick[id]) * portTICK_PERIOD_MS;
+  71              		.loc 1 62 0
+  72 0022 A100     		lsls	r1, r4, #2
+  73 0024 5A58     		ldr	r2, [r3, r1]
+  63:./Application/Funtion/Test/TEST.c ****     gTrackLastTick[id] = now;
+  74              		.loc 1 63 0
+  75 0026 5850     		str	r0, [r3, r1]
+  62:./Application/Funtion/Test/TEST.c ****     gTrackLastTick[id] = now;
+  76              		.loc 1 62 0
+  77 0028 821A     		subs	r2, r0, r2
+  78              	.LVL7:
+  64:./Application/Funtion/Test/TEST.c **** 
+  65:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "[TRACK] %s  id=%d  dt=%dms  tick=%d\r\n",
+  79              		.loc 1 65 0
+  80 002a 0190     		str	r0, [sp, #4]
+  81 002c 0092     		str	r2, [sp]
+  82 002e 2300     		movs	r3, r4
+  83 0030 2A00     		movs	r2, r5
+  84              	.LVL8:
+  85 0032 0449     		ldr	r1, .L4+8
+  86 0034 0020     		movs	r0, #0
+  87              	.LVL9:
+  88 0036 FFF7FEFF 		bl	SEGGER_RTT_printf
+  89              	.LVL10:
+  90              	.L1:
+  66:./Application/Funtion/Test/TEST.c ****                       label, (int)id, (int)dt_ms, (int)now);
+  67:./Application/Funtion/Test/TEST.c **** }
+  91              		.loc 1 67 0
+  92              		@ sp needed
+  93              	.LVL11:
+  94 003a 37BD     		pop	{r0, r1, r2, r4, r5, pc}
+  95              	.L5:
+  96              		.align	2
+  97              	.L4:
+  98 003c 00000000 		.word	.LANCHOR0
+  99 0040 00000000 		.word	.LANCHOR1
+ 100 0044 00000000 		.word	.LC2
+ 101              		.cfi_endproc
+ 102              	.LFE0:
+ 104              		.section	.text.Test_InsuDump,"ax",%progbits
+ARM GAS  /tmp/ccJERq31.s 			page 4
+
+
+ 105              		.align	1
+ 106              		.global	Test_InsuDump
+ 107              		.syntax unified
+ 108              		.code	16
+ 109              		.thumb_func
+ 110              		.fpu softvfp
+ 112              	Test_InsuDump:
+ 113              	.LFB4:
+  68:./Application/Funtion/Test/TEST.c **** 
+  69:./Application/Funtion/Test/TEST.c **** /*=============================================================================================
+  70:./Application/Funtion/Test/TEST.c **** ** @Static variable definition - 绝缘检测诊断
+  71:./Application/Funtion/Test/TEST.c **** **===========================================================================================*/
+  72:./Application/Funtion/Test/TEST.c **** static u8  g_insu_mon_active = 0;        /* 监控运行标志 */
+  73:./Application/Funtion/Test/TEST.c **** static u16 g_insu_mon_period = 500;      /* 监控周期 (ms) */
+  74:./Application/Funtion/Test/TEST.c **** 
+  75:./Application/Funtion/Test/TEST.c **** /* 电压注入状态 */
+  76:./Application/Funtion/Test/TEST.c **** static u8    g_insu_inject_enabled = 0;
+  77:./Application/Funtion/Test/TEST.c **** static float g_insu_inject_bat = 0.0f;
+  78:./Application/Funtion/Test/TEST.c **** static float g_insu_inject_n2g = 0.0f;
+  79:./Application/Funtion/Test/TEST.c **** 
+  80:./Application/Funtion/Test/TEST.c **** /*=============================================================================================
+  81:./Application/Funtion/Test/TEST.c **** ** @Interface function definition
+  82:./Application/Funtion/Test/TEST.c **** **===========================================================================================*/
+  83:./Application/Funtion/Test/TEST.c **** 
+  84:./Application/Funtion/Test/TEST.c **** static const char *StateName(u8 s)
+  85:./Application/Funtion/Test/TEST.c **** {
+  86:./Application/Funtion/Test/TEST.c ****     switch (s) {
+  87:./Application/Funtion/Test/TEST.c ****         case 0: return "START";
+  88:./Application/Funtion/Test/TEST.c ****         case 1: return "PROCESS";
+  89:./Application/Funtion/Test/TEST.c ****         case 2: return "STOP";
+  90:./Application/Funtion/Test/TEST.c ****         case 3: return "END";
+  91:./Application/Funtion/Test/TEST.c ****         case 4: return "OVERTIME";
+  92:./Application/Funtion/Test/TEST.c ****         case 5: return "FAULT";
+  93:./Application/Funtion/Test/TEST.c ****         default:return "???";
+  94:./Application/Funtion/Test/TEST.c ****     }
+  95:./Application/Funtion/Test/TEST.c **** }
+  96:./Application/Funtion/Test/TEST.c **** 
+  97:./Application/Funtion/Test/TEST.c **** static const char *ModeName(u8 m)
+  98:./Application/Funtion/Test/TEST.c **** {
+  99:./Application/Funtion/Test/TEST.c ****     switch (m) {
+ 100:./Application/Funtion/Test/TEST.c ****         case 0: return "AUTO";
+ 101:./Application/Funtion/Test/TEST.c ****         case 1: return "START";
+ 102:./Application/Funtion/Test/TEST.c ****         case 2: return "STOP";
+ 103:./Application/Funtion/Test/TEST.c ****         default:return "???";
+ 104:./Application/Funtion/Test/TEST.c ****     }
+ 105:./Application/Funtion/Test/TEST.c **** }
+ 106:./Application/Funtion/Test/TEST.c **** 
+ 107:./Application/Funtion/Test/TEST.c **** static const char *StepName(u8 s)
+ 108:./Application/Funtion/Test/TEST.c **** {
+ 109:./Application/Funtion/Test/TEST.c ****     switch (s) {
+ 110:./Application/Funtion/Test/TEST.c ****         case 0: return "STEP1(PE)";
+ 111:./Application/Funtion/Test/TEST.c ****         case 1: return "STEP2(IMD)";
+ 112:./Application/Funtion/Test/TEST.c ****         case 2: return "STEP3(CALC)";
+ 113:./Application/Funtion/Test/TEST.c ****         default:return "???";
+ 114:./Application/Funtion/Test/TEST.c ****     }
+ 115:./Application/Funtion/Test/TEST.c **** }
+ 116:./Application/Funtion/Test/TEST.c **** 
+ARM GAS  /tmp/ccJERq31.s 			page 5
+
+
+ 117:./Application/Funtion/Test/TEST.c **** /*
+ 118:./Application/Funtion/Test/TEST.c ****  * 打印当前绝缘检测完整状态到 RTT
+ 119:./Application/Funtion/Test/TEST.c ****  * 输出: State, Mode, Step, 电压, 电阻, CAN反馈, 超时参数
+ 120:./Application/Funtion/Test/TEST.c ****  */
+ 121:./Application/Funtion/Test/TEST.c **** void Test_InsuDump(void)
+ 122:./Application/Funtion/Test/TEST.c **** {
+ 114              		.loc 1 122 0
+ 115              		.cfi_startproc
+ 116              		@ args = 0, pretend = 0, frame = 16
+ 117              		@ frame_needed = 0, uses_anonymous_args = 0
+ 118 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+ 119              	.LCFI1:
+ 120              		.cfi_def_cfa_offset 20
+ 121              		.cfi_offset 4, -20
+ 122              		.cfi_offset 5, -16
+ 123              		.cfi_offset 6, -12
+ 124              		.cfi_offset 7, -8
+ 125              		.cfi_offset 14, -4
+ 123:./Application/Funtion/Test/TEST.c ****     u8  state   = gs_InsulationDetectMng.ucInsulationState;
+ 126              		.loc 1 123 0
+ 127 0002 2A4B     		ldr	r3, .L13
+ 122:./Application/Funtion/Test/TEST.c ****     u8  state   = gs_InsulationDetectMng.ucInsulationState;
+ 128              		.loc 1 122 0
+ 129 0004 8BB0     		sub	sp, sp, #44
+ 130              	.LCFI2:
+ 131              		.cfi_def_cfa_offset 64
+ 124:./Application/Funtion/Test/TEST.c ****     u8  mode    = gs_InsulationDetectMng.ucInsulationMode;
+ 125:./Application/Funtion/Test/TEST.c ****     u8  step    = gs_InsulationDetectMng.ucInsulationCtrlStep;
+ 126:./Application/Funtion/Test/TEST.c ****     u8  vdelay  = gs_InsulationDetectMng.ucGetVoltDelay;
+ 132              		.loc 1 126 0
+ 133 0006 9A78     		ldrb	r2, [r3, #2]
+ 123:./Application/Funtion/Test/TEST.c ****     u8  mode    = gs_InsulationDetectMng.ucInsulationMode;
+ 134              		.loc 1 123 0
+ 135 0008 5D79     		ldrb	r5, [r3, #5]
+ 136              	.LVL12:
+ 125:./Application/Funtion/Test/TEST.c ****     u8  vdelay  = gs_InsulationDetectMng.ucGetVoltDelay;
+ 137              		.loc 1 125 0
+ 138 000a 5C78     		ldrb	r4, [r3, #1]
+ 139              		.loc 1 126 0
+ 140 000c 0792     		str	r2, [sp, #28]
+ 124:./Application/Funtion/Test/TEST.c ****     u8  mode    = gs_InsulationDetectMng.ucInsulationMode;
+ 141              		.loc 1 124 0
+ 142 000e 1E78     		ldrb	r6, [r3]
+ 143              	.LVL13:
+ 127:./Application/Funtion/Test/TEST.c ****     u8  vstable = gs_InsulationDetectMng.ucVoltStable;
+ 144              		.loc 1 127 0
+ 145 0010 DB78     		ldrb	r3, [r3, #3]
+ 128:./Application/Funtion/Test/TEST.c ****     u16 timeout = stParameter.u16ArraySet[InsuTimeLimit];
+ 129:./Application/Funtion/Test/TEST.c ****     u16 period  = stParameter.u16ArraySet[InsuSampPeriod];
+ 130:./Application/Funtion/Test/TEST.c **** 
+ 131:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "\r\n");
+ 146              		.loc 1 131 0
+ 147 0012 2749     		ldr	r1, .L13+4
+ 127:./Application/Funtion/Test/TEST.c ****     u8  vstable = gs_InsulationDetectMng.ucVoltStable;
+ 148              		.loc 1 127 0
+ 149 0014 0893     		str	r3, [sp, #32]
+ 150              	.LVL14:
+ARM GAS  /tmp/ccJERq31.s 			page 6
+
+
+ 128:./Application/Funtion/Test/TEST.c ****     u16 timeout = stParameter.u16ArraySet[InsuTimeLimit];
+ 151              		.loc 1 128 0
+ 152 0016 274B     		ldr	r3, .L13+8
+ 153              		.loc 1 131 0
+ 154 0018 0020     		movs	r0, #0
+ 128:./Application/Funtion/Test/TEST.c ****     u16 timeout = stParameter.u16ArraySet[InsuTimeLimit];
+ 155              		.loc 1 128 0
+ 156 001a 9A8F     		ldrh	r2, [r3, #60]
+ 157 001c 0992     		str	r2, [sp, #36]
+ 158              	.LVL15:
+ 129:./Application/Funtion/Test/TEST.c **** 
+ 159              		.loc 1 129 0
+ 160 001e 5F8F     		ldrh	r7, [r3, #58]
+ 161              	.LVL16:
+ 162              		.loc 1 131 0
+ 163 0020 FFF7FEFF 		bl	SEGGER_RTT_printf
+ 164              	.LVL17:
+ 132:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "+-- Insulation State -------------------------------------+\r\n");
+ 165              		.loc 1 132 0
+ 166 0024 2449     		ldr	r1, .L13+12
+ 167 0026 0020     		movs	r0, #0
+ 168 0028 FFF7FEFF 		bl	SEGGER_RTT_printf
+ 169              	.LVL18:
+ 133:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "| State=%d(%s)  Mode=%d(%s)  Step=%s  VoltDelay=%d  VoltStable=%d\r\n",
+ 170              		.loc 1 133 0
+ 171 002c 234B     		ldr	r3, .L13+16
+ 172 002e 052D     		cmp	r5, #5
+ 173 0030 02D8     		bhi	.L7
+ 174 0032 234B     		ldr	r3, .L13+20
+ 175 0034 AA00     		lsls	r2, r5, #2
+ 176 0036 D358     		ldr	r3, [r2, r3]
+ 177              	.L7:
+ 178              	.LVL19:
+ 179 0038 204A     		ldr	r2, .L13+16
+ 180 003a 022E     		cmp	r6, #2
+ 181 003c 02D8     		bhi	.L8
+ 182 003e 214A     		ldr	r2, .L13+24
+ 183 0040 B100     		lsls	r1, r6, #2
+ 184 0042 8A58     		ldr	r2, [r1, r2]
+ 185              	.L8:
+ 186              	.LVL20:
+ 187 0044 1D49     		ldr	r1, .L13+16
+ 188 0046 022C     		cmp	r4, #2
+ 189 0048 02D8     		bhi	.L9
+ 190 004a 1F49     		ldr	r1, .L13+28
+ 191 004c A400     		lsls	r4, r4, #2
+ 192              	.LVL21:
+ 193 004e 6158     		ldr	r1, [r4, r1]
+ 194              	.L9:
+ 195 0050 0898     		ldr	r0, [sp, #32]
+ 196 0052 0291     		str	r1, [sp, #8]
+ 197 0054 0490     		str	r0, [sp, #16]
+ 198 0056 0798     		ldr	r0, [sp, #28]
+ 199 0058 0192     		str	r2, [sp, #4]
+ 200 005a 0390     		str	r0, [sp, #12]
+ 201 005c 2A00     		movs	r2, r5
+ 202 005e 0096     		str	r6, [sp]
+ARM GAS  /tmp/ccJERq31.s 			page 7
+
+
+ 203 0060 1A49     		ldr	r1, .L13+32
+ 204 0062 0020     		movs	r0, #0
+ 205 0064 FFF7FEFF 		bl	SEGGER_RTT_printf
+ 206              	.LVL22:
+ 134:./Application/Funtion/Test/TEST.c ****                       state, StateName(state), mode, ModeName(mode),
+ 135:./Application/Funtion/Test/TEST.c ****                       StepName(step), vdelay, vstable);
+ 136:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "| BatVolt=0x%08X  N2GVolt=0x%08X  P2GVolt=0x%08X\r\n",
+ 207              		.loc 1 136 0
+ 208 0068 104C     		ldr	r4, .L13
+ 209 006a 1949     		ldr	r1, .L13+36
+ 210 006c 2369     		ldr	r3, [r4, #16]
+ 211 006e 0020     		movs	r0, #0
+ 212 0070 0093     		str	r3, [sp]
+ 213 0072 E368     		ldr	r3, [r4, #12]
+ 214 0074 A268     		ldr	r2, [r4, #8]
+ 215 0076 FFF7FEFF 		bl	SEGGER_RTT_printf
+ 216              	.LVL23:
+ 137:./Application/Funtion/Test/TEST.c ****                       *(u32*)&gs_InsulationDetectMng.fBatVoltage,
+ 138:./Application/Funtion/Test/TEST.c ****                       *(u32*)&gs_InsulationDetectMng.fN2GVoltage,
+ 139:./Application/Funtion/Test/TEST.c ****                       *(u32*)&gs_InsulationDetectMng.fP2GVoltage);
+ 140:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "| N2GRes=0x%08X  P2GRes=0x%08X  CAN_Feedback=%d\r\n",
+ 141:./Application/Funtion/Test/TEST.c ****                       *(u32*)&gs_InsulationDetectMng.fN2GResistance,
+ 142:./Application/Funtion/Test/TEST.c ****                       *(u32*)&gs_InsulationDetectMng.fP2GResistance,
+ 143:./Application/Funtion/Test/TEST.c ****                       CtrlCmdFeedback_56[CtrlFeedback]);
+ 217              		.loc 1 143 0
+ 218 007a 164B     		ldr	r3, .L13+40
+ 140:./Application/Funtion/Test/TEST.c ****                       *(u32*)&gs_InsulationDetectMng.fN2GResistance,
+ 219              		.loc 1 140 0
+ 220 007c 1649     		ldr	r1, .L13+44
+ 221 007e 1B88     		ldrh	r3, [r3]
+ 222 0080 0020     		movs	r0, #0
+ 223 0082 0093     		str	r3, [sp]
+ 224 0084 636B     		ldr	r3, [r4, #52]
+ 225 0086 226B     		ldr	r2, [r4, #48]
+ 226 0088 FFF7FEFF 		bl	SEGGER_RTT_printf
+ 227              	.LVL24:
+ 144:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "| InsuTimeLimit=%ds  InsuSampPeriod=%ds\r\n",
+ 228              		.loc 1 144 0
+ 229 008c 3B00     		movs	r3, r7
+ 230 008e 099A     		ldr	r2, [sp, #36]
+ 231 0090 1249     		ldr	r1, .L13+48
+ 232 0092 0020     		movs	r0, #0
+ 233 0094 FFF7FEFF 		bl	SEGGER_RTT_printf
+ 234              	.LVL25:
+ 145:./Application/Funtion/Test/TEST.c ****                       timeout, period);
+ 146:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "+----------------------------------------------------------+\r\n");
+ 235              		.loc 1 146 0
+ 236 0098 1149     		ldr	r1, .L13+52
+ 237 009a 0020     		movs	r0, #0
+ 238 009c FFF7FEFF 		bl	SEGGER_RTT_printf
+ 239              	.LVL26:
+ 147:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "\r\n");
+ 240              		.loc 1 147 0
+ 241 00a0 0349     		ldr	r1, .L13+4
+ 242 00a2 0020     		movs	r0, #0
+ 243 00a4 FFF7FEFF 		bl	SEGGER_RTT_printf
+ 244              	.LVL27:
+ARM GAS  /tmp/ccJERq31.s 			page 8
+
+
+ 148:./Application/Funtion/Test/TEST.c **** }
+ 245              		.loc 1 148 0
+ 246 00a8 0BB0     		add	sp, sp, #44
+ 247              		@ sp needed
+ 248              	.LVL28:
+ 249              	.LVL29:
+ 250              	.LVL30:
+ 251 00aa F0BD     		pop	{r4, r5, r6, r7, pc}
+ 252              	.L14:
+ 253              		.align	2
+ 254              	.L13:
+ 255 00ac 00000000 		.word	gs_InsulationDetectMng
+ 256 00b0 04000000 		.word	.LC8
+ 257 00b4 00000000 		.word	stParameter
+ 258 00b8 07000000 		.word	.LC10
+ 259 00bc 00000000 		.word	.LC4
+ 260 00c0 00000000 		.word	.LANCHOR2
+ 261 00c4 00000000 		.word	.LANCHOR3
+ 262 00c8 00000000 		.word	.LANCHOR4
+ 263 00cc 45000000 		.word	.LC15
+ 264 00d0 89000000 		.word	.LC17
+ 265 00d4 00000000 		.word	CtrlCmdFeedback_56
+ 266 00d8 BC000000 		.word	.LC19
+ 267 00dc EE000000 		.word	.LC22
+ 268 00e0 18010000 		.word	.LC24
+ 269              		.cfi_endproc
+ 270              	.LFE4:
+ 272              		.section	.text.Test_InsuSetTimeout,"ax",%progbits
+ 273              		.align	1
+ 274              		.global	Test_InsuSetTimeout
+ 275              		.syntax unified
+ 276              		.code	16
+ 277              		.thumb_func
+ 278              		.fpu softvfp
+ 280              	Test_InsuSetTimeout:
+ 281              	.LFB5:
+ 149:./Application/Funtion/Test/TEST.c **** 
+ 150:./Application/Funtion/Test/TEST.c **** /*
+ 151:./Application/Funtion/Test/TEST.c ****  * 设置绝缘检测超时时间 (InsuTimeLimit)
+ 152:./Application/Funtion/Test/TEST.c ****  * 测试时改为较小值(如3)可加速超时触发
+ 153:./Application/Funtion/Test/TEST.c ****  */
+ 154:./Application/Funtion/Test/TEST.c **** void Test_InsuSetTimeout(u16 val)
+ 155:./Application/Funtion/Test/TEST.c **** {
+ 282              		.loc 1 155 0
+ 283              		.cfi_startproc
+ 284              		@ args = 0, pretend = 0, frame = 0
+ 285              		@ frame_needed = 0, uses_anonymous_args = 0
+ 286              	.LVL31:
+ 287 0000 10B5     		push	{r4, lr}
+ 288              	.LCFI3:
+ 289              		.cfi_def_cfa_offset 8
+ 290              		.cfi_offset 4, -8
+ 291              		.cfi_offset 14, -4
+ 156:./Application/Funtion/Test/TEST.c ****     u16 old = stParameter.u16ArraySet[InsuTimeLimit];
+ 292              		.loc 1 156 0
+ 293 0002 0449     		ldr	r1, .L16
+ 155:./Application/Funtion/Test/TEST.c ****     u16 old = stParameter.u16ArraySet[InsuTimeLimit];
+ARM GAS  /tmp/ccJERq31.s 			page 9
+
+
+ 294              		.loc 1 155 0
+ 295 0004 0300     		movs	r3, r0
+ 296              		.loc 1 156 0
+ 297 0006 8A8F     		ldrh	r2, [r1, #60]
+ 298              	.LVL32:
+ 157:./Application/Funtion/Test/TEST.c ****     stParameter.u16ArraySet[InsuTimeLimit] = val;
+ 299              		.loc 1 157 0
+ 300 0008 8887     		strh	r0, [r1, #60]
+ 158:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "[TEST] InsuTimeLimit: %d -> %d (sec)\r\n", old, val);
+ 301              		.loc 1 158 0
+ 302 000a 0349     		ldr	r1, .L16+4
+ 303 000c 0020     		movs	r0, #0
+ 304              	.LVL33:
+ 305 000e FFF7FEFF 		bl	SEGGER_RTT_printf
+ 306              	.LVL34:
+ 159:./Application/Funtion/Test/TEST.c **** }
+ 307              		.loc 1 159 0
+ 308              		@ sp needed
+ 309 0012 10BD     		pop	{r4, pc}
+ 310              	.L17:
+ 311              		.align	2
+ 312              	.L16:
+ 313 0014 00000000 		.word	stParameter
+ 314 0018 00000000 		.word	.LC27
+ 315              		.cfi_endproc
+ 316              	.LFE5:
+ 318              		.section	.text.Test_InsuSetPeriod,"ax",%progbits
+ 319              		.align	1
+ 320              		.global	Test_InsuSetPeriod
+ 321              		.syntax unified
+ 322              		.code	16
+ 323              		.thumb_func
+ 324              		.fpu softvfp
+ 326              	Test_InsuSetPeriod:
+ 327              	.LFB6:
+ 160:./Application/Funtion/Test/TEST.c **** 
+ 161:./Application/Funtion/Test/TEST.c **** /*
+ 162:./Application/Funtion/Test/TEST.c ****  * 设置绝缘检测采样周期 (InsuSampPeriod)
+ 163:./Application/Funtion/Test/TEST.c ****  * 测试时设为0可跳过周期等待,立即执行
+ 164:./Application/Funtion/Test/TEST.c ****  */
+ 165:./Application/Funtion/Test/TEST.c **** void Test_InsuSetPeriod(u16 val)
+ 166:./Application/Funtion/Test/TEST.c **** {
+ 328              		.loc 1 166 0
+ 329              		.cfi_startproc
+ 330              		@ args = 0, pretend = 0, frame = 0
+ 331              		@ frame_needed = 0, uses_anonymous_args = 0
+ 332              	.LVL35:
+ 333 0000 10B5     		push	{r4, lr}
+ 334              	.LCFI4:
+ 335              		.cfi_def_cfa_offset 8
+ 336              		.cfi_offset 4, -8
+ 337              		.cfi_offset 14, -4
+ 167:./Application/Funtion/Test/TEST.c ****     u16 old = stParameter.u16ArraySet[InsuSampPeriod];
+ 338              		.loc 1 167 0
+ 339 0002 0449     		ldr	r1, .L19
+ 166:./Application/Funtion/Test/TEST.c ****     u16 old = stParameter.u16ArraySet[InsuSampPeriod];
+ 340              		.loc 1 166 0
+ARM GAS  /tmp/ccJERq31.s 			page 10
+
+
+ 341 0004 0300     		movs	r3, r0
+ 342              		.loc 1 167 0
+ 343 0006 4A8F     		ldrh	r2, [r1, #58]
+ 344              	.LVL36:
+ 168:./Application/Funtion/Test/TEST.c ****     stParameter.u16ArraySet[InsuSampPeriod] = val;
+ 345              		.loc 1 168 0
+ 346 0008 4887     		strh	r0, [r1, #58]
+ 169:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "[TEST] InsuSampPeriod: %d -> %d (sec)\r\n", old, val);
+ 347              		.loc 1 169 0
+ 348 000a 0349     		ldr	r1, .L19+4
+ 349 000c 0020     		movs	r0, #0
+ 350              	.LVL37:
+ 351 000e FFF7FEFF 		bl	SEGGER_RTT_printf
+ 352              	.LVL38:
+ 170:./Application/Funtion/Test/TEST.c **** }
+ 353              		.loc 1 170 0
+ 354              		@ sp needed
+ 355 0012 10BD     		pop	{r4, pc}
+ 356              	.L20:
+ 357              		.align	2
+ 358              	.L19:
+ 359 0014 00000000 		.word	stParameter
+ 360 0018 00000000 		.word	.LC30
+ 361              		.cfi_endproc
+ 362              	.LFE6:
+ 364              		.section	.text.Test_InsuSetMode,"ax",%progbits
+ 365              		.align	1
+ 366              		.global	Test_InsuSetMode
+ 367              		.syntax unified
+ 368              		.code	16
+ 369              		.thumb_func
+ 370              		.fpu softvfp
+ 372              	Test_InsuSetMode:
+ 373              	.LFB7:
+ 171:./Application/Funtion/Test/TEST.c **** 
+ 172:./Application/Funtion/Test/TEST.c **** /*
+ 173:./Application/Funtion/Test/TEST.c ****  * 设置绝缘检测模式
+ 174:./Application/Funtion/Test/TEST.c ****  * 0=AutoDetect, 1=StartDetect, 2=StopDetect
+ 175:./Application/Funtion/Test/TEST.c ****  * 设为1(StartDetect)可测试超时后永久停止行为
+ 176:./Application/Funtion/Test/TEST.c ****  */
+ 177:./Application/Funtion/Test/TEST.c **** void Test_InsuSetMode(u8 mode)
+ 178:./Application/Funtion/Test/TEST.c **** {
+ 374              		.loc 1 178 0
+ 375              		.cfi_startproc
+ 376              		@ args = 0, pretend = 0, frame = 0
+ 377              		@ frame_needed = 0, uses_anonymous_args = 0
+ 378              	.LVL39:
+ 379 0000 13B5     		push	{r0, r1, r4, lr}
+ 380              	.LCFI5:
+ 381              		.cfi_def_cfa_offset 16
+ 382              		.cfi_offset 0, -16
+ 383              		.cfi_offset 1, -12
+ 384              		.cfi_offset 4, -8
+ 385              		.cfi_offset 14, -4
+ 179:./Application/Funtion/Test/TEST.c ****     if (mode > 2)
+ 386              		.loc 1 179 0
+ 387 0002 0228     		cmp	r0, #2
+ARM GAS  /tmp/ccJERq31.s 			page 11
+
+
+ 388 0004 05D9     		bls	.L22
+ 389              	.LVL40:
+ 390              	.LBB32:
+ 391              	.LBB33:
+ 180:./Application/Funtion/Test/TEST.c ****     {
+ 181:./Application/Funtion/Test/TEST.c ****         SEGGER_RTT_printf(0, "[TEST] Invalid mode: %d (0=Auto 1=Start 2=Stop)\r\n", mode);
+ 392              		.loc 1 181 0
+ 393 0006 0200     		movs	r2, r0
+ 394 0008 0B49     		ldr	r1, .L26
+ 395 000a 0020     		movs	r0, #0
+ 396              	.LVL41:
+ 397 000c FFF7FEFF 		bl	SEGGER_RTT_printf
+ 398              	.LVL42:
+ 399              	.L21:
+ 400              	.LBE33:
+ 401              	.LBE32:
+ 182:./Application/Funtion/Test/TEST.c ****         return;
+ 183:./Application/Funtion/Test/TEST.c ****     }
+ 184:./Application/Funtion/Test/TEST.c ****     u8 old = gs_InsulationDetectMng.ucInsulationMode;
+ 185:./Application/Funtion/Test/TEST.c ****     gs_InsulationDetectMng.ucInsulationMode = mode;
+ 186:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "[TEST] InsulationMode: %d(%s) -> %d(%s)\r\n",
+ 187:./Application/Funtion/Test/TEST.c ****                       old, ModeName(old), mode, ModeName(mode));
+ 188:./Application/Funtion/Test/TEST.c **** }
+ 402              		.loc 1 188 0
+ 403              		@ sp needed
+ 404 0010 13BD     		pop	{r0, r1, r4, pc}
+ 405              	.LVL43:
+ 406              	.L22:
+ 184:./Application/Funtion/Test/TEST.c ****     gs_InsulationDetectMng.ucInsulationMode = mode;
+ 407              		.loc 1 184 0
+ 408 0012 0A4B     		ldr	r3, .L26+4
+ 409 0014 0A49     		ldr	r1, .L26+8
+ 410 0016 1A78     		ldrb	r2, [r3]
+ 411              	.LVL44:
+ 185:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "[TEST] InsulationMode: %d(%s) -> %d(%s)\r\n",
+ 412              		.loc 1 185 0
+ 413 0018 1870     		strb	r0, [r3]
+ 414              	.LVL45:
+ 186:./Application/Funtion/Test/TEST.c ****                       old, ModeName(old), mode, ModeName(mode));
+ 415              		.loc 1 186 0
+ 416 001a 0A4B     		ldr	r3, .L26+12
+ 417 001c 022A     		cmp	r2, #2
+ 418 001e 01D8     		bhi	.L24
+ 419 0020 9300     		lsls	r3, r2, #2
+ 420 0022 CB58     		ldr	r3, [r1, r3]
+ 421              	.L24:
+ 422              	.LVL46:
+ 423 0024 8400     		lsls	r4, r0, #2
+ 424 0026 0959     		ldr	r1, [r1, r4]
+ 425 0028 0090     		str	r0, [sp]
+ 426 002a 0191     		str	r1, [sp, #4]
+ 427 002c 0020     		movs	r0, #0
+ 428              	.LVL47:
+ 429 002e 0649     		ldr	r1, .L26+16
+ 430 0030 FFF7FEFF 		bl	SEGGER_RTT_printf
+ 431              	.LVL48:
+ 432 0034 ECE7     		b	.L21
+ARM GAS  /tmp/ccJERq31.s 			page 12
+
+
+ 433              	.L27:
+ 434 0036 C046     		.align	2
+ 435              	.L26:
+ 436 0038 00000000 		.word	.LC33
+ 437 003c 00000000 		.word	gs_InsulationDetectMng
+ 438 0040 00000000 		.word	.LANCHOR3
+ 439 0044 00000000 		.word	.LC4
+ 440 0048 32000000 		.word	.LC37
+ 441              		.cfi_endproc
+ 442              	.LFE7:
+ 444              		.section	.text.Test_InsuMonStart,"ax",%progbits
+ 445              		.align	1
+ 446              		.global	Test_InsuMonStart
+ 447              		.syntax unified
+ 448              		.code	16
+ 449              		.thumb_func
+ 450              		.fpu softvfp
+ 452              	Test_InsuMonStart:
+ 453              	.LFB8:
+ 189:./Application/Funtion/Test/TEST.c **** 
+ 190:./Application/Funtion/Test/TEST.c **** /*
+ 191:./Application/Funtion/Test/TEST.c ****  * 启动周期性状态监控 (每约500ms打印一次)
+ 192:./Application/Funtion/Test/TEST.c ****  * 需要将 Test_InsuMonPoll() 挂入循环任务才生效
+ 193:./Application/Funtion/Test/TEST.c ****  */
+ 194:./Application/Funtion/Test/TEST.c **** void Test_InsuMonStart(void)
+ 195:./Application/Funtion/Test/TEST.c **** {
+ 454              		.loc 1 195 0
+ 455              		.cfi_startproc
+ 456              		@ args = 0, pretend = 0, frame = 0
+ 457              		@ frame_needed = 0, uses_anonymous_args = 0
+ 458 0000 10B5     		push	{r4, lr}
+ 459              	.LCFI6:
+ 460              		.cfi_def_cfa_offset 8
+ 461              		.cfi_offset 4, -8
+ 462              		.cfi_offset 14, -4
+ 196:./Application/Funtion/Test/TEST.c ****     if (g_insu_mon_active)
+ 463              		.loc 1 196 0
+ 464 0002 084B     		ldr	r3, .L31
+ 465 0004 1878     		ldrb	r0, [r3]
+ 466 0006 0028     		cmp	r0, #0
+ 467 0008 04D0     		beq	.L29
+ 468              	.LBB36:
+ 469              	.LBB37:
+ 197:./Application/Funtion/Test/TEST.c ****     {
+ 198:./Application/Funtion/Test/TEST.c ****         SEGGER_RTT_printf(0, "[TEST] Monitoring is already active\r\n");
+ 470              		.loc 1 198 0
+ 471 000a 0749     		ldr	r1, .L31+4
+ 472 000c 0020     		movs	r0, #0
+ 473 000e FFF7FEFF 		bl	SEGGER_RTT_printf
+ 474              	.LVL49:
+ 475              	.L28:
+ 476              	.LBE37:
+ 477              	.LBE36:
+ 199:./Application/Funtion/Test/TEST.c ****         return;
+ 200:./Application/Funtion/Test/TEST.c ****     }
+ 201:./Application/Funtion/Test/TEST.c ****     g_insu_mon_active = 1;
+ 202:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "[TEST] Insulation monitoring started (every %dms)\r\n", g_insu_mon_period
+ARM GAS  /tmp/ccJERq31.s 			page 13
+
+
+ 203:./Application/Funtion/Test/TEST.c **** }
+ 478              		.loc 1 203 0
+ 479              		@ sp needed
+ 480 0012 10BD     		pop	{r4, pc}
+ 481              	.L29:
+ 201:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "[TEST] Insulation monitoring started (every %dms)\r\n", g_insu_mon_period
+ 482              		.loc 1 201 0
+ 483 0014 0122     		movs	r2, #1
+ 484 0016 1A70     		strb	r2, [r3]
+ 202:./Application/Funtion/Test/TEST.c **** }
+ 485              		.loc 1 202 0
+ 486 0018 F432     		adds	r2, r2, #244
+ 487 001a FF32     		adds	r2, r2, #255
+ 488 001c 0349     		ldr	r1, .L31+8
+ 489 001e FFF7FEFF 		bl	SEGGER_RTT_printf
+ 490              	.LVL50:
+ 491 0022 F6E7     		b	.L28
+ 492              	.L32:
+ 493              		.align	2
+ 494              	.L31:
+ 495 0024 00000000 		.word	.LANCHOR5
+ 496 0028 00000000 		.word	.LC40
+ 497 002c 26000000 		.word	.LC42
+ 498              		.cfi_endproc
+ 499              	.LFE8:
+ 501              		.section	.text.Test_InsuMonStop,"ax",%progbits
+ 502              		.align	1
+ 503              		.global	Test_InsuMonStop
+ 504              		.syntax unified
+ 505              		.code	16
+ 506              		.thumb_func
+ 507              		.fpu softvfp
+ 509              	Test_InsuMonStop:
+ 510              	.LFB9:
+ 204:./Application/Funtion/Test/TEST.c **** 
+ 205:./Application/Funtion/Test/TEST.c **** /*
+ 206:./Application/Funtion/Test/TEST.c ****  * 停止周期性状态监控
+ 207:./Application/Funtion/Test/TEST.c ****  */
+ 208:./Application/Funtion/Test/TEST.c **** void Test_InsuMonStop(void)
+ 209:./Application/Funtion/Test/TEST.c **** {
+ 511              		.loc 1 209 0
+ 512              		.cfi_startproc
+ 513              		@ args = 0, pretend = 0, frame = 0
+ 514              		@ frame_needed = 0, uses_anonymous_args = 0
+ 210:./Application/Funtion/Test/TEST.c ****     g_insu_mon_active = 0;
+ 515              		.loc 1 210 0
+ 516 0000 0020     		movs	r0, #0
+ 209:./Application/Funtion/Test/TEST.c ****     g_insu_mon_active = 0;
+ 517              		.loc 1 209 0
+ 518 0002 10B5     		push	{r4, lr}
+ 519              	.LCFI7:
+ 520              		.cfi_def_cfa_offset 8
+ 521              		.cfi_offset 4, -8
+ 522              		.cfi_offset 14, -4
+ 523              		.loc 1 210 0
+ 524 0004 024B     		ldr	r3, .L34
+ 211:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "[TEST] Insulation monitoring stopped\r\n");
+ARM GAS  /tmp/ccJERq31.s 			page 14
+
+
+ 525              		.loc 1 211 0
+ 526 0006 0349     		ldr	r1, .L34+4
+ 210:./Application/Funtion/Test/TEST.c ****     g_insu_mon_active = 0;
+ 527              		.loc 1 210 0
+ 528 0008 1870     		strb	r0, [r3]
+ 212:./Application/Funtion/Test/TEST.c **** }
+ 529              		.loc 1 212 0
+ 530              		@ sp needed
+ 211:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "[TEST] Insulation monitoring stopped\r\n");
+ 531              		.loc 1 211 0
+ 532 000a FFF7FEFF 		bl	SEGGER_RTT_printf
+ 533              	.LVL51:
+ 534              		.loc 1 212 0
+ 535 000e 10BD     		pop	{r4, pc}
+ 536              	.L35:
+ 537              		.align	2
+ 538              	.L34:
+ 539 0010 00000000 		.word	.LANCHOR5
+ 540 0014 00000000 		.word	.LC45
+ 541              		.cfi_endproc
+ 542              	.LFE9:
+ 544              		.section	.text.Test_InsuMonPoll,"ax",%progbits
+ 545              		.align	1
+ 546              		.global	Test_InsuMonPoll
+ 547              		.syntax unified
+ 548              		.code	16
+ 549              		.thumb_func
+ 550              		.fpu softvfp
+ 552              	Test_InsuMonPoll:
+ 553              	.LFB10:
+ 213:./Application/Funtion/Test/TEST.c **** 
+ 214:./Application/Funtion/Test/TEST.c **** /*
+ 215:./Application/Funtion/Test/TEST.c ****  * 监控轮询函数 — 在循环任务中周期性调用
+ 216:./Application/Funtion/Test/TEST.c ****  * 当 g_insu_mon_active=1 时, 每 g_insu_mon_period(500ms) 打印一次状态
+ 217:./Application/Funtion/Test/TEST.c ****  */
+ 218:./Application/Funtion/Test/TEST.c **** void Test_InsuMonPoll(void)
+ 219:./Application/Funtion/Test/TEST.c **** {
+ 554              		.loc 1 219 0
+ 555              		.cfi_startproc
+ 556              		@ args = 0, pretend = 0, frame = 0
+ 557              		@ frame_needed = 0, uses_anonymous_args = 0
+ 558 0000 10B5     		push	{r4, lr}
+ 559              	.LCFI8:
+ 560              		.cfi_def_cfa_offset 8
+ 561              		.cfi_offset 4, -8
+ 562              		.cfi_offset 14, -4
+ 220:./Application/Funtion/Test/TEST.c ****     static TickType_t last = 0;
+ 221:./Application/Funtion/Test/TEST.c ****     TickType_t now;
+ 222:./Application/Funtion/Test/TEST.c **** 
+ 223:./Application/Funtion/Test/TEST.c ****     if (!g_insu_mon_active) return;
+ 563              		.loc 1 223 0
+ 564 0002 094B     		ldr	r3, .L44
+ 565 0004 1B78     		ldrb	r3, [r3]
+ 566 0006 002B     		cmp	r3, #0
+ 567 0008 0DD0     		beq	.L36
+ 224:./Application/Funtion/Test/TEST.c **** 
+ 225:./Application/Funtion/Test/TEST.c ****     now = xTaskGetTickCount();
+ARM GAS  /tmp/ccJERq31.s 			page 15
+
+
+ 568              		.loc 1 225 0
+ 569 000a FFF7FEFF 		bl	xTaskGetTickCount
+ 570              	.LVL52:
+ 226:./Application/Funtion/Test/TEST.c ****     if (last == 0 || ((now - last) * portTICK_PERIOD_MS) >= g_insu_mon_period)
+ 571              		.loc 1 226 0
+ 572 000e 074A     		ldr	r2, .L44+4
+ 573 0010 1368     		ldr	r3, [r2]
+ 574 0012 002B     		cmp	r3, #0
+ 575 0014 04D0     		beq	.L39
+ 576              		.loc 1 226 0 is_stmt 0 discriminator 1
+ 577 0016 F421     		movs	r1, #244
+ 578 0018 FF31     		adds	r1, r1, #255
+ 579 001a C31A     		subs	r3, r0, r3
+ 580 001c 8B42     		cmp	r3, r1
+ 581 001e 02D9     		bls	.L36
+ 582              	.L39:
+ 227:./Application/Funtion/Test/TEST.c ****     {
+ 228:./Application/Funtion/Test/TEST.c ****         last = now;
+ 583              		.loc 1 228 0 is_stmt 1
+ 584 0020 1060     		str	r0, [r2]
+ 229:./Application/Funtion/Test/TEST.c ****         Test_InsuDump();
+ 585              		.loc 1 229 0
+ 586 0022 FFF7FEFF 		bl	Test_InsuDump
+ 587              	.LVL53:
+ 588              	.L36:
+ 230:./Application/Funtion/Test/TEST.c ****     }
+ 231:./Application/Funtion/Test/TEST.c **** }
+ 589              		.loc 1 231 0
+ 590              		@ sp needed
+ 591 0026 10BD     		pop	{r4, pc}
+ 592              	.L45:
+ 593              		.align	2
+ 594              	.L44:
+ 595 0028 00000000 		.word	.LANCHOR5
+ 596 002c 00000000 		.word	.LANCHOR6
+ 597              		.cfi_endproc
+ 598              	.LFE10:
+ 600              		.section	.text.Test_PrintRelayState,"ax",%progbits
+ 601              		.align	1
+ 602              		.global	Test_PrintRelayState
+ 603              		.syntax unified
+ 604              		.code	16
+ 605              		.thumb_func
+ 606              		.fpu softvfp
+ 608              	Test_PrintRelayState:
+ 609              	.LFB11:
+ 232:./Application/Funtion/Test/TEST.c **** 
+ 233:./Application/Funtion/Test/TEST.c **** /* ======================== 继电器状态监控 ======================== */
+ 234:./Application/Funtion/Test/TEST.c **** 
+ 235:./Application/Funtion/Test/TEST.c **** void Test_PrintRelayState(void)
+ 236:./Application/Funtion/Test/TEST.c **** {
+ 610              		.loc 1 236 0
+ 611              		.cfi_startproc
+ 612              		@ args = 0, pretend = 0, frame = 0
+ 613              		@ frame_needed = 0, uses_anonymous_args = 0
+ 614 0000 F7B5     		push	{r0, r1, r2, r4, r5, r6, r7, lr}
+ 615              	.LCFI9:
+ARM GAS  /tmp/ccJERq31.s 			page 16
+
+
+ 616              		.cfi_def_cfa_offset 32
+ 617              		.cfi_offset 0, -32
+ 618              		.cfi_offset 1, -28
+ 619              		.cfi_offset 2, -24
+ 620              		.cfi_offset 4, -20
+ 621              		.cfi_offset 5, -16
+ 622              		.cfi_offset 6, -12
+ 623              		.cfi_offset 7, -8
+ 624              		.cfi_offset 14, -4
+ 237:./Application/Funtion/Test/TEST.c ****     u8 pe_gpio = PE_RLY_Pin_Read();
+ 625              		.loc 1 237 0
+ 626 0002 0A21     		movs	r1, #10
+ 627 0004 0220     		movs	r0, #2
+ 628 0006 FFF7FEFF 		bl	BSPGPIOGetPortState
+ 629              	.LVL54:
+ 630 000a 0600     		movs	r6, r0
+ 631              	.LVL55:
+ 238:./Application/Funtion/Test/TEST.c ****     u8 imd_state = GetIMD_RLY_State();
+ 632              		.loc 1 238 0
+ 633 000c FFF7FEFF 		bl	GetIMD_RLY_State
+ 634              	.LVL56:
+ 239:./Application/Funtion/Test/TEST.c ****     u8 step = gs_InsulationDetectMng.ucInsulationCtrlStep;
+ 635              		.loc 1 239 0
+ 636 0010 1D4B     		ldr	r3, .L55
+ 240:./Application/Funtion/Test/TEST.c ****     u8 state = gs_InsulationDetectMng.ucInsulationState;
+ 241:./Application/Funtion/Test/TEST.c **** 
+ 242:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "\r");
+ 637              		.loc 1 242 0
+ 638 0012 1E49     		ldr	r1, .L55+4
+ 240:./Application/Funtion/Test/TEST.c ****     u8 state = gs_InsulationDetectMng.ucInsulationState;
+ 639              		.loc 1 240 0
+ 640 0014 5D79     		ldrb	r5, [r3, #5]
+ 238:./Application/Funtion/Test/TEST.c ****     u8 step = gs_InsulationDetectMng.ucInsulationCtrlStep;
+ 641              		.loc 1 238 0
+ 642 0016 0700     		movs	r7, r0
+ 643              	.LVL57:
+ 644              		.loc 1 242 0
+ 645 0018 0020     		movs	r0, #0
+ 239:./Application/Funtion/Test/TEST.c ****     u8 step = gs_InsulationDetectMng.ucInsulationCtrlStep;
+ 646              		.loc 1 239 0
+ 647 001a 5C78     		ldrb	r4, [r3, #1]
+ 648              	.LVL58:
+ 649              		.loc 1 242 0
+ 650 001c FFF7FEFF 		bl	SEGGER_RTT_printf
+ 651              	.LVL59:
+ 243:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "+-- Relay State -------------------------------------------+\r\n");
+ 652              		.loc 1 243 0
+ 653 0020 1B49     		ldr	r1, .L55+8
+ 654 0022 0020     		movs	r0, #0
+ 655 0024 FFF7FEFF 		bl	SEGGER_RTT_printf
+ 656              	.LVL60:
+ 244:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "| State=%d(%s)  Step=%s\r\n",
+ 657              		.loc 1 244 0
+ 658 0028 1A4B     		ldr	r3, .L55+12
+ 659 002a 052D     		cmp	r5, #5
+ 660 002c 02D8     		bhi	.L47
+ 661 002e 1A4B     		ldr	r3, .L55+16
+ARM GAS  /tmp/ccJERq31.s 			page 17
+
+
+ 662 0030 AA00     		lsls	r2, r5, #2
+ 663 0032 D358     		ldr	r3, [r2, r3]
+ 664              	.L47:
+ 665              	.LVL61:
+ 666 0034 174A     		ldr	r2, .L55+12
+ 667 0036 022C     		cmp	r4, #2
+ 668 0038 02D8     		bhi	.L48
+ 669 003a 184A     		ldr	r2, .L55+20
+ 670 003c A400     		lsls	r4, r4, #2
+ 671              	.LVL62:
+ 672 003e A258     		ldr	r2, [r4, r2]
+ 673              	.L48:
+ 674 0040 0092     		str	r2, [sp]
+ 675 0042 1749     		ldr	r1, .L55+24
+ 676 0044 2A00     		movs	r2, r5
+ 677 0046 0020     		movs	r0, #0
+ 678 0048 FFF7FEFF 		bl	SEGGER_RTT_printf
+ 679              	.LVL63:
+ 245:./Application/Funtion/Test/TEST.c ****                       state, StateName(state), StepName(step));
+ 246:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "| PE_RLY_GPIO=%d (%s)  IMD_RLY_STATE=%d (%s)\r\n",
+ 680              		.loc 1 246 0
+ 681 004c 154B     		ldr	r3, .L55+28
+ 682 004e 002E     		cmp	r6, #0
+ 683 0050 00D1     		bne	.L49
+ 684 0052 154B     		ldr	r3, .L55+32
+ 685              	.L49:
+ 686              		.loc 1 246 0 is_stmt 0 discriminator 4
+ 687 0054 134A     		ldr	r2, .L55+28
+ 688 0056 002F     		cmp	r7, #0
+ 689 0058 00D1     		bne	.L50
+ 690              		.loc 1 246 0
+ 691 005a 134A     		ldr	r2, .L55+32
+ 692              	.L50:
+ 693              		.loc 1 246 0 discriminator 8
+ 694 005c 0192     		str	r2, [sp, #4]
+ 695 005e 0097     		str	r7, [sp]
+ 696 0060 3200     		movs	r2, r6
+ 697 0062 1249     		ldr	r1, .L55+36
+ 698 0064 0020     		movs	r0, #0
+ 699 0066 FFF7FEFF 		bl	SEGGER_RTT_printf
+ 700              	.LVL64:
+ 247:./Application/Funtion/Test/TEST.c ****                       pe_gpio, pe_gpio ? "CLOSED" : "OPEN",
+ 248:./Application/Funtion/Test/TEST.c ****                       imd_state, imd_state ? "CLOSED" : "OPEN");
+ 249:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "| AfterInsuPeRlyState=%d\r\n",
+ 250:./Application/Funtion/Test/TEST.c ****                       stParameter.u16ArraySet[AfterInsuPeRlyState]);
+ 701              		.loc 1 250 0 is_stmt 1 discriminator 8
+ 702 006a 114B     		ldr	r3, .L55+40
+ 249:./Application/Funtion/Test/TEST.c ****                       stParameter.u16ArraySet[AfterInsuPeRlyState]);
+ 703              		.loc 1 249 0 discriminator 8
+ 704 006c 1149     		ldr	r1, .L55+44
+ 705 006e 1A8F     		ldrh	r2, [r3, #56]
+ 706 0070 0020     		movs	r0, #0
+ 707 0072 FFF7FEFF 		bl	SEGGER_RTT_printf
+ 708              	.LVL65:
+ 251:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "+-----------------------------------------------------------+\r\n");
+ 709              		.loc 1 251 0 discriminator 8
+ 710 0076 1049     		ldr	r1, .L55+48
+ARM GAS  /tmp/ccJERq31.s 			page 18
+
+
+ 711 0078 0020     		movs	r0, #0
+ 712 007a FFF7FEFF 		bl	SEGGER_RTT_printf
+ 713              	.LVL66:
+ 252:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "\r\n");
+ 714              		.loc 1 252 0 discriminator 8
+ 715 007e 0F49     		ldr	r1, .L55+52
+ 716 0080 0020     		movs	r0, #0
+ 717 0082 FFF7FEFF 		bl	SEGGER_RTT_printf
+ 718              	.LVL67:
+ 253:./Application/Funtion/Test/TEST.c **** }
+ 719              		.loc 1 253 0 discriminator 8
+ 720              		@ sp needed
+ 721              	.LVL68:
+ 722              	.LVL69:
+ 723              	.LVL70:
+ 724 0086 F7BD     		pop	{r0, r1, r2, r4, r5, r6, r7, pc}
+ 725              	.L56:
+ 726              		.align	2
+ 727              	.L55:
+ 728 0088 00000000 		.word	gs_InsulationDetectMng
+ 729 008c 0C000000 		.word	.LC55
+ 730 0090 0E000000 		.word	.LC57
+ 731 0094 00000000 		.word	.LC4
+ 732 0098 00000000 		.word	.LANCHOR2
+ 733 009c 00000000 		.word	.LANCHOR4
+ 734 00a0 4D000000 		.word	.LC61
+ 735 00a4 00000000 		.word	.LC50
+ 736 00a8 07000000 		.word	.LC52
+ 737 00ac 67000000 		.word	.LC63
+ 738 00b0 00000000 		.word	stParameter
+ 739 00b4 96000000 		.word	.LC66
+ 740 00b8 B1000000 		.word	.LC68
+ 741 00bc 04000000 		.word	.LC8
+ 742              		.cfi_endproc
+ 743              	.LFE11:
+ 745              		.section	.text.Test_PrintDiagState,"ax",%progbits
+ 746              		.align	1
+ 747              		.global	Test_PrintDiagState
+ 748              		.syntax unified
+ 749              		.code	16
+ 750              		.thumb_func
+ 751              		.fpu softvfp
+ 753              	Test_PrintDiagState:
+ 754              	.LFB13:
+ 254:./Application/Funtion/Test/TEST.c **** 
+ 255:./Application/Funtion/Test/TEST.c **** /* ======================== 诊断告警读取 ======================== */
+ 256:./Application/Funtion/Test/TEST.c **** 
+ 257:./Application/Funtion/Test/TEST.c **** static const char *DiagStateName(e_ErrState s)
+ 258:./Application/Funtion/Test/TEST.c **** {
+ 259:./Application/Funtion/Test/TEST.c ****     switch (s) {
+ 260:./Application/Funtion/Test/TEST.c ****         case eErr_A:    return "NORMAL(A)";
+ 261:./Application/Funtion/Test/TEST.c ****         case eErr_B:    return "FAULT(B)";
+ 262:./Application/Funtion/Test/TEST.c ****         case eErr_AtoB: return "A->B";
+ 263:./Application/Funtion/Test/TEST.c ****         case eErr_BtoA: return "B->A";
+ 264:./Application/Funtion/Test/TEST.c ****         default:        return "???";
+ 265:./Application/Funtion/Test/TEST.c ****     }
+ 266:./Application/Funtion/Test/TEST.c **** }
+ARM GAS  /tmp/ccJERq31.s 			page 19
+
+
+ 267:./Application/Funtion/Test/TEST.c **** 
+ 268:./Application/Funtion/Test/TEST.c **** void Test_PrintDiagState(void)
+ 269:./Application/Funtion/Test/TEST.c **** {
+ 755              		.loc 1 269 0
+ 756              		.cfi_startproc
+ 757              		@ args = 0, pretend = 0, frame = 0
+ 758              		@ frame_needed = 0, uses_anonymous_args = 0
+ 759 0000 70B5     		push	{r4, r5, r6, lr}
+ 760              	.LCFI10:
+ 761              		.cfi_def_cfa_offset 16
+ 762              		.cfi_offset 4, -16
+ 763              		.cfi_offset 5, -12
+ 764              		.cfi_offset 6, -8
+ 765              		.cfi_offset 14, -4
+ 270:./Application/Funtion/Test/TEST.c ****     e_ErrState insSta = DiagGetErrLastStateAPI(eERR_ID_INS_STA);
+ 766              		.loc 1 270 0
+ 767 0002 0C20     		movs	r0, #12
+ 768 0004 FFF7FEFF 		bl	DiagGetErrLastStateAPI
+ 769              	.LVL71:
+ 770 0008 0500     		movs	r5, r0
+ 771              	.LVL72:
+ 271:./Application/Funtion/Test/TEST.c ****     e_ErrState insLow = DiagGetErrLastStateAPI(eERR_ID_INS_LOW);
+ 772              		.loc 1 271 0
+ 773 000a 0D20     		movs	r0, #13
+ 774 000c FFF7FEFF 		bl	DiagGetErrLastStateAPI
+ 775              	.LVL73:
+ 272:./Application/Funtion/Test/TEST.c **** 
+ 273:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "\r\n");
+ 776              		.loc 1 273 0
+ 777 0010 144E     		ldr	r6, .L62
+ 271:./Application/Funtion/Test/TEST.c ****     e_ErrState insLow = DiagGetErrLastStateAPI(eERR_ID_INS_LOW);
+ 778              		.loc 1 271 0
+ 779 0012 0400     		movs	r4, r0
+ 780              	.LVL74:
+ 781              		.loc 1 273 0
+ 782 0014 3100     		movs	r1, r6
+ 783 0016 0020     		movs	r0, #0
+ 784 0018 FFF7FEFF 		bl	SEGGER_RTT_printf
+ 785              	.LVL75:
+ 274:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "+-- Insulation Diag State ---------------------------------+\r\n");
+ 786              		.loc 1 274 0
+ 787 001c 1249     		ldr	r1, .L62+4
+ 788 001e 0020     		movs	r0, #0
+ 789 0020 FFF7FEFF 		bl	SEGGER_RTT_printf
+ 790              	.LVL76:
+ 275:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "| eERR_ID_INS_STA (volt unstable) : %d(%s)\r\n",
+ 791              		.loc 1 275 0
+ 792 0024 114B     		ldr	r3, .L62+8
+ 793 0026 032D     		cmp	r5, #3
+ 794 0028 02D8     		bhi	.L58
+ 795 002a 114B     		ldr	r3, .L62+12
+ 796 002c AA00     		lsls	r2, r5, #2
+ 797 002e D358     		ldr	r3, [r2, r3]
+ 798              	.L58:
+ 799              	.LVL77:
+ 800 0030 2A00     		movs	r2, r5
+ 801 0032 1049     		ldr	r1, .L62+16
+ARM GAS  /tmp/ccJERq31.s 			page 20
+
+
+ 802 0034 0020     		movs	r0, #0
+ 803 0036 FFF7FEFF 		bl	SEGGER_RTT_printf
+ 804              	.LVL78:
+ 276:./Application/Funtion/Test/TEST.c ****                       insSta, DiagStateName(insSta));
+ 277:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "| eERR_ID_INS_LOW (volt too low)  : %d(%s)\r\n",
+ 805              		.loc 1 277 0
+ 806 003a 0C4B     		ldr	r3, .L62+8
+ 807 003c 032C     		cmp	r4, #3
+ 808 003e 02D8     		bhi	.L59
+ 809 0040 0B4B     		ldr	r3, .L62+12
+ 810 0042 A200     		lsls	r2, r4, #2
+ 811 0044 D358     		ldr	r3, [r2, r3]
+ 812              	.L59:
+ 813              	.LVL79:
+ 814 0046 2200     		movs	r2, r4
+ 815 0048 0B49     		ldr	r1, .L62+20
+ 816 004a 0020     		movs	r0, #0
+ 817 004c FFF7FEFF 		bl	SEGGER_RTT_printf
+ 818              	.LVL80:
+ 278:./Application/Funtion/Test/TEST.c ****                       insLow, DiagStateName(insLow));
+ 279:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "+-----------------------------------------------------------+\r\n");
+ 819              		.loc 1 279 0
+ 820 0050 0A49     		ldr	r1, .L62+24
+ 821 0052 0020     		movs	r0, #0
+ 822 0054 FFF7FEFF 		bl	SEGGER_RTT_printf
+ 823              	.LVL81:
+ 280:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "\r\n");
+ 824              		.loc 1 280 0
+ 825 0058 3100     		movs	r1, r6
+ 826 005a 0020     		movs	r0, #0
+ 827 005c FFF7FEFF 		bl	SEGGER_RTT_printf
+ 828              	.LVL82:
+ 281:./Application/Funtion/Test/TEST.c **** }
+ 829              		.loc 1 281 0
+ 830              		@ sp needed
+ 831              	.LVL83:
+ 832              	.LVL84:
+ 833 0060 70BD     		pop	{r4, r5, r6, pc}
+ 834              	.L63:
+ 835 0062 C046     		.align	2
+ 836              	.L62:
+ 837 0064 04000000 		.word	.LC8
+ 838 0068 00000000 		.word	.LC73
+ 839 006c 00000000 		.word	.LC4
+ 840 0070 00000000 		.word	.LANCHOR7
+ 841 0074 3F000000 		.word	.LC76
+ 842 0078 6C000000 		.word	.LC78
+ 843 007c B1000000 		.word	.LC68
+ 844              		.cfi_endproc
+ 845              	.LFE13:
+ 847              		.global	__aeabi_fmul
+ 848              		.global	__aeabi_f2iz
+ 849              		.global	__aeabi_i2f
+ 850              		.global	__aeabi_fsub
+ 851              		.global	__aeabi_fcmplt
+ 852              		.section	.text.Test_PrintThresholdStatus,"ax",%progbits
+ 853              		.align	1
+ARM GAS  /tmp/ccJERq31.s 			page 21
+
+
+ 854              		.global	Test_PrintThresholdStatus
+ 855              		.syntax unified
+ 856              		.code	16
+ 857              		.thumb_func
+ 858              		.fpu softvfp
+ 860              	Test_PrintThresholdStatus:
+ 861              	.LFB15:
+ 282:./Application/Funtion/Test/TEST.c **** 
+ 283:./Application/Funtion/Test/TEST.c **** /* ======================== 阈值计算验证 ======================== */
+ 284:./Application/Funtion/Test/TEST.c **** 
+ 285:./Application/Funtion/Test/TEST.c **** static const char *ThresholdVerdict(float rn, float rp, float alarm, float fault)
+ 286:./Application/Funtion/Test/TEST.c **** {
+ 287:./Application/Funtion/Test/TEST.c ****     if (rn < 0 || rp < 0)         return "FAULT(neg)";
+ 288:./Application/Funtion/Test/TEST.c ****     if (rn < fault || rp < fault)  return "FAULT(<100R/V)";
+ 289:./Application/Funtion/Test/TEST.c ****     if (rn < alarm || rp < alarm)  return "ALARM(<500R/V)";
+ 290:./Application/Funtion/Test/TEST.c ****     return "NORMAL";
+ 291:./Application/Funtion/Test/TEST.c **** }
+ 292:./Application/Funtion/Test/TEST.c **** 
+ 293:./Application/Funtion/Test/TEST.c **** void Test_PrintThresholdStatus(void)
+ 294:./Application/Funtion/Test/TEST.c **** {
+ 862              		.loc 1 294 0
+ 863              		.cfi_startproc
+ 864              		@ args = 0, pretend = 0, frame = 24
+ 865              		@ frame_needed = 0, uses_anonymous_args = 0
+ 866 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+ 867              	.LCFI11:
+ 868              		.cfi_def_cfa_offset 20
+ 869              		.cfi_offset 4, -20
+ 870              		.cfi_offset 5, -16
+ 871              		.cfi_offset 6, -12
+ 872              		.cfi_offset 7, -8
+ 873              		.cfi_offset 14, -4
+ 295:./Application/Funtion/Test/TEST.c ****     float bat = gs_InsulationDetectMng.fBatVoltage;
+ 874              		.loc 1 295 0
+ 875 0002 634B     		ldr	r3, .L72
+ 294:./Application/Funtion/Test/TEST.c ****     float bat = gs_InsulationDetectMng.fBatVoltage;
+ 876              		.loc 1 294 0
+ 877 0004 89B0     		sub	sp, sp, #36
+ 878              	.LCFI12:
+ 879              		.cfi_def_cfa_offset 56
+ 880              		.loc 1 295 0
+ 881 0006 9D68     		ldr	r5, [r3, #8]
+ 882              	.LVL85:
+ 296:./Application/Funtion/Test/TEST.c ****     float rn = gs_InsulationDetectMng.fN2GResistance;
+ 297:./Application/Funtion/Test/TEST.c ****     float rp = gs_InsulationDetectMng.fP2GResistance;
+ 298:./Application/Funtion/Test/TEST.c ****     float rn_last = gs_InsulationDetectMng.fN2GResistanceLast;
+ 883              		.loc 1 298 0
+ 884 0008 9A6B     		ldr	r2, [r3, #56]
+ 296:./Application/Funtion/Test/TEST.c ****     float rn = gs_InsulationDetectMng.fN2GResistance;
+ 885              		.loc 1 296 0
+ 886 000a 1C6B     		ldr	r4, [r3, #48]
+ 887              	.LVL86:
+ 297:./Application/Funtion/Test/TEST.c ****     float rn_last = gs_InsulationDetectMng.fN2GResistanceLast;
+ 888              		.loc 1 297 0
+ 889 000c 5F6B     		ldr	r7, [r3, #52]
+ 890              	.LVL87:
+ 299:./Application/Funtion/Test/TEST.c ****     float rp_last = gs_InsulationDetectMng.fP2GResistanceLast;
+ARM GAS  /tmp/ccJERq31.s 			page 22
+
+
+ 891              		.loc 1 299 0
+ 892 000e DB6B     		ldr	r3, [r3, #60]
+ 300:./Application/Funtion/Test/TEST.c ****     float alarm_limit = ALARM_LIMIT_RATE * bat;  /* 500欧/V */
+ 893              		.loc 1 300 0
+ 894 0010 6049     		ldr	r1, .L72+4
+ 895 0012 281C     		adds	r0, r5, #0
+ 298:./Application/Funtion/Test/TEST.c ****     float rp_last = gs_InsulationDetectMng.fP2GResistanceLast;
+ 896              		.loc 1 298 0
+ 897 0014 0592     		str	r2, [sp, #20]
+ 898              	.LVL88:
+ 299:./Application/Funtion/Test/TEST.c ****     float rp_last = gs_InsulationDetectMng.fP2GResistanceLast;
+ 899              		.loc 1 299 0
+ 900 0016 0693     		str	r3, [sp, #24]
+ 901              	.LVL89:
+ 902              		.loc 1 300 0
+ 903 0018 FFF7FEFF 		bl	__aeabi_fmul
+ 904              	.LVL90:
+ 301:./Application/Funtion/Test/TEST.c ****     float fault_limit = FAULT_LIMIT_RATE * bat;  /* 100欧/V */
+ 905              		.loc 1 301 0
+ 906 001c 5E49     		ldr	r1, .L72+8
+ 300:./Application/Funtion/Test/TEST.c ****     float alarm_limit = ALARM_LIMIT_RATE * bat;  /* 500欧/V */
+ 907              		.loc 1 300 0
+ 908 001e 0390     		str	r0, [sp, #12]
+ 909              	.LVL91:
+ 910              		.loc 1 301 0
+ 911 0020 281C     		adds	r0, r5, #0
+ 912              	.LVL92:
+ 913 0022 FFF7FEFF 		bl	__aeabi_fmul
+ 914              	.LVL93:
+ 302:./Application/Funtion/Test/TEST.c **** 
+ 303:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "\r\n");
+ 915              		.loc 1 303 0
+ 916 0026 5D49     		ldr	r1, .L72+12
+ 301:./Application/Funtion/Test/TEST.c ****     float fault_limit = FAULT_LIMIT_RATE * bat;  /* 100欧/V */
+ 917              		.loc 1 301 0
+ 918 0028 0490     		str	r0, [sp, #16]
+ 919              	.LVL94:
+ 920              		.loc 1 303 0
+ 921 002a 0020     		movs	r0, #0
+ 922              	.LVL95:
+ 923 002c FFF7FEFF 		bl	SEGGER_RTT_printf
+ 924              	.LVL96:
+ 304:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "+-- Insulation Threshold ----------------------------------+\r\n");
+ 925              		.loc 1 304 0
+ 926 0030 5B49     		ldr	r1, .L72+16
+ 927 0032 0020     		movs	r0, #0
+ 928 0034 FFF7FEFF 		bl	SEGGER_RTT_printf
+ 929              	.LVL97:
+ 305:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "| BatVolt=%d.%dV\r\n",
+ 930              		.loc 1 305 0
+ 931 0038 281C     		adds	r0, r5, #0
+ 932 003a FFF7FEFF 		bl	__aeabi_f2iz
+ 933              	.LVL98:
+ 934 003e 0600     		movs	r6, r0
+ 306:./Application/Funtion/Test/TEST.c ****                       (int)bat, (int)((bat - (int)bat) * 100));
+ 935              		.loc 1 306 0
+ 936 0040 FFF7FEFF 		bl	__aeabi_i2f
+ARM GAS  /tmp/ccJERq31.s 			page 23
+
+
+ 937              	.LVL99:
+ 938 0044 011C     		adds	r1, r0, #0
+ 939 0046 281C     		adds	r0, r5, #0
+ 940 0048 FFF7FEFF 		bl	__aeabi_fsub
+ 941              	.LVL100:
+ 942 004c 5249     		ldr	r1, .L72+8
+ 943 004e FFF7FEFF 		bl	__aeabi_fmul
+ 944              	.LVL101:
+ 305:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "| BatVolt=%d.%dV\r\n",
+ 945              		.loc 1 305 0
+ 946 0052 FFF7FEFF 		bl	__aeabi_f2iz
+ 947              	.LVL102:
+ 948 0056 3200     		movs	r2, r6
+ 949 0058 0300     		movs	r3, r0
+ 950 005a 5249     		ldr	r1, .L72+20
+ 951 005c 0020     		movs	r0, #0
+ 952 005e FFF7FEFF 		bl	SEGGER_RTT_printf
+ 953              	.LVL103:
+ 307:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "| AlarmLimit=%dR(500R/V)  FaultLimit=%dR(100R/V)\r\n",
+ 954              		.loc 1 307 0
+ 955 0062 0498     		ldr	r0, [sp, #16]
+ 956 0064 FFF7FEFF 		bl	__aeabi_f2iz
+ 957              	.LVL104:
+ 958 0068 0500     		movs	r5, r0
+ 959              	.LVL105:
+ 960 006a 0398     		ldr	r0, [sp, #12]
+ 961 006c FFF7FEFF 		bl	__aeabi_f2iz
+ 962              	.LVL106:
+ 963 0070 2B00     		movs	r3, r5
+ 964 0072 0200     		movs	r2, r0
+ 965 0074 4C49     		ldr	r1, .L72+24
+ 966 0076 0020     		movs	r0, #0
+ 967 0078 FFF7FEFF 		bl	SEGGER_RTT_printf
+ 968              	.LVL107:
+ 308:./Application/Funtion/Test/TEST.c ****                       (int)alarm_limit, (int)fault_limit);
+ 309:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "| RN=%d.%d  RP=%d.%d\r\n",
+ 969              		.loc 1 309 0
+ 970 007c 201C     		adds	r0, r4, #0
+ 971 007e FFF7FEFF 		bl	__aeabi_f2iz
+ 972              	.LVL108:
+ 973 0082 0500     		movs	r5, r0
+ 974 0084 381C     		adds	r0, r7, #0
+ 975 0086 FFF7FEFF 		bl	__aeabi_f2iz
+ 976              	.LVL109:
+ 977 008a 0600     		movs	r6, r0
+ 310:./Application/Funtion/Test/TEST.c ****                       (int)rn, (int)((rn - (int)rn) * 100),
+ 978              		.loc 1 310 0
+ 979 008c 2800     		movs	r0, r5
+ 980 008e FFF7FEFF 		bl	__aeabi_i2f
+ 981              	.LVL110:
+ 982 0092 011C     		adds	r1, r0, #0
+ 983 0094 201C     		adds	r0, r4, #0
+ 984 0096 FFF7FEFF 		bl	__aeabi_fsub
+ 985              	.LVL111:
+ 986 009a 3F49     		ldr	r1, .L72+8
+ 987 009c FFF7FEFF 		bl	__aeabi_fmul
+ 988              	.LVL112:
+ARM GAS  /tmp/ccJERq31.s 			page 24
+
+
+ 309:./Application/Funtion/Test/TEST.c ****                       (int)rn, (int)((rn - (int)rn) * 100),
+ 989              		.loc 1 309 0
+ 990 00a0 FFF7FEFF 		bl	__aeabi_f2iz
+ 991              	.LVL113:
+ 992 00a4 0790     		str	r0, [sp, #28]
+ 311:./Application/Funtion/Test/TEST.c ****                       (int)rp, (int)((rp - (int)rp) * 100));
+ 993              		.loc 1 311 0
+ 994 00a6 3000     		movs	r0, r6
+ 995 00a8 FFF7FEFF 		bl	__aeabi_i2f
+ 996              	.LVL114:
+ 997 00ac 011C     		adds	r1, r0, #0
+ 998 00ae 381C     		adds	r0, r7, #0
+ 999 00b0 FFF7FEFF 		bl	__aeabi_fsub
+ 1000              	.LVL115:
+ 1001 00b4 3849     		ldr	r1, .L72+8
+ 1002 00b6 FFF7FEFF 		bl	__aeabi_fmul
+ 1003              	.LVL116:
+ 309:./Application/Funtion/Test/TEST.c ****                       (int)rn, (int)((rn - (int)rn) * 100),
+ 1004              		.loc 1 309 0
+ 1005 00ba FFF7FEFF 		bl	__aeabi_f2iz
+ 1006              	.LVL117:
+ 1007 00be 2A00     		movs	r2, r5
+ 1008 00c0 079B     		ldr	r3, [sp, #28]
+ 1009 00c2 3A49     		ldr	r1, .L72+28
+ 1010 00c4 0190     		str	r0, [sp, #4]
+ 1011 00c6 0096     		str	r6, [sp]
+ 1012 00c8 0020     		movs	r0, #0
+ 1013 00ca FFF7FEFF 		bl	SEGGER_RTT_printf
+ 1014              	.LVL118:
+ 312:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "| RN_last=%d.%d  RP_last=%d.%d\r\n",
+ 1015              		.loc 1 312 0
+ 1016 00ce 0598     		ldr	r0, [sp, #20]
+ 1017 00d0 FFF7FEFF 		bl	__aeabi_f2iz
+ 1018              	.LVL119:
+ 1019 00d4 0500     		movs	r5, r0
+ 1020 00d6 0698     		ldr	r0, [sp, #24]
+ 1021 00d8 FFF7FEFF 		bl	__aeabi_f2iz
+ 1022              	.LVL120:
+ 1023 00dc 0600     		movs	r6, r0
+ 313:./Application/Funtion/Test/TEST.c ****                       (int)rn_last, (int)((rn_last - (int)rn_last) * 100),
+ 1024              		.loc 1 313 0
+ 1025 00de 2800     		movs	r0, r5
+ 1026 00e0 FFF7FEFF 		bl	__aeabi_i2f
+ 1027              	.LVL121:
+ 1028 00e4 011C     		adds	r1, r0, #0
+ 1029 00e6 0598     		ldr	r0, [sp, #20]
+ 1030 00e8 FFF7FEFF 		bl	__aeabi_fsub
+ 1031              	.LVL122:
+ 1032 00ec 2A49     		ldr	r1, .L72+8
+ 1033 00ee FFF7FEFF 		bl	__aeabi_fmul
+ 1034              	.LVL123:
+ 312:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "| RN_last=%d.%d  RP_last=%d.%d\r\n",
+ 1035              		.loc 1 312 0
+ 1036 00f2 FFF7FEFF 		bl	__aeabi_f2iz
+ 1037              	.LVL124:
+ 1038 00f6 0590     		str	r0, [sp, #20]
+ 1039              	.LVL125:
+ARM GAS  /tmp/ccJERq31.s 			page 25
+
+
+ 314:./Application/Funtion/Test/TEST.c ****                       (int)rp_last, (int)((rp_last - (int)rp_last) * 100));
+ 1040              		.loc 1 314 0
+ 1041 00f8 3000     		movs	r0, r6
+ 1042 00fa FFF7FEFF 		bl	__aeabi_i2f
+ 1043              	.LVL126:
+ 1044 00fe 011C     		adds	r1, r0, #0
+ 1045 0100 0698     		ldr	r0, [sp, #24]
+ 1046 0102 FFF7FEFF 		bl	__aeabi_fsub
+ 1047              	.LVL127:
+ 1048 0106 2449     		ldr	r1, .L72+8
+ 1049 0108 FFF7FEFF 		bl	__aeabi_fmul
+ 1050              	.LVL128:
+ 312:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "| RN_last=%d.%d  RP_last=%d.%d\r\n",
+ 1051              		.loc 1 312 0
+ 1052 010c FFF7FEFF 		bl	__aeabi_f2iz
+ 1053              	.LVL129:
+ 1054 0110 2A00     		movs	r2, r5
+ 1055 0112 0190     		str	r0, [sp, #4]
+ 1056 0114 059B     		ldr	r3, [sp, #20]
+ 1057 0116 2649     		ldr	r1, .L72+32
+ 1058 0118 0096     		str	r6, [sp]
+ 1059 011a 0020     		movs	r0, #0
+ 1060 011c FFF7FEFF 		bl	SEGGER_RTT_printf
+ 1061              	.LVL130:
+ 1062              	.LBB40:
+ 1063              	.LBB41:
+ 287:./Application/Funtion/Test/TEST.c ****     if (rn < fault || rp < fault)  return "FAULT(<100R/V)";
+ 1064              		.loc 1 287 0
+ 1065 0120 0021     		movs	r1, #0
+ 1066 0122 201C     		adds	r0, r4, #0
+ 1067 0124 FFF7FEFF 		bl	__aeabi_fcmplt
+ 1068              	.LVL131:
+ 1069 0128 224D     		ldr	r5, .L72+36
+ 1070 012a 0028     		cmp	r0, #0
+ 1071 012c 20D1     		bne	.L65
+ 1072 012e 0021     		movs	r1, #0
+ 1073 0130 381C     		adds	r0, r7, #0
+ 1074 0132 FFF7FEFF 		bl	__aeabi_fcmplt
+ 1075              	.LVL132:
+ 1076 0136 0028     		cmp	r0, #0
+ 1077 0138 1AD1     		bne	.L65
+ 288:./Application/Funtion/Test/TEST.c ****     if (rn < alarm || rp < alarm)  return "ALARM(<500R/V)";
+ 1078              		.loc 1 288 0
+ 1079 013a 0499     		ldr	r1, [sp, #16]
+ 1080 013c 201C     		adds	r0, r4, #0
+ 1081 013e FFF7FEFF 		bl	__aeabi_fcmplt
+ 1082              	.LVL133:
+ 1083 0142 1D4D     		ldr	r5, .L72+40
+ 1084 0144 0028     		cmp	r0, #0
+ 1085 0146 13D1     		bne	.L65
+ 1086 0148 0499     		ldr	r1, [sp, #16]
+ 1087 014a 381C     		adds	r0, r7, #0
+ 1088 014c FFF7FEFF 		bl	__aeabi_fcmplt
+ 1089              	.LVL134:
+ 1090 0150 0028     		cmp	r0, #0
+ 1091 0152 0DD1     		bne	.L65
+ 289:./Application/Funtion/Test/TEST.c ****     return "NORMAL";
+ARM GAS  /tmp/ccJERq31.s 			page 26
+
+
+ 1092              		.loc 1 289 0
+ 1093 0154 0399     		ldr	r1, [sp, #12]
+ 1094 0156 201C     		adds	r0, r4, #0
+ 1095 0158 FFF7FEFF 		bl	__aeabi_fcmplt
+ 1096              	.LVL135:
+ 1097 015c 174D     		ldr	r5, .L72+44
+ 1098 015e 0028     		cmp	r0, #0
+ 1099 0160 06D1     		bne	.L65
+ 1100 0162 0399     		ldr	r1, [sp, #12]
+ 1101 0164 381C     		adds	r0, r7, #0
+ 1102 0166 FFF7FEFF 		bl	__aeabi_fcmplt
+ 1103              	.LVL136:
+ 1104 016a 0028     		cmp	r0, #0
+ 1105 016c 00D1     		bne	.L65
+ 290:./Application/Funtion/Test/TEST.c **** }
+ 1106              		.loc 1 290 0
+ 1107 016e 144D     		ldr	r5, .L72+48
+ 1108              	.L65:
+ 1109              	.LVL137:
+ 1110              	.LBE41:
+ 1111              	.LBE40:
+ 315:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "| Verdict: %s\r\n",
+ 1112              		.loc 1 315 0
+ 1113 0170 2A00     		movs	r2, r5
+ 1114 0172 1449     		ldr	r1, .L72+52
+ 1115 0174 0020     		movs	r0, #0
+ 1116 0176 FFF7FEFF 		bl	SEGGER_RTT_printf
+ 1117              	.LVL138:
+ 316:./Application/Funtion/Test/TEST.c ****                       ThresholdVerdict(rn, rp, alarm_limit, fault_limit));
+ 317:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "+-----------------------------------------------------------+\r\n");
+ 1118              		.loc 1 317 0
+ 1119 017a 1349     		ldr	r1, .L72+56
+ 1120 017c 0020     		movs	r0, #0
+ 1121 017e FFF7FEFF 		bl	SEGGER_RTT_printf
+ 1122              	.LVL139:
+ 318:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "\r\n");
+ 1123              		.loc 1 318 0
+ 1124 0182 0649     		ldr	r1, .L72+12
+ 1125 0184 0020     		movs	r0, #0
+ 1126 0186 FFF7FEFF 		bl	SEGGER_RTT_printf
+ 1127              	.LVL140:
+ 319:./Application/Funtion/Test/TEST.c **** }
+ 1128              		.loc 1 319 0
+ 1129 018a 09B0     		add	sp, sp, #36
+ 1130              		@ sp needed
+ 1131              	.LVL141:
+ 1132              	.LVL142:
+ 1133 018c F0BD     		pop	{r4, r5, r6, r7, pc}
+ 1134              	.L73:
+ 1135 018e C046     		.align	2
+ 1136              	.L72:
+ 1137 0190 00000000 		.word	gs_InsulationDetectMng
+ 1138 0194 0000FA43 		.word	1140457472
+ 1139 0198 0000C842 		.word	1120403456
+ 1140 019c 04000000 		.word	.LC8
+ 1141 01a0 30000000 		.word	.LC91
+ 1142 01a4 6F000000 		.word	.LC93
+ARM GAS  /tmp/ccJERq31.s 			page 27
+
+
+ 1143 01a8 82000000 		.word	.LC95
+ 1144 01ac B5000000 		.word	.LC97
+ 1145 01b0 CC000000 		.word	.LC99
+ 1146 01b4 00000000 		.word	.LC81
+ 1147 01b8 12000000 		.word	.LC85
+ 1148 01bc 21000000 		.word	.LC87
+ 1149 01c0 0B000000 		.word	.LC83
+ 1150 01c4 ED000000 		.word	.LC101
+ 1151 01c8 B1000000 		.word	.LC68
+ 1152              		.cfi_endproc
+ 1153              	.LFE15:
+ 1155              		.section	.text.Test_InsuInjectOn,"ax",%progbits
+ 1156              		.align	1
+ 1157              		.global	Test_InsuInjectOn
+ 1158              		.syntax unified
+ 1159              		.code	16
+ 1160              		.thumb_func
+ 1161              		.fpu softvfp
+ 1163              	Test_InsuInjectOn:
+ 1164              	.LFB16:
+ 320:./Application/Funtion/Test/TEST.c **** 
+ 321:./Application/Funtion/Test/TEST.c **** /* ======================== 电压注入 ======================== */
+ 322:./Application/Funtion/Test/TEST.c **** 
+ 323:./Application/Funtion/Test/TEST.c **** void Test_InsuInjectOn(float batVolt, float n2gVolt)
+ 324:./Application/Funtion/Test/TEST.c **** {
+ 1165              		.loc 1 324 0
+ 1166              		.cfi_startproc
+ 1167              		@ args = 0, pretend = 0, frame = 0
+ 1168              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1169              	.LVL143:
+ 1170 0000 F7B5     		push	{r0, r1, r2, r4, r5, r6, r7, lr}
+ 1171              	.LCFI13:
+ 1172              		.cfi_def_cfa_offset 32
+ 1173              		.cfi_offset 0, -32
+ 1174              		.cfi_offset 1, -28
+ 1175              		.cfi_offset 2, -24
+ 1176              		.cfi_offset 4, -20
+ 1177              		.cfi_offset 5, -16
+ 1178              		.cfi_offset 6, -12
+ 1179              		.cfi_offset 7, -8
+ 1180              		.cfi_offset 14, -4
+ 325:./Application/Funtion/Test/TEST.c ****     g_insu_inject_enabled = 1;
+ 1181              		.loc 1 325 0
+ 1182 0002 0122     		movs	r2, #1
+ 1183 0004 184B     		ldr	r3, .L75
+ 324:./Application/Funtion/Test/TEST.c ****     g_insu_inject_enabled = 1;
+ 1184              		.loc 1 324 0
+ 1185 0006 0C1C     		adds	r4, r1, #0
+ 1186              		.loc 1 325 0
+ 1187 0008 1A70     		strb	r2, [r3]
+ 326:./Application/Funtion/Test/TEST.c ****     g_insu_inject_bat = batVolt;
+ 1188              		.loc 1 326 0
+ 1189 000a 184B     		ldr	r3, .L75+4
+ 324:./Application/Funtion/Test/TEST.c ****     g_insu_inject_enabled = 1;
+ 1190              		.loc 1 324 0
+ 1191 000c 051C     		adds	r5, r0, #0
+ 1192              		.loc 1 326 0
+ARM GAS  /tmp/ccJERq31.s 			page 28
+
+
+ 1193 000e 1860     		str	r0, [r3]
+ 327:./Application/Funtion/Test/TEST.c ****     g_insu_inject_n2g = n2gVolt;
+ 1194              		.loc 1 327 0
+ 1195 0010 174B     		ldr	r3, .L75+8
+ 328:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "[TEST] Voltage inject ON: Bat=%d.%d N2G=%d.%d\r\n",
+ 329:./Application/Funtion/Test/TEST.c ****                       (int)batVolt, (int)((batVolt - (int)batVolt) * 100),
+ 330:./Application/Funtion/Test/TEST.c ****                       (int)n2gVolt, (int)((n2gVolt - (int)n2gVolt) * 100));
+ 331:./Application/Funtion/Test/TEST.c **** }
+ 1196              		.loc 1 331 0
+ 1197              		@ sp needed
+ 327:./Application/Funtion/Test/TEST.c ****     g_insu_inject_n2g = n2gVolt;
+ 1198              		.loc 1 327 0
+ 1199 0012 1960     		str	r1, [r3]
+ 328:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "[TEST] Voltage inject ON: Bat=%d.%d N2G=%d.%d\r\n",
+ 1200              		.loc 1 328 0
+ 1201 0014 FFF7FEFF 		bl	__aeabi_f2iz
+ 1202              	.LVL144:
+ 1203 0018 0600     		movs	r6, r0
+ 1204 001a 201C     		adds	r0, r4, #0
+ 1205 001c FFF7FEFF 		bl	__aeabi_f2iz
+ 1206              	.LVL145:
+ 1207 0020 0700     		movs	r7, r0
+ 329:./Application/Funtion/Test/TEST.c ****                       (int)n2gVolt, (int)((n2gVolt - (int)n2gVolt) * 100));
+ 1208              		.loc 1 329 0
+ 1209 0022 3000     		movs	r0, r6
+ 1210 0024 FFF7FEFF 		bl	__aeabi_i2f
+ 1211              	.LVL146:
+ 1212 0028 011C     		adds	r1, r0, #0
+ 1213 002a 281C     		adds	r0, r5, #0
+ 1214 002c FFF7FEFF 		bl	__aeabi_fsub
+ 1215              	.LVL147:
+ 1216 0030 1049     		ldr	r1, .L75+12
+ 1217 0032 FFF7FEFF 		bl	__aeabi_fmul
+ 1218              	.LVL148:
+ 328:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "[TEST] Voltage inject ON: Bat=%d.%d N2G=%d.%d\r\n",
+ 1219              		.loc 1 328 0
+ 1220 0036 FFF7FEFF 		bl	__aeabi_f2iz
+ 1221              	.LVL149:
+ 1222 003a 0500     		movs	r5, r0
+ 1223              	.LVL150:
+ 330:./Application/Funtion/Test/TEST.c **** }
+ 1224              		.loc 1 330 0
+ 1225 003c 3800     		movs	r0, r7
+ 1226 003e FFF7FEFF 		bl	__aeabi_i2f
+ 1227              	.LVL151:
+ 1228 0042 011C     		adds	r1, r0, #0
+ 1229 0044 201C     		adds	r0, r4, #0
+ 1230 0046 FFF7FEFF 		bl	__aeabi_fsub
+ 1231              	.LVL152:
+ 1232 004a 0A49     		ldr	r1, .L75+12
+ 1233 004c FFF7FEFF 		bl	__aeabi_fmul
+ 1234              	.LVL153:
+ 328:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "[TEST] Voltage inject ON: Bat=%d.%d N2G=%d.%d\r\n",
+ 1235              		.loc 1 328 0
+ 1236 0050 FFF7FEFF 		bl	__aeabi_f2iz
+ 1237              	.LVL154:
+ 1238 0054 0097     		str	r7, [sp]
+ARM GAS  /tmp/ccJERq31.s 			page 29
+
+
+ 1239 0056 0190     		str	r0, [sp, #4]
+ 1240 0058 2B00     		movs	r3, r5
+ 1241 005a 3200     		movs	r2, r6
+ 1242 005c 0649     		ldr	r1, .L75+16
+ 1243 005e 0020     		movs	r0, #0
+ 1244 0060 FFF7FEFF 		bl	SEGGER_RTT_printf
+ 1245              	.LVL155:
+ 1246              	.LVL156:
+ 1247              		.loc 1 331 0
+ 1248 0064 F7BD     		pop	{r0, r1, r2, r4, r5, r6, r7, pc}
+ 1249              	.L76:
+ 1250 0066 C046     		.align	2
+ 1251              	.L75:
+ 1252 0068 00000000 		.word	.LANCHOR8
+ 1253 006c 00000000 		.word	.LANCHOR9
+ 1254 0070 00000000 		.word	.LANCHOR10
+ 1255 0074 0000C842 		.word	1120403456
+ 1256 0078 00000000 		.word	.LC107
+ 1257              		.cfi_endproc
+ 1258              	.LFE16:
+ 1260              		.section	.text.Test_InsuInjectOff,"ax",%progbits
+ 1261              		.align	1
+ 1262              		.global	Test_InsuInjectOff
+ 1263              		.syntax unified
+ 1264              		.code	16
+ 1265              		.thumb_func
+ 1266              		.fpu softvfp
+ 1268              	Test_InsuInjectOff:
+ 1269              	.LFB17:
+ 332:./Application/Funtion/Test/TEST.c **** 
+ 333:./Application/Funtion/Test/TEST.c **** void Test_InsuInjectOff(void)
+ 334:./Application/Funtion/Test/TEST.c **** {
+ 1270              		.loc 1 334 0
+ 1271              		.cfi_startproc
+ 1272              		@ args = 0, pretend = 0, frame = 0
+ 1273              		@ frame_needed = 0, uses_anonymous_args = 0
+ 335:./Application/Funtion/Test/TEST.c ****     g_insu_inject_enabled = 0;
+ 1274              		.loc 1 335 0
+ 1275 0000 0020     		movs	r0, #0
+ 334:./Application/Funtion/Test/TEST.c ****     g_insu_inject_enabled = 0;
+ 1276              		.loc 1 334 0
+ 1277 0002 10B5     		push	{r4, lr}
+ 1278              	.LCFI14:
+ 1279              		.cfi_def_cfa_offset 8
+ 1280              		.cfi_offset 4, -8
+ 1281              		.cfi_offset 14, -4
+ 1282              		.loc 1 335 0
+ 1283 0004 024B     		ldr	r3, .L78
+ 336:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "[TEST] Voltage inject OFF (use real samples)\r\n");
+ 1284              		.loc 1 336 0
+ 1285 0006 0349     		ldr	r1, .L78+4
+ 335:./Application/Funtion/Test/TEST.c ****     g_insu_inject_enabled = 0;
+ 1286              		.loc 1 335 0
+ 1287 0008 1870     		strb	r0, [r3]
+ 337:./Application/Funtion/Test/TEST.c **** }
+ 1288              		.loc 1 337 0
+ 1289              		@ sp needed
+ARM GAS  /tmp/ccJERq31.s 			page 30
+
+
+ 336:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "[TEST] Voltage inject OFF (use real samples)\r\n");
+ 1290              		.loc 1 336 0
+ 1291 000a FFF7FEFF 		bl	SEGGER_RTT_printf
+ 1292              	.LVL157:
+ 1293              		.loc 1 337 0
+ 1294 000e 10BD     		pop	{r4, pc}
+ 1295              	.L79:
+ 1296              		.align	2
+ 1297              	.L78:
+ 1298 0010 00000000 		.word	.LANCHOR8
+ 1299 0014 00000000 		.word	.LC110
+ 1300              		.cfi_endproc
+ 1301              	.LFE17:
+ 1303              		.section	.text.Test_IsInjectEnabled,"ax",%progbits
+ 1304              		.align	1
+ 1305              		.global	Test_IsInjectEnabled
+ 1306              		.syntax unified
+ 1307              		.code	16
+ 1308              		.thumb_func
+ 1309              		.fpu softvfp
+ 1311              	Test_IsInjectEnabled:
+ 1312              	.LFB18:
+ 338:./Application/Funtion/Test/TEST.c **** 
+ 339:./Application/Funtion/Test/TEST.c **** u8 Test_IsInjectEnabled(void)
+ 340:./Application/Funtion/Test/TEST.c **** {
+ 1313              		.loc 1 340 0
+ 1314              		.cfi_startproc
+ 1315              		@ args = 0, pretend = 0, frame = 0
+ 1316              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1317              		@ link register save eliminated.
+ 341:./Application/Funtion/Test/TEST.c ****     return g_insu_inject_enabled;
+ 1318              		.loc 1 341 0
+ 1319 0000 014B     		ldr	r3, .L81
+ 342:./Application/Funtion/Test/TEST.c **** }
+ 1320              		.loc 1 342 0
+ 1321              		@ sp needed
+ 341:./Application/Funtion/Test/TEST.c ****     return g_insu_inject_enabled;
+ 1322              		.loc 1 341 0
+ 1323 0002 1878     		ldrb	r0, [r3]
+ 1324              		.loc 1 342 0
+ 1325 0004 7047     		bx	lr
+ 1326              	.L82:
+ 1327 0006 C046     		.align	2
+ 1328              	.L81:
+ 1329 0008 00000000 		.word	.LANCHOR8
+ 1330              		.cfi_endproc
+ 1331              	.LFE18:
+ 1333              		.section	.text.Test_GetInjectedVoltage,"ax",%progbits
+ 1334              		.align	1
+ 1335              		.global	Test_GetInjectedVoltage
+ 1336              		.syntax unified
+ 1337              		.code	16
+ 1338              		.thumb_func
+ 1339              		.fpu softvfp
+ 1341              	Test_GetInjectedVoltage:
+ 1342              	.LFB19:
+ 343:./Application/Funtion/Test/TEST.c **** 
+ARM GAS  /tmp/ccJERq31.s 			page 31
+
+
+ 344:./Application/Funtion/Test/TEST.c **** void Test_GetInjectedVoltage(float *pBat, float *pN2g)
+ 345:./Application/Funtion/Test/TEST.c **** {
+ 1343              		.loc 1 345 0
+ 1344              		.cfi_startproc
+ 1345              		@ args = 0, pretend = 0, frame = 0
+ 1346              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1347              		@ link register save eliminated.
+ 1348              	.LVL158:
+ 346:./Application/Funtion/Test/TEST.c ****     if (pBat) *pBat = g_insu_inject_bat;
+ 1349              		.loc 1 346 0
+ 1350 0000 0028     		cmp	r0, #0
+ 1351 0002 02D0     		beq	.L84
+ 1352              		.loc 1 346 0 is_stmt 0 discriminator 1
+ 1353 0004 044B     		ldr	r3, .L92
+ 1354 0006 1B68     		ldr	r3, [r3]
+ 1355 0008 0360     		str	r3, [r0]
+ 1356              	.L84:
+ 347:./Application/Funtion/Test/TEST.c ****     if (pN2g) *pN2g = g_insu_inject_n2g;
+ 1357              		.loc 1 347 0 is_stmt 1
+ 1358 000a 0029     		cmp	r1, #0
+ 1359 000c 02D0     		beq	.L83
+ 1360              		.loc 1 347 0 is_stmt 0 discriminator 1
+ 1361 000e 034B     		ldr	r3, .L92+4
+ 1362 0010 1B68     		ldr	r3, [r3]
+ 1363 0012 0B60     		str	r3, [r1]
+ 1364              	.L83:
+ 348:./Application/Funtion/Test/TEST.c **** }
+ 1365              		.loc 1 348 0 is_stmt 1
+ 1366              		@ sp needed
+ 1367 0014 7047     		bx	lr
+ 1368              	.L93:
+ 1369 0016 C046     		.align	2
+ 1370              	.L92:
+ 1371 0018 00000000 		.word	.LANCHOR9
+ 1372 001c 00000000 		.word	.LANCHOR10
+ 1373              		.cfi_endproc
+ 1374              	.LFE19:
+ 1376              		.section	.text.Test_PrintCanCtrlCmd,"ax",%progbits
+ 1377              		.align	1
+ 1378              		.global	Test_PrintCanCtrlCmd
+ 1379              		.syntax unified
+ 1380              		.code	16
+ 1381              		.thumb_func
+ 1382              		.fpu softvfp
+ 1384              	Test_PrintCanCtrlCmd:
+ 1385              	.LFB20:
+ 349:./Application/Funtion/Test/TEST.c **** 
+ 350:./Application/Funtion/Test/TEST.c **** /* ======================== CAN报文测试 ======================== */
+ 351:./Application/Funtion/Test/TEST.c **** 
+ 352:./Application/Funtion/Test/TEST.c **** void Test_PrintCanCtrlCmd(void)
+ 353:./Application/Funtion/Test/TEST.c **** {
+ 1386              		.loc 1 353 0
+ 1387              		.cfi_startproc
+ 1388              		@ args = 0, pretend = 0, frame = 0
+ 1389              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1390 0000 70B5     		push	{r4, r5, r6, lr}
+ 1391              	.LCFI15:
+ARM GAS  /tmp/ccJERq31.s 			page 32
+
+
+ 1392              		.cfi_def_cfa_offset 16
+ 1393              		.cfi_offset 4, -16
+ 1394              		.cfi_offset 5, -12
+ 1395              		.cfi_offset 6, -8
+ 1396              		.cfi_offset 14, -4
+ 354:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "\r\n");
+ 1397              		.loc 1 354 0
+ 1398 0002 174D     		ldr	r5, .L99
+ 1399 0004 0020     		movs	r0, #0
+ 1400 0006 2900     		movs	r1, r5
+ 1401 0008 FFF7FEFF 		bl	SEGGER_RTT_printf
+ 1402              	.LVL159:
+ 355:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "+-- CAN ID 55 Control Command -----------------------------+\r\n");
+ 1403              		.loc 1 355 0
+ 1404 000c 1549     		ldr	r1, .L99+4
+ 1405 000e 0020     		movs	r0, #0
+ 1406 0010 FFF7FEFF 		bl	SEGGER_RTT_printf
+ 1407              	.LVL160:
+ 356:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "| [0]UserCtrl    = %d  (%s)\r\n",
+ 357:./Application/Funtion/Test/TEST.c ****                       UserCtrlCmd_55[UserCtrl],
+ 1408              		.loc 1 357 0
+ 1409 0014 144C     		ldr	r4, .L99+8
+ 356:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "| [0]UserCtrl    = %d  (%s)\r\n",
+ 1410              		.loc 1 356 0
+ 1411 0016 154B     		ldr	r3, .L99+12
+ 1412              		.loc 1 357 0
+ 1413 0018 2288     		ldrh	r2, [r4]
+ 356:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "| [0]UserCtrl    = %d  (%s)\r\n",
+ 1414              		.loc 1 356 0
+ 1415 001a 002A     		cmp	r2, #0
+ 1416 001c 03D0     		beq	.L95
+ 358:./Application/Funtion/Test/TEST.c ****                       UserCtrlCmd_55[UserCtrl]==0 ? "Auto" :
+ 359:./Application/Funtion/Test/TEST.c ****                       UserCtrlCmd_55[UserCtrl]==1 ? "Start" : "Stop");
+ 1417              		.loc 1 359 0
+ 1418 001e 144B     		ldr	r3, .L99+16
+ 1419 0020 012A     		cmp	r2, #1
+ 1420 0022 00D0     		beq	.L95
+ 1421 0024 134B     		ldr	r3, .L99+20
+ 1422              	.L95:
+ 356:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "| [0]UserCtrl    = %d  (%s)\r\n",
+ 1423              		.loc 1 356 0 discriminator 3
+ 1424 0026 1449     		ldr	r1, .L99+24
+ 1425 0028 0020     		movs	r0, #0
+ 1426 002a FFF7FEFF 		bl	SEGGER_RTT_printf
+ 1427              	.LVL161:
+ 360:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "| [1]DoCtrlChannl= %d  (0:All 1:DO1 2:DO2)\r\n",
+ 1428              		.loc 1 360 0 discriminator 3
+ 1429 002e 6288     		ldrh	r2, [r4, #2]
+ 1430 0030 1249     		ldr	r1, .L99+28
+ 1431 0032 0020     		movs	r0, #0
+ 1432 0034 FFF7FEFF 		bl	SEGGER_RTT_printf
+ 1433              	.LVL162:
+ 361:./Application/Funtion/Test/TEST.c ****                       UserCtrlCmd_55[DoCtrlChannl]);
+ 362:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "| [2]DoCtrlState = %d  (0:Open 1:Close)\r\n",
+ 1434              		.loc 1 362 0 discriminator 3
+ 1435 0038 A288     		ldrh	r2, [r4, #4]
+ 1436 003a 1149     		ldr	r1, .L99+32
+ARM GAS  /tmp/ccJERq31.s 			page 33
+
+
+ 1437 003c 0020     		movs	r0, #0
+ 1438 003e FFF7FEFF 		bl	SEGGER_RTT_printf
+ 1439              	.LVL163:
+ 363:./Application/Funtion/Test/TEST.c ****                       UserCtrlCmd_55[DoCtrlState]);
+ 364:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "| [3]DoCtrlConfirm= %d (1=Confirm)\r\n",
+ 1440              		.loc 1 364 0 discriminator 3
+ 1441 0042 E288     		ldrh	r2, [r4, #6]
+ 1442 0044 0F49     		ldr	r1, .L99+36
+ 1443 0046 0020     		movs	r0, #0
+ 1444 0048 FFF7FEFF 		bl	SEGGER_RTT_printf
+ 1445              	.LVL164:
+ 365:./Application/Funtion/Test/TEST.c ****                       UserCtrlCmd_55[DoCtrlConfirm]);
+ 366:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "+-----------------------------------------------------------+\r\n");
+ 1446              		.loc 1 366 0 discriminator 3
+ 1447 004c 0E49     		ldr	r1, .L99+40
+ 1448 004e 0020     		movs	r0, #0
+ 1449 0050 FFF7FEFF 		bl	SEGGER_RTT_printf
+ 1450              	.LVL165:
+ 367:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "\r\n");
+ 1451              		.loc 1 367 0 discriminator 3
+ 1452 0054 2900     		movs	r1, r5
+ 1453 0056 0020     		movs	r0, #0
+ 1454 0058 FFF7FEFF 		bl	SEGGER_RTT_printf
+ 1455              	.LVL166:
+ 368:./Application/Funtion/Test/TEST.c **** }
+ 1456              		.loc 1 368 0 discriminator 3
+ 1457              		@ sp needed
+ 1458 005c 70BD     		pop	{r4, r5, r6, pc}
+ 1459              	.L100:
+ 1460 005e C046     		.align	2
+ 1461              	.L99:
+ 1462 0060 04000000 		.word	.LC8
+ 1463 0064 10000000 		.word	.LC122
+ 1464 0068 00000000 		.word	UserCtrlCmd_55
+ 1465 006c 05000000 		.word	.LC117
+ 1466 0070 0A000000 		.word	.LC119
+ 1467 0074 00000000 		.word	.LC115
+ 1468 0078 4F000000 		.word	.LC125
+ 1469 007c 6D000000 		.word	.LC127
+ 1470 0080 9A000000 		.word	.LC129
+ 1471 0084 C4000000 		.word	.LC131
+ 1472 0088 B1000000 		.word	.LC68
+ 1473              		.cfi_endproc
+ 1474              	.LFE20:
+ 1476              		.section	.text.Test_PrintCanFeedback,"ax",%progbits
+ 1477              		.align	1
+ 1478              		.global	Test_PrintCanFeedback
+ 1479              		.syntax unified
+ 1480              		.code	16
+ 1481              		.thumb_func
+ 1482              		.fpu softvfp
+ 1484              	Test_PrintCanFeedback:
+ 1485              	.LFB21:
+ 369:./Application/Funtion/Test/TEST.c **** 
+ 370:./Application/Funtion/Test/TEST.c **** void Test_PrintCanFeedback(void)
+ 371:./Application/Funtion/Test/TEST.c **** {
+ 1486              		.loc 1 371 0
+ARM GAS  /tmp/ccJERq31.s 			page 34
+
+
+ 1487              		.cfi_startproc
+ 1488              		@ args = 0, pretend = 0, frame = 0
+ 1489              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1490 0000 70B5     		push	{r4, r5, r6, lr}
+ 1491              	.LCFI16:
+ 1492              		.cfi_def_cfa_offset 16
+ 1493              		.cfi_offset 4, -16
+ 1494              		.cfi_offset 5, -12
+ 1495              		.cfi_offset 6, -8
+ 1496              		.cfi_offset 14, -4
+ 372:./Application/Funtion/Test/TEST.c ****     u8 fb = CtrlCmdFeedback_56[CtrlFeedback];
+ 1497              		.loc 1 372 0
+ 1498 0002 144B     		ldr	r3, .L109
+ 373:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "\r\n");
+ 1499              		.loc 1 373 0
+ 1500 0004 144D     		ldr	r5, .L109+4
+ 372:./Application/Funtion/Test/TEST.c ****     u8 fb = CtrlCmdFeedback_56[CtrlFeedback];
+ 1501              		.loc 1 372 0
+ 1502 0006 1C78     		ldrb	r4, [r3]
+ 1503              	.LVL167:
+ 1504              		.loc 1 373 0
+ 1505 0008 2900     		movs	r1, r5
+ 1506 000a 0020     		movs	r0, #0
+ 1507 000c FFF7FEFF 		bl	SEGGER_RTT_printf
+ 1508              	.LVL168:
+ 374:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "+-- CAN ID 56 Feedback Info -------------------------------+\r\n");
+ 1509              		.loc 1 374 0
+ 1510 0010 1249     		ldr	r1, .L109+8
+ 1511 0012 0020     		movs	r0, #0
+ 1512 0014 FFF7FEFF 		bl	SEGGER_RTT_printf
+ 1513              	.LVL169:
+ 375:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "| [0]CtrlFeedback = %d (%s)\r\n",
+ 1514              		.loc 1 375 0
+ 1515 0018 114B     		ldr	r3, .L109+12
+ 1516 001a 002C     		cmp	r4, #0
+ 1517 001c 0CD0     		beq	.L102
+ 376:./Application/Funtion/Test/TEST.c ****                       fb,
+ 377:./Application/Funtion/Test/TEST.c ****                       fb==0 ? "START" :
+ 378:./Application/Funtion/Test/TEST.c ****                       fb==1 ? "PROCESS" :
+ 1518              		.loc 1 378 0
+ 1519 001e 114B     		ldr	r3, .L109+16
+ 1520 0020 012C     		cmp	r4, #1
+ 1521 0022 09D0     		beq	.L102
+ 379:./Application/Funtion/Test/TEST.c ****                       fb==2 ? "STOP" :
+ 1522              		.loc 1 379 0
+ 1523 0024 104B     		ldr	r3, .L109+20
+ 1524 0026 022C     		cmp	r4, #2
+ 1525 0028 06D0     		beq	.L102
+ 380:./Application/Funtion/Test/TEST.c ****                       fb==3 ? "END" :
+ 1526              		.loc 1 380 0
+ 1527 002a 104B     		ldr	r3, .L109+24
+ 1528 002c 032C     		cmp	r4, #3
+ 1529 002e 03D0     		beq	.L102
+ 381:./Application/Funtion/Test/TEST.c ****                       fb==4 ? "OVERTIME" : "FAULT");
+ 1530              		.loc 1 381 0
+ 1531 0030 0F4B     		ldr	r3, .L109+28
+ 1532 0032 042C     		cmp	r4, #4
+ARM GAS  /tmp/ccJERq31.s 			page 35
+
+
+ 1533 0034 00D0     		beq	.L102
+ 1534 0036 0F4B     		ldr	r3, .L109+32
+ 1535              	.L102:
+ 375:./Application/Funtion/Test/TEST.c ****                       fb,
+ 1536              		.loc 1 375 0 discriminator 3
+ 1537 0038 2200     		movs	r2, r4
+ 1538 003a 0F49     		ldr	r1, .L109+36
+ 1539 003c 0020     		movs	r0, #0
+ 1540 003e FFF7FEFF 		bl	SEGGER_RTT_printf
+ 1541              	.LVL170:
+ 382:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "+-----------------------------------------------------------+\r\n");
+ 1542              		.loc 1 382 0 discriminator 3
+ 1543 0042 0E49     		ldr	r1, .L109+40
+ 1544 0044 0020     		movs	r0, #0
+ 1545 0046 FFF7FEFF 		bl	SEGGER_RTT_printf
+ 1546              	.LVL171:
+ 383:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "\r\n");
+ 1547              		.loc 1 383 0 discriminator 3
+ 1548 004a 2900     		movs	r1, r5
+ 1549 004c 0020     		movs	r0, #0
+ 1550 004e FFF7FEFF 		bl	SEGGER_RTT_printf
+ 1551              	.LVL172:
+ 384:./Application/Funtion/Test/TEST.c **** }
+ 1552              		.loc 1 384 0 discriminator 3
+ 1553              		@ sp needed
+ 1554              	.LVL173:
+ 1555 0052 70BD     		pop	{r4, r5, r6, pc}
+ 1556              	.L110:
+ 1557              		.align	2
+ 1558              	.L109:
+ 1559 0054 00000000 		.word	CtrlCmdFeedback_56
+ 1560 0058 04000000 		.word	.LC8
+ 1561 005c 26000000 		.word	.LC148
+ 1562 0060 08000000 		.word	.LC136
+ 1563 0064 00000000 		.word	.LC134
+ 1564 0068 0E000000 		.word	.LC138
+ 1565 006c 13000000 		.word	.LC140
+ 1566 0070 1D000000 		.word	.LC144
+ 1567 0074 17000000 		.word	.LC142
+ 1568 0078 65000000 		.word	.LC150
+ 1569 007c B1000000 		.word	.LC68
+ 1570              		.cfi_endproc
+ 1571              	.LFE21:
+ 1573              		.section	.text.Test_SimCanInsuMode,"ax",%progbits
+ 1574              		.align	1
+ 1575              		.global	Test_SimCanInsuMode
+ 1576              		.syntax unified
+ 1577              		.code	16
+ 1578              		.thumb_func
+ 1579              		.fpu softvfp
+ 1581              	Test_SimCanInsuMode:
+ 1582              	.LFB22:
+ 385:./Application/Funtion/Test/TEST.c **** 
+ 386:./Application/Funtion/Test/TEST.c **** void Test_SimCanInsuMode(u8 mode)
+ 387:./Application/Funtion/Test/TEST.c **** {
+ 1583              		.loc 1 387 0
+ 1584              		.cfi_startproc
+ARM GAS  /tmp/ccJERq31.s 			page 36
+
+
+ 1585              		@ args = 0, pretend = 0, frame = 0
+ 1586              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1587              	.LVL174:
+ 1588 0000 10B5     		push	{r4, lr}
+ 1589              	.LCFI17:
+ 1590              		.cfi_def_cfa_offset 8
+ 1591              		.cfi_offset 4, -8
+ 1592              		.cfi_offset 14, -4
+ 1593              		.loc 1 387 0
+ 1594 0002 0200     		movs	r2, r0
+ 388:./Application/Funtion/Test/TEST.c ****     if (mode > 2)
+ 1595              		.loc 1 388 0
+ 1596 0004 0228     		cmp	r0, #2
+ 1597 0006 04D9     		bls	.L112
+ 1598              	.LVL175:
+ 1599              	.LBB47:
+ 1600              	.LBB48:
+ 181:./Application/Funtion/Test/TEST.c ****         return;
+ 1601              		.loc 1 181 0
+ 1602 0008 0849     		ldr	r1, .L114
+ 1603 000a 0020     		movs	r0, #0
+ 1604              	.LVL176:
+ 1605 000c FFF7FEFF 		bl	SEGGER_RTT_printf
+ 1606              	.LVL177:
+ 1607              	.L111:
+ 1608              	.LBE48:
+ 1609              	.LBE47:
+ 389:./Application/Funtion/Test/TEST.c ****     {
+ 390:./Application/Funtion/Test/TEST.c ****         SEGGER_RTT_printf(0, "[TEST] Invalid mode: %d (0=Auto 1=Start 2=Stop)\r\n", mode);
+ 391:./Application/Funtion/Test/TEST.c ****         return;
+ 392:./Application/Funtion/Test/TEST.c ****     }
+ 393:./Application/Funtion/Test/TEST.c ****     UserCtrlCmd_55[UserCtrl] = mode;
+ 394:./Application/Funtion/Test/TEST.c ****     gs_InsulationDetectMng.ucInsulationMode = mode;
+ 395:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "[TEST] CAN ID 55 simulated: UserCtrl=%d (%s)\r\n",
+ 396:./Application/Funtion/Test/TEST.c ****                       mode, ModeName(mode));
+ 397:./Application/Funtion/Test/TEST.c **** }
+ 1610              		.loc 1 397 0
+ 1611              		@ sp needed
+ 1612 0010 10BD     		pop	{r4, pc}
+ 1613              	.LVL178:
+ 1614              	.L112:
+ 393:./Application/Funtion/Test/TEST.c ****     gs_InsulationDetectMng.ucInsulationMode = mode;
+ 1615              		.loc 1 393 0
+ 1616 0012 074B     		ldr	r3, .L114+4
+ 395:./Application/Funtion/Test/TEST.c ****                       mode, ModeName(mode));
+ 1617              		.loc 1 395 0
+ 1618 0014 8100     		lsls	r1, r0, #2
+ 393:./Application/Funtion/Test/TEST.c ****     gs_InsulationDetectMng.ucInsulationMode = mode;
+ 1619              		.loc 1 393 0
+ 1620 0016 1880     		strh	r0, [r3]
+ 394:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "[TEST] CAN ID 55 simulated: UserCtrl=%d (%s)\r\n",
+ 1621              		.loc 1 394 0
+ 1622 0018 064B     		ldr	r3, .L114+8
+ 1623 001a 1870     		strb	r0, [r3]
+ 395:./Application/Funtion/Test/TEST.c ****                       mode, ModeName(mode));
+ 1624              		.loc 1 395 0
+ 1625 001c 064B     		ldr	r3, .L114+12
+ARM GAS  /tmp/ccJERq31.s 			page 37
+
+
+ 1626 001e 0020     		movs	r0, #0
+ 1627              	.LVL179:
+ 1628 0020 CB58     		ldr	r3, [r1, r3]
+ 1629 0022 0649     		ldr	r1, .L114+16
+ 1630 0024 FFF7FEFF 		bl	SEGGER_RTT_printf
+ 1631              	.LVL180:
+ 1632 0028 F2E7     		b	.L111
+ 1633              	.L115:
+ 1634 002a C046     		.align	2
+ 1635              	.L114:
+ 1636 002c 00000000 		.word	.LC33
+ 1637 0030 00000000 		.word	UserCtrlCmd_55
+ 1638 0034 00000000 		.word	gs_InsulationDetectMng
+ 1639 0038 00000000 		.word	.LANCHOR3
+ 1640 003c 00000000 		.word	.LC157
+ 1641              		.cfi_endproc
+ 1642              	.LFE22:
+ 1644              		.section	.text.Test_SimCanRelayCtrl,"ax",%progbits
+ 1645              		.align	1
+ 1646              		.global	Test_SimCanRelayCtrl
+ 1647              		.syntax unified
+ 1648              		.code	16
+ 1649              		.thumb_func
+ 1650              		.fpu softvfp
+ 1652              	Test_SimCanRelayCtrl:
+ 1653              	.LFB23:
+ 398:./Application/Funtion/Test/TEST.c **** 
+ 399:./Application/Funtion/Test/TEST.c **** void Test_SimCanRelayCtrl(u8 channel, u8 state, u8 confirm)
+ 400:./Application/Funtion/Test/TEST.c **** {
+ 1654              		.loc 1 400 0
+ 1655              		.cfi_startproc
+ 1656              		@ args = 0, pretend = 0, frame = 0
+ 1657              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1658              	.LVL181:
+ 1659 0000 73B5     		push	{r0, r1, r4, r5, r6, lr}
+ 1660              	.LCFI18:
+ 1661              		.cfi_def_cfa_offset 24
+ 1662              		.cfi_offset 0, -24
+ 1663              		.cfi_offset 1, -20
+ 1664              		.cfi_offset 4, -16
+ 1665              		.cfi_offset 5, -12
+ 1666              		.cfi_offset 6, -8
+ 1667              		.cfi_offset 14, -4
+ 401:./Application/Funtion/Test/TEST.c ****     UserCtrlCmd_55[DoCtrlChannl] = channel;
+ 1668              		.loc 1 401 0
+ 1669 0002 114B     		ldr	r3, .L122
+ 400:./Application/Funtion/Test/TEST.c ****     UserCtrlCmd_55[DoCtrlChannl] = channel;
+ 1670              		.loc 1 400 0
+ 1671 0004 1600     		movs	r6, r2
+ 1672              		.loc 1 401 0
+ 1673 0006 5880     		strh	r0, [r3, #2]
+ 402:./Application/Funtion/Test/TEST.c ****     UserCtrlCmd_55[DoCtrlState] = state;
+ 1674              		.loc 1 402 0
+ 1675 0008 9980     		strh	r1, [r3, #4]
+ 403:./Application/Funtion/Test/TEST.c ****     UserCtrlCmd_55[DoCtrlConfirm] = confirm;
+ 1676              		.loc 1 403 0
+ 1677 000a DA80     		strh	r2, [r3, #6]
+ARM GAS  /tmp/ccJERq31.s 			page 38
+
+
+ 400:./Application/Funtion/Test/TEST.c ****     UserCtrlCmd_55[DoCtrlChannl] = channel;
+ 1678              		.loc 1 400 0
+ 1679 000c 0500     		movs	r5, r0
+ 1680 000e 0C00     		movs	r4, r1
+ 404:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "[TEST] CAN ID 55 simulated: Relay Ch=%d State=%d Confirm=%d\r\n",
+ 1681              		.loc 1 404 0
+ 1682 0010 0092     		str	r2, [sp]
+ 1683 0012 0B00     		movs	r3, r1
+ 1684 0014 0200     		movs	r2, r0
+ 1685              	.LVL182:
+ 1686 0016 0D49     		ldr	r1, .L122+4
+ 1687              	.LVL183:
+ 1688 0018 0020     		movs	r0, #0
+ 1689              	.LVL184:
+ 1690 001a FFF7FEFF 		bl	SEGGER_RTT_printf
+ 1691              	.LVL185:
+ 405:./Application/Funtion/Test/TEST.c ****                       channel, state, confirm);
+ 406:./Application/Funtion/Test/TEST.c ****     
+ 407:./Application/Funtion/Test/TEST.c ****     /* 立即执行继电器控制逻辑(模拟CAN接收处理) */
+ 408:./Application/Funtion/Test/TEST.c ****     if (confirm == 1)
+ 1692              		.loc 1 408 0
+ 1693 001e 012E     		cmp	r6, #1
+ 1694 0020 09D1     		bne	.L116
+ 1695              	.LVL186:
+ 1696 0022 0B4A     		ldr	r2, .L122+8
+ 1697              	.LBB51:
+ 1698              	.LBB52:
+ 409:./Application/Funtion/Test/TEST.c ****     {
+ 410:./Application/Funtion/Test/TEST.c ****         if (channel == 1)
+ 1699              		.loc 1 410 0
+ 1700 0024 012D     		cmp	r5, #1
+ 1701 0026 07D1     		bne	.L118
+ 411:./Application/Funtion/Test/TEST.c ****         {
+ 412:./Application/Funtion/Test/TEST.c ****             gControl.DOStateSet[DO_1] = state;
+ 1702              		.loc 1 412 0
+ 1703 0028 1470     		strb	r4, [r2]
+ 1704              	.L119:
+ 413:./Application/Funtion/Test/TEST.c ****         }
+ 414:./Application/Funtion/Test/TEST.c ****         else if (channel == 2)
+ 415:./Application/Funtion/Test/TEST.c ****         {
+ 416:./Application/Funtion/Test/TEST.c ****             gControl.DOStateSet[DO_2] = state;
+ 417:./Application/Funtion/Test/TEST.c ****         }
+ 418:./Application/Funtion/Test/TEST.c ****         else if (channel == 0)
+ 419:./Application/Funtion/Test/TEST.c ****         {
+ 420:./Application/Funtion/Test/TEST.c ****             gControl.DOStateSet[DO_1] = state;
+ 421:./Application/Funtion/Test/TEST.c ****             gControl.DOStateSet[DO_2] = state;
+ 422:./Application/Funtion/Test/TEST.c ****         }
+ 423:./Application/Funtion/Test/TEST.c ****         SEGGER_RTT_printf(0, "[TEST] Relay control executed: DO1=%d DO2=%d\r\n",
+ 1705              		.loc 1 423 0
+ 1706 002a 5378     		ldrb	r3, [r2, #1]
+ 1707 002c 0949     		ldr	r1, .L122+12
+ 1708 002e 1278     		ldrb	r2, [r2]
+ 1709 0030 0020     		movs	r0, #0
+ 1710 0032 FFF7FEFF 		bl	SEGGER_RTT_printf
+ 1711              	.LVL187:
+ 1712              	.L116:
+ 1713              	.LBE52:
+ARM GAS  /tmp/ccJERq31.s 			page 39
+
+
+ 1714              	.LBE51:
+ 424:./Application/Funtion/Test/TEST.c ****                           gControl.DOStateSet[DO_1], gControl.DOStateSet[DO_2]);
+ 425:./Application/Funtion/Test/TEST.c ****     }
+ 426:./Application/Funtion/Test/TEST.c **** }
+ 1715              		.loc 1 426 0
+ 1716              		@ sp needed
+ 1717 0036 73BD     		pop	{r0, r1, r4, r5, r6, pc}
+ 1718              	.LVL188:
+ 1719              	.L118:
+ 1720              	.LBB54:
+ 1721              	.LBB53:
+ 414:./Application/Funtion/Test/TEST.c ****         {
+ 1722              		.loc 1 414 0
+ 1723 0038 022D     		cmp	r5, #2
+ 1724 003a 01D1     		bne	.L120
+ 1725              	.L121:
+ 421:./Application/Funtion/Test/TEST.c ****         }
+ 1726              		.loc 1 421 0
+ 1727 003c 5470     		strb	r4, [r2, #1]
+ 1728 003e F4E7     		b	.L119
+ 1729              	.L120:
+ 418:./Application/Funtion/Test/TEST.c ****         {
+ 1730              		.loc 1 418 0
+ 1731 0040 002D     		cmp	r5, #0
+ 1732 0042 F2D1     		bne	.L119
+ 420:./Application/Funtion/Test/TEST.c ****             gControl.DOStateSet[DO_2] = state;
+ 1733              		.loc 1 420 0
+ 1734 0044 1470     		strb	r4, [r2]
+ 1735 0046 F9E7     		b	.L121
+ 1736              	.L123:
+ 1737              		.align	2
+ 1738              	.L122:
+ 1739 0048 00000000 		.word	UserCtrlCmd_55
+ 1740 004c 00000000 		.word	.LC160
+ 1741 0050 00000000 		.word	gControl
+ 1742 0054 3E000000 		.word	.LC163
+ 1743              	.LBE53:
+ 1744              	.LBE54:
+ 1745              		.cfi_endproc
+ 1746              	.LFE23:
+ 1748              		.global	__aeabi_d2f
+ 1749              		.section	.text.Test_RTTCommand,"ax",%progbits
+ 1750              		.align	1
+ 1751              		.global	Test_RTTCommand
+ 1752              		.syntax unified
+ 1753              		.code	16
+ 1754              		.thumb_func
+ 1755              		.fpu softvfp
+ 1757              	Test_RTTCommand:
+ 1758              	.LFB24:
+ 427:./Application/Funtion/Test/TEST.c **** 
+ 428:./Application/Funtion/Test/TEST.c **** /* ======================== RTT 命令解析 ======================== */
+ 429:./Application/Funtion/Test/TEST.c **** 
+ 430:./Application/Funtion/Test/TEST.c **** /*
+ 431:./Application/Funtion/Test/TEST.c ****  * RTT 命令入口, 解析 "test <子命令>" 并路由
+ 432:./Application/Funtion/Test/TEST.c ****  *
+ 433:./Application/Funtion/Test/TEST.c ****  * 支持命令:
+ARM GAS  /tmp/ccJERq31.s 			page 40
+
+
+ 434:./Application/Funtion/Test/TEST.c ****  *   test insu_dump               打印绝缘状态
+ 435:./Application/Funtion/Test/TEST.c ****  *   test insu_timeout <秒>       设置超时时间
+ 436:./Application/Funtion/Test/TEST.c ****  *   test insu_period <秒>        设置采样周期
+ 437:./Application/Funtion/Test/TEST.c ****  *   test insu_mode <0|1|2>       设置模式 (0:Auto 1:Start 2:Stop)
+ 438:./Application/Funtion/Test/TEST.c ****  *   test insu_mon_start          启动周期监控
+ 439:./Application/Funtion/Test/TEST.c ****  *   test insu_mon_stop           停止周期监控
+ 440:./Application/Funtion/Test/TEST.c ****  */
+ 441:./Application/Funtion/Test/TEST.c **** void Test_RTTCommand(const char *cmd)
+ 442:./Application/Funtion/Test/TEST.c **** {
+ 1759              		.loc 1 442 0
+ 1760              		.cfi_startproc
+ 1761              		@ args = 0, pretend = 0, frame = 0
+ 1762              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1763              	.LVL189:
+ 1764 0000 70B5     		push	{r4, r5, r6, lr}
+ 1765              	.LCFI19:
+ 1766              		.cfi_def_cfa_offset 16
+ 1767              		.cfi_offset 4, -16
+ 1768              		.cfi_offset 5, -12
+ 1769              		.cfi_offset 6, -8
+ 1770              		.cfi_offset 14, -4
+ 443:./Application/Funtion/Test/TEST.c ****     const char *arg;
+ 444:./Application/Funtion/Test/TEST.c **** 
+ 445:./Application/Funtion/Test/TEST.c ****     /* 跳过 "test " 前缀 */
+ 446:./Application/Funtion/Test/TEST.c ****     if (strncmp(cmd, "test ", 5) != 0)
+ 1771              		.loc 1 446 0
+ 1772 0002 0522     		movs	r2, #5
+ 1773 0004 8F49     		ldr	r1, .L161
+ 442:./Application/Funtion/Test/TEST.c ****     const char *arg;
+ 1774              		.loc 1 442 0
+ 1775 0006 0400     		movs	r4, r0
+ 1776              		.loc 1 446 0
+ 1777 0008 FFF7FEFF 		bl	strncmp
+ 1778              	.LVL190:
+ 1779 000c 0028     		cmp	r0, #0
+ 1780 000e 08D1     		bne	.L124
+ 447:./Application/Funtion/Test/TEST.c ****         return;
+ 448:./Application/Funtion/Test/TEST.c ****     arg = cmd + 5;
+ 1781              		.loc 1 448 0
+ 1782 0010 651D     		adds	r5, r4, #5
+ 1783              	.LVL191:
+ 449:./Application/Funtion/Test/TEST.c **** 
+ 450:./Application/Funtion/Test/TEST.c ****     /* test insu_dump */
+ 451:./Application/Funtion/Test/TEST.c ****     if (strcmp(arg, "insu_dump") == 0)
+ 1784              		.loc 1 451 0
+ 1785 0012 8D49     		ldr	r1, .L161+4
+ 1786 0014 2800     		movs	r0, r5
+ 1787 0016 FFF7FEFF 		bl	strcmp
+ 1788              	.LVL192:
+ 1789 001a 0028     		cmp	r0, #0
+ 1790 001c 02D1     		bne	.L126
+ 452:./Application/Funtion/Test/TEST.c ****     {
+ 453:./Application/Funtion/Test/TEST.c ****         Test_InsuDump();
+ 1791              		.loc 1 453 0
+ 1792 001e FFF7FEFF 		bl	Test_InsuDump
+ 1793              	.LVL193:
+ 1794              	.L124:
+ARM GAS  /tmp/ccJERq31.s 			page 41
+
+
+ 454:./Application/Funtion/Test/TEST.c ****         return;
+ 455:./Application/Funtion/Test/TEST.c ****     }
+ 456:./Application/Funtion/Test/TEST.c **** 
+ 457:./Application/Funtion/Test/TEST.c ****     /* test insu_timeout <秒> */
+ 458:./Application/Funtion/Test/TEST.c ****     if (strncmp(arg, "insu_timeout ", 13) == 0)
+ 459:./Application/Funtion/Test/TEST.c ****     {
+ 460:./Application/Funtion/Test/TEST.c ****         u16 val = (u16)atoi(arg + 13);
+ 461:./Application/Funtion/Test/TEST.c ****         Test_InsuSetTimeout(val);
+ 462:./Application/Funtion/Test/TEST.c ****         return;
+ 463:./Application/Funtion/Test/TEST.c ****     }
+ 464:./Application/Funtion/Test/TEST.c **** 
+ 465:./Application/Funtion/Test/TEST.c ****     /* test insu_period <秒> */
+ 466:./Application/Funtion/Test/TEST.c ****     if (strncmp(arg, "insu_period ", 12) == 0)
+ 467:./Application/Funtion/Test/TEST.c ****     {
+ 468:./Application/Funtion/Test/TEST.c ****         u16 val = (u16)atoi(arg + 12);
+ 469:./Application/Funtion/Test/TEST.c ****         Test_InsuSetPeriod(val);
+ 470:./Application/Funtion/Test/TEST.c ****         return;
+ 471:./Application/Funtion/Test/TEST.c ****     }
+ 472:./Application/Funtion/Test/TEST.c **** 
+ 473:./Application/Funtion/Test/TEST.c ****     /* test insu_mode <0|1|2> */
+ 474:./Application/Funtion/Test/TEST.c ****     if (strncmp(arg, "insu_mode ", 10) == 0)
+ 475:./Application/Funtion/Test/TEST.c ****     {
+ 476:./Application/Funtion/Test/TEST.c ****         u8 mode = (u8)atoi(arg + 10);
+ 477:./Application/Funtion/Test/TEST.c ****         Test_InsuSetMode(mode);
+ 478:./Application/Funtion/Test/TEST.c ****         return;
+ 479:./Application/Funtion/Test/TEST.c ****     }
+ 480:./Application/Funtion/Test/TEST.c **** 
+ 481:./Application/Funtion/Test/TEST.c ****     /* test insu_mon_start */
+ 482:./Application/Funtion/Test/TEST.c ****     if (strcmp(arg, "insu_mon_start") == 0)
+ 483:./Application/Funtion/Test/TEST.c ****     {
+ 484:./Application/Funtion/Test/TEST.c ****         Test_InsuMonStart();
+ 485:./Application/Funtion/Test/TEST.c ****         return;
+ 486:./Application/Funtion/Test/TEST.c ****     }
+ 487:./Application/Funtion/Test/TEST.c **** 
+ 488:./Application/Funtion/Test/TEST.c ****     /* test insu_mon_stop */
+ 489:./Application/Funtion/Test/TEST.c ****     if (strcmp(arg, "insu_mon_stop") == 0)
+ 490:./Application/Funtion/Test/TEST.c ****     {
+ 491:./Application/Funtion/Test/TEST.c ****         Test_InsuMonStop();
+ 492:./Application/Funtion/Test/TEST.c ****         return;
+ 493:./Application/Funtion/Test/TEST.c ****     }
+ 494:./Application/Funtion/Test/TEST.c **** 
+ 495:./Application/Funtion/Test/TEST.c ****     /* test insu_relay */
+ 496:./Application/Funtion/Test/TEST.c ****     if (strcmp(arg, "insu_relay") == 0)
+ 497:./Application/Funtion/Test/TEST.c ****     {
+ 498:./Application/Funtion/Test/TEST.c ****         Test_PrintRelayState();
+ 499:./Application/Funtion/Test/TEST.c ****         return;
+ 500:./Application/Funtion/Test/TEST.c ****     }
+ 501:./Application/Funtion/Test/TEST.c **** 
+ 502:./Application/Funtion/Test/TEST.c ****     /* test insu_diag */
+ 503:./Application/Funtion/Test/TEST.c ****     if (strcmp(arg, "insu_diag") == 0)
+ 504:./Application/Funtion/Test/TEST.c ****     {
+ 505:./Application/Funtion/Test/TEST.c ****         Test_PrintDiagState();
+ 506:./Application/Funtion/Test/TEST.c ****         return;
+ 507:./Application/Funtion/Test/TEST.c ****     }
+ 508:./Application/Funtion/Test/TEST.c **** 
+ 509:./Application/Funtion/Test/TEST.c ****     /* test insu_threshold */
+ 510:./Application/Funtion/Test/TEST.c ****     if (strcmp(arg, "insu_threshold") == 0)
+ARM GAS  /tmp/ccJERq31.s 			page 42
+
+
+ 511:./Application/Funtion/Test/TEST.c ****     {
+ 512:./Application/Funtion/Test/TEST.c ****         Test_PrintThresholdStatus();
+ 513:./Application/Funtion/Test/TEST.c ****         return;
+ 514:./Application/Funtion/Test/TEST.c ****     }
+ 515:./Application/Funtion/Test/TEST.c **** 
+ 516:./Application/Funtion/Test/TEST.c ****     /* test insu_inject_on <bat> <n2g> */
+ 517:./Application/Funtion/Test/TEST.c ****     if (strncmp(arg, "insu_inject_on ", 15) == 0)
+ 518:./Application/Funtion/Test/TEST.c ****     {
+ 519:./Application/Funtion/Test/TEST.c ****         float bat = (float)atof(arg + 15);
+ 520:./Application/Funtion/Test/TEST.c ****         /* 找第二个参数 */
+ 521:./Application/Funtion/Test/TEST.c ****         const char *p = arg + 15;
+ 522:./Application/Funtion/Test/TEST.c ****         while (*p && *p != ' ') p++;
+ 523:./Application/Funtion/Test/TEST.c ****         float n2g = (*p) ? (float)atof(p + 1) : 0.0f;
+ 524:./Application/Funtion/Test/TEST.c ****         Test_InsuInjectOn(bat, n2g);
+ 525:./Application/Funtion/Test/TEST.c ****         return;
+ 526:./Application/Funtion/Test/TEST.c ****     }
+ 527:./Application/Funtion/Test/TEST.c **** 
+ 528:./Application/Funtion/Test/TEST.c ****     /* test insu_inject_off */
+ 529:./Application/Funtion/Test/TEST.c ****     if (strcmp(arg, "insu_inject_off") == 0)
+ 530:./Application/Funtion/Test/TEST.c ****     {
+ 531:./Application/Funtion/Test/TEST.c ****         Test_InsuInjectOff();
+ 532:./Application/Funtion/Test/TEST.c ****         return;
+ 533:./Application/Funtion/Test/TEST.c ****     }
+ 534:./Application/Funtion/Test/TEST.c **** 
+ 535:./Application/Funtion/Test/TEST.c ****     /* test can_ctrl */
+ 536:./Application/Funtion/Test/TEST.c ****     if (strcmp(arg, "can_ctrl") == 0)
+ 537:./Application/Funtion/Test/TEST.c ****     {
+ 538:./Application/Funtion/Test/TEST.c ****         Test_PrintCanCtrlCmd();
+ 539:./Application/Funtion/Test/TEST.c ****         return;
+ 540:./Application/Funtion/Test/TEST.c ****     }
+ 541:./Application/Funtion/Test/TEST.c **** 
+ 542:./Application/Funtion/Test/TEST.c ****     /* test can_feedback */
+ 543:./Application/Funtion/Test/TEST.c ****     if (strcmp(arg, "can_feedback") == 0)
+ 544:./Application/Funtion/Test/TEST.c ****     {
+ 545:./Application/Funtion/Test/TEST.c ****         Test_PrintCanFeedback();
+ 546:./Application/Funtion/Test/TEST.c ****         return;
+ 547:./Application/Funtion/Test/TEST.c ****     }
+ 548:./Application/Funtion/Test/TEST.c **** 
+ 549:./Application/Funtion/Test/TEST.c ****     /* test can_set_mode <0|1|2> */
+ 550:./Application/Funtion/Test/TEST.c ****     if (strncmp(arg, "can_set_mode ", 13) == 0)
+ 551:./Application/Funtion/Test/TEST.c ****     {
+ 552:./Application/Funtion/Test/TEST.c ****         u8 mode = (u8)atoi(arg + 13);
+ 553:./Application/Funtion/Test/TEST.c ****         Test_SimCanInsuMode(mode);
+ 554:./Application/Funtion/Test/TEST.c ****         return;
+ 555:./Application/Funtion/Test/TEST.c ****     }
+ 556:./Application/Funtion/Test/TEST.c **** 
+ 557:./Application/Funtion/Test/TEST.c ****     /* test can_set_relay <channel> <state> <confirm> */
+ 558:./Application/Funtion/Test/TEST.c ****     if (strncmp(arg, "can_set_relay ", 14) == 0)
+ 559:./Application/Funtion/Test/TEST.c ****     {
+ 560:./Application/Funtion/Test/TEST.c ****         const char *p1 = arg + 14;
+ 561:./Application/Funtion/Test/TEST.c ****         u8 ch = (u8)atoi(p1);
+ 562:./Application/Funtion/Test/TEST.c ****         while (*p1 && *p1 != ' ') p1++;
+ 563:./Application/Funtion/Test/TEST.c ****         u8 st = (*p1) ? (u8)atoi(p1 + 1) : 0;
+ 564:./Application/Funtion/Test/TEST.c ****         if (*p1) p1++;
+ 565:./Application/Funtion/Test/TEST.c ****         while (*p1 && *p1 != ' ') p1++;
+ 566:./Application/Funtion/Test/TEST.c ****         u8 cf = (*p1) ? (u8)atoi(p1 + 1) : 0;
+ 567:./Application/Funtion/Test/TEST.c ****         Test_SimCanRelayCtrl(ch, st, cf);
+ARM GAS  /tmp/ccJERq31.s 			page 43
+
+
+ 568:./Application/Funtion/Test/TEST.c ****         return;
+ 569:./Application/Funtion/Test/TEST.c ****     }
+ 570:./Application/Funtion/Test/TEST.c **** 
+ 571:./Application/Funtion/Test/TEST.c ****     /* 帮助信息 */
+ 572:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "[TEST] Available commands:\r\n");
+ 573:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "  test insu_dump               Print insulation state\r\n");
+ 574:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "  test insu_timeout <sec>      Set timeout limit (seconds)\r\n");
+ 575:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "  test insu_period <sec>       Set sampling period (seconds)\r\n");
+ 576:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "  test insu_mode <0|1|2>       Set mode (0:Auto 1:Start 2:Stop)\r\n");
+ 577:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "  test insu_mon_start          Start periodic monitoring\r\n");
+ 578:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "  test insu_mon_stop           Stop periodic monitoring\r\n");
+ 579:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "  test insu_relay              Print relay states\r\n");
+ 580:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "  test insu_diag               Print diagnostic states\r\n");
+ 581:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "  test insu_threshold          Print threshold calc result\r\n");
+ 582:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "  test insu_inject_on <bat> <n2g>  Enable voltage injection\r\n");
+ 583:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "  test insu_inject_off         Disable voltage injection\r\n");
+ 584:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "  test can_ctrl                Print CAN ID 55 command\r\n");
+ 585:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "  test can_feedback            Print CAN ID 56 feedback\r\n");
+ 586:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "  test can_set_mode <0|1|2>    Sim CAN set insulation mode\r\n");
+ 587:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "  test can_set_relay <ch> <st> <cf>  Sim CAN relay control\r\n");
+ 588:./Application/Funtion/Test/TEST.c **** }
+ 1795              		.loc 1 588 0
+ 1796              		@ sp needed
+ 1797 0022 70BD     		pop	{r4, r5, r6, pc}
+ 1798              	.LVL194:
+ 1799              	.L126:
+ 458:./Application/Funtion/Test/TEST.c ****     {
+ 1800              		.loc 1 458 0
+ 1801 0024 0D22     		movs	r2, #13
+ 1802 0026 8949     		ldr	r1, .L161+8
+ 1803 0028 2800     		movs	r0, r5
+ 1804 002a FFF7FEFF 		bl	strncmp
+ 1805              	.LVL195:
+ 1806 002e 0028     		cmp	r0, #0
+ 1807 0030 07D1     		bne	.L127
+ 1808              	.LBB55:
+ 460:./Application/Funtion/Test/TEST.c ****         Test_InsuSetTimeout(val);
+ 1809              		.loc 1 460 0
+ 1810 0032 2000     		movs	r0, r4
+ 1811 0034 1230     		adds	r0, r0, #18
+ 1812 0036 FFF7FEFF 		bl	atoi
+ 1813              	.LVL196:
+ 461:./Application/Funtion/Test/TEST.c ****         return;
+ 1814              		.loc 1 461 0
+ 1815 003a 80B2     		uxth	r0, r0
+ 1816 003c FFF7FEFF 		bl	Test_InsuSetTimeout
+ 1817              	.LVL197:
+ 462:./Application/Funtion/Test/TEST.c ****     }
+ 1818              		.loc 1 462 0
+ 1819 0040 EFE7     		b	.L124
+ 1820              	.L127:
+ 1821              	.LBE55:
+ 466:./Application/Funtion/Test/TEST.c ****     {
+ 1822              		.loc 1 466 0
+ 1823 0042 0C22     		movs	r2, #12
+ 1824 0044 8249     		ldr	r1, .L161+12
+ 1825 0046 2800     		movs	r0, r5
+ARM GAS  /tmp/ccJERq31.s 			page 44
+
+
+ 1826 0048 FFF7FEFF 		bl	strncmp
+ 1827              	.LVL198:
+ 1828 004c 0028     		cmp	r0, #0
+ 1829 004e 07D1     		bne	.L128
+ 1830              	.LBB56:
+ 468:./Application/Funtion/Test/TEST.c ****         Test_InsuSetPeriod(val);
+ 1831              		.loc 1 468 0
+ 1832 0050 2000     		movs	r0, r4
+ 1833 0052 1130     		adds	r0, r0, #17
+ 1834 0054 FFF7FEFF 		bl	atoi
+ 1835              	.LVL199:
+ 469:./Application/Funtion/Test/TEST.c ****         return;
+ 1836              		.loc 1 469 0
+ 1837 0058 80B2     		uxth	r0, r0
+ 1838 005a FFF7FEFF 		bl	Test_InsuSetPeriod
+ 1839              	.LVL200:
+ 470:./Application/Funtion/Test/TEST.c ****     }
+ 1840              		.loc 1 470 0
+ 1841 005e E0E7     		b	.L124
+ 1842              	.L128:
+ 1843              	.LBE56:
+ 474:./Application/Funtion/Test/TEST.c ****     {
+ 1844              		.loc 1 474 0
+ 1845 0060 0A22     		movs	r2, #10
+ 1846 0062 7C49     		ldr	r1, .L161+16
+ 1847 0064 2800     		movs	r0, r5
+ 1848 0066 FFF7FEFF 		bl	strncmp
+ 1849              	.LVL201:
+ 1850 006a 0028     		cmp	r0, #0
+ 1851 006c 07D1     		bne	.L129
+ 1852              	.LBB57:
+ 476:./Application/Funtion/Test/TEST.c ****         Test_InsuSetMode(mode);
+ 1853              		.loc 1 476 0
+ 1854 006e 2000     		movs	r0, r4
+ 1855 0070 0F30     		adds	r0, r0, #15
+ 1856 0072 FFF7FEFF 		bl	atoi
+ 1857              	.LVL202:
+ 477:./Application/Funtion/Test/TEST.c ****         return;
+ 1858              		.loc 1 477 0
+ 1859 0076 C0B2     		uxtb	r0, r0
+ 1860 0078 FFF7FEFF 		bl	Test_InsuSetMode
+ 1861              	.LVL203:
+ 478:./Application/Funtion/Test/TEST.c ****     }
+ 1862              		.loc 1 478 0
+ 1863 007c D1E7     		b	.L124
+ 1864              	.L129:
+ 1865              	.LBE57:
+ 482:./Application/Funtion/Test/TEST.c ****     {
+ 1866              		.loc 1 482 0
+ 1867 007e 7649     		ldr	r1, .L161+20
+ 1868 0080 2800     		movs	r0, r5
+ 1869 0082 FFF7FEFF 		bl	strcmp
+ 1870              	.LVL204:
+ 1871 0086 0028     		cmp	r0, #0
+ 1872 0088 02D1     		bne	.L130
+ 484:./Application/Funtion/Test/TEST.c ****         return;
+ 1873              		.loc 1 484 0
+ARM GAS  /tmp/ccJERq31.s 			page 45
+
+
+ 1874 008a FFF7FEFF 		bl	Test_InsuMonStart
+ 1875              	.LVL205:
+ 485:./Application/Funtion/Test/TEST.c ****     }
+ 1876              		.loc 1 485 0
+ 1877 008e C8E7     		b	.L124
+ 1878              	.L130:
+ 489:./Application/Funtion/Test/TEST.c ****     {
+ 1879              		.loc 1 489 0
+ 1880 0090 7249     		ldr	r1, .L161+24
+ 1881 0092 2800     		movs	r0, r5
+ 1882 0094 FFF7FEFF 		bl	strcmp
+ 1883              	.LVL206:
+ 1884 0098 0028     		cmp	r0, #0
+ 1885 009a 02D1     		bne	.L131
+ 491:./Application/Funtion/Test/TEST.c ****         return;
+ 1886              		.loc 1 491 0
+ 1887 009c FFF7FEFF 		bl	Test_InsuMonStop
+ 1888              	.LVL207:
+ 492:./Application/Funtion/Test/TEST.c ****     }
+ 1889              		.loc 1 492 0
+ 1890 00a0 BFE7     		b	.L124
+ 1891              	.L131:
+ 496:./Application/Funtion/Test/TEST.c ****     {
+ 1892              		.loc 1 496 0
+ 1893 00a2 6F49     		ldr	r1, .L161+28
+ 1894 00a4 2800     		movs	r0, r5
+ 1895 00a6 FFF7FEFF 		bl	strcmp
+ 1896              	.LVL208:
+ 1897 00aa 0028     		cmp	r0, #0
+ 1898 00ac 02D1     		bne	.L132
+ 498:./Application/Funtion/Test/TEST.c ****         return;
+ 1899              		.loc 1 498 0
+ 1900 00ae FFF7FEFF 		bl	Test_PrintRelayState
+ 1901              	.LVL209:
+ 499:./Application/Funtion/Test/TEST.c ****     }
+ 1902              		.loc 1 499 0
+ 1903 00b2 B6E7     		b	.L124
+ 1904              	.L132:
+ 503:./Application/Funtion/Test/TEST.c ****     {
+ 1905              		.loc 1 503 0
+ 1906 00b4 6B49     		ldr	r1, .L161+32
+ 1907 00b6 2800     		movs	r0, r5
+ 1908 00b8 FFF7FEFF 		bl	strcmp
+ 1909              	.LVL210:
+ 1910 00bc 0028     		cmp	r0, #0
+ 1911 00be 02D1     		bne	.L133
+ 505:./Application/Funtion/Test/TEST.c ****         return;
+ 1912              		.loc 1 505 0
+ 1913 00c0 FFF7FEFF 		bl	Test_PrintDiagState
+ 1914              	.LVL211:
+ 506:./Application/Funtion/Test/TEST.c ****     }
+ 1915              		.loc 1 506 0
+ 1916 00c4 ADE7     		b	.L124
+ 1917              	.L133:
+ 510:./Application/Funtion/Test/TEST.c ****     {
+ 1918              		.loc 1 510 0
+ 1919 00c6 6849     		ldr	r1, .L161+36
+ARM GAS  /tmp/ccJERq31.s 			page 46
+
+
+ 1920 00c8 2800     		movs	r0, r5
+ 1921 00ca FFF7FEFF 		bl	strcmp
+ 1922              	.LVL212:
+ 1923 00ce 0028     		cmp	r0, #0
+ 1924 00d0 02D1     		bne	.L134
+ 512:./Application/Funtion/Test/TEST.c ****         return;
+ 1925              		.loc 1 512 0
+ 1926 00d2 FFF7FEFF 		bl	Test_PrintThresholdStatus
+ 1927              	.LVL213:
+ 513:./Application/Funtion/Test/TEST.c ****     }
+ 1928              		.loc 1 513 0
+ 1929 00d6 A4E7     		b	.L124
+ 1930              	.L134:
+ 517:./Application/Funtion/Test/TEST.c ****     {
+ 1931              		.loc 1 517 0
+ 1932 00d8 0F22     		movs	r2, #15
+ 1933 00da 6449     		ldr	r1, .L161+40
+ 1934 00dc 2800     		movs	r0, r5
+ 1935 00de FFF7FEFF 		bl	strncmp
+ 1936              	.LVL214:
+ 1937 00e2 0028     		cmp	r0, #0
+ 1938 00e4 18D1     		bne	.L135
+ 1939              	.LBB58:
+ 519:./Application/Funtion/Test/TEST.c ****         /* 找第二个参数 */
+ 1940              		.loc 1 519 0
+ 1941 00e6 1434     		adds	r4, r4, #20
+ 1942              	.LVL215:
+ 1943 00e8 2000     		movs	r0, r4
+ 1944 00ea FFF7FEFF 		bl	atof
+ 1945              	.LVL216:
+ 1946 00ee FFF7FEFF 		bl	__aeabi_d2f
+ 1947              	.LVL217:
+ 1948 00f2 051C     		adds	r5, r0, #0
+ 1949              	.LVL218:
+ 1950              	.L137:
+ 522:./Application/Funtion/Test/TEST.c ****         float n2g = (*p) ? (float)atof(p + 1) : 0.0f;
+ 1951              		.loc 1 522 0 discriminator 1
+ 1952 00f4 2378     		ldrb	r3, [r4]
+ 1953 00f6 002B     		cmp	r3, #0
+ 1954 00f8 09D0     		beq	.L150
+ 1955 00fa 0134     		adds	r4, r4, #1
+ 1956              	.LVL219:
+ 522:./Application/Funtion/Test/TEST.c ****         float n2g = (*p) ? (float)atof(p + 1) : 0.0f;
+ 1957              		.loc 1 522 0 is_stmt 0 discriminator 2
+ 1958 00fc 202B     		cmp	r3, #32
+ 1959 00fe F9D1     		bne	.L137
+ 523:./Application/Funtion/Test/TEST.c ****         Test_InsuInjectOn(bat, n2g);
+ 1960              		.loc 1 523 0 is_stmt 1
+ 1961 0100 2000     		movs	r0, r4
+ 1962              	.LVL220:
+ 1963 0102 FFF7FEFF 		bl	atof
+ 1964              	.LVL221:
+ 1965 0106 FFF7FEFF 		bl	__aeabi_d2f
+ 1966              	.LVL222:
+ 1967 010a 011C     		adds	r1, r0, #0
+ 1968 010c 00E0     		b	.L136
+ 1969              	.LVL223:
+ARM GAS  /tmp/ccJERq31.s 			page 47
+
+
+ 1970              	.L150:
+ 1971 010e 0021     		movs	r1, #0
+ 1972              	.LVL224:
+ 1973              	.L136:
+ 524:./Application/Funtion/Test/TEST.c ****         return;
+ 1974              		.loc 1 524 0 discriminator 4
+ 1975 0110 281C     		adds	r0, r5, #0
+ 1976 0112 FFF7FEFF 		bl	Test_InsuInjectOn
+ 1977              	.LVL225:
+ 525:./Application/Funtion/Test/TEST.c ****     }
+ 1978              		.loc 1 525 0 discriminator 4
+ 1979 0116 84E7     		b	.L124
+ 1980              	.LVL226:
+ 1981              	.L135:
+ 1982              	.LBE58:
+ 529:./Application/Funtion/Test/TEST.c ****     {
+ 1983              		.loc 1 529 0
+ 1984 0118 5549     		ldr	r1, .L161+44
+ 1985 011a 2800     		movs	r0, r5
+ 1986 011c FFF7FEFF 		bl	strcmp
+ 1987              	.LVL227:
+ 1988 0120 0028     		cmp	r0, #0
+ 1989 0122 02D1     		bne	.L139
+ 531:./Application/Funtion/Test/TEST.c ****         return;
+ 1990              		.loc 1 531 0
+ 1991 0124 FFF7FEFF 		bl	Test_InsuInjectOff
+ 1992              	.LVL228:
+ 532:./Application/Funtion/Test/TEST.c ****     }
+ 1993              		.loc 1 532 0
+ 1994 0128 7BE7     		b	.L124
+ 1995              	.L139:
+ 536:./Application/Funtion/Test/TEST.c ****     {
+ 1996              		.loc 1 536 0
+ 1997 012a 5249     		ldr	r1, .L161+48
+ 1998 012c 2800     		movs	r0, r5
+ 1999 012e FFF7FEFF 		bl	strcmp
+ 2000              	.LVL229:
+ 2001 0132 0028     		cmp	r0, #0
+ 2002 0134 02D1     		bne	.L140
+ 538:./Application/Funtion/Test/TEST.c ****         return;
+ 2003              		.loc 1 538 0
+ 2004 0136 FFF7FEFF 		bl	Test_PrintCanCtrlCmd
+ 2005              	.LVL230:
+ 539:./Application/Funtion/Test/TEST.c ****     }
+ 2006              		.loc 1 539 0
+ 2007 013a 72E7     		b	.L124
+ 2008              	.L140:
+ 543:./Application/Funtion/Test/TEST.c ****     {
+ 2009              		.loc 1 543 0
+ 2010 013c 4E49     		ldr	r1, .L161+52
+ 2011 013e 2800     		movs	r0, r5
+ 2012 0140 FFF7FEFF 		bl	strcmp
+ 2013              	.LVL231:
+ 2014 0144 0028     		cmp	r0, #0
+ 2015 0146 02D1     		bne	.L141
+ 545:./Application/Funtion/Test/TEST.c ****         return;
+ 2016              		.loc 1 545 0
+ARM GAS  /tmp/ccJERq31.s 			page 48
+
+
+ 2017 0148 FFF7FEFF 		bl	Test_PrintCanFeedback
+ 2018              	.LVL232:
+ 546:./Application/Funtion/Test/TEST.c ****     }
+ 2019              		.loc 1 546 0
+ 2020 014c 69E7     		b	.L124
+ 2021              	.L141:
+ 550:./Application/Funtion/Test/TEST.c ****     {
+ 2022              		.loc 1 550 0
+ 2023 014e 0D22     		movs	r2, #13
+ 2024 0150 4A49     		ldr	r1, .L161+56
+ 2025 0152 2800     		movs	r0, r5
+ 2026 0154 FFF7FEFF 		bl	strncmp
+ 2027              	.LVL233:
+ 2028 0158 0028     		cmp	r0, #0
+ 2029 015a 07D1     		bne	.L142
+ 2030              	.LBB59:
+ 552:./Application/Funtion/Test/TEST.c ****         Test_SimCanInsuMode(mode);
+ 2031              		.loc 1 552 0
+ 2032 015c 2000     		movs	r0, r4
+ 2033 015e 1230     		adds	r0, r0, #18
+ 2034 0160 FFF7FEFF 		bl	atoi
+ 2035              	.LVL234:
+ 553:./Application/Funtion/Test/TEST.c ****         return;
+ 2036              		.loc 1 553 0
+ 2037 0164 C0B2     		uxtb	r0, r0
+ 2038 0166 FFF7FEFF 		bl	Test_SimCanInsuMode
+ 2039              	.LVL235:
+ 554:./Application/Funtion/Test/TEST.c ****     }
+ 2040              		.loc 1 554 0
+ 2041 016a 5AE7     		b	.L124
+ 2042              	.L142:
+ 2043              	.LBE59:
+ 558:./Application/Funtion/Test/TEST.c ****     {
+ 2044              		.loc 1 558 0
+ 2045 016c 0E22     		movs	r2, #14
+ 2046 016e 4449     		ldr	r1, .L161+60
+ 2047 0170 2800     		movs	r0, r5
+ 2048 0172 FFF7FEFF 		bl	strncmp
+ 2049              	.LVL236:
+ 2050 0176 0028     		cmp	r0, #0
+ 2051 0178 22D1     		bne	.L143
+ 2052              	.LBB60:
+ 560:./Application/Funtion/Test/TEST.c ****         u8 ch = (u8)atoi(p1);
+ 2053              		.loc 1 560 0
+ 2054 017a 1334     		adds	r4, r4, #19
+ 2055              	.LVL237:
+ 561:./Application/Funtion/Test/TEST.c ****         while (*p1 && *p1 != ' ') p1++;
+ 2056              		.loc 1 561 0
+ 2057 017c 2000     		movs	r0, r4
+ 2058 017e FFF7FEFF 		bl	atoi
+ 2059              	.LVL238:
+ 2060 0182 C6B2     		uxtb	r6, r0
+ 2061              	.LVL239:
+ 2062              	.L145:
+ 562:./Application/Funtion/Test/TEST.c ****         u8 st = (*p1) ? (u8)atoi(p1 + 1) : 0;
+ 2063              		.loc 1 562 0 discriminator 1
+ 2064 0184 2578     		ldrb	r5, [r4]
+ARM GAS  /tmp/ccJERq31.s 			page 49
+
+
+ 2065 0186 002D     		cmp	r5, #0
+ 2066 0188 05D0     		beq	.L144
+ 2067 018a 601C     		adds	r0, r4, #1
+ 562:./Application/Funtion/Test/TEST.c ****         u8 st = (*p1) ? (u8)atoi(p1 + 1) : 0;
+ 2068              		.loc 1 562 0 is_stmt 0 discriminator 2
+ 2069 018c 202D     		cmp	r5, #32
+ 2070 018e 15D1     		bne	.L152
+ 563:./Application/Funtion/Test/TEST.c ****         if (*p1) p1++;
+ 2071              		.loc 1 563 0 is_stmt 1
+ 2072 0190 FFF7FEFF 		bl	atoi
+ 2073              	.LVL240:
+ 2074 0194 C5B2     		uxtb	r5, r0
+ 2075              	.L144:
+ 2076              	.LVL241:
+ 566:./Application/Funtion/Test/TEST.c ****         Test_SimCanRelayCtrl(ch, st, cf);
+ 2077              		.loc 1 566 0 discriminator 4
+ 2078 0196 0022     		movs	r2, #0
+ 564:./Application/Funtion/Test/TEST.c ****         while (*p1 && *p1 != ' ') p1++;
+ 2079              		.loc 1 564 0 discriminator 4
+ 2080 0198 2378     		ldrb	r3, [r4]
+ 2081 019a 9342     		cmp	r3, r2
+ 2082 019c 09D0     		beq	.L147
+ 564:./Application/Funtion/Test/TEST.c ****         while (*p1 && *p1 != ' ') p1++;
+ 2083              		.loc 1 564 0 is_stmt 0 discriminator 1
+ 2084 019e 601C     		adds	r0, r4, #1
+ 2085              	.LVL242:
+ 2086              	.L148:
+ 565:./Application/Funtion/Test/TEST.c ****         u8 cf = (*p1) ? (u8)atoi(p1 + 1) : 0;
+ 2087              		.loc 1 565 0 is_stmt 1 discriminator 1
+ 2088 01a0 0278     		ldrb	r2, [r0]
+ 2089 01a2 002A     		cmp	r2, #0
+ 2090 01a4 05D0     		beq	.L147
+ 2091 01a6 0130     		adds	r0, r0, #1
+ 2092              	.LVL243:
+ 565:./Application/Funtion/Test/TEST.c ****         u8 cf = (*p1) ? (u8)atoi(p1 + 1) : 0;
+ 2093              		.loc 1 565 0 is_stmt 0 discriminator 2
+ 2094 01a8 202A     		cmp	r2, #32
+ 2095 01aa F9D1     		bne	.L148
+ 566:./Application/Funtion/Test/TEST.c ****         Test_SimCanRelayCtrl(ch, st, cf);
+ 2096              		.loc 1 566 0 is_stmt 1
+ 2097 01ac FFF7FEFF 		bl	atoi
+ 2098              	.LVL244:
+ 2099 01b0 C2B2     		uxtb	r2, r0
+ 2100              	.L147:
+ 2101              	.LVL245:
+ 567:./Application/Funtion/Test/TEST.c ****         return;
+ 2102              		.loc 1 567 0 discriminator 4
+ 2103 01b2 2900     		movs	r1, r5
+ 2104 01b4 3000     		movs	r0, r6
+ 2105 01b6 FFF7FEFF 		bl	Test_SimCanRelayCtrl
+ 2106              	.LVL246:
+ 568:./Application/Funtion/Test/TEST.c ****     }
+ 2107              		.loc 1 568 0 discriminator 4
+ 2108 01ba 32E7     		b	.L124
+ 2109              	.LVL247:
+ 2110              	.L152:
+ 2111 01bc 0400     		movs	r4, r0
+ARM GAS  /tmp/ccJERq31.s 			page 50
+
+
+ 2112              	.LVL248:
+ 2113 01be E1E7     		b	.L145
+ 2114              	.LVL249:
+ 2115              	.L143:
+ 2116              	.LBE60:
+ 572:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "  test insu_dump               Print insulation state\r\n");
+ 2117              		.loc 1 572 0
+ 2118 01c0 3049     		ldr	r1, .L161+64
+ 2119 01c2 0020     		movs	r0, #0
+ 2120 01c4 FFF7FEFF 		bl	SEGGER_RTT_printf
+ 2121              	.LVL250:
+ 573:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "  test insu_timeout <sec>      Set timeout limit (seconds)\r\n");
+ 2122              		.loc 1 573 0
+ 2123 01c8 2F49     		ldr	r1, .L161+68
+ 2124 01ca 0020     		movs	r0, #0
+ 2125 01cc FFF7FEFF 		bl	SEGGER_RTT_printf
+ 2126              	.LVL251:
+ 574:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "  test insu_period <sec>       Set sampling period (seconds)\r\n");
+ 2127              		.loc 1 574 0
+ 2128 01d0 2E49     		ldr	r1, .L161+72
+ 2129 01d2 0020     		movs	r0, #0
+ 2130 01d4 FFF7FEFF 		bl	SEGGER_RTT_printf
+ 2131              	.LVL252:
+ 575:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "  test insu_mode <0|1|2>       Set mode (0:Auto 1:Start 2:Stop)\r\n");
+ 2132              		.loc 1 575 0
+ 2133 01d8 2D49     		ldr	r1, .L161+76
+ 2134 01da 0020     		movs	r0, #0
+ 2135 01dc FFF7FEFF 		bl	SEGGER_RTT_printf
+ 2136              	.LVL253:
+ 576:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "  test insu_mon_start          Start periodic monitoring\r\n");
+ 2137              		.loc 1 576 0
+ 2138 01e0 2C49     		ldr	r1, .L161+80
+ 2139 01e2 0020     		movs	r0, #0
+ 2140 01e4 FFF7FEFF 		bl	SEGGER_RTT_printf
+ 2141              	.LVL254:
+ 577:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "  test insu_mon_stop           Stop periodic monitoring\r\n");
+ 2142              		.loc 1 577 0
+ 2143 01e8 2B49     		ldr	r1, .L161+84
+ 2144 01ea 0020     		movs	r0, #0
+ 2145 01ec FFF7FEFF 		bl	SEGGER_RTT_printf
+ 2146              	.LVL255:
+ 578:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "  test insu_relay              Print relay states\r\n");
+ 2147              		.loc 1 578 0
+ 2148 01f0 2A49     		ldr	r1, .L161+88
+ 2149 01f2 0020     		movs	r0, #0
+ 2150 01f4 FFF7FEFF 		bl	SEGGER_RTT_printf
+ 2151              	.LVL256:
+ 579:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "  test insu_diag               Print diagnostic states\r\n");
+ 2152              		.loc 1 579 0
+ 2153 01f8 2949     		ldr	r1, .L161+92
+ 2154 01fa 0020     		movs	r0, #0
+ 2155 01fc FFF7FEFF 		bl	SEGGER_RTT_printf
+ 2156              	.LVL257:
+ 580:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "  test insu_threshold          Print threshold calc result\r\n");
+ 2157              		.loc 1 580 0
+ 2158 0200 2849     		ldr	r1, .L161+96
+ 2159 0202 0020     		movs	r0, #0
+ARM GAS  /tmp/ccJERq31.s 			page 51
+
+
+ 2160 0204 FFF7FEFF 		bl	SEGGER_RTT_printf
+ 2161              	.LVL258:
+ 581:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "  test insu_inject_on <bat> <n2g>  Enable voltage injection\r\n");
+ 2162              		.loc 1 581 0
+ 2163 0208 2749     		ldr	r1, .L161+100
+ 2164 020a 0020     		movs	r0, #0
+ 2165 020c FFF7FEFF 		bl	SEGGER_RTT_printf
+ 2166              	.LVL259:
+ 582:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "  test insu_inject_off         Disable voltage injection\r\n");
+ 2167              		.loc 1 582 0
+ 2168 0210 2649     		ldr	r1, .L161+104
+ 2169 0212 0020     		movs	r0, #0
+ 2170 0214 FFF7FEFF 		bl	SEGGER_RTT_printf
+ 2171              	.LVL260:
+ 583:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "  test can_ctrl                Print CAN ID 55 command\r\n");
+ 2172              		.loc 1 583 0
+ 2173 0218 2549     		ldr	r1, .L161+108
+ 2174 021a 0020     		movs	r0, #0
+ 2175 021c FFF7FEFF 		bl	SEGGER_RTT_printf
+ 2176              	.LVL261:
+ 584:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "  test can_feedback            Print CAN ID 56 feedback\r\n");
+ 2177              		.loc 1 584 0
+ 2178 0220 2449     		ldr	r1, .L161+112
+ 2179 0222 0020     		movs	r0, #0
+ 2180 0224 FFF7FEFF 		bl	SEGGER_RTT_printf
+ 2181              	.LVL262:
+ 585:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "  test can_set_mode <0|1|2>    Sim CAN set insulation mode\r\n");
+ 2182              		.loc 1 585 0
+ 2183 0228 2349     		ldr	r1, .L161+116
+ 2184 022a 0020     		movs	r0, #0
+ 2185 022c FFF7FEFF 		bl	SEGGER_RTT_printf
+ 2186              	.LVL263:
+ 586:./Application/Funtion/Test/TEST.c ****     SEGGER_RTT_printf(0, "  test can_set_relay <ch> <st> <cf>  Sim CAN relay control\r\n");
+ 2187              		.loc 1 586 0
+ 2188 0230 2249     		ldr	r1, .L161+120
+ 2189 0232 0020     		movs	r0, #0
+ 2190 0234 FFF7FEFF 		bl	SEGGER_RTT_printf
+ 2191              	.LVL264:
+ 587:./Application/Funtion/Test/TEST.c **** }
+ 2192              		.loc 1 587 0
+ 2193 0238 2149     		ldr	r1, .L161+124
+ 2194 023a 0020     		movs	r0, #0
+ 2195 023c FFF7FEFF 		bl	SEGGER_RTT_printf
+ 2196              	.LVL265:
+ 2197 0240 EFE6     		b	.L124
+ 2198              	.L162:
+ 2199 0242 C046     		.align	2
+ 2200              	.L161:
+ 2201 0244 00000000 		.word	.LC167
+ 2202 0248 06000000 		.word	.LC169
+ 2203 024c 10000000 		.word	.LC171
+ 2204 0250 1E000000 		.word	.LC173
+ 2205 0254 2B000000 		.word	.LC175
+ 2206 0258 36000000 		.word	.LC177
+ 2207 025c 45000000 		.word	.LC179
+ 2208 0260 53000000 		.word	.LC181
+ 2209 0264 5E000000 		.word	.LC183
+ARM GAS  /tmp/ccJERq31.s 			page 52
+
+
+ 2210 0268 68000000 		.word	.LC185
+ 2211 026c 77000000 		.word	.LC187
+ 2212 0270 87000000 		.word	.LC189
+ 2213 0274 97000000 		.word	.LC191
+ 2214 0278 A0000000 		.word	.LC193
+ 2215 027c AD000000 		.word	.LC195
+ 2216 0280 BB000000 		.word	.LC197
+ 2217 0284 CA000000 		.word	.LC199
+ 2218 0288 E7000000 		.word	.LC201
+ 2219 028c 1F010000 		.word	.LC203
+ 2220 0290 5C010000 		.word	.LC205
+ 2221 0294 9B010000 		.word	.LC207
+ 2222 0298 DD010000 		.word	.LC209
+ 2223 029c 18020000 		.word	.LC211
+ 2224 02a0 52020000 		.word	.LC213
+ 2225 02a4 86020000 		.word	.LC215
+ 2226 02a8 BF020000 		.word	.LC217
+ 2227 02ac FC020000 		.word	.LC219
+ 2228 02b0 3A030000 		.word	.LC221
+ 2229 02b4 75030000 		.word	.LC223
+ 2230 02b8 AE030000 		.word	.LC225
+ 2231 02bc E8030000 		.word	.LC227
+ 2232 02c0 25040000 		.word	.LC229
+ 2233              		.cfi_endproc
+ 2234              	.LFE24:
+ 2236              		.section	.bss.gTrackInitDone,"aw",%nobits
+ 2237              		.set	.LANCHOR0,. + 0
+ 2240              	gTrackInitDone:
+ 2241 0000 00       		.space	1
+ 2242              		.section	.bss.gTrackLastTick,"aw",%nobits
+ 2243              		.align	2
+ 2244              		.set	.LANCHOR1,. + 0
+ 2247              	gTrackLastTick:
+ 2248 0000 00000000 		.space	12
+ 2248      00000000 
+ 2248      00000000 
+ 2249              		.section	.bss.g_insu_inject_bat,"aw",%nobits
+ 2250              		.align	2
+ 2251              		.set	.LANCHOR9,. + 0
+ 2254              	g_insu_inject_bat:
+ 2255 0000 00000000 		.space	4
+ 2256              		.section	.bss.g_insu_inject_enabled,"aw",%nobits
+ 2257              		.set	.LANCHOR8,. + 0
+ 2260              	g_insu_inject_enabled:
+ 2261 0000 00       		.space	1
+ 2262              		.section	.bss.g_insu_inject_n2g,"aw",%nobits
+ 2263              		.align	2
+ 2264              		.set	.LANCHOR10,. + 0
+ 2267              	g_insu_inject_n2g:
+ 2268 0000 00000000 		.space	4
+ 2269              		.section	.bss.g_insu_mon_active,"aw",%nobits
+ 2270              		.set	.LANCHOR5,. + 0
+ 2273              	g_insu_mon_active:
+ 2274 0000 00       		.space	1
+ 2275              		.section	.bss.last.6777,"aw",%nobits
+ 2276              		.align	2
+ 2277              		.set	.LANCHOR6,. + 0
+ARM GAS  /tmp/ccJERq31.s 			page 53
+
+
+ 2280              	last.6777:
+ 2281 0000 00000000 		.space	4
+ 2282              		.section	.rodata.CSWTCH.25,"a",%progbits
+ 2283              		.align	2
+ 2284              		.set	.LANCHOR2,. + 0
+ 2287              	CSWTCH.25:
+ 2288 0000 08000000 		.word	.LC136
+ 2289 0004 00000000 		.word	.LC134
+ 2290 0008 0E000000 		.word	.LC138
+ 2291 000c 13000000 		.word	.LC140
+ 2292 0010 1D000000 		.word	.LC144
+ 2293 0014 17000000 		.word	.LC142
+ 2294              		.section	.rodata.CSWTCH.27,"a",%progbits
+ 2295              		.align	2
+ 2296              		.set	.LANCHOR3,. + 0
+ 2299              	CSWTCH.27:
+ 2300 0000 3E000000 		.word	.LC238
+ 2301 0004 08000000 		.word	.LC136
+ 2302 0008 0E000000 		.word	.LC138
+ 2303              		.section	.rodata.CSWTCH.29,"a",%progbits
+ 2304              		.align	2
+ 2305              		.set	.LANCHOR4,. + 0
+ 2308              	CSWTCH.29:
+ 2309 0000 1D000000 		.word	.LC235
+ 2310 0004 27000000 		.word	.LC236
+ 2311 0008 32000000 		.word	.LC237
+ 2312              		.section	.rodata.CSWTCH.31,"a",%progbits
+ 2313              		.align	2
+ 2314              		.set	.LANCHOR7,. + 0
+ 2317              	CSWTCH.31:
+ 2318 0000 00000000 		.word	.LC231
+ 2319 0004 0A000000 		.word	.LC232
+ 2320 0008 13000000 		.word	.LC233
+ 2321 000c 18000000 		.word	.LC234
+ 2322              		.section	.rodata.Test_InsuDump.str1.1,"aMS",%progbits,1
+ 2323              	.LC4:
+ 2324 0000 3F3F3F00 		.ascii	"???\000"
+ 2325              	.LC8:
+ 2326 0004 0D0A00   		.ascii	"\015\012\000"
+ 2327              	.LC10:
+ 2328 0007 2B2D2D20 		.ascii	"+-- Insulation State ------------------------------"
+ 2328      496E7375 
+ 2328      6C617469 
+ 2328      6F6E2053 
+ 2328      74617465 
+ 2329 003a 2D2D2D2D 		.ascii	"-------+\015\012\000"
+ 2329      2D2D2D2B 
+ 2329      0D0A00
+ 2330              	.LC15:
+ 2331 0045 7C205374 		.ascii	"| State=%d(%s)  Mode=%d(%s)  Step=%s  VoltDelay=%d "
+ 2331      6174653D 
+ 2331      25642825 
+ 2331      73292020 
+ 2331      4D6F6465 
+ 2332 0078 20566F6C 		.ascii	" VoltStable=%d\015\012\000"
+ 2332      74537461 
+ 2332      626C653D 
+ARM GAS  /tmp/ccJERq31.s 			page 54
+
+
+ 2332      25640D0A 
+ 2332      00
+ 2333              	.LC17:
+ 2334 0089 7C204261 		.ascii	"| BatVolt=0x%08X  N2GVolt=0x%08X  P2GVolt=0x%08X\015"
+ 2334      74566F6C 
+ 2334      743D3078 
+ 2334      25303858 
+ 2334      20204E32 
+ 2335 00ba 0A00     		.ascii	"\012\000"
+ 2336              	.LC19:
+ 2337 00bc 7C204E32 		.ascii	"| N2GRes=0x%08X  P2GRes=0x%08X  CAN_Feedback=%d\015"
+ 2337      47526573 
+ 2337      3D307825 
+ 2337      30385820 
+ 2337      20503247 
+ 2338 00ec 0A00     		.ascii	"\012\000"
+ 2339              	.LC22:
+ 2340 00ee 7C20496E 		.ascii	"| InsuTimeLimit=%ds  InsuSampPeriod=%ds\015\012\000"
+ 2340      73755469 
+ 2340      6D654C69 
+ 2340      6D69743D 
+ 2340      25647320 
+ 2341              	.LC24:
+ 2342 0118 2B2D2D2D 		.ascii	"+--------------------------------------------------"
+ 2342      2D2D2D2D 
+ 2342      2D2D2D2D 
+ 2342      2D2D2D2D 
+ 2342      2D2D2D2D 
+ 2343 014b 2D2D2D2D 		.ascii	"--------+\015\012\000"
+ 2343      2D2D2D2D 
+ 2343      2B0D0A00 
+ 2344              		.section	.rodata.Test_InsuInjectOff.str1.1,"aMS",%progbits,1
+ 2345              	.LC110:
+ 2346 0000 5B544553 		.ascii	"[TEST] Voltage inject OFF (use real samples)\015\012"
+ 2346      545D2056 
+ 2346      6F6C7461 
+ 2346      67652069 
+ 2346      6E6A6563 
+ 2347 002e 00       		.ascii	"\000"
+ 2348              		.section	.rodata.Test_InsuInjectOn.str1.1,"aMS",%progbits,1
+ 2349              	.LC107:
+ 2350 0000 5B544553 		.ascii	"[TEST] Voltage inject ON: Bat=%d.%d N2G=%d.%d\015\012"
+ 2350      545D2056 
+ 2350      6F6C7461 
+ 2350      67652069 
+ 2350      6E6A6563 
+ 2351 002f 00       		.ascii	"\000"
+ 2352              		.section	.rodata.Test_InsuMonStart.str1.1,"aMS",%progbits,1
+ 2353              	.LC40:
+ 2354 0000 5B544553 		.ascii	"[TEST] Monitoring is already active\015\012\000"
+ 2354      545D204D 
+ 2354      6F6E6974 
+ 2354      6F72696E 
+ 2354      67206973 
+ 2355              	.LC42:
+ 2356 0026 5B544553 		.ascii	"[TEST] Insulation monitoring started (every %dms)\015"
+ 2356      545D2049 
+ARM GAS  /tmp/ccJERq31.s 			page 55
+
+
+ 2356      6E73756C 
+ 2356      6174696F 
+ 2356      6E206D6F 
+ 2357 0058 0A00     		.ascii	"\012\000"
+ 2358              		.section	.rodata.Test_InsuMonStop.str1.1,"aMS",%progbits,1
+ 2359              	.LC45:
+ 2360 0000 5B544553 		.ascii	"[TEST] Insulation monitoring stopped\015\012\000"
+ 2360      545D2049 
+ 2360      6E73756C 
+ 2360      6174696F 
+ 2360      6E206D6F 
+ 2361              		.section	.rodata.Test_InsuSetMode.str1.1,"aMS",%progbits,1
+ 2362              	.LC33:
+ 2363 0000 5B544553 		.ascii	"[TEST] Invalid mode: %d (0=Auto 1=Start 2=Stop)\015"
+ 2363      545D2049 
+ 2363      6E76616C 
+ 2363      6964206D 
+ 2363      6F64653A 
+ 2364 0030 0A00     		.ascii	"\012\000"
+ 2365              	.LC37:
+ 2366 0032 5B544553 		.ascii	"[TEST] InsulationMode: %d(%s) -> %d(%s)\015\012\000"
+ 2366      545D2049 
+ 2366      6E73756C 
+ 2366      6174696F 
+ 2366      6E4D6F64 
+ 2367              		.section	.rodata.Test_InsuSetPeriod.str1.1,"aMS",%progbits,1
+ 2368              	.LC30:
+ 2369 0000 5B544553 		.ascii	"[TEST] InsuSampPeriod: %d -> %d (sec)\015\012\000"
+ 2369      545D2049 
+ 2369      6E737553 
+ 2369      616D7050 
+ 2369      6572696F 
+ 2370              		.section	.rodata.Test_InsuSetTimeout.str1.1,"aMS",%progbits,1
+ 2371              	.LC27:
+ 2372 0000 5B544553 		.ascii	"[TEST] InsuTimeLimit: %d -> %d (sec)\015\012\000"
+ 2372      545D2049 
+ 2372      6E737554 
+ 2372      696D654C 
+ 2372      696D6974 
+ 2373              		.section	.rodata.Test_PrintCanCtrlCmd.str1.1,"aMS",%progbits,1
+ 2374              	.LC115:
+ 2375 0000 53746F70 		.ascii	"Stop\000"
+ 2375      00
+ 2376              	.LC117:
+ 2377 0005 4175746F 		.ascii	"Auto\000"
+ 2377      00
+ 2378              	.LC119:
+ 2379 000a 53746172 		.ascii	"Start\000"
+ 2379      7400
+ 2380              	.LC122:
+ 2381 0010 2B2D2D20 		.ascii	"+-- CAN ID 55 Control Command ---------------------"
+ 2381      43414E20 
+ 2381      49442035 
+ 2381      3520436F 
+ 2381      6E74726F 
+ 2382 0043 2D2D2D2D 		.ascii	"--------+\015\012\000"
+ 2382      2D2D2D2D 
+ARM GAS  /tmp/ccJERq31.s 			page 56
+
+
+ 2382      2B0D0A00 
+ 2383              	.LC125:
+ 2384 004f 7C205B30 		.ascii	"| [0]UserCtrl    = %d  (%s)\015\012\000"
+ 2384      5D557365 
+ 2384      72437472 
+ 2384      6C202020 
+ 2384      203D2025 
+ 2385              	.LC127:
+ 2386 006d 7C205B31 		.ascii	"| [1]DoCtrlChannl= %d  (0:All 1:DO1 2:DO2)\015\012\000"
+ 2386      5D446F43 
+ 2386      74726C43 
+ 2386      68616E6E 
+ 2386      6C3D2025 
+ 2387              	.LC129:
+ 2388 009a 7C205B32 		.ascii	"| [2]DoCtrlState = %d  (0:Open 1:Close)\015\012\000"
+ 2388      5D446F43 
+ 2388      74726C53 
+ 2388      74617465 
+ 2388      203D2025 
+ 2389              	.LC131:
+ 2390 00c4 7C205B33 		.ascii	"| [3]DoCtrlConfirm= %d (1=Confirm)\015\012\000"
+ 2390      5D446F43 
+ 2390      74726C43 
+ 2390      6F6E6669 
+ 2390      726D3D20 
+ 2391              		.section	.rodata.Test_PrintCanFeedback.str1.1,"aMS",%progbits,1
+ 2392              	.LC134:
+ 2393 0000 50524F43 		.ascii	"PROCESS\000"
+ 2393      45535300 
+ 2394              	.LC136:
+ 2395 0008 53544152 		.ascii	"START\000"
+ 2395      5400
+ 2396              	.LC138:
+ 2397 000e 53544F50 		.ascii	"STOP\000"
+ 2397      00
+ 2398              	.LC140:
+ 2399 0013 454E4400 		.ascii	"END\000"
+ 2400              	.LC142:
+ 2401 0017 4641554C 		.ascii	"FAULT\000"
+ 2401      5400
+ 2402              	.LC144:
+ 2403 001d 4F564552 		.ascii	"OVERTIME\000"
+ 2403      54494D45 
+ 2403      00
+ 2404              	.LC148:
+ 2405 0026 2B2D2D20 		.ascii	"+-- CAN ID 56 Feedback Info -----------------------"
+ 2405      43414E20 
+ 2405      49442035 
+ 2405      36204665 
+ 2405      65646261 
+ 2406 0059 2D2D2D2D 		.ascii	"--------+\015\012\000"
+ 2406      2D2D2D2D 
+ 2406      2B0D0A00 
+ 2407              	.LC150:
+ 2408 0065 7C205B30 		.ascii	"| [0]CtrlFeedback = %d (%s)\015\012\000"
+ 2408      5D437472 
+ 2408      6C466565 
+ARM GAS  /tmp/ccJERq31.s 			page 57
+
+
+ 2408      64626163 
+ 2408      6B203D20 
+ 2409              		.section	.rodata.Test_PrintDiagState.str1.1,"aMS",%progbits,1
+ 2410              	.LC73:
+ 2411 0000 2B2D2D20 		.ascii	"+-- Insulation Diag State -------------------------"
+ 2411      496E7375 
+ 2411      6C617469 
+ 2411      6F6E2044 
+ 2411      69616720 
+ 2412 0033 2D2D2D2D 		.ascii	"--------+\015\012\000"
+ 2412      2D2D2D2D 
+ 2412      2B0D0A00 
+ 2413              	.LC76:
+ 2414 003f 7C206545 		.ascii	"| eERR_ID_INS_STA (volt unstable) : %d(%s)\015\012\000"
+ 2414      52525F49 
+ 2414      445F494E 
+ 2414      535F5354 
+ 2414      41202876 
+ 2415              	.LC78:
+ 2416 006c 7C206545 		.ascii	"| eERR_ID_INS_LOW (volt too low)  : %d(%s)\015\012\000"
+ 2416      52525F49 
+ 2416      445F494E 
+ 2416      535F4C4F 
+ 2416      57202876 
+ 2417              		.section	.rodata.Test_PrintRelayState.str1.1,"aMS",%progbits,1
+ 2418              	.LC50:
+ 2419 0000 434C4F53 		.ascii	"CLOSED\000"
+ 2419      454400
+ 2420              	.LC52:
+ 2421 0007 4F50454E 		.ascii	"OPEN\000"
+ 2421      00
+ 2422              	.LC55:
+ 2423 000c 0D00     		.ascii	"\015\000"
+ 2424              	.LC57:
+ 2425 000e 2B2D2D20 		.ascii	"+-- Relay State -----------------------------------"
+ 2425      52656C61 
+ 2425      79205374 
+ 2425      61746520 
+ 2425      2D2D2D2D 
+ 2426 0041 2D2D2D2D 		.ascii	"--------+\015\012\000"
+ 2426      2D2D2D2D 
+ 2426      2B0D0A00 
+ 2427              	.LC61:
+ 2428 004d 7C205374 		.ascii	"| State=%d(%s)  Step=%s\015\012\000"
+ 2428      6174653D 
+ 2428      25642825 
+ 2428      73292020 
+ 2428      53746570 
+ 2429              	.LC63:
+ 2430 0067 7C205045 		.ascii	"| PE_RLY_GPIO=%d (%s)  IMD_RLY_STATE=%d (%s)\015\012"
+ 2430      5F524C59 
+ 2430      5F475049 
+ 2430      4F3D2564 
+ 2430      20282573 
+ 2431 0095 00       		.ascii	"\000"
+ 2432              	.LC66:
+ 2433 0096 7C204166 		.ascii	"| AfterInsuPeRlyState=%d\015\012\000"
+ARM GAS  /tmp/ccJERq31.s 			page 58
+
+
+ 2433      74657249 
+ 2433      6E737550 
+ 2433      65526C79 
+ 2433      53746174 
+ 2434              	.LC68:
+ 2435 00b1 2B2D2D2D 		.ascii	"+--------------------------------------------------"
+ 2435      2D2D2D2D 
+ 2435      2D2D2D2D 
+ 2435      2D2D2D2D 
+ 2435      2D2D2D2D 
+ 2436 00e4 2D2D2D2D 		.ascii	"---------+\015\012\000"
+ 2436      2D2D2D2D 
+ 2436      2D2B0D0A 
+ 2436      00
+ 2437              		.section	.rodata.Test_PrintThresholdStatus.str1.1,"aMS",%progbits,1
+ 2438              	.LC81:
+ 2439 0000 4641554C 		.ascii	"FAULT(neg)\000"
+ 2439      54286E65 
+ 2439      672900
+ 2440              	.LC83:
+ 2441 000b 4E4F524D 		.ascii	"NORMAL\000"
+ 2441      414C00
+ 2442              	.LC85:
+ 2443 0012 4641554C 		.ascii	"FAULT(<100R/V)\000"
+ 2443      54283C31 
+ 2443      3030522F 
+ 2443      562900
+ 2444              	.LC87:
+ 2445 0021 414C4152 		.ascii	"ALARM(<500R/V)\000"
+ 2445      4D283C35 
+ 2445      3030522F 
+ 2445      562900
+ 2446              	.LC91:
+ 2447 0030 2B2D2D20 		.ascii	"+-- Insulation Threshold --------------------------"
+ 2447      496E7375 
+ 2447      6C617469 
+ 2447      6F6E2054 
+ 2447      68726573 
+ 2448 0063 2D2D2D2D 		.ascii	"--------+\015\012\000"
+ 2448      2D2D2D2D 
+ 2448      2B0D0A00 
+ 2449              	.LC93:
+ 2450 006f 7C204261 		.ascii	"| BatVolt=%d.%dV\015\012\000"
+ 2450      74566F6C 
+ 2450      743D2564 
+ 2450      2E256456 
+ 2450      0D0A00
+ 2451              	.LC95:
+ 2452 0082 7C20416C 		.ascii	"| AlarmLimit=%dR(500R/V)  FaultLimit=%dR(100R/V)\015"
+ 2452      61726D4C 
+ 2452      696D6974 
+ 2452      3D256452 
+ 2452      28353030 
+ 2453 00b3 0A00     		.ascii	"\012\000"
+ 2454              	.LC97:
+ 2455 00b5 7C20524E 		.ascii	"| RN=%d.%d  RP=%d.%d\015\012\000"
+ 2455      3D25642E 
+ARM GAS  /tmp/ccJERq31.s 			page 59
+
+
+ 2455      25642020 
+ 2455      52503D25 
+ 2455      642E2564 
+ 2456              	.LC99:
+ 2457 00cc 7C20524E 		.ascii	"| RN_last=%d.%d  RP_last=%d.%d\015\012\000"
+ 2457      5F6C6173 
+ 2457      743D2564 
+ 2457      2E256420 
+ 2457      2052505F 
+ 2458              	.LC101:
+ 2459 00ed 7C205665 		.ascii	"| Verdict: %s\015\012\000"
+ 2459      72646963 
+ 2459      743A2025 
+ 2459      730D0A00 
+ 2460              		.section	.rodata.Test_RTTCommand.str1.1,"aMS",%progbits,1
+ 2461              	.LC167:
+ 2462 0000 74657374 		.ascii	"test \000"
+ 2462      2000
+ 2463              	.LC169:
+ 2464 0006 696E7375 		.ascii	"insu_dump\000"
+ 2464      5F64756D 
+ 2464      7000
+ 2465              	.LC171:
+ 2466 0010 696E7375 		.ascii	"insu_timeout \000"
+ 2466      5F74696D 
+ 2466      656F7574 
+ 2466      2000
+ 2467              	.LC173:
+ 2468 001e 696E7375 		.ascii	"insu_period \000"
+ 2468      5F706572 
+ 2468      696F6420 
+ 2468      00
+ 2469              	.LC175:
+ 2470 002b 696E7375 		.ascii	"insu_mode \000"
+ 2470      5F6D6F64 
+ 2470      652000
+ 2471              	.LC177:
+ 2472 0036 696E7375 		.ascii	"insu_mon_start\000"
+ 2472      5F6D6F6E 
+ 2472      5F737461 
+ 2472      727400
+ 2473              	.LC179:
+ 2474 0045 696E7375 		.ascii	"insu_mon_stop\000"
+ 2474      5F6D6F6E 
+ 2474      5F73746F 
+ 2474      7000
+ 2475              	.LC181:
+ 2476 0053 696E7375 		.ascii	"insu_relay\000"
+ 2476      5F72656C 
+ 2476      617900
+ 2477              	.LC183:
+ 2478 005e 696E7375 		.ascii	"insu_diag\000"
+ 2478      5F646961 
+ 2478      6700
+ 2479              	.LC185:
+ 2480 0068 696E7375 		.ascii	"insu_threshold\000"
+ 2480      5F746872 
+ARM GAS  /tmp/ccJERq31.s 			page 60
+
+
+ 2480      6573686F 
+ 2480      6C6400
+ 2481              	.LC187:
+ 2482 0077 696E7375 		.ascii	"insu_inject_on \000"
+ 2482      5F696E6A 
+ 2482      6563745F 
+ 2482      6F6E2000 
+ 2483              	.LC189:
+ 2484 0087 696E7375 		.ascii	"insu_inject_off\000"
+ 2484      5F696E6A 
+ 2484      6563745F 
+ 2484      6F666600 
+ 2485              	.LC191:
+ 2486 0097 63616E5F 		.ascii	"can_ctrl\000"
+ 2486      6374726C 
+ 2486      00
+ 2487              	.LC193:
+ 2488 00a0 63616E5F 		.ascii	"can_feedback\000"
+ 2488      66656564 
+ 2488      6261636B 
+ 2488      00
+ 2489              	.LC195:
+ 2490 00ad 63616E5F 		.ascii	"can_set_mode \000"
+ 2490      7365745F 
+ 2490      6D6F6465 
+ 2490      2000
+ 2491              	.LC197:
+ 2492 00bb 63616E5F 		.ascii	"can_set_relay \000"
+ 2492      7365745F 
+ 2492      72656C61 
+ 2492      792000
+ 2493              	.LC199:
+ 2494 00ca 5B544553 		.ascii	"[TEST] Available commands:\015\012\000"
+ 2494      545D2041 
+ 2494      7661696C 
+ 2494      61626C65 
+ 2494      20636F6D 
+ 2495              	.LC201:
+ 2496 00e7 20207465 		.ascii	"  test insu_dump               Print insulation sta"
+ 2496      73742069 
+ 2496      6E73755F 
+ 2496      64756D70 
+ 2496      20202020 
+ 2497 011a 74650D0A 		.ascii	"te\015\012\000"
+ 2497      00
+ 2498              	.LC203:
+ 2499 011f 20207465 		.ascii	"  test insu_timeout <sec>      Set timeout limit (s"
+ 2499      73742069 
+ 2499      6E73755F 
+ 2499      74696D65 
+ 2499      6F757420 
+ 2500 0152 65636F6E 		.ascii	"econds)\015\012\000"
+ 2500      6473290D 
+ 2500      0A00
+ 2501              	.LC205:
+ 2502 015c 20207465 		.ascii	"  test insu_period <sec>       Set sampling period "
+ 2502      73742069 
+ARM GAS  /tmp/ccJERq31.s 			page 61
+
+
+ 2502      6E73755F 
+ 2502      70657269 
+ 2502      6F64203C 
+ 2503 018f 28736563 		.ascii	"(seconds)\015\012\000"
+ 2503      6F6E6473 
+ 2503      290D0A00 
+ 2504              	.LC207:
+ 2505 019b 20207465 		.ascii	"  test insu_mode <0|1|2>       Set mode (0:Auto 1:S"
+ 2505      73742069 
+ 2505      6E73755F 
+ 2505      6D6F6465 
+ 2505      203C307C 
+ 2506 01ce 74617274 		.ascii	"tart 2:Stop)\015\012\000"
+ 2506      20323A53 
+ 2506      746F7029 
+ 2506      0D0A00
+ 2507              	.LC209:
+ 2508 01dd 20207465 		.ascii	"  test insu_mon_start          Start periodic monit"
+ 2508      73742069 
+ 2508      6E73755F 
+ 2508      6D6F6E5F 
+ 2508      73746172 
+ 2509 0210 6F72696E 		.ascii	"oring\015\012\000"
+ 2509      670D0A00 
+ 2510              	.LC211:
+ 2511 0218 20207465 		.ascii	"  test insu_mon_stop           Stop periodic monito"
+ 2511      73742069 
+ 2511      6E73755F 
+ 2511      6D6F6E5F 
+ 2511      73746F70 
+ 2512 024b 72696E67 		.ascii	"ring\015\012\000"
+ 2512      0D0A00
+ 2513              	.LC213:
+ 2514 0252 20207465 		.ascii	"  test insu_relay              Print relay states\015"
+ 2514      73742069 
+ 2514      6E73755F 
+ 2514      72656C61 
+ 2514      79202020 
+ 2515 0284 0A00     		.ascii	"\012\000"
+ 2516              	.LC215:
+ 2517 0286 20207465 		.ascii	"  test insu_diag               Print diagnostic sta"
+ 2517      73742069 
+ 2517      6E73755F 
+ 2517      64696167 
+ 2517      20202020 
+ 2518 02b9 7465730D 		.ascii	"tes\015\012\000"
+ 2518      0A00
+ 2519              	.LC217:
+ 2520 02bf 20207465 		.ascii	"  test insu_threshold          Print threshold calc"
+ 2520      73742069 
+ 2520      6E73755F 
+ 2520      74687265 
+ 2520      73686F6C 
+ 2521 02f2 20726573 		.ascii	" result\015\012\000"
+ 2521      756C740D 
+ 2521      0A00
+ 2522              	.LC219:
+ARM GAS  /tmp/ccJERq31.s 			page 62
+
+
+ 2523 02fc 20207465 		.ascii	"  test insu_inject_on <bat> <n2g>  Enable voltage i"
+ 2523      73742069 
+ 2523      6E73755F 
+ 2523      696E6A65 
+ 2523      63745F6F 
+ 2524 032f 6E6A6563 		.ascii	"njection\015\012\000"
+ 2524      74696F6E 
+ 2524      0D0A00
+ 2525              	.LC221:
+ 2526 033a 20207465 		.ascii	"  test insu_inject_off         Disable voltage inje"
+ 2526      73742069 
+ 2526      6E73755F 
+ 2526      696E6A65 
+ 2526      63745F6F 
+ 2527 036d 6374696F 		.ascii	"ction\015\012\000"
+ 2527      6E0D0A00 
+ 2528              	.LC223:
+ 2529 0375 20207465 		.ascii	"  test can_ctrl                Print CAN ID 55 comm"
+ 2529      73742063 
+ 2529      616E5F63 
+ 2529      74726C20 
+ 2529      20202020 
+ 2530 03a8 616E640D 		.ascii	"and\015\012\000"
+ 2530      0A00
+ 2531              	.LC225:
+ 2532 03ae 20207465 		.ascii	"  test can_feedback            Print CAN ID 56 feed"
+ 2532      73742063 
+ 2532      616E5F66 
+ 2532      65656462 
+ 2532      61636B20 
+ 2533 03e1 6261636B 		.ascii	"back\015\012\000"
+ 2533      0D0A00
+ 2534              	.LC227:
+ 2535 03e8 20207465 		.ascii	"  test can_set_mode <0|1|2>    Sim CAN set insulati"
+ 2535      73742063 
+ 2535      616E5F73 
+ 2535      65745F6D 
+ 2535      6F646520 
+ 2536 041b 6F6E206D 		.ascii	"on mode\015\012\000"
+ 2536      6F64650D 
+ 2536      0A00
+ 2537              	.LC229:
+ 2538 0425 20207465 		.ascii	"  test can_set_relay <ch> <st> <cf>  Sim CAN relay "
+ 2538      73742063 
+ 2538      616E5F73 
+ 2538      65745F72 
+ 2538      656C6179 
+ 2539 0458 636F6E74 		.ascii	"control\015\012\000"
+ 2539      726F6C0D 
+ 2539      0A00
+ 2540              		.section	.rodata.Test_SimCanInsuMode.str1.1,"aMS",%progbits,1
+ 2541              	.LC157:
+ 2542 0000 5B544553 		.ascii	"[TEST] CAN ID 55 simulated: UserCtrl=%d (%s)\015\012"
+ 2542      545D2043 
+ 2542      414E2049 
+ 2542      44203535 
+ 2542      2073696D 
+ARM GAS  /tmp/ccJERq31.s 			page 63
+
+
+ 2543 002e 00       		.ascii	"\000"
+ 2544              		.section	.rodata.Test_SimCanRelayCtrl.str1.1,"aMS",%progbits,1
+ 2545              	.LC160:
+ 2546 0000 5B544553 		.ascii	"[TEST] CAN ID 55 simulated: Relay Ch=%d State=%d Co"
+ 2546      545D2043 
+ 2546      414E2049 
+ 2546      44203535 
+ 2546      2073696D 
+ 2547 0033 6E666972 		.ascii	"nfirm=%d\015\012\000"
+ 2547      6D3D2564 
+ 2547      0D0A00
+ 2548              	.LC163:
+ 2549 003e 5B544553 		.ascii	"[TEST] Relay control executed: DO1=%d DO2=%d\015\012"
+ 2549      545D2052 
+ 2549      656C6179 
+ 2549      20636F6E 
+ 2549      74726F6C 
+ 2550 006c 00       		.ascii	"\000"
+ 2551              		.section	.rodata.Track_Sample.str1.1,"aMS",%progbits,1
+ 2552              	.LC2:
+ 2553 0000 5B545241 		.ascii	"[TRACK] %s  id=%d  dt=%dms  tick=%d\015\012\000"
+ 2553      434B5D20 
+ 2553      25732020 
+ 2553      69643D25 
+ 2553      64202064 
+ 2554              		.section	.rodata.str1.1,"aMS",%progbits,1
+ 2555              	.LC231:
+ 2556 0000 4E4F524D 		.ascii	"NORMAL(A)\000"
+ 2556      414C2841 
+ 2556      2900
+ 2557              	.LC232:
+ 2558 000a 4641554C 		.ascii	"FAULT(B)\000"
+ 2558      54284229 
+ 2558      00
+ 2559              	.LC233:
+ 2560 0013 412D3E42 		.ascii	"A->B\000"
+ 2560      00
+ 2561              	.LC234:
+ 2562 0018 422D3E41 		.ascii	"B->A\000"
+ 2562      00
+ 2563              	.LC235:
+ 2564 001d 53544550 		.ascii	"STEP1(PE)\000"
+ 2564      31285045 
+ 2564      2900
+ 2565              	.LC236:
+ 2566 0027 53544550 		.ascii	"STEP2(IMD)\000"
+ 2566      3228494D 
+ 2566      442900
+ 2567              	.LC237:
+ 2568 0032 53544550 		.ascii	"STEP3(CALC)\000"
+ 2568      33284341 
+ 2568      4C432900 
+ 2569              	.LC238:
+ 2570 003e 4155544F 		.ascii	"AUTO\000"
+ 2570      00
+ 2571              		.text
+ 2572              	.Letext0:
+ARM GAS  /tmp/ccJERq31.s 			page 64
+
+
+ 2573              		.file 2 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/machine/_default_types.h"
+ 2574              		.file 3 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/lock.h"
+ 2575              		.file 4 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_types.h"
+ 2576              		.file 5 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/lib/gcc/arm-none-eabi/7.3.1/include/stddef.h"
+ 2577              		.file 6 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/reent.h"
+ 2578              		.file 7 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/stdlib.h"
+ 2579              		.file 8 "Application/BSPSys/Util/BSPTypeDef.h"
+ 2580              		.file 9 "Application/Logics/Insulation/Insulation.h"
+ 2581              		.file 10 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_stdint.h"
+ 2582              		.file 11 "Core/Inc/FreeRTOSConfig.h"
+ 2583              		.file 12 "Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM0/portmacro.h"
+ 2584              		.file 13 "./Application/Funtion/Test/TEST.h"
+ 2585              		.file 14 "Application/Funtion/SystemPara/SystemPara.h"
+ 2586              		.file 15 "Application/Funtion/SystemData/SystemData.h"
+ 2587              		.file 16 "Application/Addition/RTT/SEGGER_RTT.h"
+ 2588              		.file 17 "Application/BSPSys/BSPDriver/BSPGPIO.h"
+ 2589              		.file 18 "Application/Funtion/SystemInfo/SystemInfo.h"
+ 2590              		.file 19 "Application/Funtion/SystemDiag/SystemDiag.h"
+ 2591              		.file 20 "Application/BSPSys/BSPDevice/KA84917/BSPKA84917_async.h"
+ 2592              		.file 21 "Application/Funtion/DoControl/DoControl.h"
+ 2593              		.file 22 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/string.h"
+ 2594              		.file 23 "Middlewares/Third_Party/FreeRTOS/Source/include/task.h"
+ARM GAS  /tmp/ccJERq31.s 			page 65
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 TEST.c
+     /tmp/ccJERq31.s:16     .text.Track_Sample:0000000000000000 $t
+     /tmp/ccJERq31.s:23     .text.Track_Sample:0000000000000000 Track_Sample
+     /tmp/ccJERq31.s:98     .text.Track_Sample:000000000000003c $d
+     /tmp/ccJERq31.s:105    .text.Test_InsuDump:0000000000000000 $t
+     /tmp/ccJERq31.s:112    .text.Test_InsuDump:0000000000000000 Test_InsuDump
+     /tmp/ccJERq31.s:255    .text.Test_InsuDump:00000000000000ac $d
+     /tmp/ccJERq31.s:273    .text.Test_InsuSetTimeout:0000000000000000 $t
+     /tmp/ccJERq31.s:280    .text.Test_InsuSetTimeout:0000000000000000 Test_InsuSetTimeout
+     /tmp/ccJERq31.s:313    .text.Test_InsuSetTimeout:0000000000000014 $d
+     /tmp/ccJERq31.s:319    .text.Test_InsuSetPeriod:0000000000000000 $t
+     /tmp/ccJERq31.s:326    .text.Test_InsuSetPeriod:0000000000000000 Test_InsuSetPeriod
+     /tmp/ccJERq31.s:359    .text.Test_InsuSetPeriod:0000000000000014 $d
+     /tmp/ccJERq31.s:365    .text.Test_InsuSetMode:0000000000000000 $t
+     /tmp/ccJERq31.s:372    .text.Test_InsuSetMode:0000000000000000 Test_InsuSetMode
+     /tmp/ccJERq31.s:436    .text.Test_InsuSetMode:0000000000000038 $d
+     /tmp/ccJERq31.s:445    .text.Test_InsuMonStart:0000000000000000 $t
+     /tmp/ccJERq31.s:452    .text.Test_InsuMonStart:0000000000000000 Test_InsuMonStart
+     /tmp/ccJERq31.s:495    .text.Test_InsuMonStart:0000000000000024 $d
+     /tmp/ccJERq31.s:502    .text.Test_InsuMonStop:0000000000000000 $t
+     /tmp/ccJERq31.s:509    .text.Test_InsuMonStop:0000000000000000 Test_InsuMonStop
+     /tmp/ccJERq31.s:539    .text.Test_InsuMonStop:0000000000000010 $d
+     /tmp/ccJERq31.s:545    .text.Test_InsuMonPoll:0000000000000000 $t
+     /tmp/ccJERq31.s:552    .text.Test_InsuMonPoll:0000000000000000 Test_InsuMonPoll
+     /tmp/ccJERq31.s:595    .text.Test_InsuMonPoll:0000000000000028 $d
+     /tmp/ccJERq31.s:601    .text.Test_PrintRelayState:0000000000000000 $t
+     /tmp/ccJERq31.s:608    .text.Test_PrintRelayState:0000000000000000 Test_PrintRelayState
+     /tmp/ccJERq31.s:728    .text.Test_PrintRelayState:0000000000000088 $d
+     /tmp/ccJERq31.s:746    .text.Test_PrintDiagState:0000000000000000 $t
+     /tmp/ccJERq31.s:753    .text.Test_PrintDiagState:0000000000000000 Test_PrintDiagState
+     /tmp/ccJERq31.s:837    .text.Test_PrintDiagState:0000000000000064 $d
+     /tmp/ccJERq31.s:853    .text.Test_PrintThresholdStatus:0000000000000000 $t
+     /tmp/ccJERq31.s:860    .text.Test_PrintThresholdStatus:0000000000000000 Test_PrintThresholdStatus
+     /tmp/ccJERq31.s:1137   .text.Test_PrintThresholdStatus:0000000000000190 $d
+     /tmp/ccJERq31.s:1156   .text.Test_InsuInjectOn:0000000000000000 $t
+     /tmp/ccJERq31.s:1163   .text.Test_InsuInjectOn:0000000000000000 Test_InsuInjectOn
+     /tmp/ccJERq31.s:1252   .text.Test_InsuInjectOn:0000000000000068 $d
+     /tmp/ccJERq31.s:1261   .text.Test_InsuInjectOff:0000000000000000 $t
+     /tmp/ccJERq31.s:1268   .text.Test_InsuInjectOff:0000000000000000 Test_InsuInjectOff
+     /tmp/ccJERq31.s:1298   .text.Test_InsuInjectOff:0000000000000010 $d
+     /tmp/ccJERq31.s:1304   .text.Test_IsInjectEnabled:0000000000000000 $t
+     /tmp/ccJERq31.s:1311   .text.Test_IsInjectEnabled:0000000000000000 Test_IsInjectEnabled
+     /tmp/ccJERq31.s:1329   .text.Test_IsInjectEnabled:0000000000000008 $d
+     /tmp/ccJERq31.s:1334   .text.Test_GetInjectedVoltage:0000000000000000 $t
+     /tmp/ccJERq31.s:1341   .text.Test_GetInjectedVoltage:0000000000000000 Test_GetInjectedVoltage
+     /tmp/ccJERq31.s:1371   .text.Test_GetInjectedVoltage:0000000000000018 $d
+     /tmp/ccJERq31.s:1377   .text.Test_PrintCanCtrlCmd:0000000000000000 $t
+     /tmp/ccJERq31.s:1384   .text.Test_PrintCanCtrlCmd:0000000000000000 Test_PrintCanCtrlCmd
+     /tmp/ccJERq31.s:1462   .text.Test_PrintCanCtrlCmd:0000000000000060 $d
+     /tmp/ccJERq31.s:1477   .text.Test_PrintCanFeedback:0000000000000000 $t
+     /tmp/ccJERq31.s:1484   .text.Test_PrintCanFeedback:0000000000000000 Test_PrintCanFeedback
+     /tmp/ccJERq31.s:1559   .text.Test_PrintCanFeedback:0000000000000054 $d
+     /tmp/ccJERq31.s:1574   .text.Test_SimCanInsuMode:0000000000000000 $t
+     /tmp/ccJERq31.s:1581   .text.Test_SimCanInsuMode:0000000000000000 Test_SimCanInsuMode
+     /tmp/ccJERq31.s:1636   .text.Test_SimCanInsuMode:000000000000002c $d
+     /tmp/ccJERq31.s:1645   .text.Test_SimCanRelayCtrl:0000000000000000 $t
+ARM GAS  /tmp/ccJERq31.s 			page 66
+
+
+     /tmp/ccJERq31.s:1652   .text.Test_SimCanRelayCtrl:0000000000000000 Test_SimCanRelayCtrl
+     /tmp/ccJERq31.s:1739   .text.Test_SimCanRelayCtrl:0000000000000048 $d
+     /tmp/ccJERq31.s:1750   .text.Test_RTTCommand:0000000000000000 $t
+     /tmp/ccJERq31.s:1757   .text.Test_RTTCommand:0000000000000000 Test_RTTCommand
+     /tmp/ccJERq31.s:2201   .text.Test_RTTCommand:0000000000000244 $d
+     /tmp/ccJERq31.s:2240   .bss.gTrackInitDone:0000000000000000 gTrackInitDone
+     /tmp/ccJERq31.s:2241   .bss.gTrackInitDone:0000000000000000 $d
+     /tmp/ccJERq31.s:2243   .bss.gTrackLastTick:0000000000000000 $d
+     /tmp/ccJERq31.s:2247   .bss.gTrackLastTick:0000000000000000 gTrackLastTick
+     /tmp/ccJERq31.s:2250   .bss.g_insu_inject_bat:0000000000000000 $d
+     /tmp/ccJERq31.s:2254   .bss.g_insu_inject_bat:0000000000000000 g_insu_inject_bat
+     /tmp/ccJERq31.s:2260   .bss.g_insu_inject_enabled:0000000000000000 g_insu_inject_enabled
+     /tmp/ccJERq31.s:2261   .bss.g_insu_inject_enabled:0000000000000000 $d
+     /tmp/ccJERq31.s:2263   .bss.g_insu_inject_n2g:0000000000000000 $d
+     /tmp/ccJERq31.s:2267   .bss.g_insu_inject_n2g:0000000000000000 g_insu_inject_n2g
+     /tmp/ccJERq31.s:2273   .bss.g_insu_mon_active:0000000000000000 g_insu_mon_active
+     /tmp/ccJERq31.s:2274   .bss.g_insu_mon_active:0000000000000000 $d
+     /tmp/ccJERq31.s:2276   .bss.last.6777:0000000000000000 $d
+     /tmp/ccJERq31.s:2280   .bss.last.6777:0000000000000000 last.6777
+     /tmp/ccJERq31.s:2283   .rodata.CSWTCH.25:0000000000000000 $d
+     /tmp/ccJERq31.s:2287   .rodata.CSWTCH.25:0000000000000000 CSWTCH.25
+     /tmp/ccJERq31.s:2295   .rodata.CSWTCH.27:0000000000000000 $d
+     /tmp/ccJERq31.s:2299   .rodata.CSWTCH.27:0000000000000000 CSWTCH.27
+     /tmp/ccJERq31.s:2304   .rodata.CSWTCH.29:0000000000000000 $d
+     /tmp/ccJERq31.s:2308   .rodata.CSWTCH.29:0000000000000000 CSWTCH.29
+     /tmp/ccJERq31.s:2313   .rodata.CSWTCH.31:0000000000000000 $d
+     /tmp/ccJERq31.s:2317   .rodata.CSWTCH.31:0000000000000000 CSWTCH.31
+
+UNDEFINED SYMBOLS
+xTaskGetTickCount
+SEGGER_RTT_printf
+gs_InsulationDetectMng
+stParameter
+CtrlCmdFeedback_56
+BSPGPIOGetPortState
+GetIMD_RLY_State
+DiagGetErrLastStateAPI
+__aeabi_fmul
+__aeabi_f2iz
+__aeabi_i2f
+__aeabi_fsub
+__aeabi_fcmplt
+UserCtrlCmd_55
+gControl
+__aeabi_d2f
+strncmp
+strcmp
+atoi
+atof

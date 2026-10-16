@@ -1,0 +1,168 @@
+ARM GAS  /tmp/ccV88ZYA.s 			page 1
+
+
+   1              		.cpu cortex-m0plus
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 4
+   9              		.eabi_attribute 34, 0
+  10              		.eabi_attribute 18, 4
+  11              		.file	"BSPMCG.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.BSPMCGInit,"ax",%progbits
+  16              		.align	1
+  17              		.global	BSPMCGInit
+  18              		.syntax unified
+  19              		.code	16
+  20              		.thumb_func
+  21              		.fpu softvfp
+  23              	BSPMCGInit:
+  24              	.LFB493:
+  25              		.file 1 "./Application/BSPSys/BSPDriver/BSPMCG.c"
+   1:./Application/BSPSys/BSPDriver/BSPMCG.c **** /*
+   2:./Application/BSPSys/BSPDriver/BSPMCG.c ****  * @Author: “WYP40505” “wang.yaob@infypower.cn”
+   3:./Application/BSPSys/BSPDriver/BSPMCG.c ****  * @Date: 2026-04-16 14:34:58
+   4:./Application/BSPSys/BSPDriver/BSPMCG.c ****  * @LastEditors: “WYP40505” “wang.yaob@infypower.cn”
+   5:./Application/BSPSys/BSPDriver/BSPMCG.c ****  * @LastEditTime: 2026-04-19 18:03:20
+   6:./Application/BSPSys/BSPDriver/BSPMCG.c ****  * @FilePath: \IMIU4\Application\BSPSys\BSPDriver\BSPMCG.c
+   7:./Application/BSPSys/BSPDriver/BSPMCG.c ****  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行�
+   8:./Application/BSPSys/BSPDriver/BSPMCG.c ****  */
+   9:./Application/BSPSys/BSPDriver/BSPMCG.c **** /*==========================================Copyright(c)=======================================
+  10:./Application/BSPSys/BSPDriver/BSPMCG.c **** **                                  Shenzhen Infypower Co., Ltd.
+  11:./Application/BSPSys/BSPDriver/BSPMCG.c **** **                                  Power conversion Department
+  12:./Application/BSPSys/BSPDriver/BSPMCG.c **** **                                       BMS Product Line
+  13:./Application/BSPSys/BSPDriver/BSPMCG.c **** **
+  14:./Application/BSPSys/BSPDriver/BSPMCG.c **** **---------------------------------------File Information--------------------------------------
+  15:./Application/BSPSys/BSPDriver/BSPMCG.c **** ** @File Name    : BSPMCG.c
+  16:./Application/BSPSys/BSPDriver/BSPMCG.c **** ** @Founder      : WYC834
+  17:./Application/BSPSys/BSPDriver/BSPMCG.c **** ** @Date         : 2025.08.20
+  18:./Application/BSPSys/BSPDriver/BSPMCG.c **** ** @Function     : MCG驱动函数模块
+  19:./Application/BSPSys/BSPDriver/BSPMCG.c **** ** @Instructions :
+  20:./Application/BSPSys/BSPDriver/BSPMCG.c **** **===========================================================================================*/
+  21:./Application/BSPSys/BSPDriver/BSPMCG.c **** 
+  22:./Application/BSPSys/BSPDriver/BSPMCG.c **** /*=============================================================================================
+  23:./Application/BSPSys/BSPDriver/BSPMCG.c **** ** @Header file definition
+  24:./Application/BSPSys/BSPDriver/BSPMCG.c **** **===========================================================================================*/
+  25:./Application/BSPSys/BSPDriver/BSPMCG.c **** #include "main.h"
+  26:./Application/BSPSys/BSPDriver/BSPMCG.c **** #include "BSPTypeDef.h"
+  27:./Application/BSPSys/BSPDriver/BSPMCG.c **** #include "BSPMCG.h"
+  28:./Application/BSPSys/BSPDriver/BSPMCG.c **** 
+  29:./Application/BSPSys/BSPDriver/BSPMCG.c **** /*=============================================================================================
+  30:./Application/BSPSys/BSPDriver/BSPMCG.c **** ** @Global variable definition
+  31:./Application/BSPSys/BSPDriver/BSPMCG.c **** **===========================================================================================*/
+  32:./Application/BSPSys/BSPDriver/BSPMCG.c **** 
+  33:./Application/BSPSys/BSPDriver/BSPMCG.c **** /*=============================================================================================
+ARM GAS  /tmp/ccV88ZYA.s 			page 2
+
+
+  34:./Application/BSPSys/BSPDriver/BSPMCG.c **** ** @Static function declaration
+  35:./Application/BSPSys/BSPDriver/BSPMCG.c **** **===========================================================================================*/
+  36:./Application/BSPSys/BSPDriver/BSPMCG.c **** 
+  37:./Application/BSPSys/BSPDriver/BSPMCG.c **** /*=============================================================================================
+  38:./Application/BSPSys/BSPDriver/BSPMCG.c **** ** @Interface function definition
+  39:./Application/BSPSys/BSPDriver/BSPMCG.c **** **===========================================================================================*/
+  40:./Application/BSPSys/BSPDriver/BSPMCG.c **** /*=============================================================================================
+  41:./Application/BSPSys/BSPDriver/BSPMCG.c **** ** @Name      : u8 BSPMCGInit(void)
+  42:./Application/BSPSys/BSPDriver/BSPMCG.c **** ** @Input     : 
+  43:./Application/BSPSys/BSPDriver/BSPMCG.c **** ** @Output    : 初始化结果 TRUE:成功 FALSE:失败
+  44:./Application/BSPSys/BSPDriver/BSPMCG.c **** ** @Function  : 初始化MCG
+  45:./Application/BSPSys/BSPDriver/BSPMCG.c **** ** @The notes : 请根据晶振时钟，（当前使用外部晶振8M,默认使用主频60M）
+  46:./Application/BSPSys/BSPDriver/BSPMCG.c **** **===========================================================================================*/
+  47:./Application/BSPSys/BSPDriver/BSPMCG.c **** void BSPMCGInit(void)
+  48:./Application/BSPSys/BSPDriver/BSPMCG.c **** {
+  26              		.loc 1 48 0
+  27              		.cfi_startproc
+  28              		@ args = 0, pretend = 0, frame = 0
+  29              		@ frame_needed = 0, uses_anonymous_args = 0
+  30 0000 10B5     		push	{r4, lr}
+  31              	.LCFI0:
+  32              		.cfi_def_cfa_offset 8
+  33              		.cfi_offset 4, -8
+  34              		.cfi_offset 14, -4
+  49:./Application/BSPSys/BSPDriver/BSPMCG.c **** 	HAL_Init();
+  35              		.loc 1 49 0
+  36 0002 FFF7FEFF 		bl	HAL_Init
+  37              	.LVL0:
+  50:./Application/BSPSys/BSPDriver/BSPMCG.c **** 	
+  51:./Application/BSPSys/BSPDriver/BSPMCG.c **** 	SystemClock_Config();
+  52:./Application/BSPSys/BSPDriver/BSPMCG.c **** 	
+  53:./Application/BSPSys/BSPDriver/BSPMCG.c **** }
+  38              		.loc 1 53 0
+  39              		@ sp needed
+  51:./Application/BSPSys/BSPDriver/BSPMCG.c **** 	
+  40              		.loc 1 51 0
+  41 0006 FFF7FEFF 		bl	SystemClock_Config
+  42              	.LVL1:
+  43              		.loc 1 53 0
+  44 000a 10BD     		pop	{r4, pc}
+  45              		.cfi_endproc
+  46              	.LFE493:
+  48              		.section	.text.BSPCRGDiagnose,"ax",%progbits
+  49              		.align	1
+  50              		.global	BSPCRGDiagnose
+  51              		.syntax unified
+  52              		.code	16
+  53              		.thumb_func
+  54              		.fpu softvfp
+  56              	BSPCRGDiagnose:
+  57              	.LFB494:
+  54:./Application/BSPSys/BSPDriver/BSPMCG.c **** 	
+  55:./Application/BSPSys/BSPDriver/BSPMCG.c **** /*=============================================================================================
+  56:./Application/BSPSys/BSPDriver/BSPMCG.c **** ** @Name      : void BSPCRGDiagnose(void)
+  57:./Application/BSPSys/BSPDriver/BSPMCG.c **** ** @Input     : void
+  58:./Application/BSPSys/BSPDriver/BSPMCG.c **** ** @Output    : void
+  59:./Application/BSPSys/BSPDriver/BSPMCG.c **** ** @Function  : 系统时钟诊断
+ARM GAS  /tmp/ccV88ZYA.s 			page 3
+
+
+  60:./Application/BSPSys/BSPDriver/BSPMCG.c **** ** @The notes : BSP调用 1s
+  61:./Application/BSPSys/BSPDriver/BSPMCG.c **** **===========================================================================================*/
+  62:./Application/BSPSys/BSPDriver/BSPMCG.c **** void BSPCRGDiagnose(void)
+  63:./Application/BSPSys/BSPDriver/BSPMCG.c **** {
+  58              		.loc 1 63 0
+  59              		.cfi_startproc
+  60              		@ args = 0, pretend = 0, frame = 0
+  61              		@ frame_needed = 0, uses_anonymous_args = 0
+  62              		@ link register save eliminated.
+  64:./Application/BSPSys/BSPDriver/BSPMCG.c ****     ;
+  65:./Application/BSPSys/BSPDriver/BSPMCG.c **** }
+  63              		.loc 1 65 0
+  64              		@ sp needed
+  65 0000 7047     		bx	lr
+  66              		.cfi_endproc
+  67              	.LFE494:
+  69              		.text
+  70              	.Letext0:
+  71              		.file 2 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/machine/_default_types.h"
+  72              		.file 3 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_stdint.h"
+  73              		.file 4 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/system_stm32g0xx.h"
+  74              		.file 5 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_def.h"
+  75              		.file 6 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_flash.h"
+  76              		.file 7 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_uart.h"
+  77              		.file 8 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal.h"
+  78              		.file 9 "Core/Inc/main.h"
+  79              		.file 10 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/lock.h"
+  80              		.file 11 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_types.h"
+  81              		.file 12 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/lib/gcc/arm-none-eabi/7.3.1/include/stddef.h"
+  82              		.file 13 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/reent.h"
+  83              		.file 14 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/stdlib.h"
+  84              		.file 15 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_ll_dma.h"
+ARM GAS  /tmp/ccV88ZYA.s 			page 4
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 BSPMCG.c
+     /tmp/ccV88ZYA.s:16     .text.BSPMCGInit:0000000000000000 $t
+     /tmp/ccV88ZYA.s:23     .text.BSPMCGInit:0000000000000000 BSPMCGInit
+     /tmp/ccV88ZYA.s:49     .text.BSPCRGDiagnose:0000000000000000 $t
+     /tmp/ccV88ZYA.s:56     .text.BSPCRGDiagnose:0000000000000000 BSPCRGDiagnose
+
+UNDEFINED SYMBOLS
+HAL_Init
+SystemClock_Config

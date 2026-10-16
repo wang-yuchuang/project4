@@ -1,0 +1,229 @@
+ARM GAS  /tmp/ccUyEr1Z.s 			page 1
+
+
+   1              		.cpu cortex-m0plus
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 4
+   9              		.eabi_attribute 34, 0
+  10              		.eabi_attribute 18, 4
+  11              		.file	"sid28_communication_ctrl.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.sid28_communication_ctrl_solve,"ax",%progbits
+  16              		.align	1
+  17              		.global	sid28_communication_ctrl_solve
+  18              		.syntax unified
+  19              		.code	16
+  20              		.thumb_func
+  21              		.fpu softvfp
+  23              	sid28_communication_ctrl_solve:
+  24              	.LFB493:
+  25              		.file 1 "./Application/Addition/UDSCanfd/services_layer/device_role/sid28_communication_ctrl.c"
+   1:./Application/Addition/UDSCanfd/services_layer/device_role/sid28_communication_ctrl.c **** /* ******************* 
+   2:./Application/Addition/UDSCanfd/services_layer/device_role/sid28_communication_ctrl.c ****  * can uds 28h服务的实现
+   3:./Application/Addition/UDSCanfd/services_layer/device_role/sid28_communication_ctrl.c ****  **********************/
+   4:./Application/Addition/UDSCanfd/services_layer/device_role/sid28_communication_ctrl.c **** #include <string.h>
+   5:./Application/Addition/UDSCanfd/services_layer/device_role/sid28_communication_ctrl.c **** #include "network_layer/can_uds_network_layer.h"
+   6:./Application/Addition/UDSCanfd/services_layer/device_role/sid28_communication_ctrl.c **** #include "services_layer/device_role/sid_internal_header.h"
+   7:./Application/Addition/UDSCanfd/services_layer/device_role/sid28_communication_ctrl.c **** #include "services_layer/device_role/can_uds_services_layer.h"
+   8:./Application/Addition/UDSCanfd/services_layer/device_role/sid28_communication_ctrl.c **** 
+   9:./Application/Addition/UDSCanfd/services_layer/device_role/sid28_communication_ctrl.c **** 
+  10:./Application/Addition/UDSCanfd/services_layer/device_role/sid28_communication_ctrl.c **** void sid28_communication_ctrl_solve(unsigned char *msg_buff,unsigned short msg_len)
+  11:./Application/Addition/UDSCanfd/services_layer/device_role/sid28_communication_ctrl.c **** {
+  26              		.loc 1 11 0
+  27              		.cfi_startproc
+  28              		@ args = 0, pretend = 0, frame = 8
+  29              		@ frame_needed = 0, uses_anonymous_args = 0
+  30              	.LVL0:
+  12:./Application/Addition/UDSCanfd/services_layer/device_role/sid28_communication_ctrl.c ****     unsigned char rsp_msg[2] = {0};
+  13:./Application/Addition/UDSCanfd/services_layer/device_role/sid28_communication_ctrl.c **** 
+  14:./Application/Addition/UDSCanfd/services_layer/device_role/sid28_communication_ctrl.c ****     rsp_msg[0] = ds_communication_ctrl | UDS_SRV_RET_ID_OFFSET;
+  31              		.loc 1 14 0
+  32 0000 6823     		movs	r3, #104
+  11:./Application/Addition/UDSCanfd/services_layer/device_role/sid28_communication_ctrl.c ****     unsigned char rsp_msg[2] = {0};
+  33              		.loc 1 11 0
+  34 0002 07B5     		push	{r0, r1, r2, lr}
+  35              	.LCFI0:
+  36              		.cfi_def_cfa_offset 16
+  37              		.cfi_offset 0, -16
+  38              		.cfi_offset 1, -12
+  39              		.cfi_offset 2, -8
+  40              		.cfi_offset 14, -4
+  15:./Application/Addition/UDSCanfd/services_layer/device_role/sid28_communication_ctrl.c ****     rsp_msg[1] = msg_buff[1];
+  16:./Application/Addition/UDSCanfd/services_layer/device_role/sid28_communication_ctrl.c **** 
+  17:./Application/Addition/UDSCanfd/services_layer/device_role/sid28_communication_ctrl.c ****     if(cur_session_type == PROGRAMMING_SESSION||
+ARM GAS  /tmp/ccUyEr1Z.s 			page 2
+
+
+  41              		.loc 1 17 0
+  42 0004 1549     		ldr	r1, .L13
+  43              	.LVL1:
+  14:./Application/Addition/UDSCanfd/services_layer/device_role/sid28_communication_ctrl.c ****     rsp_msg[1] = msg_buff[1];
+  44              		.loc 1 14 0
+  45 0006 01AA     		add	r2, sp, #4
+  46              		.loc 1 17 0
+  47 0008 0978     		ldrb	r1, [r1]
+  14:./Application/Addition/UDSCanfd/services_layer/device_role/sid28_communication_ctrl.c ****     rsp_msg[1] = msg_buff[1];
+  48              		.loc 1 14 0
+  49 000a 1370     		strb	r3, [r2]
+  15:./Application/Addition/UDSCanfd/services_layer/device_role/sid28_communication_ctrl.c ****     rsp_msg[1] = msg_buff[1];
+  50              		.loc 1 15 0
+  51 000c 4378     		ldrb	r3, [r0, #1]
+  52              		.loc 1 17 0
+  53 000e 0239     		subs	r1, r1, #2
+  15:./Application/Addition/UDSCanfd/services_layer/device_role/sid28_communication_ctrl.c ****     rsp_msg[1] = msg_buff[1];
+  54              		.loc 1 15 0
+  55 0010 5370     		strb	r3, [r2, #1]
+  56              		.loc 1 17 0
+  57 0012 0129     		cmp	r1, #1
+  58 0014 1DD8     		bhi	.L2
+  59 0016 7F21     		movs	r1, #127
+  60 0018 0B40     		ands	r3, r1
+  18:./Application/Addition/UDSCanfd/services_layer/device_role/sid28_communication_ctrl.c ****         cur_session_type == EXTENDED_SESSION){
+  19:./Application/Addition/UDSCanfd/services_layer/device_role/sid28_communication_ctrl.c ****         if((msg_buff[1]&0x7f) == COMMU_EN_RX_TX){//
+  61              		.loc 1 19 0
+  62 001a 0BD1     		bne	.L3
+  63              	.L12:
+  20:./Application/Addition/UDSCanfd/services_layer/device_role/sid28_communication_ctrl.c ****             if((msg_buff[2] == 0x01) || (msg_buff[2] == 0x03))// only comm type is 01 or 03
+  64              		.loc 1 20 0
+  65 001c 8178     		ldrb	r1, [r0, #2]
+  66 001e 0220     		movs	r0, #2
+  67              	.LVL2:
+  68 0020 8143     		bics	r1, r0
+  69              	.L10:
+  70 0022 0129     		cmp	r1, #1
+  71 0024 01D1     		bne	.L4
+  72              	.L8:
+  21:./Application/Addition/UDSCanfd/services_layer/device_role/sid28_communication_ctrl.c ****                 cur_communication_type = COMMU_EN_RX_TX;
+  73              		.loc 1 21 0
+  74 0026 0E49     		ldr	r1, .L13+4
+  75 0028 0B70     		strb	r3, [r1]
+  76              	.L4:
+  22:./Application/Addition/UDSCanfd/services_layer/device_role/sid28_communication_ctrl.c ****             uds_ack_accept(rsp_msg,2);
+  77              		.loc 1 22 0
+  78 002a 0221     		movs	r1, #2
+  79 002c 1000     		movs	r0, r2
+  80 002e FFF7FEFF 		bl	uds_ack_accept
+  81              	.LVL3:
+  82              	.L1:
+  23:./Application/Addition/UDSCanfd/services_layer/device_role/sid28_communication_ctrl.c ****         }else if((msg_buff[1]&0x7f) == COMMU_EN_RX_DIS_TX){
+  24:./Application/Addition/UDSCanfd/services_layer/device_role/sid28_communication_ctrl.c ****             if((msg_buff[2] == 0x01) || (msg_buff[2] == 0x03))
+  25:./Application/Addition/UDSCanfd/services_layer/device_role/sid28_communication_ctrl.c ****                 cur_communication_type = COMMU_EN_RX_DIS_TX;
+  26:./Application/Addition/UDSCanfd/services_layer/device_role/sid28_communication_ctrl.c ****             uds_ack_accept(rsp_msg,2);
+  27:./Application/Addition/UDSCanfd/services_layer/device_role/sid28_communication_ctrl.c ****         }else if((msg_buff[1]&0x7f) == COMMU_DIS_RX_EN_TX){
+  28:./Application/Addition/UDSCanfd/services_layer/device_role/sid28_communication_ctrl.c ****             if((msg_buff[2] == 0x01) || (msg_buff[2] == 0x03))// only comm type is 01 or 03
+ARM GAS  /tmp/ccUyEr1Z.s 			page 3
+
+
+  29:./Application/Addition/UDSCanfd/services_layer/device_role/sid28_communication_ctrl.c ****                 cur_communication_type = COMMU_DIS_RX_EN_TX;
+  30:./Application/Addition/UDSCanfd/services_layer/device_role/sid28_communication_ctrl.c ****             uds_ack_accept(rsp_msg,2);
+  31:./Application/Addition/UDSCanfd/services_layer/device_role/sid28_communication_ctrl.c ****         }else if((msg_buff[1]&0x7f) == COMMU_DIS_RX_TX){
+  32:./Application/Addition/UDSCanfd/services_layer/device_role/sid28_communication_ctrl.c ****             if((msg_buff[2] == 0x01) || (msg_buff[2] == 0x03))// only comm type is 01 or 03
+  33:./Application/Addition/UDSCanfd/services_layer/device_role/sid28_communication_ctrl.c ****                 cur_communication_type = COMMU_DIS_RX_TX;
+  34:./Application/Addition/UDSCanfd/services_layer/device_role/sid28_communication_ctrl.c ****             uds_ack_accept(rsp_msg,2);
+  35:./Application/Addition/UDSCanfd/services_layer/device_role/sid28_communication_ctrl.c ****         }else{// unaccepct type
+  36:./Application/Addition/UDSCanfd/services_layer/device_role/sid28_communication_ctrl.c ****             uds_ack_refuse(ds_communication_ctrl,nrc_subfunction_not_support);
+  37:./Application/Addition/UDSCanfd/services_layer/device_role/sid28_communication_ctrl.c ****         }
+  38:./Application/Addition/UDSCanfd/services_layer/device_role/sid28_communication_ctrl.c ****     }else{
+  39:./Application/Addition/UDSCanfd/services_layer/device_role/sid28_communication_ctrl.c ****         uds_ack_refuse(ds_communication_ctrl,nrc_subfunction_not_support);
+  40:./Application/Addition/UDSCanfd/services_layer/device_role/sid28_communication_ctrl.c ****     }
+  41:./Application/Addition/UDSCanfd/services_layer/device_role/sid28_communication_ctrl.c **** }...
+  83              		.loc 1 41 0
+  84              		@ sp needed
+  85 0032 07BD     		pop	{r0, r1, r2, pc}
+  86              	.LVL4:
+  87              	.L3:
+  23:./Application/Addition/UDSCanfd/services_layer/device_role/sid28_communication_ctrl.c ****         }else if((msg_buff[1]&0x7f) == COMMU_EN_RX_DIS_TX){
+  88              		.loc 1 23 0
+  89 0034 012B     		cmp	r3, #1
+  90 0036 05D1     		bne	.L6
+  24:./Application/Addition/UDSCanfd/services_layer/device_role/sid28_communication_ctrl.c ****             if((msg_buff[2] == 0x01) || (msg_buff[2] == 0x03))
+  91              		.loc 1 24 0
+  92 0038 0221     		movs	r1, #2
+  93 003a 8378     		ldrb	r3, [r0, #2]
+  94 003c 8B43     		bics	r3, r1
+  95 003e 012B     		cmp	r3, #1
+  96 0040 F3D1     		bne	.L4
+  97 0042 F0E7     		b	.L8
+  98              	.L6:
+  27:./Application/Addition/UDSCanfd/services_layer/device_role/sid28_communication_ctrl.c ****         }else if((msg_buff[1]&0x7f) == COMMU_DIS_RX_EN_TX){
+  99              		.loc 1 27 0
+ 100 0044 022B     		cmp	r3, #2
+ 101 0046 02D1     		bne	.L7
+  28:./Application/Addition/UDSCanfd/services_layer/device_role/sid28_communication_ctrl.c ****             if((msg_buff[2] == 0x01) || (msg_buff[2] == 0x03))// only comm type is 01 or 03
+ 102              		.loc 1 28 0
+ 103 0048 8178     		ldrb	r1, [r0, #2]
+ 104 004a 9943     		bics	r1, r3
+ 105 004c E9E7     		b	.L10
+ 106              	.L7:
+  31:./Application/Addition/UDSCanfd/services_layer/device_role/sid28_communication_ctrl.c ****         }else if((msg_buff[1]&0x7f) == COMMU_DIS_RX_TX){
+ 107              		.loc 1 31 0
+ 108 004e 032B     		cmp	r3, #3
+ 109 0050 E4D0     		beq	.L12
+ 110              	.L2:
+  36:./Application/Addition/UDSCanfd/services_layer/device_role/sid28_communication_ctrl.c ****             uds_ack_refuse(ds_communication_ctrl,nrc_subfunction_not_support);
+ 111              		.loc 1 36 0
+ 112 0052 1221     		movs	r1, #18
+ 113 0054 2820     		movs	r0, #40
+ 114              	.LVL5:
+ 115 0056 FFF7FEFF 		bl	uds_ack_refuse
+ 116              	.LVL6:
+ 117              		.loc 1 41 0
+ 118 005a EAE7     		b	.L1
+ 119              	.L14:
+ 120              		.align	2
+ARM GAS  /tmp/ccUyEr1Z.s 			page 4
+
+
+ 121              	.L13:
+ 122 005c 00000000 		.word	cur_session_type
+ 123 0060 00000000 		.word	cur_communication_type
+ 124              		.cfi_endproc
+ 125              	.LFE493:
+ 127              		.text
+ 128              	.Letext0:
+ 129              		.file 2 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/machine/_default_types.h"
+ 130              		.file 3 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/lock.h"
+ 131              		.file 4 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_types.h"
+ 132              		.file 5 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/lib/gcc/arm-none-eabi/7.3.1/include/stddef.h"
+ 133              		.file 6 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/reent.h"
+ 134              		.file 7 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/stdlib.h"
+ 135              		.file 8 "Application/BSPSys/Util/BSPTypeDef.h"
+ 136              		.file 9 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_stdint.h"
+ 137              		.file 10 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/system_stm32g0xx.h"
+ 138              		.file 11 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/stm32g0b1xx.h"
+ 139              		.file 12 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_def.h"
+ 140              		.file 13 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_dma.h"
+ 141              		.file 14 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_flash.h"
+ 142              		.file 15 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_spi.h"
+ 143              		.file 16 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_uart.h"
+ 144              		.file 17 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal.h"
+ 145              		.file 18 "Core/Inc/main.h"
+ 146              		.file 19 "Core/Inc/spi.h"
+ 147              		.file 20 "Application/BSPSys/BSPDevice/gd25q32e/BSPGD25Q32E.h"
+ 148              		.file 21 "Application/Addition/UDSCanfd/can_uds_arch.h"
+ 149              		.file 22 "Application/Addition/UDSCanfd/network_layer/can_uds_network_layer.h"
+ 150              		.file 23 "Application/Addition/RTT/SEGGER_RTT.h"
+ 151              		.file 24 "Application/Addition/UDSCanfd/services_layer/device_role/sid_internal_header.h"
+ 152              		.file 25 "Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.h"
+ 153              		.file 26 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_ll_dma.h"
+ARM GAS  /tmp/ccUyEr1Z.s 			page 5
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 sid28_communication_ctrl.c
+     /tmp/ccUyEr1Z.s:16     .text.sid28_communication_ctrl_solve:0000000000000000 $t
+     /tmp/ccUyEr1Z.s:23     .text.sid28_communication_ctrl_solve:0000000000000000 sid28_communication_ctrl_solve
+     /tmp/ccUyEr1Z.s:122    .text.sid28_communication_ctrl_solve:000000000000005c $d
+
+UNDEFINED SYMBOLS
+uds_ack_accept
+uds_ack_refuse
+cur_session_type
+cur_communication_type

@@ -1,0 +1,3198 @@
+ARM GAS  /tmp/ccyblaXp.s 			page 1
+
+
+   1              		.cpu cortex-m0plus
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 4
+   9              		.eabi_attribute 34, 0
+  10              		.eabi_attribute 18, 4
+  11              		.file	"Insulation.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.global	__aeabi_fsub
+  16              		.global	__aeabi_fcmplt
+  17              		.section	.text.unlikely.Insulation_CheckN2GVoltStable,"ax",%progbits
+  18              		.align	1
+  19              		.syntax unified
+  20              		.code	16
+  21              		.thumb_func
+  22              		.fpu softvfp
+  24              	Insulation_CheckN2GVoltStable:
+  25              	.LFB508:
+  26              		.file 1 "./Application/Logics/Insulation/Insulation.c"
+   1:./Application/Logics/Insulation/Insulation.c **** /*==========================================Copyright(c)=======================================
+   2:./Application/Logics/Insulation/Insulation.c **** **                                  Shenzhen Infypower Co., Ltd.
+   3:./Application/Logics/Insulation/Insulation.c **** **                                  Power conversion Department
+   4:./Application/Logics/Insulation/Insulation.c **** **                                       BMS Product Line
+   5:./Application/Logics/Insulation/Insulation.c **** **
+   6:./Application/Logics/Insulation/Insulation.c **** **---------------------------------------File Information--------------------------------------
+   7:./Application/Logics/Insulation/Insulation.c **** ** @File Name    : Insulation.c
+   8:./Application/Logics/Insulation/Insulation.c **** ** @Founder      : WYC834
+   9:./Application/Logics/Insulation/Insulation.c **** ** @Date         : 2025.10.21
+  10:./Application/Logics/Insulation/Insulation.c **** ** @Function     : 绝缘检测策略
+  11:./Application/Logics/Insulation/Insulation.c **** ** @Instructions : 
+  12:./Application/Logics/Insulation/Insulation.c **** **===========================================================================================*/
+  13:./Application/Logics/Insulation/Insulation.c **** 
+  14:./Application/Logics/Insulation/Insulation.c **** /*=============================================================================================
+  15:./Application/Logics/Insulation/Insulation.c **** ** @Header file definition
+  16:./Application/Logics/Insulation/Insulation.c **** **===========================================================================================*/
+  17:./Application/Logics/Insulation/Insulation.c **** #include "BSPTypeDef.h"
+  18:./Application/Logics/Insulation/Insulation.c **** #include "Insulation.h"
+  19:./Application/Logics/Insulation/Insulation.c **** #include "SystemData.h"
+  20:./Application/Logics/Insulation/Insulation.c **** #include "BSPTIM.h"
+  21:./Application/Logics/Insulation/Insulation.c **** #include "BSPKA84917_async.h"
+  22:./Application/Logics/Insulation/Insulation.c **** // #include "BSPKA84917.h"
+  23:./Application/Logics/Insulation/Insulation.c **** #include "SystemData.h"
+  24:./Application/Logics/Insulation/Insulation.c **** //RTOS延时必须头文件
+  25:./Application/Logics/Insulation/Insulation.c **** #include "FreeRTOS.h"
+  26:./Application/Logics/Insulation/Insulation.c **** #include "task.h"
+  27:./Application/Logics/Insulation/Insulation.c **** #include "cmsis_os.h"
+  28:./Application/Logics/Insulation/Insulation.c **** #include "BSPDIDO.h"
+  29:./Application/Logics/Insulation/Insulation.c **** #include "SystemDiag.h"
+  30:./Application/Logics/Insulation/Insulation.c **** #include "SystemInfo.h"
+  31:./Application/Logics/Insulation/Insulation.c **** #include "SystemPara.h"
+  32:./Application/Logics/Insulation/Insulation.c **** #include "CANTabOper.h"
+ARM GAS  /tmp/ccyblaXp.s 			page 2
+
+
+  33:./Application/Logics/Insulation/Insulation.c **** #include "CANUser.h"
+  34:./Application/Logics/Insulation/Insulation.c **** #include "SEGGER_RTT.h"
+  35:./Application/Logics/Insulation/Insulation.c **** #ifdef INSULATION_TEST
+  36:./Application/Logics/Insulation/Insulation.c **** #include "TEST.h"
+  37:./Application/Logics/Insulation/Insulation.c **** #endif
+  38:./Application/Logics/Insulation/Insulation.c **** /*=============================================================================================
+  39:./Application/Logics/Insulation/Insulation.c **** ** @Global variable definition
+  40:./Application/Logics/Insulation/Insulation.c **** **===========================================================================================*/
+  41:./Application/Logics/Insulation/Insulation.c **** 
+  42:./Application/Logics/Insulation/Insulation.c **** InsulationDetectMng gs_InsulationDetectMng;
+  43:./Application/Logics/Insulation/Insulation.c **** 
+  44:./Application/Logics/Insulation/Insulation.c **** static u8 s_u8PeriodResetReq = 0;/*绝缘检测周期计时基准重置标志*/
+  45:./Application/Logics/Insulation/Insulation.c **** 
+  46:./Application/Logics/Insulation/Insulation.c **** u16 UserCtrlCmd_55[UserCtrlCmd_len] =
+  47:./Application/Logics/Insulation/Insulation.c **** {
+  48:./Application/Logics/Insulation/Insulation.c ****     0x0                             /*用户控制命令*/
+  49:./Application/Logics/Insulation/Insulation.c **** };
+  50:./Application/Logics/Insulation/Insulation.c **** u16 CtrlCmdFeedback_56[CtrlFeedback_len] = 
+  51:./Application/Logics/Insulation/Insulation.c **** {
+  52:./Application/Logics/Insulation/Insulation.c **** 	0x0   
+  53:./Application/Logics/Insulation/Insulation.c **** };
+  54:./Application/Logics/Insulation/Insulation.c **** 
+  55:./Application/Logics/Insulation/Insulation.c **** /*=============================================================================================
+  56:./Application/Logics/Insulation/Insulation.c **** ** @Static function declaration
+  57:./Application/Logics/Insulation/Insulation.c **** **===========================================================================================*/
+  58:./Application/Logics/Insulation/Insulation.c **** /*=============================================================================================
+  59:./Application/Logics/Insulation/Insulation.c **** ** @Name      : static void CtrlAfterInsuPeRlyState(void)
+  60:./Application/Logics/Insulation/Insulation.c **** ** @Input     : void
+  61:./Application/Logics/Insulation/Insulation.c **** ** @Output    : void
+  62:./Application/Logics/Insulation/Insulation.c **** ** @Function  : 控制绝缘检测后PE继电器\IMD继电器状态
+  63:./Application/Logics/Insulation/Insulation.c **** ** @The notes : 0：断开 1:闭合
+  64:./Application/Logics/Insulation/Insulation.c **** **===========================================================================================*/
+  65:./Application/Logics/Insulation/Insulation.c **** static void CtrlAfterInsuPeRlyState(void);
+  66:./Application/Logics/Insulation/Insulation.c **** /*=============================================================================================
+  67:./Application/Logics/Insulation/Insulation.c **** ** @Name      : u8 CheckInsulationTaskWithDynamicPeriod(void);
+  68:./Application/Logics/Insulation/Insulation.c **** ** @Input     : void
+  69:./Application/Logics/Insulation/Insulation.c **** ** @Output    : void
+  70:./Application/Logics/Insulation/Insulation.c **** ** @Function  : 绝缘检测采样周期控制 (秒s)
+  71:./Application/Logics/Insulation/Insulation.c **** ** @The notes : 
+  72:./Application/Logics/Insulation/Insulation.c **** **===========================================================================================*/
+  73:./Application/Logics/Insulation/Insulation.c **** static u8 CheckInsulationTaskWithDynamicPeriod(void);
+  74:./Application/Logics/Insulation/Insulation.c **** static void CheckInsulationTask_ResetPeriod(void);
+  75:./Application/Logics/Insulation/Insulation.c **** static void Insulation_Calculate(float fUN1,float fUP1,float fUN2, float fUP2, float fRN1,float fRP
+  76:./Application/Logics/Insulation/Insulation.c **** 
+  77:./Application/Logics/Insulation/Insulation.c **** 
+  78:./Application/Logics/Insulation/Insulation.c **** static u8 Insulation_DetectProcess(void);
+  79:./Application/Logics/Insulation/Insulation.c **** static u8 Insulation_StartBatVoltCheck(void);
+  80:./Application/Logics/Insulation/Insulation.c **** static u8 Insulation_BatVoltCheck(void);
+  81:./Application/Logics/Insulation/Insulation.c **** static u8 Insulation_CheckVoltStatble(void);
+  82:./Application/Logics/Insulation/Insulation.c **** static void Insulation_RestoreSwitchAndTimer(void);
+  83:./Application/Logics/Insulation/Insulation.c **** static u8  Insluation_STEP_1_ConnectPE_GetVolt(void);
+  84:./Application/Logics/Insulation/Insulation.c **** static u8  Insluation_STEP_2_ChangeResist_GetN2GVoltage(void);
+  85:./Application/Logics/Insulation/Insulation.c **** static UINT8  Insluation_STEP_3_CalcResist(void);
+  86:./Application/Logics/Insulation/Insulation.c **** static void Insulation_GetN2GandP2GVoltage(void);
+  87:./Application/Logics/Insulation/Insulation.c **** static UINT8 Insulation_CheckN2GVoltStable(void);
+  88:./Application/Logics/Insulation/Insulation.c **** static void Insulation_RecordN2GandP2GVoltage(u8 time);
+  89:./Application/Logics/Insulation/Insulation.c **** 
+ARM GAS  /tmp/ccyblaXp.s 			page 3
+
+
+  90:./Application/Logics/Insulation/Insulation.c **** 
+  91:./Application/Logics/Insulation/Insulation.c **** #ifdef INSULATION_TEST
+  92:./Application/Logics/Insulation/Insulation.c **** static void check_insulation(const char *tag);
+  93:./Application/Logics/Insulation/Insulation.c **** #endif
+  94:./Application/Logics/Insulation/Insulation.c **** 
+  95:./Application/Logics/Insulation/Insulation.c **** /*=============================================================================================
+  96:./Application/Logics/Insulation/Insulation.c **** ** @Interface function definition
+  97:./Application/Logics/Insulation/Insulation.c **** **===========================================================================================*/
+  98:./Application/Logics/Insulation/Insulation.c **** /*=============================================================================================
+  99:./Application/Logics/Insulation/Insulation.c **** ** @Name      : void ControlRLYSwitchTime(void);
+ 100:./Application/Logics/Insulation/Insulation.c **** ** @Input     : void
+ 101:./Application/Logics/Insulation/Insulation.c **** ** @Output    : void
+ 102:./Application/Logics/Insulation/Insulation.c **** ** @Function  : 板上继电器切换至少间隔时间（ms）
+ 103:./Application/Logics/Insulation/Insulation.c **** ** @The notes : 
+ 104:./Application/Logics/Insulation/Insulation.c **** **===========================================================================================*/
+ 105:./Application/Logics/Insulation/Insulation.c **** void ControlRLYSwitchTime(void)
+ 106:./Application/Logics/Insulation/Insulation.c **** {
+ 107:./Application/Logics/Insulation/Insulation.c ****     u16 time = stParameter.u16ArraySet[RlySwiftInterTime];
+ 108:./Application/Logics/Insulation/Insulation.c ****     osDelay((u32)time);
+ 109:./Application/Logics/Insulation/Insulation.c **** }
+ 110:./Application/Logics/Insulation/Insulation.c **** /*=============================================================================================
+ 111:./Application/Logics/Insulation/Insulation.c **** ** @Name      : void InsulationProcess(void);
+ 112:./Application/Logics/Insulation/Insulation.c **** ** @Input     : void
+ 113:./Application/Logics/Insulation/Insulation.c **** ** @Output    : void
+ 114:./Application/Logics/Insulation/Insulation.c **** ** @Function  : 绝缘检测流程
+ 115:./Application/Logics/Insulation/Insulation.c **** ** @The notes :
+ 116:./Application/Logics/Insulation/Insulation.c **** **===========================================================================================*/
+ 117:./Application/Logics/Insulation/Insulation.c **** void InsulationProcess(void)
+ 118:./Application/Logics/Insulation/Insulation.c **** {
+ 119:./Application/Logics/Insulation/Insulation.c **** #ifdef INSULATION_TEST
+ 120:./Application/Logics/Insulation/Insulation.c ****     static u8 dump_once = 1;
+ 121:./Application/Logics/Insulation/Insulation.c ****     if (dump_once) { check_insulation("InsulationProcess_FIRST"); dump_once = 0; }
+ 122:./Application/Logics/Insulation/Insulation.c **** #endif
+ 123:./Application/Logics/Insulation/Insulation.c **** 
+ 124:./Application/Logics/Insulation/Insulation.c **** 	u8 u8RTN;
+ 125:./Application/Logics/Insulation/Insulation.c **** 	u8 u8InsulationProcessRTN;
+ 126:./Application/Logics/Insulation/Insulation.c **** 	static u32 u32StartTimer = 0;
+ 127:./Application/Logics/Insulation/Insulation.c **** 	static u8 s_u8StartTimerInit = 0;
+ 128:./Application/Logics/Insulation/Insulation.c **** 	static u32 s_TermHoldTimer = 0;  /*终态锁存计时器*/
+ 129:./Application/Logics/Insulation/Insulation.c **** 	static u8 s_u8TermHoldInit = 0;
+ 130:./Application/Logics/Insulation/Insulation.c **** 
+ 131:./Application/Logics/Insulation/Insulation.c **** 	//芯片初始化、高压采样就绪检查
+ 132:./Application/Logics/Insulation/Insulation.c **** 	if (!((wakeUpState == 1) && (FirstSampleFinishedFlag == 1) && (GetfAdjustBatVolt()>= mInsulationSt
+ 133:./Application/Logics/Insulation/Insulation.c **** 	{
+ 134:./Application/Logics/Insulation/Insulation.c **** 		return;
+ 135:./Application/Logics/Insulation/Insulation.c **** 	}
+ 136:./Application/Logics/Insulation/Insulation.c **** 
+ 137:./Application/Logics/Insulation/Insulation.c **** 
+ 138:./Application/Logics/Insulation/Insulation.c **** 
+ 139:./Application/Logics/Insulation/Insulation.c **** 	
+ 140:./Application/Logics/Insulation/Insulation.c **** 	 if (gs_InsulationDetectMng.ucInsulationMode == AutoDetect)
+ 141:./Application/Logics/Insulation/Insulation.c **** 	{
+ 142:./Application/Logics/Insulation/Insulation.c **** 		// 周期控制：仅在检测起始或停止状态时生效，不阻塞检测过程中的状态�
+ 143:./Application/Logics/Insulation/Insulation.c **** 		if ((gs_InsulationDetectMng.ucInsulationState == eInsulation_Start)
+ 144:./Application/Logics/Insulation/Insulation.c **** 		|| (gs_InsulationDetectMng.ucInsulationState == eInsulation_Stop))
+ 145:./Application/Logics/Insulation/Insulation.c **** 		{
+ 146:./Application/Logics/Insulation/Insulation.c **** 			if (0 == CheckInsulationTaskWithDynamicPeriod())
+ARM GAS  /tmp/ccyblaXp.s 			page 4
+
+
+ 147:./Application/Logics/Insulation/Insulation.c **** 			{
+ 148:./Application/Logics/Insulation/Insulation.c **** 				return;
+ 149:./Application/Logics/Insulation/Insulation.c **** 			}
+ 150:./Application/Logics/Insulation/Insulation.c **** 		}
+ 151:./Application/Logics/Insulation/Insulation.c **** 	}
+ 152:./Application/Logics/Insulation/Insulation.c **** 
+ 153:./Application/Logics/Insulation/Insulation.c **** 
+ 154:./Application/Logics/Insulation/Insulation.c **** 		if(gs_InsulationDetectMng.ucInsulationMode == StopDetect)//停止检测
+ 155:./Application/Logics/Insulation/Insulation.c **** 		{
+ 156:./Application/Logics/Insulation/Insulation.c **** 			if (gs_InsulationDetectMng.ucInsulationState != eInsulation_Stop)
+ 157:./Application/Logics/Insulation/Insulation.c **** 			{
+ 158:./Application/Logics/Insulation/Insulation.c **** 				CtrlAfterInsuPeRlyState();//控制绝缘检测结束后PE继电器状态
+ 159:./Application/Logics/Insulation/Insulation.c **** 			}
+ 160:./Application/Logics/Insulation/Insulation.c **** 			gs_InsulationDetectMng.ucInsulationState = eInsulation_Stop;
+ 161:./Application/Logics/Insulation/Insulation.c **** 			CtrlCmdFeedback_56[CtrlFeedback] = eInsulation_Stop;
+ 162:./Application/Logics/Insulation/Insulation.c **** 		}
+ 163:./Application/Logics/Insulation/Insulation.c **** 		//添加绝缘检测采样周期计时判断
+ 164:./Application/Logics/Insulation/Insulation.c **** 		else if(gs_InsulationDetectMng.ucInsulationMode == AutoDetect 
+ 165:./Application/Logics/Insulation/Insulation.c **** 			|| gs_InsulationDetectMng.ucInsulationMode == StartDetect)//开始绝缘检测
+ 166:./Application/Logics/Insulation/Insulation.c **** 		{
+ 167:./Application/Logics/Insulation/Insulation.c **** 
+ 168:./Application/Logics/Insulation/Insulation.c **** 			if(gs_InsulationDetectMng.ucInsulationState == eInsulation_Start)
+ 169:./Application/Logics/Insulation/Insulation.c **** 			{
+ 170:./Application/Logics/Insulation/Insulation.c **** 				u8RTN = Insulation_StartBatVoltCheck();//检测是否符合启动检测电压
+ 171:./Application/Logics/Insulation/Insulation.c **** 				if(u8RTN == TRUE)
+ 172:./Application/Logics/Insulation/Insulation.c **** 				{
+ 173:./Application/Logics/Insulation/Insulation.c **** 					DiagSetErrNowStateAPI(eERR_ID_INS_LOW,eErr_A);
+ 174:./Application/Logics/Insulation/Insulation.c **** 					u32StartTimer = 0;
+ 175:./Application/Logics/Insulation/Insulation.c **** 					gs_InsulationDetectMng.ucVoltStable = 1;   
+ 176:./Application/Logics/Insulation/Insulation.c **** 					//下一阶段的电压稳定超时初始化，赋值1时为了保证启动时检测一次电�
+ 177:./Application/Logics/Insulation/Insulation.c **** 					gs_InsulationDetectMng.ucGetVoltDelay = 0;//绝缘检测构成初始标志
+ 178:./Application/Logics/Insulation/Insulation.c **** 					gs_InsulationDetectMng.ucInsulationState = eInsulation_Process;
+ 179:./Application/Logics/Insulation/Insulation.c **** 					CtrlCmdFeedback_56[CtrlFeedback] = eInsulation_Process;
+ 180:./Application/Logics/Insulation/Insulation.c **** 					s_u8StartTimerInit = 0;
+ 181:./Application/Logics/Insulation/Insulation.c **** 					gs_InsulationDetectMng.ucInsulationCtrlStep = INSULATION_STEP_1;
+ 182:./Application/Logics/Insulation/Insulation.c **** 				}
+ 183:./Application/Logics/Insulation/Insulation.c **** 				else
+ 184:./Application/Logics/Insulation/Insulation.c **** 				{
+ 185:./Application/Logics/Insulation/Insulation.c **** 					if(s_u8StartTimerInit == 0)
+ 186:./Application/Logics/Insulation/Insulation.c **** 					{
+ 187:./Application/Logics/Insulation/Insulation.c **** 						u32StartTimer = GetRunTimers();
+ 188:./Application/Logics/Insulation/Insulation.c **** 						s_u8StartTimerInit = 1;
+ 189:./Application/Logics/Insulation/Insulation.c **** 					}
+ 190:./Application/Logics/Insulation/Insulation.c **** 					else if (((GetRunTimers() + RunTimersOverflow - u32StartTimer)%RunTimersOverflow) > stParamete
+ 191:./Application/Logics/Insulation/Insulation.c **** 					//电压如果一直小于启动电压，则停止运行
+ 192:./Application/Logics/Insulation/Insulation.c **** 					{
+ 193:./Application/Logics/Insulation/Insulation.c **** 						gs_InsulationDetectMng.ucInsulationState = eInsulation_OverTime;
+ 194:./Application/Logics/Insulation/Insulation.c **** 						CtrlCmdFeedback_56[CtrlFeedback] = eInsulation_OverTime;
+ 195:./Application/Logics/Insulation/Insulation.c **** 						DiagSetErrNowStateAPI(eERR_ID_INS_LOW,eErr_B);
+ 196:./Application/Logics/Insulation/Insulation.c **** 					}
+ 197:./Application/Logics/Insulation/Insulation.c **** 				}
+ 198:./Application/Logics/Insulation/Insulation.c **** 				
+ 199:./Application/Logics/Insulation/Insulation.c **** 			}
+ 200:./Application/Logics/Insulation/Insulation.c **** 			else if(gs_InsulationDetectMng.ucInsulationState == eInsulation_Process)
+ 201:./Application/Logics/Insulation/Insulation.c **** 			{
+ 202:./Application/Logics/Insulation/Insulation.c **** 					u8RTN = Insulation_BatVoltCheck();
+ 203:./Application/Logics/Insulation/Insulation.c **** 					if(u8RTN == TRUE)//电压稳定，则进入绝缘处理
+ARM GAS  /tmp/ccyblaXp.s 			page 5
+
+
+ 204:./Application/Logics/Insulation/Insulation.c **** 					{
+ 205:./Application/Logics/Insulation/Insulation.c **** 						DiagSetErrNowStateAPI(eERR_ID_INS_STA,eErr_A);
+ 206:./Application/Logics/Insulation/Insulation.c **** 						u8InsulationProcessRTN = Insulation_DetectProcess();	
+ 207:./Application/Logics/Insulation/Insulation.c **** 						if(u8InsulationProcessRTN == FALSE)
+ 208:./Application/Logics/Insulation/Insulation.c **** 						{
+ 209:./Application/Logics/Insulation/Insulation.c **** 							/*STEP_3返回FALSE可能是因为阻值为负(已设Fault)，也可能是STEP_1/2超时(未
+ 210:./Application/Logics/Insulation/Insulation.c **** 							/*只在状态仍为Process时才设OverTime，避免覆盖STEP_3已设置的Fault*/
+ 211:./Application/Logics/Insulation/Insulation.c **** 							if(gs_InsulationDetectMng.ucInsulationState == eInsulation_Process)
+ 212:./Application/Logics/Insulation/Insulation.c **** 							{
+ 213:./Application/Logics/Insulation/Insulation.c **** 								gs_InsulationDetectMng.ucInsulationState = eInsulation_OverTime;
+ 214:./Application/Logics/Insulation/Insulation.c **** 								CtrlCmdFeedback_56[CtrlFeedback] = eInsulation_OverTime;
+ 215:./Application/Logics/Insulation/Insulation.c **** 							}
+ 216:./Application/Logics/Insulation/Insulation.c **** 						}
+ 217:./Application/Logics/Insulation/Insulation.c **** 						else
+ 218:./Application/Logics/Insulation/Insulation.c **** 						{
+ 219:./Application/Logics/Insulation/Insulation.c **** 							/*STEP_1/2返回TRUE时状态仍为Process；STEP_3返回TRUE时状态已被设为End*/
+ 220:./Application/Logics/Insulation/Insulation.c **** 							if(gs_InsulationDetectMng.ucInsulationState == eInsulation_Process)
+ 221:./Application/Logics/Insulation/Insulation.c **** 								CtrlCmdFeedback_56[CtrlFeedback] = eInsulation_Process;
+ 222:./Application/Logics/Insulation/Insulation.c **** 						}
+ 223:./Application/Logics/Insulation/Insulation.c **** 					}
+ 224:./Application/Logics/Insulation/Insulation.c **** 					else //电压如果不稳定，则报错
+ 225:./Application/Logics/Insulation/Insulation.c **** 					{
+ 226:./Application/Logics/Insulation/Insulation.c **** 						DiagSetErrNowStateAPI(eERR_ID_INS_STA,eErr_B);//认为绝缘检测电压不稳定
+ 227:./Application/Logics/Insulation/Insulation.c **** 						gs_InsulationDetectMng.ucInsulationState = eInsulation_OverTime;	
+ 228:./Application/Logics/Insulation/Insulation.c **** 						CtrlCmdFeedback_56[CtrlFeedback] = eInsulation_OverTime;
+ 229:./Application/Logics/Insulation/Insulation.c **** 					}
+ 230:./Application/Logics/Insulation/Insulation.c **** 			}
+ 231:./Application/Logics/Insulation/Insulation.c **** 			else if((gs_InsulationDetectMng.ucInsulationState == eInsulation_End)
+ 232:./Application/Logics/Insulation/Insulation.c **** 					||(gs_InsulationDetectMng.ucInsulationState == eInsulation_OverTime)
+ 233:./Application/Logics/Insulation/Insulation.c **** 					||(gs_InsulationDetectMng.ucInsulationState == eInsulation_Fault)
+ 234:./Application/Logics/Insulation/Insulation.c **** 					||(gs_InsulationDetectMng.ucInsulationState == eInsulation_Stop))
+ 235:./Application/Logics/Insulation/Insulation.c **** 			{
+ 236:./Application/Logics/Insulation/Insulation.c **** 				/*Stop 状态由用户命令维持，已持续上传，可直接切换*/
+ 237:./Application/Logics/Insulation/Insulation.c **** 				if(gs_InsulationDetectMng.ucInsulationState == eInsulation_Stop)
+ 238:./Application/Logics/Insulation/Insulation.c **** 				{
+ 239:./Application/Logics/Insulation/Insulation.c **** 					Insulation_RestoreSwitchAndTimer();
+ 240:./Application/Logics/Insulation/Insulation.c **** 					u32StartTimer = 0;
+ 241:./Application/Logics/Insulation/Insulation.c **** 					s_u8StartTimerInit = 0;
+ 242:./Application/Logics/Insulation/Insulation.c **** 					s_TermHoldTimer = 0;
+ 243:./Application/Logics/Insulation/Insulation.c **** 					s_u8TermHoldInit = 0;
+ 244:./Application/Logics/Insulation/Insulation.c **** 					gs_InsulationDetectMng.ucInsulationState = eInsulation_Start;
+ 245:./Application/Logics/Insulation/Insulation.c **** 					CtrlCmdFeedback_56[CtrlFeedback] = eInsulation_Start;
+ 246:./Application/Logics/Insulation/Insulation.c **** 				}
+ 247:./Application/Logics/Insulation/Insulation.c **** 				else /*End/OverTime/Fault: 终态锁存，确保CAN 1s周期上传*/
+ 248:./Application/Logics/Insulation/Insulation.c **** 				{
+ 249:./Application/Logics/Insulation/Insulation.c **** 					/*首次进入终态: 恢复开关 + 记录时刻*/
+ 250:./Application/Logics/Insulation/Insulation.c **** 					if(s_u8TermHoldInit == 0)
+ 251:./Application/Logics/Insulation/Insulation.c **** 					{
+ 252:./Application/Logics/Insulation/Insulation.c **** 						s_TermHoldTimer = GetRunTimers();
+ 253:./Application/Logics/Insulation/Insulation.c **** 						s_u8TermHoldInit = 1;
+ 254:./Application/Logics/Insulation/Insulation.c **** 						Insulation_RestoreSwitchAndTimer();
+ 255:./Application/Logics/Insulation/Insulation.c **** 						u32StartTimer = 0;
+ 256:./Application/Logics/Insulation/Insulation.c **** 						s_u8StartTimerInit = 0;
+ 257:./Application/Logics/Insulation/Insulation.c **** 						/*feedback保留终态，不改动*/
+ 258:./Application/Logics/Insulation/Insulation.c **** 					}
+ 259:./Application/Logics/Insulation/Insulation.c **** 					/*锁存时间到: 切回自动检测并重启*/
+ 260:./Application/Logics/Insulation/Insulation.c **** 					else if(((GetRunTimers() + RunTimersOverflow - s_TermHoldTimer) % RunTimersOverflow) >= INS_TE
+ARM GAS  /tmp/ccyblaXp.s 			page 6
+
+
+ 261:./Application/Logics/Insulation/Insulation.c **** 					{
+ 262:./Application/Logics/Insulation/Insulation.c **** 						s_TermHoldTimer = 0;
+ 263:./Application/Logics/Insulation/Insulation.c **** 						s_u8TermHoldInit = 0;
+ 264:./Application/Logics/Insulation/Insulation.c **** 					CheckInsulationTask_ResetPeriod();
+ 265:./Application/Logics/Insulation/Insulation.c **** 					gs_InsulationDetectMng.ucInsulationMode = AutoDetect;
+ 266:./Application/Logics/Insulation/Insulation.c **** 						gs_InsulationDetectMng.ucInsulationState = eInsulation_Start;
+ 267:./Application/Logics/Insulation/Insulation.c **** 						CtrlCmdFeedback_56[CtrlFeedback] = eInsulation_Start;
+ 268:./Application/Logics/Insulation/Insulation.c **** 					}
+ 269:./Application/Logics/Insulation/Insulation.c **** 					/*未到锁存时间: 保留终态，不改动*/
+ 270:./Application/Logics/Insulation/Insulation.c **** 				}
+ 271:./Application/Logics/Insulation/Insulation.c **** 			}
+ 272:./Application/Logics/Insulation/Insulation.c **** 			else 
+ 273:./Application/Logics/Insulation/Insulation.c **** 			{
+ 274:./Application/Logics/Insulation/Insulation.c **** 				Insulation_InitInsulationData();
+ 275:./Application/Logics/Insulation/Insulation.c **** 			}	
+ 276:./Application/Logics/Insulation/Insulation.c **** 		}
+ 277:./Application/Logics/Insulation/Insulation.c **** }
+ 278:./Application/Logics/Insulation/Insulation.c **** 
+ 279:./Application/Logics/Insulation/Insulation.c **** /*=============================================================================================
+ 280:./Application/Logics/Insulation/Insulation.c **** ** @Static function definition
+ 281:./Application/Logics/Insulation/Insulation.c **** **===========================================================================================*/
+ 282:./Application/Logics/Insulation/Insulation.c **** /*=============================================================================================
+ 283:./Application/Logics/Insulation/Insulation.c **** ** @Name      : u8 CheckInsulationTaskWithDynamicPeriod(void);
+ 284:./Application/Logics/Insulation/Insulation.c **** ** @Input     : void
+ 285:./Application/Logics/Insulation/Insulation.c **** ** @Output    : void
+ 286:./Application/Logics/Insulation/Insulation.c **** ** @Function  : 绝缘检测采样周期控制 (秒s)
+ 287:./Application/Logics/Insulation/Insulation.c **** ** @The notes : 
+ 288:./Application/Logics/Insulation/Insulation.c **** **===========================================================================================*/
+ 289:./Application/Logics/Insulation/Insulation.c **** static u8 CheckInsulationTaskWithDynamicPeriod(void)
+ 290:./Application/Logics/Insulation/Insulation.c **** {
+ 291:./Application/Logics/Insulation/Insulation.c **** 	static TickType_t xLastWakeTime = 0;
+ 292:./Application/Logics/Insulation/Insulation.c **** 	static uint32_t Period = 0;
+ 293:./Application/Logics/Insulation/Insulation.c **** 	static u8 s_u8PeriodInit = 0;
+ 294:./Application/Logics/Insulation/Insulation.c ****         TickType_t xCurrentTime;
+ 295:./Application/Logics/Insulation/Insulation.c ****         uint32_t u32CurrentPeriod;
+ 296:./Application/Logics/Insulation/Insulation.c ****     
+ 297:./Application/Logics/Insulation/Insulation.c ****     // 获取当前采样周期
+ 298:./Application/Logics/Insulation/Insulation.c ****     // 秒直接转 ticks，避免 pdMS_TO_TICKS 内部乘法溢出 (21600s*1000ms*1000Hz > uint32_
+ 299:./Application/Logics/Insulation/Insulation.c ****     u32CurrentPeriod = (uint32_t)stParameter.u16ArraySet[InsuSampPeriod] * (uint32_t)configTICK_RAT
+ 300:./Application/Logics/Insulation/Insulation.c ****     
+ 301:./Application/Logics/Insulation/Insulation.c ****     // 首次调用
+ 302:./Application/Logics/Insulation/Insulation.c ****     if (s_u8PeriodInit == 0)
+ 303:./Application/Logics/Insulation/Insulation.c ****     {
+ 304:./Application/Logics/Insulation/Insulation.c ****         xLastWakeTime = xTaskGetTickCount();
+ 305:./Application/Logics/Insulation/Insulation.c ****         Period = u32CurrentPeriod;
+ 306:./Application/Logics/Insulation/Insulation.c ****         s_u8PeriodInit = 1;
+ 307:./Application/Logics/Insulation/Insulation.c ****         return 0;  //首次调用:开始计时,不立即触发
+ 308:./Application/Logics/Insulation/Insulation.c ****     }
+ 309:./Application/Logics/Insulation/Insulation.c ****     
+ 310:./Application/Logics/Insulation/Insulation.c ****     // 外部请求重置周期基准
+ 311:./Application/Logics/Insulation/Insulation.c ****     if (s_u8PeriodResetReq == 1)
+ 312:./Application/Logics/Insulation/Insulation.c ****     {
+ 313:./Application/Logics/Insulation/Insulation.c ****         s_u8PeriodResetReq = 0;
+ 314:./Application/Logics/Insulation/Insulation.c ****         xLastWakeTime = xTaskGetTickCount();
+ 315:./Application/Logics/Insulation/Insulation.c ****         return 0;  //重置后不立即触发
+ 316:./Application/Logics/Insulation/Insulation.c ****     }
+ 317:./Application/Logics/Insulation/Insulation.c ****     
+ARM GAS  /tmp/ccyblaXp.s 			page 7
+
+
+ 318:./Application/Logics/Insulation/Insulation.c ****     xCurrentTime = xTaskGetTickCount();
+ 319:./Application/Logics/Insulation/Insulation.c ****     
+ 320:./Application/Logics/Insulation/Insulation.c ****     // 检查周期是否发生变化
+ 321:./Application/Logics/Insulation/Insulation.c ****     if (u32CurrentPeriod != Period)
+ 322:./Application/Logics/Insulation/Insulation.c ****     {
+ 323:./Application/Logics/Insulation/Insulation.c ****         // 周期变化，重新初始化时间基准
+ 324:./Application/Logics/Insulation/Insulation.c ****         Period = u32CurrentPeriod;
+ 325:./Application/Logics/Insulation/Insulation.c ****         xLastWakeTime = xCurrentTime;
+ 326:./Application/Logics/Insulation/Insulation.c ****         return 1;  // 周期变化时立即执行一次
+ 327:./Application/Logics/Insulation/Insulation.c ****     }
+ 328:./Application/Logics/Insulation/Insulation.c ****     
+ 329:./Application/Logics/Insulation/Insulation.c ****     // 检查是否达到采样周期
+ 330:./Application/Logics/Insulation/Insulation.c ****     if ((xCurrentTime - xLastWakeTime) >= u32CurrentPeriod)
+ 331:./Application/Logics/Insulation/Insulation.c ****     {
+ 332:./Application/Logics/Insulation/Insulation.c ****         // 更新时间基准
+ 333:./Application/Logics/Insulation/Insulation.c ****         xLastWakeTime += u32CurrentPeriod;//500
+ 334:./Application/Logics/Insulation/Insulation.c ****         
+ 335:./Application/Logics/Insulation/Insulation.c ****         // 防止因长时间阻塞导致的时间漂移
+ 336:./Application/Logics/Insulation/Insulation.c ****         if ((xCurrentTime - xLastWakeTime) > u32CurrentPeriod)
+ 337:./Application/Logics/Insulation/Insulation.c ****         {
+ 338:./Application/Logics/Insulation/Insulation.c ****             xLastWakeTime = xCurrentTime;
+ 339:./Application/Logics/Insulation/Insulation.c ****         }
+ 340:./Application/Logics/Insulation/Insulation.c **** #ifdef INSULATION_TEST
+ 341:./Application/Logics/Insulation/Insulation.c **** 
+ 342:./Application/Logics/Insulation/Insulation.c **** 		static TickType_t s_LastTriggerTime = 0;
+ 343:./Application/Logics/Insulation/Insulation.c **** 		TickType_t now  = xTaskGetTickCount();
+ 344:./Application/Logics/Insulation/Insulation.c **** 		if (s_LastTriggerTime != 0)
+ 345:./Application/Logics/Insulation/Insulation.c **** 		{
+ 346:./Application/Logics/Insulation/Insulation.c **** 			SEGGER_RTT_printf(0, "[Test Insulation cycle] dt= %dms\r\n", 
+ 347:./Application/Logics/Insulation/Insulation.c ****             (int)((now -s_LastTriggerTime)* portTICK_PERIOD_MS));
+ 348:./Application/Logics/Insulation/Insulation.c **** 		}
+ 349:./Application/Logics/Insulation/Insulation.c **** 		s_LastTriggerTime = now;
+ 350:./Application/Logics/Insulation/Insulation.c **** #endif
+ 351:./Application/Logics/Insulation/Insulation.c ****         return 1;  // 达到时间
+ 352:./Application/Logics/Insulation/Insulation.c **** 		
+ 353:./Application/Logics/Insulation/Insulation.c ****     }
+ 354:./Application/Logics/Insulation/Insulation.c ****     
+ 355:./Application/Logics/Insulation/Insulation.c ****     return 0;  // 未达到时间
+ 356:./Application/Logics/Insulation/Insulation.c **** }
+ 357:./Application/Logics/Insulation/Insulation.c **** 
+ 358:./Application/Logics/Insulation/Insulation.c **** static void CheckInsulationTask_ResetPeriod(void)
+ 359:./Application/Logics/Insulation/Insulation.c **** {
+ 360:./Application/Logics/Insulation/Insulation.c **** 	s_u8PeriodResetReq = 1;
+ 361:./Application/Logics/Insulation/Insulation.c **** }
+ 362:./Application/Logics/Insulation/Insulation.c **** 
+ 363:./Application/Logics/Insulation/Insulation.c **** /*=============================================================================================
+ 364:./Application/Logics/Insulation/Insulation.c **** ** @Name      : static void CtrlAfterInsuPeRlyState(void)
+ 365:./Application/Logics/Insulation/Insulation.c **** ** @Input     : void
+ 366:./Application/Logics/Insulation/Insulation.c **** ** @Output    : void
+ 367:./Application/Logics/Insulation/Insulation.c **** ** @Function  : 控制绝缘检测后PE继电器\IMD继电器状态
+ 368:./Application/Logics/Insulation/Insulation.c **** ** @The notes : 0：断开 1:闭合
+ 369:./Application/Logics/Insulation/Insulation.c **** **===========================================================================================*/
+ 370:./Application/Logics/Insulation/Insulation.c **** static void CtrlAfterInsuPeRlyState(void)
+ 371:./Application/Logics/Insulation/Insulation.c **** {
+ 372:./Application/Logics/Insulation/Insulation.c **** 	u16 state = stParameter.u16ArraySet[AfterInsuPeRlyState];
+ 373:./Application/Logics/Insulation/Insulation.c **** 
+ 374:./Application/Logics/Insulation/Insulation.c **** 	if (state == 0)//断开
+ARM GAS  /tmp/ccyblaXp.s 			page 8
+
+
+ 375:./Application/Logics/Insulation/Insulation.c **** 	{
+ 376:./Application/Logics/Insulation/Insulation.c **** 		PE_RLY_Contr_Open();
+ 377:./Application/Logics/Insulation/Insulation.c **** 		IMD_RLY_Open();
+ 378:./Application/Logics/Insulation/Insulation.c **** 		//添加板上继电器切换至少间隔时间
+ 379:./Application/Logics/Insulation/Insulation.c **** 		ControlRLYSwitchTime();
+ 380:./Application/Logics/Insulation/Insulation.c **** 	}
+ 381:./Application/Logics/Insulation/Insulation.c **** 	else//闭合
+ 382:./Application/Logics/Insulation/Insulation.c **** 	{
+ 383:./Application/Logics/Insulation/Insulation.c **** 		PE_RLY_Contr_Close();
+ 384:./Application/Logics/Insulation/Insulation.c **** 		IMD_RLY_Open();
+ 385:./Application/Logics/Insulation/Insulation.c **** 		//添加板上继电器切换至少间隔时间
+ 386:./Application/Logics/Insulation/Insulation.c **** 		ControlRLYSwitchTime();
+ 387:./Application/Logics/Insulation/Insulation.c **** 	}
+ 388:./Application/Logics/Insulation/Insulation.c **** 	
+ 389:./Application/Logics/Insulation/Insulation.c **** }
+ 390:./Application/Logics/Insulation/Insulation.c **** //绝缘检测过程
+ 391:./Application/Logics/Insulation/Insulation.c **** static u8 Insulation_DetectProcess(void)
+ 392:./Application/Logics/Insulation/Insulation.c **** {
+ 393:./Application/Logics/Insulation/Insulation.c **** 	u8 u8RTN = FALSE;
+ 394:./Application/Logics/Insulation/Insulation.c **** 	if(gs_InsulationDetectMng.ucInsulationCtrlStep == INSULATION_STEP_1)
+ 395:./Application/Logics/Insulation/Insulation.c **** 	{
+ 396:./Application/Logics/Insulation/Insulation.c **** 		u8RTN = Insluation_STEP_1_ConnectPE_GetVolt();
+ 397:./Application/Logics/Insulation/Insulation.c **** 	}
+ 398:./Application/Logics/Insulation/Insulation.c **** 	else if(gs_InsulationDetectMng.ucInsulationCtrlStep == INSULATION_STEP_2)
+ 399:./Application/Logics/Insulation/Insulation.c **** 	{
+ 400:./Application/Logics/Insulation/Insulation.c **** 		u8RTN = Insluation_STEP_2_ChangeResist_GetN2GVoltage();
+ 401:./Application/Logics/Insulation/Insulation.c **** 	}
+ 402:./Application/Logics/Insulation/Insulation.c **** 	else if(gs_InsulationDetectMng.ucInsulationCtrlStep == INSULATION_STEP_3)
+ 403:./Application/Logics/Insulation/Insulation.c **** 	{
+ 404:./Application/Logics/Insulation/Insulation.c **** 		u8RTN = Insluation_STEP_3_CalcResist();
+ 405:./Application/Logics/Insulation/Insulation.c **** 	}
+ 406:./Application/Logics/Insulation/Insulation.c **** 	return u8RTN;
+ 407:./Application/Logics/Insulation/Insulation.c **** }
+ 408:./Application/Logics/Insulation/Insulation.c **** 
+ 409:./Application/Logics/Insulation/Insulation.c **** 
+ 410:./Application/Logics/Insulation/Insulation.c **** //检测是否符合启动检测电压
+ 411:./Application/Logics/Insulation/Insulation.c **** static u8 Insulation_StartBatVoltCheck(void)
+ 412:./Application/Logics/Insulation/Insulation.c **** {
+ 413:./Application/Logics/Insulation/Insulation.c **** 	u8 u8RTN = FALSE;
+ 414:./Application/Logics/Insulation/Insulation.c **** #ifdef INSULATION_TEST
+ 415:./Application/Logics/Insulation/Insulation.c **** 	/* 电压注入hook: 测试时使用注入值替代实际采样 */
+ 416:./Application/Logics/Insulation/Insulation.c **** 	if (Test_IsInjectEnabled())
+ 417:./Application/Logics/Insulation/Insulation.c **** 	{
+ 418:./Application/Logics/Insulation/Insulation.c **** 		float bat_temp, n2g_temp;
+ 419:./Application/Logics/Insulation/Insulation.c **** 		Test_GetInjectedVoltage(&bat_temp, &n2g_temp);
+ 420:./Application/Logics/Insulation/Insulation.c **** 		gs_InsulationDetectMng.fBatVoltage = bat_temp;
+ 421:./Application/Logics/Insulation/Insulation.c **** 	}
+ 422:./Application/Logics/Insulation/Insulation.c **** 	else
+ 423:./Application/Logics/Insulation/Insulation.c **** 	{
+ 424:./Application/Logics/Insulation/Insulation.c **** 		gs_InsulationDetectMng.fBatVoltage = GetfAdjustBatVolt();
+ 425:./Application/Logics/Insulation/Insulation.c **** 	}
+ 426:./Application/Logics/Insulation/Insulation.c **** #endif
+ 427:./Application/Logics/Insulation/Insulation.c **** 	gs_InsulationDetectMng.fBatVoltage = GetfAdjustBatVolt();
+ 428:./Application/Logics/Insulation/Insulation.c **** 	gs_InsulationDetectMng.fBatVoltageBack = gs_InsulationDetectMng.fBatVoltage;
+ 429:./Application/Logics/Insulation/Insulation.c **** 	if(gs_InsulationDetectMng.fBatVoltage > mInsulationStartMINVoltage)
+ 430:./Application/Logics/Insulation/Insulation.c **** 	{
+ 431:./Application/Logics/Insulation/Insulation.c **** 		u8RTN = TRUE;
+ARM GAS  /tmp/ccyblaXp.s 			page 9
+
+
+ 432:./Application/Logics/Insulation/Insulation.c **** 	}else
+ 433:./Application/Logics/Insulation/Insulation.c **** 	{
+ 434:./Application/Logics/Insulation/Insulation.c **** 		u8RTN = FALSE;
+ 435:./Application/Logics/Insulation/Insulation.c **** 	}
+ 436:./Application/Logics/Insulation/Insulation.c **** 	return u8RTN;
+ 437:./Application/Logics/Insulation/Insulation.c **** 
+ 438:./Application/Logics/Insulation/Insulation.c **** }
+ 439:./Application/Logics/Insulation/Insulation.c **** 
+ 440:./Application/Logics/Insulation/Insulation.c **** /*比较本次采样电压和上次电压，如果不一致，则启动计时器计时
+ 441:./Application/Logics/Insulation/Insulation.c **** 如果一致，则停止计时，并且更新母排电压备份值*/
+ 442:./Application/Logics/Insulation/Insulation.c **** static u8 Insulation_BatVoltCheck(void)
+ 443:./Application/Logics/Insulation/Insulation.c **** {
+ 444:./Application/Logics/Insulation/Insulation.c **** 	u8 u8CompareRTN = FALSE,u8RTN = FALSE;
+ 445:./Application/Logics/Insulation/Insulation.c **** 
+ 446:./Application/Logics/Insulation/Insulation.c **** #ifdef INSULATION_TEST
+ 447:./Application/Logics/Insulation/Insulation.c **** 	/* 获取电压 */
+ 448:./Application/Logics/Insulation/Insulation.c **** 	if (Test_IsInjectEnabled())
+ 449:./Application/Logics/Insulation/Insulation.c **** 	{
+ 450:./Application/Logics/Insulation/Insulation.c **** 		float bat_temp, n2g_temp;
+ 451:./Application/Logics/Insulation/Insulation.c **** 		Test_GetInjectedVoltage(&bat_temp, &n2g_temp);
+ 452:./Application/Logics/Insulation/Insulation.c **** 		gs_InsulationDetectMng.fBatVoltage = bat_temp;
+ 453:./Application/Logics/Insulation/Insulation.c **** 	}
+ 454:./Application/Logics/Insulation/Insulation.c **** 	else
+ 455:./Application/Logics/Insulation/Insulation.c **** 	{
+ 456:./Application/Logics/Insulation/Insulation.c **** 		gs_InsulationDetectMng.fBatVoltage = GetfAdjustBatVolt();
+ 457:./Application/Logics/Insulation/Insulation.c **** 	}
+ 458:./Application/Logics/Insulation/Insulation.c **** #endif
+ 459:./Application/Logics/Insulation/Insulation.c **** 	gs_InsulationDetectMng.fBatVoltage = GetfAdjustBatVolt();
+ 460:./Application/Logics/Insulation/Insulation.c **** 	u8CompareRTN = Insulation_CheckVoltStatble();
+ 461:./Application/Logics/Insulation/Insulation.c **** 	if(u8CompareRTN == TRUE)
+ 462:./Application/Logics/Insulation/Insulation.c **** 	{
+ 463:./Application/Logics/Insulation/Insulation.c **** 		gs_InsulationDetectMng.fBatVoltageBack = gs_InsulationDetectMng.fBatVoltage;
+ 464:./Application/Logics/Insulation/Insulation.c **** 		u8RTN = TRUE;
+ 465:./Application/Logics/Insulation/Insulation.c **** 	}
+ 466:./Application/Logics/Insulation/Insulation.c **** 	else
+ 467:./Application/Logics/Insulation/Insulation.c **** 	{
+ 468:./Application/Logics/Insulation/Insulation.c **** 		u8RTN = FALSE;
+ 469:./Application/Logics/Insulation/Insulation.c **** 	}	
+ 470:./Application/Logics/Insulation/Insulation.c **** 	
+ 471:./Application/Logics/Insulation/Insulation.c **** 	return u8RTN;
+ 472:./Application/Logics/Insulation/Insulation.c **** }
+ 473:./Application/Logics/Insulation/Insulation.c **** 
+ 474:./Application/Logics/Insulation/Insulation.c **** //检测电池电压是否稳定，检测周期两次电压的差值是否小于最小差值
+ 475:./Application/Logics/Insulation/Insulation.c **** static u8 Insulation_CheckVoltStatble(void)
+ 476:./Application/Logics/Insulation/Insulation.c **** {
+ 477:./Application/Logics/Insulation/Insulation.c **** 	u8 u8RTN = FALSE;
+ 478:./Application/Logics/Insulation/Insulation.c **** 	float fDelta1 = 0;
+ 479:./Application/Logics/Insulation/Insulation.c **** 
+ 480:./Application/Logics/Insulation/Insulation.c **** 	fDelta1 = gs_InsulationDetectMng.fBatVoltage - gs_InsulationDetectMng.fBatVoltageBack;
+ 481:./Application/Logics/Insulation/Insulation.c **** 
+ 482:./Application/Logics/Insulation/Insulation.c **** 	if ((FABS(fDelta1) < mInsulationVoltStableLimit) 
+ 483:./Application/Logics/Insulation/Insulation.c **** 	&&(gs_InsulationDetectMng.fBatVoltage > mInsulationStartMINVoltage))
+ 484:./Application/Logics/Insulation/Insulation.c **** 	{
+ 485:./Application/Logics/Insulation/Insulation.c **** 		u8RTN = TRUE;
+ 486:./Application/Logics/Insulation/Insulation.c **** 	}
+ 487:./Application/Logics/Insulation/Insulation.c **** 
+ 488:./Application/Logics/Insulation/Insulation.c **** 	return u8RTN;
+ARM GAS  /tmp/ccyblaXp.s 			page 10
+
+
+ 489:./Application/Logics/Insulation/Insulation.c **** }
+ 490:./Application/Logics/Insulation/Insulation.c **** 
+ 491:./Application/Logics/Insulation/Insulation.c **** static void Insulation_RestoreSwitchAndTimer(void)
+ 492:./Application/Logics/Insulation/Insulation.c **** {
+ 493:./Application/Logics/Insulation/Insulation.c **** 	//Insulation_Ctrl_Connect_PE(u8Channel,OpenSwitch);	
+ 494:./Application/Logics/Insulation/Insulation.c **** 	//Insulation_Change_Resistance(u8Channel,OpenSwitch);	
+ 495:./Application/Logics/Insulation/Insulation.c **** 	gs_InsulationDetectMng.ucInsulationCtrlStep =INSULATION_STEP_1;
+ 496:./Application/Logics/Insulation/Insulation.c **** 	gs_InsulationDetectMng.ucGetVoltDelay = 0;
+ 497:./Application/Logics/Insulation/Insulation.c **** 	gs_InsulationDetectMng.ucVoltStable= 0;
+ 498:./Application/Logics/Insulation/Insulation.c **** 	// gs_InsulationDetectMng.SwitchRelays = FALSE;
+ 499:./Application/Logics/Insulation/Insulation.c **** }
+ 500:./Application/Logics/Insulation/Insulation.c **** 
+ 501:./Application/Logics/Insulation/Insulation.c **** 
+ 502:./Application/Logics/Insulation/Insulation.c **** //绝缘检测初始化
+ 503:./Application/Logics/Insulation/Insulation.c **** void Insulation_InitInsulationData(void)
+ 504:./Application/Logics/Insulation/Insulation.c **** {
+ 505:./Application/Logics/Insulation/Insulation.c **** 	//test
+ 506:./Application/Logics/Insulation/Insulation.c **** 	//gs_InsulationDetectMng.ucInsulationMode = StartDetect;
+ 507:./Application/Logics/Insulation/Insulation.c ****   gs_InsulationDetectMng.ucInsulationMode = AutoDetect;
+ 508:./Application/Logics/Insulation/Insulation.c **** 	gs_InsulationDetectMng.ucInsulationState = eInsulation_Start;
+ 509:./Application/Logics/Insulation/Insulation.c **** 	gs_InsulationDetectMng.fBatVoltage = 0;
+ 510:./Application/Logics/Insulation/Insulation.c **** 	gs_InsulationDetectMng.fN2GVoltage = 0;
+ 511:./Application/Logics/Insulation/Insulation.c **** 	gs_InsulationDetectMng.fP2GVoltage = 0;
+ 512:./Application/Logics/Insulation/Insulation.c **** 	gs_InsulationDetectMng.fBatVoltageBack = 0;
+ 513:./Application/Logics/Insulation/Insulation.c **** 	gs_InsulationDetectMng.fN2GVoltageBack = 0;
+ 514:./Application/Logics/Insulation/Insulation.c **** 	gs_InsulationDetectMng.fP2GVoltageBack = 0;
+ 515:./Application/Logics/Insulation/Insulation.c **** 	gs_InsulationDetectMng.fN2GVoltageCalc[First_Time] = 0;
+ 516:./Application/Logics/Insulation/Insulation.c **** 	gs_InsulationDetectMng.fP2GVoltageCalc[First_Time]= 0;
+ 517:./Application/Logics/Insulation/Insulation.c **** 	gs_InsulationDetectMng.fN2GVoltageCalc[Second_Time] = 0;
+ 518:./Application/Logics/Insulation/Insulation.c **** 	gs_InsulationDetectMng.fP2GVoltageCalc[Second_Time] = 0;
+ 519:./Application/Logics/Insulation/Insulation.c **** 	gs_InsulationDetectMng.fN2GResistance = 0;
+ 520:./Application/Logics/Insulation/Insulation.c **** 	gs_InsulationDetectMng.fP2GResistance = 0;
+ 521:./Application/Logics/Insulation/Insulation.c **** 	gs_InsulationDetectMng.fN2GResistanceLast = 0;
+ 522:./Application/Logics/Insulation/Insulation.c **** 	gs_InsulationDetectMng.fP2GResistanceLast = 0;
+ 523:./Application/Logics/Insulation/Insulation.c **** 	gs_InsulationDetectMng.ucInsulationCtrlStep =INSULATION_STEP_1;
+ 524:./Application/Logics/Insulation/Insulation.c **** 	gs_InsulationDetectMng.ucGetVoltDelay= 0;
+ 525:./Application/Logics/Insulation/Insulation.c **** 	//gs_InsulationDetectMng.SwitchRelays[u8Channel] = FALSE;
+ 526:./Application/Logics/Insulation/Insulation.c **** 
+ 527:./Application/Logics/Insulation/Insulation.c **** #ifdef INSULATION_TEST
+ 528:./Application/Logics/Insulation/Insulation.c ****     check_insulation("InitInsulationData_DONE");
+ 529:./Application/Logics/Insulation/Insulation.c **** #endif
+ 530:./Application/Logics/Insulation/Insulation.c **** 
+ 531:./Application/Logics/Insulation/Insulation.c **** 
+ 532:./Application/Logics/Insulation/Insulation.c **** 	CtrlCmdFeedback_56[CtrlFeedback] = eInsulation_Start;
+ 533:./Application/Logics/Insulation/Insulation.c **** }
+ 534:./Application/Logics/Insulation/Insulation.c **** 
+ 535:./Application/Logics/Insulation/Insulation.c **** 
+ 536:./Application/Logics/Insulation/Insulation.c **** 
+ 537:./Application/Logics/Insulation/Insulation.c **** static u8  Insluation_STEP_1_ConnectPE_GetVolt(void)
+ 538:./Application/Logics/Insulation/Insulation.c **** {
+ 539:./Application/Logics/Insulation/Insulation.c **** 	u8 ucRTN;
+ 540:./Application/Logics/Insulation/Insulation.c **** 	static u32 u32Step1StartTimer = 0;
+ 541:./Application/Logics/Insulation/Insulation.c **** 	if(gs_InsulationDetectMng.ucGetVoltDelay == 0)
+ 542:./Application/Logics/Insulation/Insulation.c **** 	{
+ 543:./Application/Logics/Insulation/Insulation.c **** 		PE_RLY_Contr_Close();//获取母排电压后，接入PE
+ 544:./Application/Logics/Insulation/Insulation.c **** 		IMD_RLY_Open();
+ 545:./Application/Logics/Insulation/Insulation.c **** 		//添加板上继电器切换至少间隔时间
+ARM GAS  /tmp/ccyblaXp.s 			page 11
+
+
+ 546:./Application/Logics/Insulation/Insulation.c **** 		ControlRLYSwitchTime();
+ 547:./Application/Logics/Insulation/Insulation.c **** 
+ 548:./Application/Logics/Insulation/Insulation.c **** 		osDelay(200);//等待电路稳定，确保Measure任务已更新gSystemData.fPeGndVolt
+ 549:./Application/Logics/Insulation/Insulation.c **** 		u32Step1StartTimer = GetRunTimers();
+ 550:./Application/Logics/Insulation/Insulation.c **** 		Insulation_GetN2GandP2GVoltage();//获取负母排对地电压
+ 551:./Application/Logics/Insulation/Insulation.c **** 		gs_InsulationDetectMng.ucGetVoltDelay = 1; //接通继电器后，需要等待测量完成才能�
+ 552:./Application/Logics/Insulation/Insulation.c **** 		gs_InsulationDetectMng.fN2GVoltageBack = gs_InsulationDetectMng.fN2GVoltage;
+ 553:./Application/Logics/Insulation/Insulation.c ****         gs_InsulationDetectMng.fP2GVoltageBack = gs_InsulationDetectMng.fP2GVoltage;
+ 554:./Application/Logics/Insulation/Insulation.c **** 		osDelay(50);
+ 555:./Application/Logics/Insulation/Insulation.c **** 	}
+ 556:./Application/Logics/Insulation/Insulation.c **** 	else if (gs_InsulationDetectMng.ucGetVoltDelay > 0) //到达检测周期
+ 557:./Application/Logics/Insulation/Insulation.c **** 	{ 
+ 558:./Application/Logics/Insulation/Insulation.c **** 		if(gs_InsulationDetectMng.ucGetVoltDelay > 0)
+ 559:./Application/Logics/Insulation/Insulation.c **** 		 {
+ 560:./Application/Logics/Insulation/Insulation.c **** 			 Insulation_GetN2GandP2GVoltage();//获取正负母排对地电压
+ 561:./Application/Logics/Insulation/Insulation.c **** 			 ucRTN =Insulation_CheckN2GVoltStable();//负对地电压是否稳定
+ 562:./Application/Logics/Insulation/Insulation.c **** 
+ 563:./Application/Logics/Insulation/Insulation.c **** 			if(ucRTN == TRUE)
+ 564:./Application/Logics/Insulation/Insulation.c **** 			{
+ 565:./Application/Logics/Insulation/Insulation.c **** 			gs_InsulationDetectMng.ucGetVoltDelay++;
+ 566:./Application/Logics/Insulation/Insulation.c **** 			}
+ 567:./Application/Logics/Insulation/Insulation.c **** 			else
+ 568:./Application/Logics/Insulation/Insulation.c **** 			{
+ 569:./Application/Logics/Insulation/Insulation.c **** 			gs_InsulationDetectMng.ucGetVoltDelay= 1;
+ 570:./Application/Logics/Insulation/Insulation.c **** 			gs_InsulationDetectMng.fN2GVoltageBack = gs_InsulationDetectMng.fN2GVoltage;
+ 571:./Application/Logics/Insulation/Insulation.c **** 			gs_InsulationDetectMng.fP2GVoltageBack = gs_InsulationDetectMng.fP2GVoltage;
+ 572:./Application/Logics/Insulation/Insulation.c **** 			}
+ 573:./Application/Logics/Insulation/Insulation.c **** 			 osDelay(50);
+ 574:./Application/Logics/Insulation/Insulation.c **** 		 }
+ 575:./Application/Logics/Insulation/Insulation.c **** 		if(gs_InsulationDetectMng.ucGetVoltDelay > 3) //连续三次稳定则记录第一组数据
+ 576:./Application/Logics/Insulation/Insulation.c **** 		{
+ 577:./Application/Logics/Insulation/Insulation.c **** 			Insulation_RecordN2GandP2GVoltage(First_Time);//获取正负母排对地电压
+ 578:./Application/Logics/Insulation/Insulation.c **** 			//如果电压太小，直接判断为绝缘故障
+ 579:./Application/Logics/Insulation/Insulation.c **** 			if((gs_InsulationDetectMng.fN2GVoltageCalc[First_Time] < SHORT_VOLT_LIMIT)
+ 580:./Application/Logics/Insulation/Insulation.c **** 			||(gs_InsulationDetectMng.fP2GVoltageCalc[First_Time]< SHORT_VOLT_LIMIT))
+ 581:./Application/Logics/Insulation/Insulation.c **** 			{ 
+ 582:./Application/Logics/Insulation/Insulation.c **** 				gs_InsulationDetectMng.ucInsulationCtrlStep = INSULATION_STEP_3;
+ 583:./Application/Logics/Insulation/Insulation.c **** 			}
+ 584:./Application/Logics/Insulation/Insulation.c **** 			else //如果电压值正常，继续投切计算绝缘阻值
+ 585:./Application/Logics/Insulation/Insulation.c **** 			{
+ 586:./Application/Logics/Insulation/Insulation.c **** 				gs_InsulationDetectMng.ucInsulationCtrlStep = INSULATION_STEP_2;//延时到达进入下一步
+ 587:./Application/Logics/Insulation/Insulation.c **** 			}
+ 588:./Application/Logics/Insulation/Insulation.c **** 			
+ 589:./Application/Logics/Insulation/Insulation.c **** 			gs_InsulationDetectMng.ucGetVoltDelay = 0; //初始化计数器
+ 590:./Application/Logics/Insulation/Insulation.c **** 		}
+ 591:./Application/Logics/Insulation/Insulation.c **** 	}
+ 592:./Application/Logics/Insulation/Insulation.c **** 	if (((GetRunTimers() + RunTimersOverflow - u32Step1StartTimer)%RunTimersOverflow) > stParameter.u1
+ 593:./Application/Logics/Insulation/Insulation.c **** 	{
+ 594:./Application/Logics/Insulation/Insulation.c **** 			return FALSE;
+ 595:./Application/Logics/Insulation/Insulation.c **** 	}
+ 596:./Application/Logics/Insulation/Insulation.c **** 	return TRUE;	
+ 597:./Application/Logics/Insulation/Insulation.c **** }
+ 598:./Application/Logics/Insulation/Insulation.c **** 
+ 599:./Application/Logics/Insulation/Insulation.c **** static u8  Insluation_STEP_2_ChangeResist_GetN2GVoltage(void)
+ 600:./Application/Logics/Insulation/Insulation.c **** {
+ 601:./Application/Logics/Insulation/Insulation.c **** 	u8 ucRTN;
+ 602:./Application/Logics/Insulation/Insulation.c **** 	static u32 u32Step1StartTimer = 0;
+ARM GAS  /tmp/ccyblaXp.s 			page 12
+
+
+ 603:./Application/Logics/Insulation/Insulation.c **** 	if(gs_InsulationDetectMng.ucGetVoltDelay == 0)
+ 604:./Application/Logics/Insulation/Insulation.c **** 	{
+ 605:./Application/Logics/Insulation/Insulation.c **** 		IMD_RLY_Close(); //闭合继电器，改变分压电阻
+ 606:./Application/Logics/Insulation/Insulation.c **** 		PE_RLY_Contr_Close();	 //接入PE
+ 607:./Application/Logics/Insulation/Insulation.c **** 		//添加板上继电器切换至少间隔时间
+ 608:./Application/Logics/Insulation/Insulation.c **** 		ControlRLYSwitchTime();
+ 609:./Application/Logics/Insulation/Insulation.c **** 
+ 610:./Application/Logics/Insulation/Insulation.c **** 		osDelay(200);//等待电路稳定，确保Measure任务已更新gSystemData.fPeGndVolt
+ 611:./Application/Logics/Insulation/Insulation.c **** 		u32Step1StartTimer = GetRunTimers();
+ 612:./Application/Logics/Insulation/Insulation.c **** 		Insulation_GetN2GandP2GVoltage();//获取正负母排对地电压
+ 613:./Application/Logics/Insulation/Insulation.c **** 		gs_InsulationDetectMng.ucGetVoltDelay= 1;  //接通继电器后，需要等待测量完成才能�
+ 614:./Application/Logics/Insulation/Insulation.c **** 		gs_InsulationDetectMng.fN2GVoltageBack = gs_InsulationDetectMng.fN2GVoltage;
+ 615:./Application/Logics/Insulation/Insulation.c **** 		gs_InsulationDetectMng.fP2GVoltageBack = gs_InsulationDetectMng.fP2GVoltage;	
+ 616:./Application/Logics/Insulation/Insulation.c **** 		osDelay(50);
+ 617:./Application/Logics/Insulation/Insulation.c **** 	}
+ 618:./Application/Logics/Insulation/Insulation.c **** 	else if (gs_InsulationDetectMng.ucGetVoltDelay > 0)
+ 619:./Application/Logics/Insulation/Insulation.c **** 	{ 
+ 620:./Application/Logics/Insulation/Insulation.c **** 		if(gs_InsulationDetectMng.ucGetVoltDelay >0)
+ 621:./Application/Logics/Insulation/Insulation.c **** 		{
+ 622:./Application/Logics/Insulation/Insulation.c **** 			Insulation_GetN2GandP2GVoltage();//获取正负母排对地电压
+ 623:./Application/Logics/Insulation/Insulation.c **** 			ucRTN =Insulation_CheckN2GVoltStable();//负对地电压是否稳定
+ 624:./Application/Logics/Insulation/Insulation.c **** 			if(ucRTN == TRUE)
+ 625:./Application/Logics/Insulation/Insulation.c **** 			{
+ 626:./Application/Logics/Insulation/Insulation.c **** 			gs_InsulationDetectMng.ucGetVoltDelay++;
+ 627:./Application/Logics/Insulation/Insulation.c **** 			}
+ 628:./Application/Logics/Insulation/Insulation.c **** 			else
+ 629:./Application/Logics/Insulation/Insulation.c **** 			{
+ 630:./Application/Logics/Insulation/Insulation.c **** 			gs_InsulationDetectMng.ucGetVoltDelay= 1;
+ 631:./Application/Logics/Insulation/Insulation.c **** 			gs_InsulationDetectMng.fN2GVoltageBack = gs_InsulationDetectMng.fN2GVoltage;
+ 632:./Application/Logics/Insulation/Insulation.c **** 			gs_InsulationDetectMng.fP2GVoltageBack = gs_InsulationDetectMng.fP2GVoltage;
+ 633:./Application/Logics/Insulation/Insulation.c **** 			}
+ 634:./Application/Logics/Insulation/Insulation.c **** 			osDelay(50);
+ 635:./Application/Logics/Insulation/Insulation.c **** 		}
+ 636:./Application/Logics/Insulation/Insulation.c **** 		if(gs_InsulationDetectMng.ucGetVoltDelay>3) //连续三次稳定则记录第一组数据
+ 637:./Application/Logics/Insulation/Insulation.c **** 		{
+ 638:./Application/Logics/Insulation/Insulation.c **** 			Insulation_RecordN2GandP2GVoltage(Second_Time);//获取正负母排对地电压
+ 639:./Application/Logics/Insulation/Insulation.c **** 			gs_InsulationDetectMng.ucInsulationCtrlStep = INSULATION_STEP_3;
+ 640:./Application/Logics/Insulation/Insulation.c **** 			gs_InsulationDetectMng.ucGetVoltDelay = 0; //初始化计数器
+ 641:./Application/Logics/Insulation/Insulation.c **** 		}
+ 642:./Application/Logics/Insulation/Insulation.c **** 	}	
+ 643:./Application/Logics/Insulation/Insulation.c **** 	if (((GetRunTimers() + RunTimersOverflow - u32Step1StartTimer)%RunTimersOverflow) > stParameter.u1
+ 644:./Application/Logics/Insulation/Insulation.c **** 	{
+ 645:./Application/Logics/Insulation/Insulation.c **** 			return FALSE;
+ 646:./Application/Logics/Insulation/Insulation.c **** 	}
+ 647:./Application/Logics/Insulation/Insulation.c **** 	return TRUE;	
+ 648:./Application/Logics/Insulation/Insulation.c **** }
+ 649:./Application/Logics/Insulation/Insulation.c **** //接地检测第三步 计算电压值 正负极对pe绝缘输入电阻值
+ 650:./Application/Logics/Insulation/Insulation.c **** static UINT8  Insluation_STEP_3_CalcResist(void)
+ 651:./Application/Logics/Insulation/Insulation.c **** {
+ 652:./Application/Logics/Insulation/Insulation.c **** 	float fRN = NORMAL_VALUE;
+ 653:./Application/Logics/Insulation/Insulation.c **** 	float fRP = NORMAL_VALUE;
+ 654:./Application/Logics/Insulation/Insulation.c **** 	float fAlarmLimit,fFaultLimit;
+ 655:./Application/Logics/Insulation/Insulation.c **** 
+ 656:./Application/Logics/Insulation/Insulation.c **** 	fAlarmLimit = ALARM_LIMIT_RATE*gs_InsulationDetectMng.fBatVoltage;
+ 657:./Application/Logics/Insulation/Insulation.c **** 	fFaultLimit = FAULT_LIMIT_RATE*gs_InsulationDetectMng.fBatVoltage;
+ 658:./Application/Logics/Insulation/Insulation.c **** 	
+ 659:./Application/Logics/Insulation/Insulation.c **** 	if(gs_InsulationDetectMng.fN2GVoltageCalc[First_Time] < SHORT_VOLT_LIMIT)
+ARM GAS  /tmp/ccyblaXp.s 			page 13
+
+
+ 660:./Application/Logics/Insulation/Insulation.c **** 	{
+ 661:./Application/Logics/Insulation/Insulation.c **** 		gs_InsulationDetectMng.fN2GResistance = 0;
+ 662:./Application/Logics/Insulation/Insulation.c **** 		gs_InsulationDetectMng.fP2GResistance = NORMAL_VALUE;
+ 663:./Application/Logics/Insulation/Insulation.c **** 		gs_InsulationDetectMng.ucInsulationState = eInsulation_Fault;//电压负值，异常
+ 664:./Application/Logics/Insulation/Insulation.c **** 		CtrlCmdFeedback_56[CtrlFeedback] = eInsulation_Fault;
+ 665:./Application/Logics/Insulation/Insulation.c **** 		
+ 666:./Application/Logics/Insulation/Insulation.c **** 	}
+ 667:./Application/Logics/Insulation/Insulation.c **** 	else if(gs_InsulationDetectMng.fP2GVoltageCalc[First_Time]  < SHORT_VOLT_LIMIT)
+ 668:./Application/Logics/Insulation/Insulation.c **** 	{
+ 669:./Application/Logics/Insulation/Insulation.c **** 		gs_InsulationDetectMng.fP2GResistance = 0;
+ 670:./Application/Logics/Insulation/Insulation.c **** 		gs_InsulationDetectMng.fN2GResistance = NORMAL_VALUE;
+ 671:./Application/Logics/Insulation/Insulation.c **** 		gs_InsulationDetectMng.ucInsulationState = eInsulation_Fault;//电压负值，异常
+ 672:./Application/Logics/Insulation/Insulation.c **** 		CtrlCmdFeedback_56[CtrlFeedback] = eInsulation_Fault;
+ 673:./Application/Logics/Insulation/Insulation.c **** 	}
+ 674:./Application/Logics/Insulation/Insulation.c **** 	else
+ 675:./Application/Logics/Insulation/Insulation.c **** 	{
+ 676:./Application/Logics/Insulation/Insulation.c **** 		 Insulation_Calculate(gs_InsulationDetectMng.fN2GVoltageCalc[First_Time],
+ 677:./Application/Logics/Insulation/Insulation.c **** 				  gs_InsulationDetectMng.fP2GVoltageCalc[First_Time],
+ 678:./Application/Logics/Insulation/Insulation.c **** 				  gs_InsulationDetectMng.fN2GVoltageCalc[Second_Time],
+ 679:./Application/Logics/Insulation/Insulation.c **** 				  gs_InsulationDetectMng.fP2GVoltageCalc[Second_Time],
+ 680:./Application/Logics/Insulation/Insulation.c **** 				  FIRST_STEP_R_N,FIRST_STEP_R_P,
+ 681:./Application/Logics/Insulation/Insulation.c **** 				  SECOND_STEP_R_N,SECOND_STEP_R_P,&fRN,&fRP);
+ 682:./Application/Logics/Insulation/Insulation.c **** 		SEGGER_RTT_printf(0, "[Insu STEP3] Bat=%d.%d UN1=%d.%d UP1=%d.%d UN2=%d.%d UP2=%d.%d\r\n",
+ 683:./Application/Logics/Insulation/Insulation.c **** 			(int)gs_InsulationDetectMng.fBatVoltage, (int)(gs_InsulationDetectMng.fBatVoltage*10)%10,
+ 684:./Application/Logics/Insulation/Insulation.c **** 			(int)gs_InsulationDetectMng.fN2GVoltageCalc[First_Time], (int)(gs_InsulationDetectMng.fN2GVoltag
+ 685:./Application/Logics/Insulation/Insulation.c **** 			(int)gs_InsulationDetectMng.fP2GVoltageCalc[First_Time], (int)(gs_InsulationDetectMng.fP2GVoltag
+ 686:./Application/Logics/Insulation/Insulation.c **** 			(int)gs_InsulationDetectMng.fN2GVoltageCalc[Second_Time], (int)(gs_InsulationDetectMng.fN2GVolta
+ 687:./Application/Logics/Insulation/Insulation.c **** 			(int)gs_InsulationDetectMng.fP2GVoltageCalc[Second_Time], (int)(gs_InsulationDetectMng.fP2GVolta
+ 688:./Application/Logics/Insulation/Insulation.c **** 		SEGGER_RTT_printf(0, "[Insu STEP3] raw fRN=%d raw fRP=%d (x100)\r\n",
+ 689:./Application/Logics/Insulation/Insulation.c **** 			(int)(fRN*100), (int)(fRP*100));
+ 690:./Application/Logics/Insulation/Insulation.c **** 
+ 691:./Application/Logics/Insulation/Insulation.c **** 				  
+ 692:./Application/Logics/Insulation/Insulation.c **** 	if(!(fRN >= 0 && fRP >= 0))//拦截NaN(NaN>=0为false)和负值
+ 693:./Application/Logics/Insulation/Insulation.c **** 		{
+ 694:./Application/Logics/Insulation/Insulation.c **** 			gs_InsulationDetectMng.ucInsulationState = eInsulation_Fault;//电阻负值，异常
+ 695:./Application/Logics/Insulation/Insulation.c **** 			CtrlCmdFeedback_56[CtrlFeedback] = eInsulation_Fault;
+ 696:./Application/Logics/Insulation/Insulation.c **** 			return FALSE;
+ 697:./Application/Logics/Insulation/Insulation.c **** 		}
+ 698:./Application/Logics/Insulation/Insulation.c **** 		if(fRN < 0||fRN >= NORMAL_VALUE)
+ 699:./Application/Logics/Insulation/Insulation.c **** 		{
+ 700:./Application/Logics/Insulation/Insulation.c **** 			fRN = NORMAL_VALUE;
+ 701:./Application/Logics/Insulation/Insulation.c **** 		}
+ 702:./Application/Logics/Insulation/Insulation.c **** 		
+ 703:./Application/Logics/Insulation/Insulation.c **** 		if(fRP < 0||fRP >= NORMAL_VALUE)
+ 704:./Application/Logics/Insulation/Insulation.c **** 		{
+ 705:./Application/Logics/Insulation/Insulation.c **** 			fRP = NORMAL_VALUE;
+ 706:./Application/Logics/Insulation/Insulation.c **** 		}
+ 707:./Application/Logics/Insulation/Insulation.c ****         
+ 708:./Application/Logics/Insulation/Insulation.c **** 		
+ 709:./Application/Logics/Insulation/Insulation.c **** 		if((fRN<fFaultLimit)||(fRP<fFaultLimit))
+ 710:./Application/Logics/Insulation/Insulation.c **** 		{
+ 711:./Application/Logics/Insulation/Insulation.c **** 			gs_InsulationDetectMng.ucInsulationState = eInsulation_End;
+ 712:./Application/Logics/Insulation/Insulation.c **** 			CtrlCmdFeedback_56[CtrlFeedback] = eInsulation_End;
+ 713:./Application/Logics/Insulation/Insulation.c **** 		}
+ 714:./Application/Logics/Insulation/Insulation.c **** 		else if((fRN<fAlarmLimit)||(fRP<fAlarmLimit))
+ 715:./Application/Logics/Insulation/Insulation.c **** 		{
+ 716:./Application/Logics/Insulation/Insulation.c **** 			gs_InsulationDetectMng.ucInsulationState = eInsulation_End;
+ARM GAS  /tmp/ccyblaXp.s 			page 14
+
+
+ 717:./Application/Logics/Insulation/Insulation.c **** 			CtrlCmdFeedback_56[CtrlFeedback] = eInsulation_End;
+ 718:./Application/Logics/Insulation/Insulation.c **** 		}
+ 719:./Application/Logics/Insulation/Insulation.c **** 		else
+ 720:./Application/Logics/Insulation/Insulation.c **** 		{
+ 721:./Application/Logics/Insulation/Insulation.c **** 			gs_InsulationDetectMng.ucInsulationState = eInsulation_End;
+ 722:./Application/Logics/Insulation/Insulation.c **** 			CtrlCmdFeedback_56[CtrlFeedback] = eInsulation_End;
+ 723:./Application/Logics/Insulation/Insulation.c **** 		}
+ 724:./Application/Logics/Insulation/Insulation.c **** 
+ 725:./Application/Logics/Insulation/Insulation.c **** 		//保存上一次的计算值
+ 726:./Application/Logics/Insulation/Insulation.c **** 		gs_InsulationDetectMng.fP2GResistanceLast = gs_InsulationDetectMng.fP2GResistance;
+ 727:./Application/Logics/Insulation/Insulation.c **** 		gs_InsulationDetectMng.fN2GResistanceLast = gs_InsulationDetectMng.fN2GResistance;
+ 728:./Application/Logics/Insulation/Insulation.c **** 
+ 729:./Application/Logics/Insulation/Insulation.c **** 
+ 730:./Application/Logics/Insulation/Insulation.c **** 		gs_InsulationDetectMng.fP2GResistance = fRP;
+ 731:./Application/Logics/Insulation/Insulation.c **** 		gs_InsulationDetectMng.fN2GResistance = fRN;
+ 732:./Application/Logics/Insulation/Insulation.c **** 
+ 733:./Application/Logics/Insulation/Insulation.c **** 	}
+ 734:./Application/Logics/Insulation/Insulation.c **** 
+ 735:./Application/Logics/Insulation/Insulation.c **** 	SEGGER_RTT_printf(0, "[Insu STEP3] >>> N2G_R=%d P2G_R=%d State=%d\r\n",
+ 736:./Application/Logics/Insulation/Insulation.c **** 		(int)gs_InsulationDetectMng.fN2GResistance, (int)gs_InsulationDetectMng.fP2GResistance,
+ 737:./Application/Logics/Insulation/Insulation.c **** 		gs_InsulationDetectMng.ucInsulationState);
+ 738:./Application/Logics/Insulation/Insulation.c **** 	InPutSystemDataArray(BatPeResistance,(s16)(gs_InsulationDetectMng.fP2GResistance));//正极对pe�
+ 739:./Application/Logics/Insulation/Insulation.c **** 	InPutSystemDataArray(GndPeResistance,(s16)(gs_InsulationDetectMng.fN2GResistance));//负极对pe�
+ 740:./Application/Logics/Insulation/Insulation.c **** 	return TRUE;
+ 741:./Application/Logics/Insulation/Insulation.c **** }
+ 742:./Application/Logics/Insulation/Insulation.c **** static void Insulation_GetN2GandP2GVoltage(void)
+ 743:./Application/Logics/Insulation/Insulation.c **** {
+ 744:./Application/Logics/Insulation/Insulation.c **** 	float ftemp = 0;
+ 745:./Application/Logics/Insulation/Insulation.c **** 
+ 746:./Application/Logics/Insulation/Insulation.c **** #ifdef INSULATION_TEST
+ 747:./Application/Logics/Insulation/Insulation.c **** 	/* 电压注入hook: 测试时使用注入值替代实际采样 */
+ 748:./Application/Logics/Insulation/Insulation.c **** 	if (Test_IsInjectEnabled())
+ 749:./Application/Logics/Insulation/Insulation.c **** 	{
+ 750:./Application/Logics/Insulation/Insulation.c **** 		float bat_temp, n2g_temp;
+ 751:./Application/Logics/Insulation/Insulation.c **** 		Test_GetInjectedVoltage(&bat_temp, &n2g_temp);
+ 752:./Application/Logics/Insulation/Insulation.c **** 		ftemp = n2g_temp;
+ 753:./Application/Logics/Insulation/Insulation.c **** 		gs_InsulationDetectMng.fBatVoltage = bat_temp;  /* 同步更新母线电压 */
+ 754:./Application/Logics/Insulation/Insulation.c **** 	}
+ 755:./Application/Logics/Insulation/Insulation.c **** 	else
+ 756:./Application/Logics/Insulation/Insulation.c **** 	{
+ 757:./Application/Logics/Insulation/Insulation.c **** 		ftemp = GetfAdjustPeGndVolt();
+ 758:./Application/Logics/Insulation/Insulation.c **** 	}
+ 759:./Application/Logics/Insulation/Insulation.c **** #endif
+ 760:./Application/Logics/Insulation/Insulation.c **** 	ftemp = GetfAdjustPeGndVolt();
+ 761:./Application/Logics/Insulation/Insulation.c **** 	gs_InsulationDetectMng.fN2GVoltage = ftemp;
+ 762:./Application/Logics/Insulation/Insulation.c **** 	gs_InsulationDetectMng.fP2GVoltage = gs_InsulationDetectMng.fBatVoltage - ftemp;
+ 763:./Application/Logics/Insulation/Insulation.c ****     
+ 764:./Application/Logics/Insulation/Insulation.c **** }
+ 765:./Application/Logics/Insulation/Insulation.c **** 
+ 766:./Application/Logics/Insulation/Insulation.c **** static UINT8 Insulation_CheckN2GVoltStable(void)
+ 767:./Application/Logics/Insulation/Insulation.c **** {
+  27              		.loc 1 767 0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 0
+  30              		@ frame_needed = 0, uses_anonymous_args = 0
+  31              	.LVL0:
+  32 0000 70B5     		push	{r4, r5, r6, lr}
+ARM GAS  /tmp/ccyblaXp.s 			page 15
+
+
+  33              	.LCFI0:
+  34              		.cfi_def_cfa_offset 16
+  35              		.cfi_offset 4, -16
+  36              		.cfi_offset 5, -12
+  37              		.cfi_offset 6, -8
+  38              		.cfi_offset 14, -4
+ 768:./Application/Logics/Insulation/Insulation.c **** 	INT8U u8RTN = FALSE;
+ 769:./Application/Logics/Insulation/Insulation.c **** 	float fDelta1 = 0;
+ 770:./Application/Logics/Insulation/Insulation.c **** 
+ 771:./Application/Logics/Insulation/Insulation.c **** 	fDelta1 = gs_InsulationDetectMng.fN2GVoltage - gs_InsulationDetectMng.fN2GVoltageBack;
+  39              		.loc 1 771 0
+  40 0002 0D4D     		ldr	r5, .L7
+  41 0004 EE68     		ldr	r6, [r5, #12]
+  42 0006 A969     		ldr	r1, [r5, #24]
+  43 0008 301C     		adds	r0, r6, #0
+  44 000a FFF7FEFF 		bl	__aeabi_fsub
+  45              	.LVL1:
+ 772:./Application/Logics/Insulation/Insulation.c **** 	if (fDelta1 < 0)
+  46              		.loc 1 772 0
+  47 000e 0021     		movs	r1, #0
+ 771:./Application/Logics/Insulation/Insulation.c **** 	if (fDelta1 < 0)
+  48              		.loc 1 771 0
+  49 0010 041C     		adds	r4, r0, #0
+  50              	.LVL2:
+  51              		.loc 1 772 0
+  52 0012 FFF7FEFF 		bl	__aeabi_fcmplt
+  53              	.LVL3:
+  54 0016 0028     		cmp	r0, #0
+  55 0018 02D0     		beq	.L2
+ 773:./Application/Logics/Insulation/Insulation.c **** 	{
+ 774:./Application/Logics/Insulation/Insulation.c **** 		fDelta1 = -fDelta1;
+  56              		.loc 1 774 0
+  57 001a 8023     		movs	r3, #128
+  58 001c 1B06     		lsls	r3, r3, #24
+  59 001e E418     		adds	r4, r4, r3
+  60              	.LVL4:
+  61              	.L2:
+ 775:./Application/Logics/Insulation/Insulation.c **** 	}
+ 776:./Application/Logics/Insulation/Insulation.c **** 	if (fDelta1 < mInsulationVoltStableLimit) 
+  62              		.loc 1 776 0
+  63 0020 FE21     		movs	r1, #254
+  64 0022 201C     		adds	r0, r4, #0
+  65 0024 8905     		lsls	r1, r1, #22
+  66 0026 FFF7FEFF 		bl	__aeabi_fcmplt
+  67              	.LVL5:
+ 777:./Application/Logics/Insulation/Insulation.c **** 	{
+ 778:./Application/Logics/Insulation/Insulation.c **** 		u8RTN = TRUE;
+  68              		.loc 1 778 0
+  69 002a 0123     		movs	r3, #1
+ 776:./Application/Logics/Insulation/Insulation.c **** 	{
+  70              		.loc 1 776 0
+  71 002c 0028     		cmp	r0, #0
+  72 002e 01D1     		bne	.L4
+ 779:./Application/Logics/Insulation/Insulation.c **** 	}
+ 780:./Application/Logics/Insulation/Insulation.c **** 	else
+ 781:./Application/Logics/Insulation/Insulation.c **** 	{
+ 782:./Application/Logics/Insulation/Insulation.c **** 		gs_InsulationDetectMng.fN2GVoltageBack = gs_InsulationDetectMng.fN2GVoltage;
+ARM GAS  /tmp/ccyblaXp.s 			page 16
+
+
+ 783:./Application/Logics/Insulation/Insulation.c **** 		u8RTN = FALSE;
+  73              		.loc 1 783 0
+  74 0030 0300     		movs	r3, r0
+ 782:./Application/Logics/Insulation/Insulation.c **** 		u8RTN = FALSE;
+  75              		.loc 1 782 0
+  76 0032 AE61     		str	r6, [r5, #24]
+  77              	.L4:
+  78              	.LVL6:
+ 784:./Application/Logics/Insulation/Insulation.c **** 	}
+ 785:./Application/Logics/Insulation/Insulation.c **** 
+ 786:./Application/Logics/Insulation/Insulation.c **** 	return u8RTN;
+ 787:./Application/Logics/Insulation/Insulation.c **** }
+  79              		.loc 1 787 0
+  80 0034 1800     		movs	r0, r3
+  81              		@ sp needed
+  82              	.LVL7:
+  83 0036 70BD     		pop	{r4, r5, r6, pc}
+  84              	.L8:
+  85              		.align	2
+  86              	.L7:
+  87 0038 00000000 		.word	gs_InsulationDetectMng
+  88              		.cfi_endproc
+  89              	.LFE508:
+  91              		.section	.text.unlikely.Insulation_GetN2GandP2GVoltage,"ax",%progbits
+  92              		.align	1
+  93              		.syntax unified
+  94              		.code	16
+  95              		.thumb_func
+  96              		.fpu softvfp
+  98              	Insulation_GetN2GandP2GVoltage:
+  99              	.LFB507:
+ 743:./Application/Logics/Insulation/Insulation.c **** 	float ftemp = 0;
+ 100              		.loc 1 743 0
+ 101              		.cfi_startproc
+ 102              		@ args = 0, pretend = 0, frame = 0
+ 103              		@ frame_needed = 0, uses_anonymous_args = 0
+ 104              	.LVL8:
+ 105 0000 10B5     		push	{r4, lr}
+ 106              	.LCFI1:
+ 107              		.cfi_def_cfa_offset 8
+ 108              		.cfi_offset 4, -8
+ 109              		.cfi_offset 14, -4
+ 760:./Application/Logics/Insulation/Insulation.c **** 	gs_InsulationDetectMng.fN2GVoltage = ftemp;
+ 110              		.loc 1 760 0
+ 111 0002 FFF7FEFF 		bl	GetfAdjustPeGndVolt
+ 112              	.LVL9:
+ 761:./Application/Logics/Insulation/Insulation.c **** 	gs_InsulationDetectMng.fP2GVoltage = gs_InsulationDetectMng.fBatVoltage - ftemp;
+ 113              		.loc 1 761 0
+ 114 0006 044C     		ldr	r4, .L10
+ 760:./Application/Logics/Insulation/Insulation.c **** 	gs_InsulationDetectMng.fN2GVoltage = ftemp;
+ 115              		.loc 1 760 0
+ 116 0008 011C     		adds	r1, r0, #0
+ 117              	.LVL10:
+ 761:./Application/Logics/Insulation/Insulation.c **** 	gs_InsulationDetectMng.fP2GVoltage = gs_InsulationDetectMng.fBatVoltage - ftemp;
+ 118              		.loc 1 761 0
+ 119 000a E060     		str	r0, [r4, #12]
+ 762:./Application/Logics/Insulation/Insulation.c ****     
+ARM GAS  /tmp/ccyblaXp.s 			page 17
+
+
+ 120              		.loc 1 762 0
+ 121 000c A068     		ldr	r0, [r4, #8]
+ 122              	.LVL11:
+ 123 000e FFF7FEFF 		bl	__aeabi_fsub
+ 124              	.LVL12:
+ 764:./Application/Logics/Insulation/Insulation.c **** 
+ 125              		.loc 1 764 0
+ 126              		@ sp needed
+ 762:./Application/Logics/Insulation/Insulation.c ****     
+ 127              		.loc 1 762 0
+ 128 0012 2061     		str	r0, [r4, #16]
+ 764:./Application/Logics/Insulation/Insulation.c **** 
+ 129              		.loc 1 764 0
+ 130 0014 10BD     		pop	{r4, pc}
+ 131              	.L11:
+ 132 0016 C046     		.align	2
+ 133              	.L10:
+ 134 0018 00000000 		.word	gs_InsulationDetectMng
+ 135              		.cfi_endproc
+ 136              	.LFE507:
+ 138              		.section	.text.ControlRLYSwitchTime,"ax",%progbits
+ 139              		.align	1
+ 140              		.global	ControlRLYSwitchTime
+ 141              		.syntax unified
+ 142              		.code	16
+ 143              		.thumb_func
+ 144              		.fpu softvfp
+ 146              	ControlRLYSwitchTime:
+ 147              	.LFB493:
+ 106:./Application/Logics/Insulation/Insulation.c ****     u16 time = stParameter.u16ArraySet[RlySwiftInterTime];
+ 148              		.loc 1 106 0
+ 149              		.cfi_startproc
+ 150              		@ args = 0, pretend = 0, frame = 0
+ 151              		@ frame_needed = 0, uses_anonymous_args = 0
+ 152              	.LVL13:
+ 153 0000 10B5     		push	{r4, lr}
+ 154              	.LCFI2:
+ 155              		.cfi_def_cfa_offset 8
+ 156              		.cfi_offset 4, -8
+ 157              		.cfi_offset 14, -4
+ 107:./Application/Logics/Insulation/Insulation.c ****     osDelay((u32)time);
+ 158              		.loc 1 107 0
+ 159 0002 024B     		ldr	r3, .L13
+ 109:./Application/Logics/Insulation/Insulation.c **** /*=============================================================================================
+ 160              		.loc 1 109 0
+ 161              		@ sp needed
+ 108:./Application/Logics/Insulation/Insulation.c **** }
+ 162              		.loc 1 108 0
+ 163 0004 D88F     		ldrh	r0, [r3, #62]
+ 164 0006 FFF7FEFF 		bl	osDelay
+ 165              	.LVL14:
+ 109:./Application/Logics/Insulation/Insulation.c **** /*=============================================================================================
+ 166              		.loc 1 109 0
+ 167 000a 10BD     		pop	{r4, pc}
+ 168              	.L14:
+ 169              		.align	2
+ 170              	.L13:
+ARM GAS  /tmp/ccyblaXp.s 			page 18
+
+
+ 171 000c 00000000 		.word	stParameter
+ 172              		.cfi_endproc
+ 173              	.LFE493:
+ 175              		.section	.text.Insulation_InitInsulationData,"ax",%progbits
+ 176              		.align	1
+ 177              		.global	Insulation_InitInsulationData
+ 178              		.syntax unified
+ 179              		.code	16
+ 180              		.thumb_func
+ 181              		.fpu softvfp
+ 183              	Insulation_InitInsulationData:
+ 184              	.LFB503:
+ 504:./Application/Logics/Insulation/Insulation.c **** 	//test
+ 185              		.loc 1 504 0
+ 186              		.cfi_startproc
+ 187              		@ args = 0, pretend = 0, frame = 0
+ 188              		@ frame_needed = 0, uses_anonymous_args = 0
+ 189              		@ link register save eliminated.
+ 509:./Application/Logics/Insulation/Insulation.c **** 	gs_InsulationDetectMng.fN2GVoltage = 0;
+ 190              		.loc 1 509 0
+ 191 0000 0022     		movs	r2, #0
+ 508:./Application/Logics/Insulation/Insulation.c **** 	gs_InsulationDetectMng.fBatVoltage = 0;
+ 192              		.loc 1 508 0
+ 193 0002 0021     		movs	r1, #0
+ 194 0004 0A4B     		ldr	r3, .L16
+ 533:./Application/Logics/Insulation/Insulation.c **** 
+ 195              		.loc 1 533 0
+ 196              		@ sp needed
+ 507:./Application/Logics/Insulation/Insulation.c **** 	gs_InsulationDetectMng.ucInsulationState = eInsulation_Start;
+ 197              		.loc 1 507 0
+ 198 0006 1980     		strh	r1, [r3]
+ 508:./Application/Logics/Insulation/Insulation.c **** 	gs_InsulationDetectMng.fBatVoltage = 0;
+ 199              		.loc 1 508 0
+ 200 0008 5971     		strb	r1, [r3, #5]
+ 509:./Application/Logics/Insulation/Insulation.c **** 	gs_InsulationDetectMng.fN2GVoltage = 0;
+ 201              		.loc 1 509 0
+ 202 000a 9A60     		str	r2, [r3, #8]
+ 510:./Application/Logics/Insulation/Insulation.c **** 	gs_InsulationDetectMng.fP2GVoltage = 0;
+ 203              		.loc 1 510 0
+ 204 000c DA60     		str	r2, [r3, #12]
+ 511:./Application/Logics/Insulation/Insulation.c **** 	gs_InsulationDetectMng.fBatVoltageBack = 0;
+ 205              		.loc 1 511 0
+ 206 000e 1A61     		str	r2, [r3, #16]
+ 512:./Application/Logics/Insulation/Insulation.c **** 	gs_InsulationDetectMng.fN2GVoltageBack = 0;
+ 207              		.loc 1 512 0
+ 208 0010 5A61     		str	r2, [r3, #20]
+ 513:./Application/Logics/Insulation/Insulation.c **** 	gs_InsulationDetectMng.fP2GVoltageBack = 0;
+ 209              		.loc 1 513 0
+ 210 0012 9A61     		str	r2, [r3, #24]
+ 514:./Application/Logics/Insulation/Insulation.c **** 	gs_InsulationDetectMng.fN2GVoltageCalc[First_Time] = 0;
+ 211              		.loc 1 514 0
+ 212 0014 DA61     		str	r2, [r3, #28]
+ 515:./Application/Logics/Insulation/Insulation.c **** 	gs_InsulationDetectMng.fP2GVoltageCalc[First_Time]= 0;
+ 213              		.loc 1 515 0
+ 214 0016 1A62     		str	r2, [r3, #32]
+ 516:./Application/Logics/Insulation/Insulation.c **** 	gs_InsulationDetectMng.fN2GVoltageCalc[Second_Time] = 0;
+ 215              		.loc 1 516 0
+ARM GAS  /tmp/ccyblaXp.s 			page 19
+
+
+ 216 0018 9A62     		str	r2, [r3, #40]
+ 517:./Application/Logics/Insulation/Insulation.c **** 	gs_InsulationDetectMng.fP2GVoltageCalc[Second_Time] = 0;
+ 217              		.loc 1 517 0
+ 218 001a 5A62     		str	r2, [r3, #36]
+ 518:./Application/Logics/Insulation/Insulation.c **** 	gs_InsulationDetectMng.fN2GResistance = 0;
+ 219              		.loc 1 518 0
+ 220 001c DA62     		str	r2, [r3, #44]
+ 519:./Application/Logics/Insulation/Insulation.c **** 	gs_InsulationDetectMng.fP2GResistance = 0;
+ 221              		.loc 1 519 0
+ 222 001e 1A63     		str	r2, [r3, #48]
+ 520:./Application/Logics/Insulation/Insulation.c **** 	gs_InsulationDetectMng.fN2GResistanceLast = 0;
+ 223              		.loc 1 520 0
+ 224 0020 5A63     		str	r2, [r3, #52]
+ 521:./Application/Logics/Insulation/Insulation.c **** 	gs_InsulationDetectMng.fP2GResistanceLast = 0;
+ 225              		.loc 1 521 0
+ 226 0022 9A63     		str	r2, [r3, #56]
+ 522:./Application/Logics/Insulation/Insulation.c **** 	gs_InsulationDetectMng.ucInsulationCtrlStep =INSULATION_STEP_1;
+ 227              		.loc 1 522 0
+ 228 0024 DA63     		str	r2, [r3, #60]
+ 523:./Application/Logics/Insulation/Insulation.c **** 	gs_InsulationDetectMng.ucGetVoltDelay= 0;
+ 229              		.loc 1 523 0
+ 230 0026 9970     		strb	r1, [r3, #2]
+ 532:./Application/Logics/Insulation/Insulation.c **** }
+ 231              		.loc 1 532 0
+ 232 0028 024B     		ldr	r3, .L16+4
+ 233 002a 1980     		strh	r1, [r3]
+ 533:./Application/Logics/Insulation/Insulation.c **** 
+ 234              		.loc 1 533 0
+ 235 002c 7047     		bx	lr
+ 236              	.L17:
+ 237 002e C046     		.align	2
+ 238              	.L16:
+ 239 0030 00000000 		.word	gs_InsulationDetectMng
+ 240 0034 00000000 		.word	.LANCHOR0
+ 241              		.cfi_endproc
+ 242              	.LFE503:
+ 244              		.global	__aeabi_fcmpge
+ 245              		.global	__aeabi_fcmpgt
+ 246              		.global	__aeabi_fdiv
+ 247              		.global	__aeabi_fcmple
+ 248              		.global	__aeabi_fmul
+ 249              		.global	__aeabi_f2d
+ 250              		.global	__aeabi_dcmpgt
+ 251              		.global	__aeabi_dcmplt
+ 252              		.global	__aeabi_fadd
+ 253              		.global	__aeabi_fcmpeq
+ 254              		.global	__aeabi_f2iz
+ 255              		.global	__aeabi_idivmod
+ 256              		.section	.text.InsulationProcess,"ax",%progbits
+ 257              		.align	1
+ 258              		.global	InsulationProcess
+ 259              		.syntax unified
+ 260              		.code	16
+ 261              		.thumb_func
+ 262              		.fpu softvfp
+ 264              	InsulationProcess:
+ 265              	.LFB494:
+ARM GAS  /tmp/ccyblaXp.s 			page 20
+
+
+ 118:./Application/Logics/Insulation/Insulation.c **** #ifdef INSULATION_TEST
+ 266              		.loc 1 118 0
+ 267              		.cfi_startproc
+ 268              		@ args = 0, pretend = 0, frame = 24
+ 269              		@ frame_needed = 0, uses_anonymous_args = 0
+ 270 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+ 271              	.LCFI3:
+ 272              		.cfi_def_cfa_offset 20
+ 273              		.cfi_offset 4, -20
+ 274              		.cfi_offset 5, -16
+ 275              		.cfi_offset 6, -12
+ 276              		.cfi_offset 7, -8
+ 277              		.cfi_offset 14, -4
+ 132:./Application/Logics/Insulation/Insulation.c **** 	{
+ 278              		.loc 1 132 0
+ 279 0002 B24B     		ldr	r3, .L152
+ 118:./Application/Logics/Insulation/Insulation.c **** #ifdef INSULATION_TEST
+ 280              		.loc 1 118 0
+ 281 0004 8FB0     		sub	sp, sp, #60
+ 282              	.LCFI4:
+ 283              		.cfi_def_cfa_offset 80
+ 132:./Application/Logics/Insulation/Insulation.c **** 	{
+ 284              		.loc 1 132 0
+ 285 0006 1B78     		ldrb	r3, [r3]
+ 286 0008 012B     		cmp	r3, #1
+ 287 000a 23D1     		bne	.L18
+ 132:./Application/Logics/Insulation/Insulation.c **** 	{
+ 288              		.loc 1 132 0 is_stmt 0 discriminator 1
+ 289 000c B04B     		ldr	r3, .L152+4
+ 290 000e 1F78     		ldrb	r7, [r3]
+ 291 0010 012F     		cmp	r7, #1
+ 292 0012 1FD1     		bne	.L18
+ 132:./Application/Logics/Insulation/Insulation.c **** 	{
+ 293              		.loc 1 132 0 discriminator 2
+ 294 0014 FFF7FEFF 		bl	GetfAdjustBatVolt
+ 295              	.LVL15:
+ 296 0018 AE49     		ldr	r1, .L152+8
+ 297 001a FFF7FEFF 		bl	__aeabi_fcmpge
+ 298              	.LVL16:
+ 299 001e 0028     		cmp	r0, #0
+ 300 0020 18D0     		beq	.L18
+ 140:./Application/Logics/Insulation/Insulation.c **** 	{
+ 301              		.loc 1 140 0 is_stmt 1
+ 302 0022 AD4C     		ldr	r4, .L152+12
+ 303 0024 2378     		ldrb	r3, [r4]
+ 304 0026 002B     		cmp	r3, #0
+ 305 0028 31D1     		bne	.L24
+ 143:./Application/Logics/Insulation/Insulation.c **** 		|| (gs_InsulationDetectMng.ucInsulationState == eInsulation_Stop))
+ 306              		.loc 1 143 0
+ 307 002a 0222     		movs	r2, #2
+ 308 002c 6379     		ldrb	r3, [r4, #5]
+ 309 002e 9343     		bics	r3, r2
+ 310 0030 45D1     		bne	.L25
+ 311              	.LBB42:
+ 312              	.LBB43:
+ 299:./Application/Logics/Insulation/Insulation.c ****     
+ 313              		.loc 1 299 0
+ARM GAS  /tmp/ccyblaXp.s 			page 21
+
+
+ 314 0032 FA25     		movs	r5, #250
+ 315 0034 A94A     		ldr	r2, .L152+16
+ 316 0036 AD00     		lsls	r5, r5, #2
+ 317 0038 528F     		ldrh	r2, [r2, #58]
+ 318 003a A94E     		ldr	r6, .L152+20
+ 319 003c 5543     		muls	r5, r2
+ 320              	.LVL17:
+ 302:./Application/Logics/Insulation/Insulation.c ****     {
+ 321              		.loc 1 302 0
+ 322 003e A94A     		ldr	r2, .L152+24
+ 323 0040 1278     		ldrb	r2, [r2]
+ 324 0042 002A     		cmp	r2, #0
+ 325 0044 08D1     		bne	.L26
+ 304:./Application/Logics/Insulation/Insulation.c ****         Period = u32CurrentPeriod;
+ 326              		.loc 1 304 0
+ 327 0046 FFF7FEFF 		bl	xTaskGetTickCount
+ 328              	.LVL18:
+ 305:./Application/Logics/Insulation/Insulation.c ****         s_u8PeriodInit = 1;
+ 329              		.loc 1 305 0
+ 330 004a A74B     		ldr	r3, .L152+28
+ 304:./Application/Logics/Insulation/Insulation.c ****         Period = u32CurrentPeriod;
+ 331              		.loc 1 304 0
+ 332 004c 3060     		str	r0, [r6]
+ 305:./Application/Logics/Insulation/Insulation.c ****         s_u8PeriodInit = 1;
+ 333              		.loc 1 305 0
+ 334 004e 1D60     		str	r5, [r3]
+ 306:./Application/Logics/Insulation/Insulation.c ****         return 0;  //首次调用:开始计时,不立即触发
+ 335              		.loc 1 306 0
+ 336 0050 A44B     		ldr	r3, .L152+24
+ 337 0052 1F70     		strb	r7, [r3]
+ 338              	.LVL19:
+ 339              	.L18:
+ 340              	.LBE43:
+ 341              	.LBE42:
+ 277:./Application/Logics/Insulation/Insulation.c **** 
+ 342              		.loc 1 277 0
+ 343 0054 0FB0     		add	sp, sp, #60
+ 344              		@ sp needed
+ 345 0056 F0BD     		pop	{r4, r5, r6, r7, pc}
+ 346              	.LVL20:
+ 347              	.L26:
+ 348              	.LBB45:
+ 349              	.LBB44:
+ 311:./Application/Logics/Insulation/Insulation.c ****     {
+ 350              		.loc 1 311 0
+ 351 0058 A44A     		ldr	r2, .L152+32
+ 352 005a 1178     		ldrb	r1, [r2]
+ 353 005c 0129     		cmp	r1, #1
+ 354 005e 04D1     		bne	.L27
+ 313:./Application/Logics/Insulation/Insulation.c ****         xLastWakeTime = xTaskGetTickCount();
+ 355              		.loc 1 313 0
+ 356 0060 1370     		strb	r3, [r2]
+ 314:./Application/Logics/Insulation/Insulation.c ****         return 0;  //重置后不立即触发
+ 357              		.loc 1 314 0
+ 358 0062 FFF7FEFF 		bl	xTaskGetTickCount
+ 359              	.LVL21:
+ 360 0066 3060     		str	r0, [r6]
+ARM GAS  /tmp/ccyblaXp.s 			page 22
+
+
+ 361              	.LVL22:
+ 362 0068 F4E7     		b	.L18
+ 363              	.LVL23:
+ 364              	.L27:
+ 318:./Application/Logics/Insulation/Insulation.c ****     
+ 365              		.loc 1 318 0
+ 366 006a FFF7FEFF 		bl	xTaskGetTickCount
+ 367              	.LVL24:
+ 321:./Application/Logics/Insulation/Insulation.c ****     {
+ 368              		.loc 1 321 0
+ 369 006e 9E4B     		ldr	r3, .L152+28
+ 370 0070 1A68     		ldr	r2, [r3]
+ 371 0072 9542     		cmp	r5, r2
+ 372 0074 02D0     		beq	.L28
+ 324:./Application/Logics/Insulation/Insulation.c ****         xLastWakeTime = xCurrentTime;
+ 373              		.loc 1 324 0
+ 374 0076 1D60     		str	r5, [r3]
+ 375              	.L29:
+ 338:./Application/Logics/Insulation/Insulation.c ****         }
+ 376              		.loc 1 338 0
+ 377 0078 3060     		str	r0, [r6]
+ 378              	.LVL25:
+ 379 007a 08E0     		b	.L24
+ 380              	.LVL26:
+ 381              	.L28:
+ 330:./Application/Logics/Insulation/Insulation.c ****     {
+ 382              		.loc 1 330 0
+ 383 007c 3368     		ldr	r3, [r6]
+ 384 007e C21A     		subs	r2, r0, r3
+ 385 0080 9542     		cmp	r5, r2
+ 386 0082 E7D8     		bhi	.L18
+ 333:./Application/Logics/Insulation/Insulation.c ****         
+ 387              		.loc 1 333 0
+ 388 0084 EB18     		adds	r3, r5, r3
+ 336:./Application/Logics/Insulation/Insulation.c ****         {
+ 389              		.loc 1 336 0
+ 390 0086 C21A     		subs	r2, r0, r3
+ 391 0088 9542     		cmp	r5, r2
+ 392 008a F5D3     		bcc	.L29
+ 333:./Application/Logics/Insulation/Insulation.c ****         
+ 393              		.loc 1 333 0
+ 394 008c 3360     		str	r3, [r6]
+ 395              	.LVL27:
+ 396              	.L24:
+ 397              	.LBE44:
+ 398              	.LBE45:
+ 154:./Application/Logics/Insulation/Insulation.c **** 		{
+ 399              		.loc 1 154 0
+ 400 008e 2378     		ldrb	r3, [r4]
+ 401 0090 022B     		cmp	r3, #2
+ 402 0092 12D1     		bne	.L31
+ 156:./Application/Logics/Insulation/Insulation.c **** 			{
+ 403              		.loc 1 156 0
+ 404 0094 6379     		ldrb	r3, [r4, #5]
+ 405 0096 022B     		cmp	r3, #2
+ 406 0098 09D0     		beq	.L32
+ 407              	.LVL28:
+ARM GAS  /tmp/ccyblaXp.s 			page 23
+
+
+ 408              	.LBB46:
+ 409              	.LBB47:
+ 372:./Application/Logics/Insulation/Insulation.c **** 
+ 410              		.loc 1 372 0
+ 411 009a 904B     		ldr	r3, .L152+16
+ 374:./Application/Logics/Insulation/Insulation.c **** 	{
+ 412              		.loc 1 374 0
+ 413 009c 1B8F     		ldrh	r3, [r3, #56]
+ 414 009e 002B     		cmp	r3, #0
+ 415 00a0 08D1     		bne	.L33
+ 376:./Application/Logics/Insulation/Insulation.c **** 		IMD_RLY_Open();
+ 416              		.loc 1 376 0
+ 417 00a2 FFF7FEFF 		bl	PE_RLY_Contr_Open
+ 418              	.LVL29:
+ 419              	.L141:
+ 384:./Application/Logics/Insulation/Insulation.c **** 		//添加板上继电器切换至少间隔时间
+ 420              		.loc 1 384 0
+ 421 00a6 FFF7FEFF 		bl	IMD_RLY_Open
+ 422              	.LVL30:
+ 386:./Application/Logics/Insulation/Insulation.c **** 	}
+ 423              		.loc 1 386 0
+ 424 00aa FFF7FEFF 		bl	ControlRLYSwitchTime
+ 425              	.LVL31:
+ 426              	.L32:
+ 427              	.LBE47:
+ 428              	.LBE46:
+ 160:./Application/Logics/Insulation/Insulation.c **** 			CtrlCmdFeedback_56[CtrlFeedback] = eInsulation_Stop;
+ 429              		.loc 1 160 0
+ 430 00ae 0223     		movs	r3, #2
+ 431              	.L146:
+ 266:./Application/Logics/Insulation/Insulation.c **** 						CtrlCmdFeedback_56[CtrlFeedback] = eInsulation_Start;
+ 432              		.loc 1 266 0
+ 433 00b0 6371     		strb	r3, [r4, #5]
+ 434 00b2 91E0     		b	.L147
+ 435              	.LVL32:
+ 436              	.L33:
+ 437              	.LBB49:
+ 438              	.LBB48:
+ 383:./Application/Logics/Insulation/Insulation.c **** 		IMD_RLY_Open();
+ 439              		.loc 1 383 0
+ 440 00b4 FFF7FEFF 		bl	PE_RLY_Contr_Close
+ 441              	.LVL33:
+ 442 00b8 F5E7     		b	.L141
+ 443              	.L31:
+ 444              	.LBE48:
+ 445              	.LBE49:
+ 164:./Application/Logics/Insulation/Insulation.c **** 			|| gs_InsulationDetectMng.ucInsulationMode == StartDetect)//开始绝缘检测
+ 446              		.loc 1 164 0
+ 447 00ba 012B     		cmp	r3, #1
+ 448 00bc CAD8     		bhi	.L18
+ 449              	.L25:
+ 168:./Application/Logics/Insulation/Insulation.c **** 			{
+ 450              		.loc 1 168 0
+ 451 00be 6579     		ldrb	r5, [r4, #5]
+ 452 00c0 002D     		cmp	r5, #0
+ 453 00c2 34D1     		bne	.L34
+ 454              	.LVL34:
+ARM GAS  /tmp/ccyblaXp.s 			page 24
+
+
+ 455              	.LBB50:
+ 456              	.LBB51:
+ 427:./Application/Logics/Insulation/Insulation.c **** 	gs_InsulationDetectMng.fBatVoltageBack = gs_InsulationDetectMng.fBatVoltage;
+ 457              		.loc 1 427 0
+ 458 00c4 FFF7FEFF 		bl	GetfAdjustBatVolt
+ 459              	.LVL35:
+ 429:./Application/Logics/Insulation/Insulation.c **** 	{
+ 460              		.loc 1 429 0
+ 461 00c8 8249     		ldr	r1, .L152+8
+ 427:./Application/Logics/Insulation/Insulation.c **** 	gs_InsulationDetectMng.fBatVoltageBack = gs_InsulationDetectMng.fBatVoltage;
+ 462              		.loc 1 427 0
+ 463 00ca A060     		str	r0, [r4, #8]
+ 428:./Application/Logics/Insulation/Insulation.c **** 	if(gs_InsulationDetectMng.fBatVoltage > mInsulationStartMINVoltage)
+ 464              		.loc 1 428 0
+ 465 00cc 6061     		str	r0, [r4, #20]
+ 429:./Application/Logics/Insulation/Insulation.c **** 	{
+ 466              		.loc 1 429 0
+ 467 00ce FFF7FEFF 		bl	__aeabi_fcmpgt
+ 468              	.LVL36:
+ 469 00d2 874F     		ldr	r7, .L152+36
+ 470 00d4 874E     		ldr	r6, .L152+40
+ 471 00d6 0028     		cmp	r0, #0
+ 472 00d8 08D1     		bne	.L35
+ 473              	.LVL37:
+ 474              	.LBE51:
+ 475              	.LBE50:
+ 185:./Application/Logics/Insulation/Insulation.c **** 					{
+ 476              		.loc 1 185 0
+ 477 00da 3B78     		ldrb	r3, [r7]
+ 478 00dc 002B     		cmp	r3, #0
+ 479 00de 13D1     		bne	.L128
+ 187:./Application/Logics/Insulation/Insulation.c **** 						s_u8StartTimerInit = 1;
+ 480              		.loc 1 187 0
+ 481 00e0 FFF7FEFF 		bl	GetRunTimers
+ 482              	.LVL38:
+ 188:./Application/Logics/Insulation/Insulation.c **** 					}
+ 483              		.loc 1 188 0
+ 484 00e4 0123     		movs	r3, #1
+ 187:./Application/Logics/Insulation/Insulation.c **** 						s_u8StartTimerInit = 1;
+ 485              		.loc 1 187 0
+ 486 00e6 3060     		str	r0, [r6]
+ 188:./Application/Logics/Insulation/Insulation.c **** 					}
+ 487              		.loc 1 188 0
+ 488 00e8 3B70     		strb	r3, [r7]
+ 489 00ea B3E7     		b	.L18
+ 490              	.LVL39:
+ 491              	.L35:
+ 173:./Application/Logics/Insulation/Insulation.c **** 					u32StartTimer = 0;
+ 492              		.loc 1 173 0
+ 493 00ec 2900     		movs	r1, r5
+ 494 00ee 0D20     		movs	r0, #13
+ 495 00f0 FFF7FEFF 		bl	DiagSetErrNowStateAPI
+ 496              	.LVL40:
+ 175:./Application/Logics/Insulation/Insulation.c **** 					//下一阶段的电压稳定超时初始化，赋值1时为了保证启动时检测一次电�
+ 497              		.loc 1 175 0
+ 498 00f4 0123     		movs	r3, #1
+ 179:./Application/Logics/Insulation/Insulation.c **** 					s_u8StartTimerInit = 0;
+ARM GAS  /tmp/ccyblaXp.s 			page 25
+
+
+ 499              		.loc 1 179 0
+ 500 00f6 804A     		ldr	r2, .L152+44
+ 174:./Application/Logics/Insulation/Insulation.c **** 					gs_InsulationDetectMng.ucVoltStable = 1;   
+ 501              		.loc 1 174 0
+ 502 00f8 3560     		str	r5, [r6]
+ 175:./Application/Logics/Insulation/Insulation.c **** 					//下一阶段的电压稳定超时初始化，赋值1时为了保证启动时检测一次电�
+ 503              		.loc 1 175 0
+ 504 00fa E370     		strb	r3, [r4, #3]
+ 177:./Application/Logics/Insulation/Insulation.c **** 					gs_InsulationDetectMng.ucInsulationState = eInsulation_Process;
+ 505              		.loc 1 177 0
+ 506 00fc A570     		strb	r5, [r4, #2]
+ 178:./Application/Logics/Insulation/Insulation.c **** 					CtrlCmdFeedback_56[CtrlFeedback] = eInsulation_Process;
+ 507              		.loc 1 178 0
+ 508 00fe 6371     		strb	r3, [r4, #5]
+ 179:./Application/Logics/Insulation/Insulation.c **** 					s_u8StartTimerInit = 0;
+ 509              		.loc 1 179 0
+ 510 0100 1380     		strh	r3, [r2]
+ 180:./Application/Logics/Insulation/Insulation.c **** 					gs_InsulationDetectMng.ucInsulationCtrlStep = INSULATION_STEP_1;
+ 511              		.loc 1 180 0
+ 512 0102 3D70     		strb	r5, [r7]
+ 181:./Application/Logics/Insulation/Insulation.c **** 				}
+ 513              		.loc 1 181 0
+ 514 0104 6570     		strb	r5, [r4, #1]
+ 515 0106 A5E7     		b	.L18
+ 516              	.L128:
+ 190:./Application/Logics/Insulation/Insulation.c **** 					//电压如果一直小于启动电压，则停止运行
+ 517              		.loc 1 190 0
+ 518 0108 FFF7FEFF 		bl	GetRunTimers
+ 519              	.LVL41:
+ 520 010c 3368     		ldr	r3, [r6]
+ 521 010e C01A     		subs	r0, r0, r3
+ 522 0110 724B     		ldr	r3, .L152+16
+ 523 0112 4000     		lsls	r0, r0, #1
+ 524 0114 9B8F     		ldrh	r3, [r3, #60]
+ 525 0116 4008     		lsrs	r0, r0, #1
+ 526 0118 9842     		cmp	r0, r3
+ 527 011a 9BD9     		bls	.L18
+ 193:./Application/Logics/Insulation/Insulation.c **** 						CtrlCmdFeedback_56[CtrlFeedback] = eInsulation_OverTime;
+ 528              		.loc 1 193 0
+ 529 011c 0423     		movs	r3, #4
+ 194:./Application/Logics/Insulation/Insulation.c **** 						DiagSetErrNowStateAPI(eERR_ID_INS_LOW,eErr_B);
+ 530              		.loc 1 194 0
+ 531 011e 764A     		ldr	r2, .L152+44
+ 195:./Application/Logics/Insulation/Insulation.c **** 					}
+ 532              		.loc 1 195 0
+ 533 0120 0121     		movs	r1, #1
+ 534 0122 0D20     		movs	r0, #13
+ 193:./Application/Logics/Insulation/Insulation.c **** 						CtrlCmdFeedback_56[CtrlFeedback] = eInsulation_OverTime;
+ 535              		.loc 1 193 0
+ 536 0124 6371     		strb	r3, [r4, #5]
+ 194:./Application/Logics/Insulation/Insulation.c **** 						DiagSetErrNowStateAPI(eERR_ID_INS_LOW,eErr_B);
+ 537              		.loc 1 194 0
+ 538 0126 1380     		strh	r3, [r2]
+ 195:./Application/Logics/Insulation/Insulation.c **** 					}
+ 539              		.loc 1 195 0
+ 540 0128 FFF7FEFF 		bl	DiagSetErrNowStateAPI
+ 541              	.LVL42:
+ARM GAS  /tmp/ccyblaXp.s 			page 26
+
+
+ 542 012c 92E7     		b	.L18
+ 543              	.L34:
+ 200:./Application/Logics/Insulation/Insulation.c **** 			{
+ 544              		.loc 1 200 0
+ 545 012e 012D     		cmp	r5, #1
+ 546 0130 00D0     		beq	.LCB422
+ 547 0132 9EE2     		b	.L38	@long jump
+ 548              	.LCB422:
+ 549              	.LVL43:
+ 550              	.LBB52:
+ 551              	.LBB53:
+ 459:./Application/Logics/Insulation/Insulation.c **** 	u8CompareRTN = Insulation_CheckVoltStatble();
+ 552              		.loc 1 459 0
+ 553 0134 FFF7FEFF 		bl	GetfAdjustBatVolt
+ 554              	.LVL44:
+ 555              	.LBB54:
+ 556              	.LBB55:
+ 480:./Application/Logics/Insulation/Insulation.c **** 
+ 557              		.loc 1 480 0
+ 558 0138 6169     		ldr	r1, [r4, #20]
+ 559              	.LBE55:
+ 560              	.LBE54:
+ 459:./Application/Logics/Insulation/Insulation.c **** 	u8CompareRTN = Insulation_CheckVoltStatble();
+ 561              		.loc 1 459 0
+ 562 013a A060     		str	r0, [r4, #8]
+ 563              	.LVL45:
+ 564 013c 061C     		adds	r6, r0, #0
+ 565              	.LBB58:
+ 566              	.LBB56:
+ 480:./Application/Logics/Insulation/Insulation.c **** 
+ 567              		.loc 1 480 0
+ 568 013e FFF7FEFF 		bl	__aeabi_fsub
+ 569              	.LVL46:
+ 482:./Application/Logics/Insulation/Insulation.c **** 	&&(gs_InsulationDetectMng.fBatVoltage > mInsulationStartMINVoltage))
+ 570              		.loc 1 482 0
+ 571 0142 0021     		movs	r1, #0
+ 480:./Application/Logics/Insulation/Insulation.c **** 
+ 572              		.loc 1 480 0
+ 573 0144 071C     		adds	r7, r0, #0
+ 574              	.LVL47:
+ 482:./Application/Logics/Insulation/Insulation.c **** 	&&(gs_InsulationDetectMng.fBatVoltage > mInsulationStartMINVoltage))
+ 575              		.loc 1 482 0
+ 576 0146 FFF7FEFF 		bl	__aeabi_fcmplt
+ 577              	.LVL48:
+ 578 014a 0028     		cmp	r0, #0
+ 579 014c 47D0     		beq	.L129
+ 580 014e 6B49     		ldr	r1, .L152+48
+ 581 0150 381C     		adds	r0, r7, #0
+ 582 0152 FFF7FEFF 		bl	__aeabi_fcmpgt
+ 583              	.LVL49:
+ 584              	.L149:
+ 585 0156 0028     		cmp	r0, #0
+ 586 0158 00D1     		bne	.L43
+ 587 015a 051C     		adds	r5, r0, #0
+ 588              	.L43:
+ 589 015c EDB2     		uxtb	r5, r5
+ 590 015e 002D     		cmp	r5, #0
+ARM GAS  /tmp/ccyblaXp.s 			page 27
+
+
+ 591 0160 43D0     		beq	.L44
+ 483:./Application/Logics/Insulation/Insulation.c **** 	{
+ 592              		.loc 1 483 0
+ 593 0162 5C49     		ldr	r1, .L152+8
+ 594 0164 301C     		adds	r0, r6, #0
+ 595 0166 FFF7FEFF 		bl	__aeabi_fcmpgt
+ 596              	.LVL50:
+ 597 016a 0028     		cmp	r0, #0
+ 598 016c 3DD0     		beq	.L44
+ 599              	.LVL51:
+ 600              	.LBE56:
+ 601              	.LBE58:
+ 602              	.LBE53:
+ 603              	.LBE52:
+ 205:./Application/Logics/Insulation/Insulation.c **** 						u8InsulationProcessRTN = Insulation_DetectProcess();	
+ 604              		.loc 1 205 0
+ 605 016e 0021     		movs	r1, #0
+ 606 0170 0C20     		movs	r0, #12
+ 607              	.LBB62:
+ 608              	.LBB60:
+ 463:./Application/Logics/Insulation/Insulation.c **** 		u8RTN = TRUE;
+ 609              		.loc 1 463 0
+ 610 0172 6661     		str	r6, [r4, #20]
+ 611              	.LVL52:
+ 612              	.LBE60:
+ 613              	.LBE62:
+ 205:./Application/Logics/Insulation/Insulation.c **** 						u8InsulationProcessRTN = Insulation_DetectProcess();	
+ 614              		.loc 1 205 0
+ 615 0174 FFF7FEFF 		bl	DiagSetErrNowStateAPI
+ 616              	.LVL53:
+ 617              	.LBB63:
+ 618              	.LBB64:
+ 394:./Application/Logics/Insulation/Insulation.c **** 	{
+ 619              		.loc 1 394 0
+ 620 0178 6578     		ldrb	r5, [r4, #1]
+ 621 017a 002D     		cmp	r5, #0
+ 622 017c 67D1     		bne	.L130
+ 623              	.LBB65:
+ 624              	.LBB66:
+ 541:./Application/Logics/Insulation/Insulation.c **** 	{
+ 625              		.loc 1 541 0
+ 626 017e A378     		ldrb	r3, [r4, #2]
+ 627 0180 5F4D     		ldr	r5, .L152+52
+ 628 0182 002B     		cmp	r3, #0
+ 629 0184 37D1     		bne	.L48
+ 543:./Application/Logics/Insulation/Insulation.c **** 		IMD_RLY_Open();
+ 630              		.loc 1 543 0
+ 631 0186 FFF7FEFF 		bl	PE_RLY_Contr_Close
+ 632              	.LVL54:
+ 544:./Application/Logics/Insulation/Insulation.c **** 		//添加板上继电器切换至少间隔时间
+ 633              		.loc 1 544 0
+ 634 018a FFF7FEFF 		bl	IMD_RLY_Open
+ 635              	.LVL55:
+ 546:./Application/Logics/Insulation/Insulation.c **** 
+ 636              		.loc 1 546 0
+ 637 018e FFF7FEFF 		bl	ControlRLYSwitchTime
+ 638              	.LVL56:
+ARM GAS  /tmp/ccyblaXp.s 			page 28
+
+
+ 548:./Application/Logics/Insulation/Insulation.c **** 		u32Step1StartTimer = GetRunTimers();
+ 639              		.loc 1 548 0
+ 640 0192 C820     		movs	r0, #200
+ 641 0194 FFF7FEFF 		bl	osDelay
+ 642              	.LVL57:
+ 549:./Application/Logics/Insulation/Insulation.c **** 		Insulation_GetN2GandP2GVoltage();//获取负母排对地电压
+ 643              		.loc 1 549 0
+ 644 0198 FFF7FEFF 		bl	GetRunTimers
+ 645              	.LVL58:
+ 646 019c 2860     		str	r0, [r5]
+ 550:./Application/Logics/Insulation/Insulation.c **** 		gs_InsulationDetectMng.ucGetVoltDelay = 1; //接通继电器后，需要等待测量完成才能�
+ 647              		.loc 1 550 0
+ 648 019e FFF7FEFF 		bl	Insulation_GetN2GandP2GVoltage
+ 649              	.LVL59:
+ 551:./Application/Logics/Insulation/Insulation.c **** 		gs_InsulationDetectMng.fN2GVoltageBack = gs_InsulationDetectMng.fN2GVoltage;
+ 650              		.loc 1 551 0
+ 651 01a2 0123     		movs	r3, #1
+ 652 01a4 A370     		strb	r3, [r4, #2]
+ 552:./Application/Logics/Insulation/Insulation.c ****         gs_InsulationDetectMng.fP2GVoltageBack = gs_InsulationDetectMng.fP2GVoltage;
+ 653              		.loc 1 552 0
+ 654 01a6 E368     		ldr	r3, [r4, #12]
+ 554:./Application/Logics/Insulation/Insulation.c **** 	}
+ 655              		.loc 1 554 0
+ 656 01a8 3220     		movs	r0, #50
+ 552:./Application/Logics/Insulation/Insulation.c ****         gs_InsulationDetectMng.fP2GVoltageBack = gs_InsulationDetectMng.fP2GVoltage;
+ 657              		.loc 1 552 0
+ 658 01aa A361     		str	r3, [r4, #24]
+ 553:./Application/Logics/Insulation/Insulation.c **** 		osDelay(50);
+ 659              		.loc 1 553 0
+ 660 01ac 2369     		ldr	r3, [r4, #16]
+ 661 01ae E361     		str	r3, [r4, #28]
+ 554:./Application/Logics/Insulation/Insulation.c **** 	}
+ 662              		.loc 1 554 0
+ 663 01b0 FFF7FEFF 		bl	osDelay
+ 664              	.LVL60:
+ 665              	.L49:
+ 592:./Application/Logics/Insulation/Insulation.c **** 	{
+ 666              		.loc 1 592 0
+ 667 01b4 FFF7FEFF 		bl	GetRunTimers
+ 668              	.LVL61:
+ 669 01b8 2B68     		ldr	r3, [r5]
+ 670              	.L145:
+ 671              	.LBE66:
+ 672              	.LBE65:
+ 673              	.LBB71:
+ 674              	.LBB72:
+ 643:./Application/Logics/Insulation/Insulation.c **** 	{
+ 675              		.loc 1 643 0
+ 676 01ba C01A     		subs	r0, r0, r3
+ 677 01bc 474B     		ldr	r3, .L152+16
+ 678 01be 4000     		lsls	r0, r0, #1
+ 679 01c0 9B8F     		ldrh	r3, [r3, #60]
+ 680 01c2 4008     		lsrs	r0, r0, #1
+ 681 01c4 9842     		cmp	r0, r3
+ 682 01c6 00D8     		bhi	.LCB541
+ 683 01c8 CFE0     		b	.L97	@long jump
+ 684              	.LCB541:
+ARM GAS  /tmp/ccyblaXp.s 			page 29
+
+
+ 685              	.LVL62:
+ 686              	.L94:
+ 687              	.LBE72:
+ 688              	.LBE71:
+ 689              	.LBE64:
+ 690              	.LBE63:
+ 211:./Application/Logics/Insulation/Insulation.c **** 							{
+ 691              		.loc 1 211 0
+ 692 01ca 434A     		ldr	r2, .L152+12
+ 693 01cc 5379     		ldrb	r3, [r2, #5]
+ 694 01ce 012B     		cmp	r3, #1
+ 695 01d0 00D0     		beq	.LCB551
+ 696 01d2 3FE7     		b	.L18	@long jump
+ 697              	.LCB551:
+ 213:./Application/Logics/Insulation/Insulation.c **** 								CtrlCmdFeedback_56[CtrlFeedback] = eInsulation_OverTime;
+ 698              		.loc 1 213 0
+ 699 01d4 0333     		adds	r3, r3, #3
+ 700 01d6 5371     		strb	r3, [r2, #5]
+ 701              	.L147:
+ 267:./Application/Logics/Insulation/Insulation.c **** 					}
+ 702              		.loc 1 267 0
+ 703 01d8 474A     		ldr	r2, .L152+44
+ 704 01da 1380     		strh	r3, [r2]
+ 705 01dc 3AE7     		b	.L18
+ 706              	.LVL63:
+ 707              	.L129:
+ 708              	.LBB93:
+ 709              	.LBB61:
+ 710              	.LBB59:
+ 711              	.LBB57:
+ 482:./Application/Logics/Insulation/Insulation.c **** 	&&(gs_InsulationDetectMng.fBatVoltage > mInsulationStartMINVoltage))
+ 712              		.loc 1 482 0
+ 713 01de FE21     		movs	r1, #254
+ 714 01e0 381C     		adds	r0, r7, #0
+ 715 01e2 8905     		lsls	r1, r1, #22
+ 716 01e4 FFF7FEFF 		bl	__aeabi_fcmplt
+ 717              	.LVL64:
+ 718 01e8 B5E7     		b	.L149
+ 719              	.L44:
+ 720              	.LVL65:
+ 721              	.LBE57:
+ 722              	.LBE59:
+ 723              	.LBE61:
+ 724              	.LBE93:
+ 226:./Application/Logics/Insulation/Insulation.c **** 						gs_InsulationDetectMng.ucInsulationState = eInsulation_OverTime;	
+ 725              		.loc 1 226 0
+ 726 01ea 0121     		movs	r1, #1
+ 727 01ec 0C20     		movs	r0, #12
+ 728 01ee FFF7FEFF 		bl	DiagSetErrNowStateAPI
+ 729              	.LVL66:
+ 227:./Application/Logics/Insulation/Insulation.c **** 						CtrlCmdFeedback_56[CtrlFeedback] = eInsulation_OverTime;
+ 730              		.loc 1 227 0
+ 731 01f2 0423     		movs	r3, #4
+ 732 01f4 5CE7     		b	.L146
+ 733              	.LVL67:
+ 734              	.L48:
+ 735              	.LBB94:
+ARM GAS  /tmp/ccyblaXp.s 			page 30
+
+
+ 736              	.LBB91:
+ 737              	.LBB77:
+ 738              	.LBB70:
+ 560:./Application/Logics/Insulation/Insulation.c **** 			 ucRTN =Insulation_CheckN2GVoltStable();//负对地电压是否稳定
+ 739              		.loc 1 560 0
+ 740 01f6 FFF7FEFF 		bl	Insulation_GetN2GandP2GVoltage
+ 741              	.LVL68:
+ 561:./Application/Logics/Insulation/Insulation.c **** 
+ 742              		.loc 1 561 0
+ 743 01fa FFF7FEFF 		bl	Insulation_CheckN2GVoltStable
+ 744              	.LVL69:
+ 563:./Application/Logics/Insulation/Insulation.c **** 			{
+ 745              		.loc 1 563 0
+ 746 01fe 0128     		cmp	r0, #1
+ 747 0200 1ED1     		bne	.L50
+ 565:./Application/Logics/Insulation/Insulation.c **** 			}
+ 748              		.loc 1 565 0
+ 749 0202 A378     		ldrb	r3, [r4, #2]
+ 750 0204 0133     		adds	r3, r3, #1
+ 751 0206 A370     		strb	r3, [r4, #2]
+ 752              	.L51:
+ 573:./Application/Logics/Insulation/Insulation.c **** 		 }
+ 753              		.loc 1 573 0
+ 754 0208 3220     		movs	r0, #50
+ 755              	.LVL70:
+ 756 020a FFF7FEFF 		bl	osDelay
+ 757              	.LVL71:
+ 575:./Application/Logics/Insulation/Insulation.c **** 		{
+ 758              		.loc 1 575 0
+ 759 020e A378     		ldrb	r3, [r4, #2]
+ 760 0210 032B     		cmp	r3, #3
+ 761 0212 CFD9     		bls	.L49
+ 762              	.LVL72:
+ 763              	.LBB67:
+ 764              	.LBB68:
+ 765              	.LBB69:
+ 788:./Application/Logics/Insulation/Insulation.c **** 
+ 789:./Application/Logics/Insulation/Insulation.c **** //记录用于计算的绝缘电阻的正负对地电压
+ 790:./Application/Logics/Insulation/Insulation.c **** static void Insulation_RecordN2GandP2GVoltage(u8 time)
+ 791:./Application/Logics/Insulation/Insulation.c **** {
+ 792:./Application/Logics/Insulation/Insulation.c **** 	if(time < ALL_GET_VOLT_TIME)
+ 793:./Application/Logics/Insulation/Insulation.c **** 	{
+ 794:./Application/Logics/Insulation/Insulation.c **** 		gs_InsulationDetectMng.fN2GVoltageCalc[time] = gs_InsulationDetectMng.fN2GVoltage;
+ 766              		.loc 1 794 0
+ 767 0214 E368     		ldr	r3, [r4, #12]
+ 795:./Application/Logics/Insulation/Insulation.c **** 		gs_InsulationDetectMng.fP2GVoltageCalc[time] = gs_InsulationDetectMng.fP2GVoltage;
+ 768              		.loc 1 795 0
+ 769 0216 2669     		ldr	r6, [r4, #16]
+ 794:./Application/Logics/Insulation/Insulation.c **** 		gs_InsulationDetectMng.fP2GVoltageCalc[time] = gs_InsulationDetectMng.fP2GVoltage;
+ 770              		.loc 1 794 0
+ 771 0218 2362     		str	r3, [r4, #32]
+ 772              		.loc 1 795 0
+ 773 021a A662     		str	r6, [r4, #40]
+ 774              	.LVL73:
+ 775              	.LBE69:
+ 776              	.LBE68:
+ 777              	.LBE67:
+ARM GAS  /tmp/ccyblaXp.s 			page 31
+
+
+ 579:./Application/Logics/Insulation/Insulation.c **** 			||(gs_InsulationDetectMng.fP2GVoltageCalc[First_Time]< SHORT_VOLT_LIMIT))
+ 778              		.loc 1 579 0
+ 779 021c 0021     		movs	r1, #0
+ 780 021e 181C     		adds	r0, r3, #0
+ 781 0220 FFF7FEFF 		bl	__aeabi_fcmplt
+ 782              	.LVL74:
+ 783 0224 0028     		cmp	r0, #0
+ 784 0226 06D1     		bne	.L52
+ 580:./Application/Logics/Insulation/Insulation.c **** 			{ 
+ 785              		.loc 1 580 0
+ 786 0228 0021     		movs	r1, #0
+ 787 022a 301C     		adds	r0, r6, #0
+ 788 022c FFF7FEFF 		bl	__aeabi_fcmplt
+ 789              	.LVL75:
+ 586:./Application/Logics/Insulation/Insulation.c **** 			}
+ 790              		.loc 1 586 0
+ 791 0230 0123     		movs	r3, #1
+ 580:./Application/Logics/Insulation/Insulation.c **** 			{ 
+ 792              		.loc 1 580 0
+ 793 0232 0028     		cmp	r0, #0
+ 794 0234 00D0     		beq	.L142
+ 795              	.L52:
+ 582:./Application/Logics/Insulation/Insulation.c **** 			}
+ 796              		.loc 1 582 0
+ 797 0236 0223     		movs	r3, #2
+ 798              	.L142:
+ 586:./Application/Logics/Insulation/Insulation.c **** 			}
+ 799              		.loc 1 586 0
+ 800 0238 6370     		strb	r3, [r4, #1]
+ 589:./Application/Logics/Insulation/Insulation.c **** 		}
+ 801              		.loc 1 589 0
+ 802 023a 0023     		movs	r3, #0
+ 803 023c A370     		strb	r3, [r4, #2]
+ 804 023e B9E7     		b	.L49
+ 805              	.LVL76:
+ 806              	.L50:
+ 569:./Application/Logics/Insulation/Insulation.c **** 			gs_InsulationDetectMng.fN2GVoltageBack = gs_InsulationDetectMng.fN2GVoltage;
+ 807              		.loc 1 569 0
+ 808 0240 0123     		movs	r3, #1
+ 809 0242 A370     		strb	r3, [r4, #2]
+ 570:./Application/Logics/Insulation/Insulation.c **** 			gs_InsulationDetectMng.fP2GVoltageBack = gs_InsulationDetectMng.fP2GVoltage;
+ 810              		.loc 1 570 0
+ 811 0244 E368     		ldr	r3, [r4, #12]
+ 812 0246 A361     		str	r3, [r4, #24]
+ 571:./Application/Logics/Insulation/Insulation.c **** 			}
+ 813              		.loc 1 571 0
+ 814 0248 2369     		ldr	r3, [r4, #16]
+ 815 024a E361     		str	r3, [r4, #28]
+ 816 024c DCE7     		b	.L51
+ 817              	.LVL77:
+ 818              	.L130:
+ 819              	.LBE70:
+ 820              	.LBE77:
+ 398:./Application/Logics/Insulation/Insulation.c **** 	{
+ 821              		.loc 1 398 0
+ 822 024e 012D     		cmp	r5, #1
+ 823 0250 5AD1     		bne	.L58
+ARM GAS  /tmp/ccyblaXp.s 			page 32
+
+
+ 824              	.LBB78:
+ 825              	.LBB76:
+ 603:./Application/Logics/Insulation/Insulation.c **** 	{
+ 826              		.loc 1 603 0
+ 827 0252 A378     		ldrb	r3, [r4, #2]
+ 828 0254 2B4E     		ldr	r6, .L152+56
+ 829 0256 002B     		cmp	r3, #0
+ 830 0258 19D1     		bne	.L59
+ 605:./Application/Logics/Insulation/Insulation.c **** 		PE_RLY_Contr_Close();	 //接入PE
+ 831              		.loc 1 605 0
+ 832 025a FFF7FEFF 		bl	IMD_RLY_Close
+ 833              	.LVL78:
+ 606:./Application/Logics/Insulation/Insulation.c **** 		//添加板上继电器切换至少间隔时间
+ 834              		.loc 1 606 0
+ 835 025e FFF7FEFF 		bl	PE_RLY_Contr_Close
+ 836              	.LVL79:
+ 608:./Application/Logics/Insulation/Insulation.c **** 
+ 837              		.loc 1 608 0
+ 838 0262 FFF7FEFF 		bl	ControlRLYSwitchTime
+ 839              	.LVL80:
+ 610:./Application/Logics/Insulation/Insulation.c **** 		u32Step1StartTimer = GetRunTimers();
+ 840              		.loc 1 610 0
+ 841 0266 C820     		movs	r0, #200
+ 842 0268 FFF7FEFF 		bl	osDelay
+ 843              	.LVL81:
+ 611:./Application/Logics/Insulation/Insulation.c **** 		Insulation_GetN2GandP2GVoltage();//获取正负母排对地电压
+ 844              		.loc 1 611 0
+ 845 026c FFF7FEFF 		bl	GetRunTimers
+ 846              	.LVL82:
+ 847 0270 3060     		str	r0, [r6]
+ 612:./Application/Logics/Insulation/Insulation.c **** 		gs_InsulationDetectMng.ucGetVoltDelay= 1;  //接通继电器后，需要等待测量完成才能�
+ 848              		.loc 1 612 0
+ 849 0272 FFF7FEFF 		bl	Insulation_GetN2GandP2GVoltage
+ 850              	.LVL83:
+ 614:./Application/Logics/Insulation/Insulation.c **** 		gs_InsulationDetectMng.fP2GVoltageBack = gs_InsulationDetectMng.fP2GVoltage;	
+ 851              		.loc 1 614 0
+ 852 0276 E368     		ldr	r3, [r4, #12]
+ 616:./Application/Logics/Insulation/Insulation.c **** 	}
+ 853              		.loc 1 616 0
+ 854 0278 3220     		movs	r0, #50
+ 614:./Application/Logics/Insulation/Insulation.c **** 		gs_InsulationDetectMng.fP2GVoltageBack = gs_InsulationDetectMng.fP2GVoltage;	
+ 855              		.loc 1 614 0
+ 856 027a A361     		str	r3, [r4, #24]
+ 615:./Application/Logics/Insulation/Insulation.c **** 		osDelay(50);
+ 857              		.loc 1 615 0
+ 858 027c 2369     		ldr	r3, [r4, #16]
+ 613:./Application/Logics/Insulation/Insulation.c **** 		gs_InsulationDetectMng.fN2GVoltageBack = gs_InsulationDetectMng.fN2GVoltage;
+ 859              		.loc 1 613 0
+ 860 027e A570     		strb	r5, [r4, #2]
+ 615:./Application/Logics/Insulation/Insulation.c **** 		osDelay(50);
+ 861              		.loc 1 615 0
+ 862 0280 E361     		str	r3, [r4, #28]
+ 616:./Application/Logics/Insulation/Insulation.c **** 	}
+ 863              		.loc 1 616 0
+ 864 0282 FFF7FEFF 		bl	osDelay
+ 865              	.LVL84:
+ 866              	.L60:
+ARM GAS  /tmp/ccyblaXp.s 			page 33
+
+
+ 643:./Application/Logics/Insulation/Insulation.c **** 	{
+ 867              		.loc 1 643 0
+ 868 0286 FFF7FEFF 		bl	GetRunTimers
+ 869              	.LVL85:
+ 870 028a 3368     		ldr	r3, [r6]
+ 871 028c 95E7     		b	.L145
+ 872              	.L59:
+ 622:./Application/Logics/Insulation/Insulation.c **** 			ucRTN =Insulation_CheckN2GVoltStable();//负对地电压是否稳定
+ 873              		.loc 1 622 0
+ 874 028e FFF7FEFF 		bl	Insulation_GetN2GandP2GVoltage
+ 875              	.LVL86:
+ 623:./Application/Logics/Insulation/Insulation.c **** 			if(ucRTN == TRUE)
+ 876              		.loc 1 623 0
+ 877 0292 FFF7FEFF 		bl	Insulation_CheckN2GVoltStable
+ 878              	.LVL87:
+ 624:./Application/Logics/Insulation/Insulation.c **** 			{
+ 879              		.loc 1 624 0
+ 880 0296 0128     		cmp	r0, #1
+ 881 0298 11D1     		bne	.L61
+ 626:./Application/Logics/Insulation/Insulation.c **** 			}
+ 882              		.loc 1 626 0
+ 883 029a A378     		ldrb	r3, [r4, #2]
+ 884 029c 0133     		adds	r3, r3, #1
+ 885 029e A370     		strb	r3, [r4, #2]
+ 886              	.L62:
+ 634:./Application/Logics/Insulation/Insulation.c **** 		}
+ 887              		.loc 1 634 0
+ 888 02a0 3220     		movs	r0, #50
+ 889              	.LVL88:
+ 890 02a2 FFF7FEFF 		bl	osDelay
+ 891              	.LVL89:
+ 636:./Application/Logics/Insulation/Insulation.c **** 		{
+ 892              		.loc 1 636 0
+ 893 02a6 A378     		ldrb	r3, [r4, #2]
+ 894 02a8 032B     		cmp	r3, #3
+ 895 02aa ECD9     		bls	.L60
+ 896              	.LVL90:
+ 897              	.LBB73:
+ 898              	.LBB74:
+ 899              	.LBB75:
+ 794:./Application/Logics/Insulation/Insulation.c **** 		gs_InsulationDetectMng.fP2GVoltageCalc[time] = gs_InsulationDetectMng.fP2GVoltage;
+ 900              		.loc 1 794 0
+ 901 02ac E368     		ldr	r3, [r4, #12]
+ 902 02ae 6362     		str	r3, [r4, #36]
+ 903              		.loc 1 795 0
+ 904 02b0 2369     		ldr	r3, [r4, #16]
+ 905 02b2 E362     		str	r3, [r4, #44]
+ 906              	.LVL91:
+ 907              	.LBE75:
+ 908              	.LBE74:
+ 909              	.LBE73:
+ 639:./Application/Logics/Insulation/Insulation.c **** 			gs_InsulationDetectMng.ucGetVoltDelay = 0; //初始化计数器
+ 910              		.loc 1 639 0
+ 911 02b4 0223     		movs	r3, #2
+ 912 02b6 6370     		strb	r3, [r4, #1]
+ 640:./Application/Logics/Insulation/Insulation.c **** 		}
+ 913              		.loc 1 640 0
+ARM GAS  /tmp/ccyblaXp.s 			page 34
+
+
+ 914 02b8 0023     		movs	r3, #0
+ 915 02ba A370     		strb	r3, [r4, #2]
+ 916 02bc E3E7     		b	.L60
+ 917              	.LVL92:
+ 918              	.L61:
+ 631:./Application/Logics/Insulation/Insulation.c **** 			gs_InsulationDetectMng.fP2GVoltageBack = gs_InsulationDetectMng.fP2GVoltage;
+ 919              		.loc 1 631 0
+ 920 02be E368     		ldr	r3, [r4, #12]
+ 630:./Application/Logics/Insulation/Insulation.c **** 			gs_InsulationDetectMng.fN2GVoltageBack = gs_InsulationDetectMng.fN2GVoltage;
+ 921              		.loc 1 630 0
+ 922 02c0 A570     		strb	r5, [r4, #2]
+ 631:./Application/Logics/Insulation/Insulation.c **** 			gs_InsulationDetectMng.fP2GVoltageBack = gs_InsulationDetectMng.fP2GVoltage;
+ 923              		.loc 1 631 0
+ 924 02c2 A361     		str	r3, [r4, #24]
+ 632:./Application/Logics/Insulation/Insulation.c **** 			}
+ 925              		.loc 1 632 0
+ 926 02c4 2369     		ldr	r3, [r4, #16]
+ 927 02c6 E361     		str	r3, [r4, #28]
+ 928 02c8 EAE7     		b	.L62
+ 929              	.L153:
+ 930 02ca C046     		.align	2
+ 931              	.L152:
+ 932 02cc 00000000 		.word	wakeUpState
+ 933 02d0 00000000 		.word	FirstSampleFinishedFlag
+ 934 02d4 00002041 		.word	1092616192
+ 935 02d8 00000000 		.word	gs_InsulationDetectMng
+ 936 02dc 00000000 		.word	stParameter
+ 937 02e0 00000000 		.word	.LANCHOR2
+ 938 02e4 00000000 		.word	.LANCHOR1
+ 939 02e8 00000000 		.word	.LANCHOR3
+ 940 02ec 00000000 		.word	.LANCHOR4
+ 941 02f0 00000000 		.word	.LANCHOR5
+ 942 02f4 00000000 		.word	.LANCHOR6
+ 943 02f8 00000000 		.word	.LANCHOR0
+ 944 02fc 000080BF 		.word	-1082130432
+ 945 0300 00000000 		.word	.LANCHOR7
+ 946 0304 00000000 		.word	.LANCHOR8
+ 947              	.LVL93:
+ 948              	.L58:
+ 949              	.LBE76:
+ 950              	.LBE78:
+ 402:./Application/Logics/Insulation/Insulation.c **** 	{
+ 951              		.loc 1 402 0
+ 952 0308 022D     		cmp	r5, #2
+ 953 030a 00D0     		beq	.LCB796
+ 954 030c 5DE7     		b	.L94	@long jump
+ 955              	.LCB796:
+ 956              	.LVL94:
+ 957              	.LBB79:
+ 958              	.LBB80:
+ 659:./Application/Logics/Insulation/Insulation.c **** 	{
+ 959              		.loc 1 659 0
+ 960 030e 0026     		movs	r6, #0
+ 961 0310 236A     		ldr	r3, [r4, #32]
+ 962 0312 311C     		adds	r1, r6, #0
+ 963 0314 181C     		adds	r0, r3, #0
+ 964 0316 0993     		str	r3, [sp, #36]
+ARM GAS  /tmp/ccyblaXp.s 			page 35
+
+
+ 965 0318 FFF7FEFF 		bl	__aeabi_fcmplt
+ 966              	.LVL95:
+ 967 031c DE4D     		ldr	r5, .L154
+ 968 031e 0028     		cmp	r0, #0
+ 969 0320 29D0     		beq	.L132
+ 662:./Application/Logics/Insulation/Insulation.c **** 		gs_InsulationDetectMng.ucInsulationState = eInsulation_Fault;//电压负值，异常
+ 970              		.loc 1 662 0
+ 971 0322 DE4B     		ldr	r3, .L154+4
+ 661:./Application/Logics/Insulation/Insulation.c **** 		gs_InsulationDetectMng.fP2GResistance = NORMAL_VALUE;
+ 972              		.loc 1 661 0
+ 973 0324 2663     		str	r6, [r4, #48]
+ 662:./Application/Logics/Insulation/Insulation.c **** 		gs_InsulationDetectMng.ucInsulationState = eInsulation_Fault;//电压负值，异常
+ 974              		.loc 1 662 0
+ 975 0326 6363     		str	r3, [r4, #52]
+ 976              	.L143:
+ 671:./Application/Logics/Insulation/Insulation.c **** 		CtrlCmdFeedback_56[CtrlFeedback] = eInsulation_Fault;
+ 977              		.loc 1 671 0
+ 978 0328 0523     		movs	r3, #5
+ 979 032a 6371     		strb	r3, [r4, #5]
+ 672:./Application/Logics/Insulation/Insulation.c **** 	}
+ 980              		.loc 1 672 0
+ 981 032c 2B80     		strh	r3, [r5]
+ 982              	.LVL96:
+ 983              	.L65:
+ 736:./Application/Logics/Insulation/Insulation.c **** 		gs_InsulationDetectMng.ucInsulationState);
+ 984              		.loc 1 736 0
+ 985 032e DC4C     		ldr	r4, .L154+8
+ 735:./Application/Logics/Insulation/Insulation.c **** 		(int)gs_InsulationDetectMng.fN2GResistance, (int)gs_InsulationDetectMng.fP2GResistance,
+ 986              		.loc 1 735 0
+ 987 0330 606B     		ldr	r0, [r4, #52]
+ 988 0332 FFF7FEFF 		bl	__aeabi_f2iz
+ 989              	.LVL97:
+ 990 0336 0500     		movs	r5, r0
+ 991 0338 206B     		ldr	r0, [r4, #48]
+ 992 033a FFF7FEFF 		bl	__aeabi_f2iz
+ 993              	.LVL98:
+ 994 033e 6379     		ldrb	r3, [r4, #5]
+ 995 0340 0200     		movs	r2, r0
+ 996 0342 D849     		ldr	r1, .L154+12
+ 997 0344 0093     		str	r3, [sp]
+ 998 0346 0020     		movs	r0, #0
+ 999 0348 2B00     		movs	r3, r5
+ 1000 034a FFF7FEFF 		bl	SEGGER_RTT_printf
+ 1001              	.LVL99:
+ 738:./Application/Logics/Insulation/Insulation.c **** 	InPutSystemDataArray(GndPeResistance,(s16)(gs_InsulationDetectMng.fN2GResistance));//负极对pe�
+ 1002              		.loc 1 738 0
+ 1003 034e 606B     		ldr	r0, [r4, #52]
+ 1004 0350 FFF7FEFF 		bl	__aeabi_f2iz
+ 1005              	.LVL100:
+ 1006 0354 01B2     		sxth	r1, r0
+ 1007 0356 0B20     		movs	r0, #11
+ 1008 0358 FFF7FEFF 		bl	InPutSystemDataArray
+ 1009              	.LVL101:
+ 739:./Application/Logics/Insulation/Insulation.c **** 	return TRUE;
+ 1010              		.loc 1 739 0
+ 1011 035c 206B     		ldr	r0, [r4, #48]
+ 1012 035e FFF7FEFF 		bl	__aeabi_f2iz
+ARM GAS  /tmp/ccyblaXp.s 			page 36
+
+
+ 1013              	.LVL102:
+ 1014 0362 01B2     		sxth	r1, r0
+ 1015 0364 0C20     		movs	r0, #12
+ 1016 0366 FFF7FEFF 		bl	InPutSystemDataArray
+ 1017              	.LVL103:
+ 1018              	.L97:
+ 1019              	.LBE80:
+ 1020              	.LBE79:
+ 1021              	.LBE91:
+ 1022              	.LBE94:
+ 220:./Application/Logics/Insulation/Insulation.c **** 								CtrlCmdFeedback_56[CtrlFeedback] = eInsulation_Process;
+ 1023              		.loc 1 220 0
+ 1024 036a CD4B     		ldr	r3, .L154+8
+ 1025 036c 5B79     		ldrb	r3, [r3, #5]
+ 1026 036e 012B     		cmp	r3, #1
+ 1027 0370 00D0     		beq	.LCB869
+ 1028 0372 6FE6     		b	.L18	@long jump
+ 1029              	.LCB869:
+ 1030 0374 30E7     		b	.L147
+ 1031              	.LVL104:
+ 1032              	.L132:
+ 1033              	.LBB95:
+ 1034              	.LBB92:
+ 1035              	.LBB90:
+ 1036              	.LBB89:
+ 667:./Application/Logics/Insulation/Insulation.c **** 	{
+ 1037              		.loc 1 667 0
+ 1038 0376 A36A     		ldr	r3, [r4, #40]
+ 1039 0378 311C     		adds	r1, r6, #0
+ 1040 037a 181C     		adds	r0, r3, #0
+ 1041 037c 0A93     		str	r3, [sp, #40]
+ 1042 037e FFF7FEFF 		bl	__aeabi_fcmplt
+ 1043              	.LVL105:
+ 1044 0382 0028     		cmp	r0, #0
+ 1045 0384 03D0     		beq	.L133
+ 670:./Application/Logics/Insulation/Insulation.c **** 		gs_InsulationDetectMng.ucInsulationState = eInsulation_Fault;//电压负值，异常
+ 1046              		.loc 1 670 0
+ 1047 0386 C54B     		ldr	r3, .L154+4
+ 669:./Application/Logics/Insulation/Insulation.c **** 		gs_InsulationDetectMng.fN2GResistance = NORMAL_VALUE;
+ 1048              		.loc 1 669 0
+ 1049 0388 6663     		str	r6, [r4, #52]
+ 670:./Application/Logics/Insulation/Insulation.c **** 		gs_InsulationDetectMng.ucInsulationState = eInsulation_Fault;//电压负值，异常
+ 1050              		.loc 1 670 0
+ 1051 038a 2363     		str	r3, [r4, #48]
+ 1052 038c CCE7     		b	.L143
+ 1053              	.L133:
+ 676:./Application/Logics/Insulation/Insulation.c **** 				  gs_InsulationDetectMng.fP2GVoltageCalc[First_Time],
+ 1054              		.loc 1 676 0
+ 1055 038e 636A     		ldr	r3, [r4, #36]
+ 1056              	.LBB81:
+ 1057              	.LBB82:
+ 796:./Application/Logics/Insulation/Insulation.c **** 	}
+ 797:./Application/Logics/Insulation/Insulation.c **** 
+ 798:./Application/Logics/Insulation/Insulation.c **** }
+ 799:./Application/Logics/Insulation/Insulation.c **** 
+ 800:./Application/Logics/Insulation/Insulation.c **** static void Insulation_Calculate(float fUN1,float fUP1,float fUN2, float fUP2, float fRN1,float fRP
+ 801:./Application/Logics/Insulation/Insulation.c **** {
+ARM GAS  /tmp/ccyblaXp.s 			page 37
+
+
+ 802:./Application/Logics/Insulation/Insulation.c **** 	float fRate1,fRate2;
+ 803:./Application/Logics/Insulation/Insulation.c **** 	float ftemp,fdata;
+ 804:./Application/Logics/Insulation/Insulation.c **** 	fRate1 = fUP1/fUN1;
+ 1058              		.loc 1 804 0
+ 1059 0390 0999     		ldr	r1, [sp, #36]
+ 1060              	.LBE82:
+ 1061              	.LBE81:
+ 676:./Application/Logics/Insulation/Insulation.c **** 				  gs_InsulationDetectMng.fP2GVoltageCalc[First_Time],
+ 1062              		.loc 1 676 0
+ 1063 0392 0893     		str	r3, [sp, #32]
+ 1064 0394 E36A     		ldr	r3, [r4, #44]
+ 1065              	.LBB86:
+ 1066              	.LBB83:
+ 1067              		.loc 1 804 0
+ 1068 0396 0A98     		ldr	r0, [sp, #40]
+ 1069              	.LBE83:
+ 1070              	.LBE86:
+ 676:./Application/Logics/Insulation/Insulation.c **** 				  gs_InsulationDetectMng.fP2GVoltageCalc[First_Time],
+ 1071              		.loc 1 676 0
+ 1072 0398 0B93     		str	r3, [sp, #44]
+ 1073              	.LVL106:
+ 1074              	.LBB87:
+ 1075              	.LBB84:
+ 1076              		.loc 1 804 0
+ 1077 039a FFF7FEFF 		bl	__aeabi_fdiv
+ 1078              	.LVL107:
+ 805:./Application/Logics/Insulation/Insulation.c **** 	fRate2 = fUP2/fUN2;
+ 1079              		.loc 1 805 0
+ 1080 039e 0899     		ldr	r1, [sp, #32]
+ 804:./Application/Logics/Insulation/Insulation.c **** 	fRate2 = fUP2/fUN2;
+ 1081              		.loc 1 804 0
+ 1082 03a0 051C     		adds	r5, r0, #0
+ 1083              	.LVL108:
+ 1084              		.loc 1 805 0
+ 1085 03a2 0B98     		ldr	r0, [sp, #44]
+ 1086              	.LVL109:
+ 1087 03a4 FFF7FEFF 		bl	__aeabi_fdiv
+ 1088              	.LVL110:
+ 806:./Application/Logics/Insulation/Insulation.c **** 	
+ 807:./Application/Logics/Insulation/Insulation.c **** 	if(FABS(fUN1) <= 0.001f)
+ 1089              		.loc 1 807 0
+ 1090 03a8 BF49     		ldr	r1, .L154+16
+ 805:./Application/Logics/Insulation/Insulation.c **** 	
+ 1091              		.loc 1 805 0
+ 1092 03aa 041C     		adds	r4, r0, #0
+ 1093              	.LVL111:
+ 1094              		.loc 1 807 0
+ 1095 03ac 0998     		ldr	r0, [sp, #36]
+ 1096              	.LVL112:
+ 1097 03ae FFF7FEFF 		bl	__aeabi_fcmple
+ 1098              	.LVL113:
+ 1099 03b2 0028     		cmp	r0, #0
+ 1100 03b4 00D0     		beq	.L68
+ 808:./Application/Logics/Insulation/Insulation.c **** 	{
+ 809:./Application/Logics/Insulation/Insulation.c **** 		fRate1 = 0;
+ 1101              		.loc 1 809 0
+ 1102 03b6 351C     		adds	r5, r6, #0
+ARM GAS  /tmp/ccyblaXp.s 			page 38
+
+
+ 1103              	.LVL114:
+ 1104              	.L68:
+ 810:./Application/Logics/Insulation/Insulation.c **** 	}
+ 811:./Application/Logics/Insulation/Insulation.c **** 	if(FABS(fUN2) <= 0.001f) 
+ 1105              		.loc 1 811 0
+ 1106 03b8 0021     		movs	r1, #0
+ 1107 03ba 0898     		ldr	r0, [sp, #32]
+ 1108 03bc FFF7FEFF 		bl	__aeabi_fcmplt
+ 1109              	.LVL115:
+ 1110 03c0 0126     		movs	r6, #1
+ 1111 03c2 0028     		cmp	r0, #0
+ 1112 03c4 19D0     		beq	.L134
+ 1113 03c6 B949     		ldr	r1, .L154+20
+ 1114 03c8 0898     		ldr	r0, [sp, #32]
+ 1115 03ca FFF7FEFF 		bl	__aeabi_fcmpge
+ 1116              	.LVL116:
+ 1117              	.L151:
+ 1118 03ce 0028     		cmp	r0, #0
+ 1119 03d0 00D1     		bne	.L74
+ 1120 03d2 061C     		adds	r6, r0, #0
+ 1121              	.L74:
+ 1122 03d4 F6B2     		uxtb	r6, r6
+ 1123 03d6 002E     		cmp	r6, #0
+ 1124 03d8 00D0     		beq	.LCB971
+ 1125 03da 09E1     		b	.L75	@long jump
+ 1126              	.LCB971:
+ 812:./Application/Logics/Insulation/Insulation.c **** 	{
+ 813:./Application/Logics/Insulation/Insulation.c **** 		fRate2 = 0;
+ 814:./Application/Logics/Insulation/Insulation.c **** 	}
+ 815:./Application/Logics/Insulation/Insulation.c **** 	if( (FABS(fRate2) > 1e-6f)
+ 1127              		.loc 1 815 0
+ 1128 03dc 0021     		movs	r1, #0
+ 1129 03de 201C     		adds	r0, r4, #0
+ 1130 03e0 FFF7FEFF 		bl	__aeabi_fcmplt
+ 1131              	.LVL117:
+ 1132 03e4 0028     		cmp	r0, #0
+ 1133 03e6 0DD0     		beq	.L135
+ 1134 03e8 B149     		ldr	r1, .L154+24
+ 1135 03ea 201C     		adds	r0, r4, #0
+ 1136 03ec FFF7FEFF 		bl	__aeabi_fcmplt
+ 1137              	.LVL118:
+ 1138 03f0 0028     		cmp	r0, #0
+ 1139 03f2 0ED1     		bne	.L78
+ 1140              	.LVL119:
+ 1141              	.L140:
+ 816:./Application/Logics/Insulation/Insulation.c **** 		&& (FABS(fRate1) > 1e-6f))
+ 817:./Application/Logics/Insulation/Insulation.c **** 	{
+ 818:./Application/Logics/Insulation/Insulation.c **** 		ftemp = fRate2*fRP1*fRN2 - fRate1*fRP1*fRN1- fRate1*fRate2*fRN1*fRN2;
+ 819:./Application/Logics/Insulation/Insulation.c **** 		if((ftemp>0.001)||(ftemp<-0.001))
+ 820:./Application/Logics/Insulation/Insulation.c **** 		{
+ 821:./Application/Logics/Insulation/Insulation.c **** 				fdata = (fRate1*fRP1*fRN1*fRN2 - fRate2*fRP1*fRN1*fRN2)/ftemp;
+ 822:./Application/Logics/Insulation/Insulation.c **** 				*pfRN = fdata;
+ 823:./Application/Logics/Insulation/Insulation.c **** 				*pfRP =  fRate2*fRN2*fdata/(fRN2+fdata);
+ 824:./Application/Logics/Insulation/Insulation.c **** 		}
+ 825:./Application/Logics/Insulation/Insulation.c **** 		else
+ 826:./Application/Logics/Insulation/Insulation.c **** 		{
+ 827:./Application/Logics/Insulation/Insulation.c **** 				*pfRN = -1;
+ARM GAS  /tmp/ccyblaXp.s 			page 39
+
+
+ 828:./Application/Logics/Insulation/Insulation.c **** 				*pfRP = -1;
+ 829:./Application/Logics/Insulation/Insulation.c **** 		}
+ 830:./Application/Logics/Insulation/Insulation.c **** 	}else if(fRate2 == 0 && fRate1!=0)//只有pe对电池负极有绝缘电阻
+ 831:./Application/Logics/Insulation/Insulation.c **** 	{
+ 832:./Application/Logics/Insulation/Insulation.c **** 		fdata = (fRP1*fRN1/fRate1)/(fRN1-fRP1/fRate1);
+ 833:./Application/Logics/Insulation/Insulation.c **** 		*pfRN = -1;
+ 834:./Application/Logics/Insulation/Insulation.c **** 		*pfRP = fdata;
+ 835:./Application/Logics/Insulation/Insulation.c **** 	}
+ 836:./Application/Logics/Insulation/Insulation.c **** 	else{
+ 837:./Application/Logics/Insulation/Insulation.c **** 				*pfRN = -1;
+ 838:./Application/Logics/Insulation/Insulation.c **** 				*pfRP = -1;
+ 1142              		.loc 1 838 0
+ 1143 03f4 AF4C     		ldr	r4, .L154+28
+ 1144              	.LVL120:
+ 837:./Application/Logics/Insulation/Insulation.c **** 				*pfRP = -1;
+ 1145              		.loc 1 837 0
+ 1146 03f6 251C     		adds	r5, r4, #0
+ 1147 03f8 81E0     		b	.L79
+ 1148              	.LVL121:
+ 1149              	.L134:
+ 811:./Application/Logics/Insulation/Insulation.c **** 	{
+ 1150              		.loc 1 811 0
+ 1151 03fa AB49     		ldr	r1, .L154+16
+ 1152 03fc 0898     		ldr	r0, [sp, #32]
+ 1153 03fe FFF7FEFF 		bl	__aeabi_fcmple
+ 1154              	.LVL122:
+ 1155 0402 E4E7     		b	.L151
+ 1156              	.L135:
+ 815:./Application/Logics/Insulation/Insulation.c **** 		&& (FABS(fRate1) > 1e-6f))
+ 1157              		.loc 1 815 0
+ 1158 0404 AC49     		ldr	r1, .L154+32
+ 1159 0406 201C     		adds	r0, r4, #0
+ 1160 0408 FFF7FEFF 		bl	__aeabi_fcmpgt
+ 1161              	.LVL123:
+ 1162 040c 0028     		cmp	r0, #0
+ 1163 040e 00D1     		bne	.LCB1011
+ 1164 0410 E7E0     		b	.L80	@long jump
+ 1165              	.LCB1011:
+ 1166              	.L78:
+ 1167 0412 0021     		movs	r1, #0
+ 1168 0414 281C     		adds	r0, r5, #0
+ 1169 0416 FFF7FEFF 		bl	__aeabi_fcmplt
+ 1170              	.LVL124:
+ 1171 041a 0028     		cmp	r0, #0
+ 1172 041c 0DD0     		beq	.L136
+ 816:./Application/Logics/Insulation/Insulation.c **** 	{
+ 1173              		.loc 1 816 0
+ 1174 041e A449     		ldr	r1, .L154+24
+ 1175 0420 281C     		adds	r0, r5, #0
+ 1176 0422 FFF7FEFF 		bl	__aeabi_fcmplt
+ 1177              	.LVL125:
+ 1178 0426 0028     		cmp	r0, #0
+ 1179 0428 0ED1     		bne	.L84
+ 830:./Application/Logics/Insulation/Insulation.c **** 	{
+ 1180              		.loc 1 830 0
+ 1181 042a 0021     		movs	r1, #0
+ 1182 042c 201C     		adds	r0, r4, #0
+ARM GAS  /tmp/ccyblaXp.s 			page 40
+
+
+ 1183 042e FFF7FEFF 		bl	__aeabi_fcmpeq
+ 1184              	.LVL126:
+ 1185 0432 0028     		cmp	r0, #0
+ 1186 0434 00D0     		beq	.LCB1031
+ 1187 0436 E2E0     		b	.L101	@long jump
+ 1188              	.LCB1031:
+ 1189 0438 DCE7     		b	.L140
+ 1190              	.L136:
+ 816:./Application/Logics/Insulation/Insulation.c **** 	{
+ 1191              		.loc 1 816 0
+ 1192 043a 9F49     		ldr	r1, .L154+32
+ 1193 043c 281C     		adds	r0, r5, #0
+ 1194 043e FFF7FEFF 		bl	__aeabi_fcmpgt
+ 1195              	.LVL127:
+ 1196 0442 0028     		cmp	r0, #0
+ 1197 0444 00D1     		bne	.LCB1042
+ 1198 0446 CCE0     		b	.L80	@long jump
+ 1199              	.LCB1042:
+ 1200              	.L84:
+ 818:./Application/Logics/Insulation/Insulation.c **** 		if((ftemp>0.001)||(ftemp<-0.001))
+ 1201              		.loc 1 818 0
+ 1202 0448 9449     		ldr	r1, .L154+4
+ 1203 044a 201C     		adds	r0, r4, #0
+ 1204 044c FFF7FEFF 		bl	__aeabi_fmul
+ 1205              	.LVL128:
+ 1206 0450 9249     		ldr	r1, .L154+4
+ 1207 0452 0C90     		str	r0, [sp, #48]
+ 1208 0454 281C     		adds	r0, r5, #0
+ 1209 0456 FFF7FEFF 		bl	__aeabi_fmul
+ 1210              	.LVL129:
+ 1211 045a 9849     		ldr	r1, .L154+36
+ 1212 045c FFF7FEFF 		bl	__aeabi_fmul
+ 1213              	.LVL130:
+ 1214 0460 9749     		ldr	r1, .L154+40
+ 1215 0462 0D90     		str	r0, [sp, #52]
+ 1216 0464 0C98     		ldr	r0, [sp, #48]
+ 1217 0466 FFF7FEFF 		bl	__aeabi_fmul
+ 1218              	.LVL131:
+ 1219 046a 0D99     		ldr	r1, [sp, #52]
+ 1220 046c FFF7FEFF 		bl	__aeabi_fsub
+ 1221              	.LVL132:
+ 1222 0470 291C     		adds	r1, r5, #0
+ 1223 0472 061C     		adds	r6, r0, #0
+ 1224 0474 201C     		adds	r0, r4, #0
+ 1225 0476 FFF7FEFF 		bl	__aeabi_fmul
+ 1226              	.LVL133:
+ 1227 047a 9049     		ldr	r1, .L154+36
+ 1228 047c FFF7FEFF 		bl	__aeabi_fmul
+ 1229              	.LVL134:
+ 1230 0480 8F49     		ldr	r1, .L154+40
+ 1231 0482 FFF7FEFF 		bl	__aeabi_fmul
+ 1232              	.LVL135:
+ 1233 0486 011C     		adds	r1, r0, #0
+ 1234 0488 301C     		adds	r0, r6, #0
+ 1235 048a FFF7FEFF 		bl	__aeabi_fsub
+ 1236              	.LVL136:
+ 1237 048e 051C     		adds	r5, r0, #0
+ARM GAS  /tmp/ccyblaXp.s 			page 41
+
+
+ 1238              	.LVL137:
+ 819:./Application/Logics/Insulation/Insulation.c **** 		{
+ 1239              		.loc 1 819 0
+ 1240 0490 FFF7FEFF 		bl	__aeabi_f2d
+ 1241              	.LVL138:
+ 1242 0494 8B4A     		ldr	r2, .L154+44
+ 1243 0496 8C4B     		ldr	r3, .L154+48
+ 1244 0498 0600     		movs	r6, r0
+ 1245 049a 0F00     		movs	r7, r1
+ 1246 049c FFF7FEFF 		bl	__aeabi_dcmpgt
+ 1247              	.LVL139:
+ 1248 04a0 0028     		cmp	r0, #0
+ 1249 04a2 07D1     		bne	.L87
+ 1250 04a4 874A     		ldr	r2, .L154+44
+ 1251 04a6 894B     		ldr	r3, .L154+52
+ 1252 04a8 3000     		movs	r0, r6
+ 1253 04aa 3900     		movs	r1, r7
+ 1254 04ac FFF7FEFF 		bl	__aeabi_dcmplt
+ 1255              	.LVL140:
+ 1256 04b0 0028     		cmp	r0, #0
+ 1257 04b2 9FD0     		beq	.L140
+ 1258              	.L87:
+ 821:./Application/Logics/Insulation/Insulation.c **** 				*pfRN = fdata;
+ 1259              		.loc 1 821 0
+ 1260 04b4 8249     		ldr	r1, .L154+40
+ 1261 04b6 0D98     		ldr	r0, [sp, #52]
+ 1262 04b8 FFF7FEFF 		bl	__aeabi_fmul
+ 1263              	.LVL141:
+ 1264 04bc 7F49     		ldr	r1, .L154+36
+ 1265 04be 061C     		adds	r6, r0, #0
+ 1266 04c0 0C98     		ldr	r0, [sp, #48]
+ 1267 04c2 FFF7FEFF 		bl	__aeabi_fmul
+ 1268              	.LVL142:
+ 1269 04c6 7E49     		ldr	r1, .L154+40
+ 1270 04c8 FFF7FEFF 		bl	__aeabi_fmul
+ 1271              	.LVL143:
+ 1272 04cc 011C     		adds	r1, r0, #0
+ 1273 04ce 301C     		adds	r0, r6, #0
+ 1274 04d0 FFF7FEFF 		bl	__aeabi_fsub
+ 1275              	.LVL144:
+ 1276 04d4 291C     		adds	r1, r5, #0
+ 1277 04d6 FFF7FEFF 		bl	__aeabi_fdiv
+ 1278              	.LVL145:
+ 823:./Application/Logics/Insulation/Insulation.c **** 		}
+ 1279              		.loc 1 823 0
+ 1280 04da 7949     		ldr	r1, .L154+40
+ 821:./Application/Logics/Insulation/Insulation.c **** 				*pfRN = fdata;
+ 1281              		.loc 1 821 0
+ 1282 04dc 051C     		adds	r5, r0, #0
+ 1283              	.LVL146:
+ 823:./Application/Logics/Insulation/Insulation.c **** 		}
+ 1284              		.loc 1 823 0
+ 1285 04de 201C     		adds	r0, r4, #0
+ 1286              	.LVL147:
+ 1287 04e0 FFF7FEFF 		bl	__aeabi_fmul
+ 1288              	.LVL148:
+ 1289 04e4 291C     		adds	r1, r5, #0
+ARM GAS  /tmp/ccyblaXp.s 			page 42
+
+
+ 1290 04e6 FFF7FEFF 		bl	__aeabi_fmul
+ 1291              	.LVL149:
+ 1292 04ea 7549     		ldr	r1, .L154+40
+ 1293 04ec 041C     		adds	r4, r0, #0
+ 1294              	.LVL150:
+ 1295 04ee 281C     		adds	r0, r5, #0
+ 1296 04f0 FFF7FEFF 		bl	__aeabi_fadd
+ 1297              	.LVL151:
+ 1298 04f4 011C     		adds	r1, r0, #0
+ 1299 04f6 201C     		adds	r0, r4, #0
+ 1300 04f8 FFF7FEFF 		bl	__aeabi_fdiv
+ 1301              	.LVL152:
+ 1302 04fc 041C     		adds	r4, r0, #0
+ 1303              	.LVL153:
+ 1304              	.L79:
+ 1305              	.LBE84:
+ 1306              	.LBE87:
+ 656:./Application/Logics/Insulation/Insulation.c **** 	fFaultLimit = FAULT_LIMIT_RATE*gs_InsulationDetectMng.fBatVoltage;
+ 1307              		.loc 1 656 0
+ 1308 04fe 684E     		ldr	r6, .L154+8
+ 683:./Application/Logics/Insulation/Insulation.c **** 			(int)gs_InsulationDetectMng.fN2GVoltageCalc[First_Time], (int)(gs_InsulationDetectMng.fN2GVoltag
+ 1309              		.loc 1 683 0
+ 1310 0500 7349     		ldr	r1, .L154+56
+ 656:./Application/Logics/Insulation/Insulation.c **** 	fFaultLimit = FAULT_LIMIT_RATE*gs_InsulationDetectMng.fBatVoltage;
+ 1311              		.loc 1 656 0
+ 1312 0502 B768     		ldr	r7, [r6, #8]
+ 1313              	.LVL154:
+ 683:./Application/Logics/Insulation/Insulation.c **** 			(int)gs_InsulationDetectMng.fN2GVoltageCalc[First_Time], (int)(gs_InsulationDetectMng.fN2GVoltag
+ 1314              		.loc 1 683 0
+ 1315 0504 381C     		adds	r0, r7, #0
+ 1316 0506 FFF7FEFF 		bl	__aeabi_fmul
+ 1317              	.LVL155:
+ 1318 050a FFF7FEFF 		bl	__aeabi_f2iz
+ 1319              	.LVL156:
+ 682:./Application/Logics/Insulation/Insulation.c **** 			(int)gs_InsulationDetectMng.fBatVoltage, (int)(gs_InsulationDetectMng.fBatVoltage*10)%10,
+ 1320              		.loc 1 682 0
+ 1321 050e 0A21     		movs	r1, #10
+ 1322 0510 FFF7FEFF 		bl	__aeabi_idivmod
+ 1323              	.LVL157:
+ 1324 0514 381C     		adds	r0, r7, #0
+ 1325 0516 0C91     		str	r1, [sp, #48]
+ 1326 0518 FFF7FEFF 		bl	__aeabi_f2iz
+ 1327              	.LVL158:
+ 687:./Application/Logics/Insulation/Insulation.c **** 		SEGGER_RTT_printf(0, "[Insu STEP3] raw fRN=%d raw fRP=%d (x100)\r\n",
+ 1328              		.loc 1 687 0
+ 1329 051c 6C49     		ldr	r1, .L154+56
+ 682:./Application/Logics/Insulation/Insulation.c **** 			(int)gs_InsulationDetectMng.fBatVoltage, (int)(gs_InsulationDetectMng.fBatVoltage*10)%10,
+ 1330              		.loc 1 682 0
+ 1331 051e 0700     		movs	r7, r0
+ 687:./Application/Logics/Insulation/Insulation.c **** 		SEGGER_RTT_printf(0, "[Insu STEP3] raw fRN=%d raw fRP=%d (x100)\r\n",
+ 1332              		.loc 1 687 0
+ 1333 0520 0B98     		ldr	r0, [sp, #44]
+ 1334 0522 FFF7FEFF 		bl	__aeabi_fmul
+ 1335              	.LVL159:
+ 1336 0526 FFF7FEFF 		bl	__aeabi_f2iz
+ 1337              	.LVL160:
+ 682:./Application/Logics/Insulation/Insulation.c **** 			(int)gs_InsulationDetectMng.fBatVoltage, (int)(gs_InsulationDetectMng.fBatVoltage*10)%10,
+ARM GAS  /tmp/ccyblaXp.s 			page 43
+
+
+ 1338              		.loc 1 682 0
+ 1339 052a 0A21     		movs	r1, #10
+ 1340 052c FFF7FEFF 		bl	__aeabi_idivmod
+ 1341              	.LVL161:
+ 1342 0530 0B98     		ldr	r0, [sp, #44]
+ 1343 0532 0791     		str	r1, [sp, #28]
+ 1344 0534 FFF7FEFF 		bl	__aeabi_f2iz
+ 1345              	.LVL162:
+ 686:./Application/Logics/Insulation/Insulation.c **** 			(int)gs_InsulationDetectMng.fP2GVoltageCalc[Second_Time], (int)(gs_InsulationDetectMng.fP2GVolta
+ 1346              		.loc 1 686 0
+ 1347 0538 6549     		ldr	r1, .L154+56
+ 682:./Application/Logics/Insulation/Insulation.c **** 			(int)gs_InsulationDetectMng.fBatVoltage, (int)(gs_InsulationDetectMng.fBatVoltage*10)%10,
+ 1348              		.loc 1 682 0
+ 1349 053a 0690     		str	r0, [sp, #24]
+ 686:./Application/Logics/Insulation/Insulation.c **** 			(int)gs_InsulationDetectMng.fP2GVoltageCalc[Second_Time], (int)(gs_InsulationDetectMng.fP2GVolta
+ 1350              		.loc 1 686 0
+ 1351 053c 0898     		ldr	r0, [sp, #32]
+ 1352 053e FFF7FEFF 		bl	__aeabi_fmul
+ 1353              	.LVL163:
+ 1354 0542 FFF7FEFF 		bl	__aeabi_f2iz
+ 1355              	.LVL164:
+ 682:./Application/Logics/Insulation/Insulation.c **** 			(int)gs_InsulationDetectMng.fBatVoltage, (int)(gs_InsulationDetectMng.fBatVoltage*10)%10,
+ 1356              		.loc 1 682 0
+ 1357 0546 0A21     		movs	r1, #10
+ 1358 0548 FFF7FEFF 		bl	__aeabi_idivmod
+ 1359              	.LVL165:
+ 1360 054c 0898     		ldr	r0, [sp, #32]
+ 1361 054e 0591     		str	r1, [sp, #20]
+ 1362 0550 FFF7FEFF 		bl	__aeabi_f2iz
+ 1363              	.LVL166:
+ 685:./Application/Logics/Insulation/Insulation.c **** 			(int)gs_InsulationDetectMng.fN2GVoltageCalc[Second_Time], (int)(gs_InsulationDetectMng.fN2GVolta
+ 1364              		.loc 1 685 0
+ 1365 0554 5E49     		ldr	r1, .L154+56
+ 682:./Application/Logics/Insulation/Insulation.c **** 			(int)gs_InsulationDetectMng.fBatVoltage, (int)(gs_InsulationDetectMng.fBatVoltage*10)%10,
+ 1366              		.loc 1 682 0
+ 1367 0556 0490     		str	r0, [sp, #16]
+ 685:./Application/Logics/Insulation/Insulation.c **** 			(int)gs_InsulationDetectMng.fN2GVoltageCalc[Second_Time], (int)(gs_InsulationDetectMng.fN2GVolta
+ 1368              		.loc 1 685 0
+ 1369 0558 0A98     		ldr	r0, [sp, #40]
+ 1370 055a FFF7FEFF 		bl	__aeabi_fmul
+ 1371              	.LVL167:
+ 1372 055e FFF7FEFF 		bl	__aeabi_f2iz
+ 1373              	.LVL168:
+ 682:./Application/Logics/Insulation/Insulation.c **** 			(int)gs_InsulationDetectMng.fBatVoltage, (int)(gs_InsulationDetectMng.fBatVoltage*10)%10,
+ 1374              		.loc 1 682 0
+ 1375 0562 0A21     		movs	r1, #10
+ 1376 0564 FFF7FEFF 		bl	__aeabi_idivmod
+ 1377              	.LVL169:
+ 1378 0568 0A98     		ldr	r0, [sp, #40]
+ 1379 056a 0391     		str	r1, [sp, #12]
+ 1380 056c FFF7FEFF 		bl	__aeabi_f2iz
+ 1381              	.LVL170:
+ 684:./Application/Logics/Insulation/Insulation.c **** 			(int)gs_InsulationDetectMng.fP2GVoltageCalc[First_Time], (int)(gs_InsulationDetectMng.fP2GVoltag
+ 1382              		.loc 1 684 0
+ 1383 0570 5749     		ldr	r1, .L154+56
+ 682:./Application/Logics/Insulation/Insulation.c **** 			(int)gs_InsulationDetectMng.fBatVoltage, (int)(gs_InsulationDetectMng.fBatVoltage*10)%10,
+ 1384              		.loc 1 682 0
+ARM GAS  /tmp/ccyblaXp.s 			page 44
+
+
+ 1385 0572 0290     		str	r0, [sp, #8]
+ 684:./Application/Logics/Insulation/Insulation.c **** 			(int)gs_InsulationDetectMng.fP2GVoltageCalc[First_Time], (int)(gs_InsulationDetectMng.fP2GVoltag
+ 1386              		.loc 1 684 0
+ 1387 0574 0998     		ldr	r0, [sp, #36]
+ 1388 0576 FFF7FEFF 		bl	__aeabi_fmul
+ 1389              	.LVL171:
+ 1390 057a FFF7FEFF 		bl	__aeabi_f2iz
+ 1391              	.LVL172:
+ 682:./Application/Logics/Insulation/Insulation.c **** 			(int)gs_InsulationDetectMng.fBatVoltage, (int)(gs_InsulationDetectMng.fBatVoltage*10)%10,
+ 1392              		.loc 1 682 0
+ 1393 057e 0A21     		movs	r1, #10
+ 1394 0580 FFF7FEFF 		bl	__aeabi_idivmod
+ 1395              	.LVL173:
+ 1396 0584 0998     		ldr	r0, [sp, #36]
+ 1397 0586 0191     		str	r1, [sp, #4]
+ 1398 0588 FFF7FEFF 		bl	__aeabi_f2iz
+ 1399              	.LVL174:
+ 1400 058c 0C9B     		ldr	r3, [sp, #48]
+ 1401 058e 3A00     		movs	r2, r7
+ 1402 0590 0090     		str	r0, [sp]
+ 1403 0592 5049     		ldr	r1, .L154+60
+ 1404 0594 0020     		movs	r0, #0
+ 1405 0596 FFF7FEFF 		bl	SEGGER_RTT_printf
+ 1406              	.LVL175:
+ 689:./Application/Logics/Insulation/Insulation.c **** 
+ 1407              		.loc 1 689 0
+ 1408 059a 4F49     		ldr	r1, .L154+64
+ 1409 059c 201C     		adds	r0, r4, #0
+ 1410 059e FFF7FEFF 		bl	__aeabi_fmul
+ 1411              	.LVL176:
+ 688:./Application/Logics/Insulation/Insulation.c **** 			(int)(fRN*100), (int)(fRP*100));
+ 1412              		.loc 1 688 0
+ 1413 05a2 FFF7FEFF 		bl	__aeabi_f2iz
+ 1414              	.LVL177:
+ 689:./Application/Logics/Insulation/Insulation.c **** 
+ 1415              		.loc 1 689 0
+ 1416 05a6 4C49     		ldr	r1, .L154+64
+ 688:./Application/Logics/Insulation/Insulation.c **** 			(int)(fRN*100), (int)(fRP*100));
+ 1417              		.loc 1 688 0
+ 1418 05a8 0700     		movs	r7, r0
+ 689:./Application/Logics/Insulation/Insulation.c **** 
+ 1419              		.loc 1 689 0
+ 1420 05aa 281C     		adds	r0, r5, #0
+ 1421 05ac FFF7FEFF 		bl	__aeabi_fmul
+ 1422              	.LVL178:
+ 688:./Application/Logics/Insulation/Insulation.c **** 			(int)(fRN*100), (int)(fRP*100));
+ 1423              		.loc 1 688 0
+ 1424 05b0 FFF7FEFF 		bl	__aeabi_f2iz
+ 1425              	.LVL179:
+ 1426 05b4 3B00     		movs	r3, r7
+ 1427 05b6 0200     		movs	r2, r0
+ 1428 05b8 4849     		ldr	r1, .L154+68
+ 1429 05ba 0020     		movs	r0, #0
+ 1430 05bc FFF7FEFF 		bl	SEGGER_RTT_printf
+ 1431              	.LVL180:
+ 692:./Application/Logics/Insulation/Insulation.c **** 		{
+ 1432              		.loc 1 692 0
+ARM GAS  /tmp/ccyblaXp.s 			page 45
+
+
+ 1433 05c0 0021     		movs	r1, #0
+ 1434 05c2 281C     		adds	r0, r5, #0
+ 1435 05c4 FFF7FEFF 		bl	__aeabi_fcmpge
+ 1436              	.LVL181:
+ 1437 05c8 334F     		ldr	r7, .L154
+ 1438 05ca 0028     		cmp	r0, #0
+ 1439 05cc 05D0     		beq	.L91
+ 1440 05ce 0021     		movs	r1, #0
+ 1441 05d0 201C     		adds	r0, r4, #0
+ 1442 05d2 FFF7FEFF 		bl	__aeabi_fcmpge
+ 1443              	.LVL182:
+ 1444 05d6 0028     		cmp	r0, #0
+ 1445 05d8 25D1     		bne	.L93
+ 1446              	.L91:
+ 694:./Application/Logics/Insulation/Insulation.c **** 			CtrlCmdFeedback_56[CtrlFeedback] = eInsulation_Fault;
+ 1447              		.loc 1 694 0
+ 1448 05da 0523     		movs	r3, #5
+ 1449 05dc 7371     		strb	r3, [r6, #5]
+ 695:./Application/Logics/Insulation/Insulation.c **** 			return FALSE;
+ 1450              		.loc 1 695 0
+ 1451 05de 3B80     		strh	r3, [r7]
+ 1452              	.LVL183:
+ 1453 05e0 F3E5     		b	.L94
+ 1454              	.LVL184:
+ 1455              	.L80:
+ 1456              	.LBB88:
+ 1457              	.LBB85:
+ 830:./Application/Logics/Insulation/Insulation.c **** 	{
+ 1458              		.loc 1 830 0
+ 1459 05e2 0021     		movs	r1, #0
+ 1460 05e4 201C     		adds	r0, r4, #0
+ 1461 05e6 FFF7FEFF 		bl	__aeabi_fcmpeq
+ 1462              	.LVL185:
+ 1463 05ea 0028     		cmp	r0, #0
+ 1464 05ec 00D1     		bne	.LCB1310
+ 1465 05ee 01E7     		b	.L140	@long jump
+ 1466              	.LCB1310:
+ 1467              	.L75:
+ 1468 05f0 0021     		movs	r1, #0
+ 1469 05f2 281C     		adds	r0, r5, #0
+ 1470 05f4 FFF7FEFF 		bl	__aeabi_fcmpeq
+ 1471              	.LVL186:
+ 1472 05f8 0028     		cmp	r0, #0
+ 1473 05fa 00D0     		beq	.LCB1318
+ 1474 05fc FAE6     		b	.L140	@long jump
+ 1475              	.LCB1318:
+ 1476              	.L101:
+ 832:./Application/Logics/Insulation/Insulation.c **** 		*pfRN = -1;
+ 1477              		.loc 1 832 0
+ 1478 05fe 291C     		adds	r1, r5, #0
+ 1479 0600 3748     		ldr	r0, .L154+72
+ 1480 0602 FFF7FEFF 		bl	__aeabi_fdiv
+ 1481              	.LVL187:
+ 1482 0606 291C     		adds	r1, r5, #0
+ 1483 0608 041C     		adds	r4, r0, #0
+ 1484              	.LVL188:
+ 1485 060a 2448     		ldr	r0, .L154+4
+ARM GAS  /tmp/ccyblaXp.s 			page 46
+
+
+ 1486 060c FFF7FEFF 		bl	__aeabi_fdiv
+ 1487              	.LVL189:
+ 1488 0610 011C     		adds	r1, r0, #0
+ 1489 0612 2A48     		ldr	r0, .L154+36
+ 1490 0614 FFF7FEFF 		bl	__aeabi_fsub
+ 1491              	.LVL190:
+ 1492 0618 011C     		adds	r1, r0, #0
+ 1493 061a 201C     		adds	r0, r4, #0
+ 1494 061c FFF7FEFF 		bl	__aeabi_fdiv
+ 1495              	.LVL191:
+ 833:./Application/Logics/Insulation/Insulation.c **** 		*pfRP = fdata;
+ 1496              		.loc 1 833 0
+ 1497 0620 244D     		ldr	r5, .L154+28
+ 1498              	.LVL192:
+ 832:./Application/Logics/Insulation/Insulation.c **** 		*pfRN = -1;
+ 1499              		.loc 1 832 0
+ 1500 0622 041C     		adds	r4, r0, #0
+ 1501              	.LVL193:
+ 1502 0624 6BE7     		b	.L79
+ 1503              	.LVL194:
+ 1504              	.L93:
+ 1505              	.LBE85:
+ 1506              	.LBE88:
+ 698:./Application/Logics/Insulation/Insulation.c **** 		{
+ 1507              		.loc 1 698 0
+ 1508 0626 0021     		movs	r1, #0
+ 1509 0628 281C     		adds	r0, r5, #0
+ 1510 062a FFF7FEFF 		bl	__aeabi_fcmplt
+ 1511              	.LVL195:
+ 1512 062e 0028     		cmp	r0, #0
+ 1513 0630 1BD1     		bne	.L106
+ 1514 0632 1A49     		ldr	r1, .L154+4
+ 1515 0634 281C     		adds	r0, r5, #0
+ 1516 0636 FFF7FEFF 		bl	__aeabi_fcmpge
+ 1517              	.LVL196:
+ 1518 063a 0028     		cmp	r0, #0
+ 1519 063c 15D1     		bne	.L106
+ 1520              	.LVL197:
+ 1521              	.L95:
+ 703:./Application/Logics/Insulation/Insulation.c **** 		{
+ 1522              		.loc 1 703 0
+ 1523 063e 0021     		movs	r1, #0
+ 1524 0640 201C     		adds	r0, r4, #0
+ 1525 0642 FFF7FEFF 		bl	__aeabi_fcmplt
+ 1526              	.LVL198:
+ 1527 0646 0028     		cmp	r0, #0
+ 1528 0648 11D1     		bne	.L108
+ 1529 064a 1449     		ldr	r1, .L154+4
+ 1530 064c 201C     		adds	r0, r4, #0
+ 1531 064e FFF7FEFF 		bl	__aeabi_fcmpge
+ 1532              	.LVL199:
+ 1533 0652 0028     		cmp	r0, #0
+ 1534 0654 0BD1     		bne	.L108
+ 1535              	.LVL200:
+ 1536              	.L96:
+ 711:./Application/Logics/Insulation/Insulation.c **** 			CtrlCmdFeedback_56[CtrlFeedback] = eInsulation_End;
+ 1537              		.loc 1 711 0
+ARM GAS  /tmp/ccyblaXp.s 			page 47
+
+
+ 1538 0656 0323     		movs	r3, #3
+ 1539 0658 7371     		strb	r3, [r6, #5]
+ 712:./Application/Logics/Insulation/Insulation.c **** 		}
+ 1540              		.loc 1 712 0
+ 1541 065a 3B80     		strh	r3, [r7]
+ 726:./Application/Logics/Insulation/Insulation.c **** 		gs_InsulationDetectMng.fN2GResistanceLast = gs_InsulationDetectMng.fN2GResistance;
+ 1542              		.loc 1 726 0
+ 1543 065c 736B     		ldr	r3, [r6, #52]
+ 730:./Application/Logics/Insulation/Insulation.c **** 		gs_InsulationDetectMng.fN2GResistance = fRN;
+ 1544              		.loc 1 730 0
+ 1545 065e 7463     		str	r4, [r6, #52]
+ 726:./Application/Logics/Insulation/Insulation.c **** 		gs_InsulationDetectMng.fN2GResistanceLast = gs_InsulationDetectMng.fN2GResistance;
+ 1546              		.loc 1 726 0
+ 1547 0660 F363     		str	r3, [r6, #60]
+ 727:./Application/Logics/Insulation/Insulation.c **** 
+ 1548              		.loc 1 727 0
+ 1549 0662 336B     		ldr	r3, [r6, #48]
+ 731:./Application/Logics/Insulation/Insulation.c **** 
+ 1550              		.loc 1 731 0
+ 1551 0664 3563     		str	r5, [r6, #48]
+ 727:./Application/Logics/Insulation/Insulation.c **** 
+ 1552              		.loc 1 727 0
+ 1553 0666 B363     		str	r3, [r6, #56]
+ 1554 0668 61E6     		b	.L65
+ 1555              	.L106:
+ 700:./Application/Logics/Insulation/Insulation.c **** 		}
+ 1556              		.loc 1 700 0
+ 1557 066a 0C4D     		ldr	r5, .L154+4
+ 1558              	.LVL201:
+ 1559 066c E7E7     		b	.L95
+ 1560              	.LVL202:
+ 1561              	.L108:
+ 705:./Application/Logics/Insulation/Insulation.c **** 		}
+ 1562              		.loc 1 705 0
+ 1563 066e 0B4C     		ldr	r4, .L154+4
+ 1564              	.LVL203:
+ 1565 0670 F1E7     		b	.L96
+ 1566              	.LVL204:
+ 1567              	.L38:
+ 1568              	.LBE89:
+ 1569              	.LBE90:
+ 1570              	.LBE92:
+ 1571              	.LBE95:
+ 231:./Application/Logics/Insulation/Insulation.c **** 					||(gs_InsulationDetectMng.ucInsulationState == eInsulation_OverTime)
+ 1572              		.loc 1 231 0
+ 1573 0672 AB1E     		subs	r3, r5, #2
+ 1574 0674 032B     		cmp	r3, #3
+ 1575 0676 5DD8     		bhi	.L98
+ 1576 0678 1A4F     		ldr	r7, .L154+76
+ 1577 067a 1B4E     		ldr	r6, .L154+80
+ 237:./Application/Logics/Insulation/Insulation.c **** 				{
+ 1578              		.loc 1 237 0
+ 1579 067c 022D     		cmp	r5, #2
+ 1580 067e 39D1     		bne	.L99
+ 1581              	.LBB96:
+ 1582              	.LBB97:
+ 495:./Application/Logics/Insulation/Insulation.c **** 	gs_InsulationDetectMng.ucGetVoltDelay = 0;
+ARM GAS  /tmp/ccyblaXp.s 			page 48
+
+
+ 1583              		.loc 1 495 0
+ 1584 0680 0023     		movs	r3, #0
+ 1585              	.LBE97:
+ 1586              	.LBE96:
+ 240:./Application/Logics/Insulation/Insulation.c **** 					s_u8StartTimerInit = 0;
+ 1587              		.loc 1 240 0
+ 1588 0682 1A4A     		ldr	r2, .L154+84
+ 1589              	.LBB100:
+ 1590              	.LBB98:
+ 495:./Application/Logics/Insulation/Insulation.c **** 	gs_InsulationDetectMng.ucGetVoltDelay = 0;
+ 1591              		.loc 1 495 0
+ 1592 0684 6370     		strb	r3, [r4, #1]
+ 1593              	.LBE98:
+ 1594              	.LBE100:
+ 240:./Application/Logics/Insulation/Insulation.c **** 					s_u8StartTimerInit = 0;
+ 1595              		.loc 1 240 0
+ 1596 0686 1360     		str	r3, [r2]
+ 241:./Application/Logics/Insulation/Insulation.c **** 					s_TermHoldTimer = 0;
+ 1597              		.loc 1 241 0
+ 1598 0688 194A     		ldr	r2, .L154+88
+ 1599              	.LBB101:
+ 1600              	.LBB99:
+ 496:./Application/Logics/Insulation/Insulation.c **** 	gs_InsulationDetectMng.ucVoltStable= 0;
+ 1601              		.loc 1 496 0
+ 1602 068a A370     		strb	r3, [r4, #2]
+ 497:./Application/Logics/Insulation/Insulation.c **** 	// gs_InsulationDetectMng.SwitchRelays = FALSE;
+ 1603              		.loc 1 497 0
+ 1604 068c E370     		strb	r3, [r4, #3]
+ 1605              	.LBE99:
+ 1606              	.LBE101:
+ 241:./Application/Logics/Insulation/Insulation.c **** 					s_TermHoldTimer = 0;
+ 1607              		.loc 1 241 0
+ 1608 068e 1370     		strb	r3, [r2]
+ 242:./Application/Logics/Insulation/Insulation.c **** 					s_u8TermHoldInit = 0;
+ 1609              		.loc 1 242 0
+ 1610 0690 3B60     		str	r3, [r7]
+ 243:./Application/Logics/Insulation/Insulation.c **** 					gs_InsulationDetectMng.ucInsulationState = eInsulation_Start;
+ 1611              		.loc 1 243 0
+ 1612 0692 3370     		strb	r3, [r6]
+ 1613 0694 0CE5     		b	.L146
+ 1614              	.L155:
+ 1615 0696 C046     		.align	2
+ 1616              	.L154:
+ 1617 0698 00000000 		.word	.LANCHOR0
+ 1618 069c 00803B45 		.word	1161527296
+ 1619 06a0 00000000 		.word	gs_InsulationDetectMng
+ 1620 06a4 6D000000 		.word	.LC22
+ 1621 06a8 6F12833A 		.word	981668463
+ 1622 06ac 6F1283BA 		.word	-1165815185
+ 1623 06b0 BD3786B5 		.word	-1249495107
+ 1624 06b4 000080BF 		.word	-1082130432
+ 1625 06b8 BD378635 		.word	897988541
+ 1626 06bc 33E32245 		.word	1159914291
+ 1627 06c0 12036E44 		.word	1148060434
+ 1628 06c4 FCA9F1D2 		.word	-755914244
+ 1629 06c8 4D62503F 		.word	1062232653
+ 1630 06cc 4D6250BF 		.word	-1085250995
+ARM GAS  /tmp/ccyblaXp.s 			page 49
+
+
+ 1631 06d0 00002041 		.word	1092616192
+ 1632 06d4 00000000 		.word	.LC18
+ 1633 06d8 0000C842 		.word	1120403456
+ 1634 06dc 41000000 		.word	.LC20
+ 1635 06e0 D09AEE4A 		.word	1257151184
+ 1636 06e4 00000000 		.word	.LANCHOR9
+ 1637 06e8 00000000 		.word	.LANCHOR10
+ 1638 06ec 00000000 		.word	.LANCHOR6
+ 1639 06f0 00000000 		.word	.LANCHOR5
+ 1640              	.L99:
+ 250:./Application/Logics/Insulation/Insulation.c **** 					{
+ 1641              		.loc 1 250 0
+ 1642 06f4 3578     		ldrb	r5, [r6]
+ 1643 06f6 002D     		cmp	r5, #0
+ 1644 06f8 0CD1     		bne	.L100
+ 252:./Application/Logics/Insulation/Insulation.c **** 						s_u8TermHoldInit = 1;
+ 1645              		.loc 1 252 0
+ 1646 06fa FFF7FEFF 		bl	GetRunTimers
+ 1647              	.LVL205:
+ 253:./Application/Logics/Insulation/Insulation.c **** 						Insulation_RestoreSwitchAndTimer();
+ 1648              		.loc 1 253 0
+ 1649 06fe 0123     		movs	r3, #1
+ 1650 0700 3370     		strb	r3, [r6]
+ 255:./Application/Logics/Insulation/Insulation.c **** 						s_u8StartTimerInit = 0;
+ 1651              		.loc 1 255 0
+ 1652 0702 0E4B     		ldr	r3, .L156
+ 252:./Application/Logics/Insulation/Insulation.c **** 						s_u8TermHoldInit = 1;
+ 1653              		.loc 1 252 0
+ 1654 0704 3860     		str	r0, [r7]
+ 255:./Application/Logics/Insulation/Insulation.c **** 						s_u8StartTimerInit = 0;
+ 1655              		.loc 1 255 0
+ 1656 0706 1D60     		str	r5, [r3]
+ 256:./Application/Logics/Insulation/Insulation.c **** 						/*feedback保留终态，不改动*/
+ 1657              		.loc 1 256 0
+ 1658 0708 0D4B     		ldr	r3, .L156+4
+ 1659              	.LBB102:
+ 1660              	.LBB103:
+ 495:./Application/Logics/Insulation/Insulation.c **** 	gs_InsulationDetectMng.ucGetVoltDelay = 0;
+ 1661              		.loc 1 495 0
+ 1662 070a 6570     		strb	r5, [r4, #1]
+ 496:./Application/Logics/Insulation/Insulation.c **** 	gs_InsulationDetectMng.ucVoltStable= 0;
+ 1663              		.loc 1 496 0
+ 1664 070c A570     		strb	r5, [r4, #2]
+ 497:./Application/Logics/Insulation/Insulation.c **** 	// gs_InsulationDetectMng.SwitchRelays = FALSE;
+ 1665              		.loc 1 497 0
+ 1666 070e E570     		strb	r5, [r4, #3]
+ 1667              	.LBE103:
+ 1668              	.LBE102:
+ 256:./Application/Logics/Insulation/Insulation.c **** 						/*feedback保留终态，不改动*/
+ 1669              		.loc 1 256 0
+ 1670 0710 1D70     		strb	r5, [r3]
+ 1671 0712 9FE4     		b	.L18
+ 1672              	.L100:
+ 260:./Application/Logics/Insulation/Insulation.c **** 					{
+ 1673              		.loc 1 260 0
+ 1674 0714 FFF7FEFF 		bl	GetRunTimers
+ 1675              	.LVL206:
+ARM GAS  /tmp/ccyblaXp.s 			page 50
+
+
+ 1676 0718 3B68     		ldr	r3, [r7]
+ 1677 071a C01A     		subs	r0, r0, r3
+ 1678 071c 4000     		lsls	r0, r0, #1
+ 1679 071e 0828     		cmp	r0, #8
+ 1680 0720 00D8     		bhi	.LCB1529
+ 1681 0722 97E4     		b	.L18	@long jump
+ 1682              	.LCB1529:
+ 262:./Application/Logics/Insulation/Insulation.c **** 						s_u8TermHoldInit = 0;
+ 1683              		.loc 1 262 0
+ 1684 0724 0023     		movs	r3, #0
+ 1685              	.LBB104:
+ 1686              	.LBB105:
+ 360:./Application/Logics/Insulation/Insulation.c **** }
+ 1687              		.loc 1 360 0
+ 1688 0726 0121     		movs	r1, #1
+ 1689 0728 064A     		ldr	r2, .L156+8
+ 1690              	.LBE105:
+ 1691              	.LBE104:
+ 262:./Application/Logics/Insulation/Insulation.c **** 						s_u8TermHoldInit = 0;
+ 1692              		.loc 1 262 0
+ 1693 072a 3B60     		str	r3, [r7]
+ 263:./Application/Logics/Insulation/Insulation.c **** 					CheckInsulationTask_ResetPeriod();
+ 1694              		.loc 1 263 0
+ 1695 072c 3370     		strb	r3, [r6]
+ 1696              	.LBB107:
+ 1697              	.LBB106:
+ 360:./Application/Logics/Insulation/Insulation.c **** }
+ 1698              		.loc 1 360 0
+ 1699 072e 1170     		strb	r1, [r2]
+ 1700              	.LBE106:
+ 1701              	.LBE107:
+ 265:./Application/Logics/Insulation/Insulation.c **** 						gs_InsulationDetectMng.ucInsulationState = eInsulation_Start;
+ 1702              		.loc 1 265 0
+ 1703 0730 2370     		strb	r3, [r4]
+ 1704 0732 BDE4     		b	.L146
+ 1705              	.L98:
+ 274:./Application/Logics/Insulation/Insulation.c **** 			}	
+ 1706              		.loc 1 274 0
+ 1707 0734 FFF7FEFF 		bl	Insulation_InitInsulationData
+ 1708              	.LVL207:
+ 1709 0738 8CE4     		b	.L18
+ 1710              	.L157:
+ 1711 073a C046     		.align	2
+ 1712              	.L156:
+ 1713 073c 00000000 		.word	.LANCHOR6
+ 1714 0740 00000000 		.word	.LANCHOR5
+ 1715 0744 00000000 		.word	.LANCHOR4
+ 1716              		.cfi_endproc
+ 1717              	.LFE494:
+ 1719              		.global	CtrlCmdFeedback_56
+ 1720              		.global	UserCtrlCmd_55
+ 1721              		.comm	gs_InsulationDetectMng,64,4
+ 1722              		.section	.bss.CtrlCmdFeedback_56,"aw",%nobits
+ 1723              		.align	1
+ 1724              		.set	.LANCHOR0,. + 0
+ 1727              	CtrlCmdFeedback_56:
+ 1728 0000 00000000 		.space	4
+ARM GAS  /tmp/ccyblaXp.s 			page 51
+
+
+ 1729              		.section	.bss.Period.11818,"aw",%nobits
+ 1730              		.align	2
+ 1731              		.set	.LANCHOR3,. + 0
+ 1734              	Period.11818:
+ 1735 0000 00000000 		.space	4
+ 1736              		.section	.bss.UserCtrlCmd_55,"aw",%nobits
+ 1737              		.align	1
+ 1740              	UserCtrlCmd_55:
+ 1741 0000 00000000 		.space	8
+ 1741      00000000 
+ 1742              		.section	.bss.s_TermHoldTimer.11812,"aw",%nobits
+ 1743              		.align	2
+ 1744              		.set	.LANCHOR9,. + 0
+ 1747              	s_TermHoldTimer.11812:
+ 1748 0000 00000000 		.space	4
+ 1749              		.section	.bss.s_u8PeriodInit.11819,"aw",%nobits
+ 1750              		.set	.LANCHOR1,. + 0
+ 1753              	s_u8PeriodInit.11819:
+ 1754 0000 00       		.space	1
+ 1755              		.section	.bss.s_u8PeriodResetReq,"aw",%nobits
+ 1756              		.set	.LANCHOR4,. + 0
+ 1759              	s_u8PeriodResetReq:
+ 1760 0000 00       		.space	1
+ 1761              		.section	.bss.s_u8StartTimerInit.11811,"aw",%nobits
+ 1762              		.set	.LANCHOR5,. + 0
+ 1765              	s_u8StartTimerInit.11811:
+ 1766 0000 00       		.space	1
+ 1767              		.section	.bss.s_u8TermHoldInit.11813,"aw",%nobits
+ 1768              		.set	.LANCHOR10,. + 0
+ 1771              	s_u8TermHoldInit.11813:
+ 1772 0000 00       		.space	1
+ 1773              		.section	.bss.u32StartTimer.11810,"aw",%nobits
+ 1774              		.align	2
+ 1775              		.set	.LANCHOR6,. + 0
+ 1778              	u32StartTimer.11810:
+ 1779 0000 00000000 		.space	4
+ 1780              		.section	.bss.u32Step1StartTimer.11857,"aw",%nobits
+ 1781              		.align	2
+ 1782              		.set	.LANCHOR7,. + 0
+ 1785              	u32Step1StartTimer.11857:
+ 1786 0000 00000000 		.space	4
+ 1787              		.section	.bss.u32Step1StartTimer.11862,"aw",%nobits
+ 1788              		.align	2
+ 1789              		.set	.LANCHOR8,. + 0
+ 1792              	u32Step1StartTimer.11862:
+ 1793 0000 00000000 		.space	4
+ 1794              		.section	.bss.xLastWakeTime.11817,"aw",%nobits
+ 1795              		.align	2
+ 1796              		.set	.LANCHOR2,. + 0
+ 1799              	xLastWakeTime.11817:
+ 1800 0000 00000000 		.space	4
+ 1801              		.section	.rodata.InsulationProcess.str1.1,"aMS",%progbits,1
+ 1802              	.LC18:
+ 1803 0000 5B496E73 		.ascii	"[Insu STEP3] Bat=%d.%d UN1=%d.%d UP1=%d.%d UN2=%d.%"
+ 1803      75205354 
+ 1803      4550335D 
+ 1803      20426174 
+ARM GAS  /tmp/ccyblaXp.s 			page 52
+
+
+ 1803      3D25642E 
+ 1804 0033 64205550 		.ascii	"d UP2=%d.%d\015\012\000"
+ 1804      323D2564 
+ 1804      2E25640D 
+ 1804      0A00
+ 1805              	.LC20:
+ 1806 0041 5B496E73 		.ascii	"[Insu STEP3] raw fRN=%d raw fRP=%d (x100)\015\012\000"
+ 1806      75205354 
+ 1806      4550335D 
+ 1806      20726177 
+ 1806      2066524E 
+ 1807              	.LC22:
+ 1808 006d 5B496E73 		.ascii	"[Insu STEP3] >>> N2G_R=%d P2G_R=%d State=%d\015\012"
+ 1808      75205354 
+ 1808      4550335D 
+ 1808      203E3E3E 
+ 1808      204E3247 
+ 1809 009a 00       		.ascii	"\000"
+ 1810              		.text
+ 1811              	.Letext0:
+ 1812              		.file 2 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/machine/_default_types.h"
+ 1813              		.file 3 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/lock.h"
+ 1814              		.file 4 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_types.h"
+ 1815              		.file 5 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/lib/gcc/arm-none-eabi/7.3.1/include/stddef.h"
+ 1816              		.file 6 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/reent.h"
+ 1817              		.file 7 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/stdlib.h"
+ 1818              		.file 8 "Application/BSPSys/Util/BSPTypeDef.h"
+ 1819              		.file 9 "./Application/Logics/Insulation/Insulation.h"
+ 1820              		.file 10 "Application/Funtion/SystemData/SystemData.h"
+ 1821              		.file 11 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_stdint.h"
+ 1822              		.file 12 "Core/Inc/FreeRTOSConfig.h"
+ 1823              		.file 13 "Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM0/portmacro.h"
+ 1824              		.file 14 "Application/BSPSys/BSPDevice/KA84917/BSPKA84917_async.h"
+ 1825              		.file 15 "Application/Funtion/SystemInfo/SystemInfo.h"
+ 1826              		.file 16 "Application/Funtion/SystemDiag/SystemDiag.h"
+ 1827              		.file 17 "Application/Funtion/SystemPara/SystemPara.h"
+ 1828              		.file 18 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/system_stm32g0xx.h"
+ 1829              		.file 19 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/stm32g0b1xx.h"
+ 1830              		.file 20 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/stm32g0xx.h"
+ 1831              		.file 21 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_def.h"
+ 1832              		.file 22 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_flash.h"
+ 1833              		.file 23 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_fdcan.h"
+ 1834              		.file 24 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_uart.h"
+ 1835              		.file 25 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal.h"
+ 1836              		.file 26 "Core/Inc/main.h"
+ 1837              		.file 27 "Core/Inc/fdcan.h"
+ 1838              		.file 28 "Application/Addition/RTT/SEGGER_RTT.h"
+ 1839              		.file 29 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_ll_dma.h"
+ 1840              		.file 30 "Middlewares/Third_Party/FreeRTOS/Source/include/task.h"
+ 1841              		.file 31 "Application/BSPSys/BSPDriver/BSPDIDO.h"
+ 1842              		.file 32 "Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h"
+ 1843              		.file 33 "Application/BSPSys/BSPDriver/BSPTIM.h"
+ARM GAS  /tmp/ccyblaXp.s 			page 53
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 Insulation.c
+     /tmp/ccyblaXp.s:18     .text.unlikely.Insulation_CheckN2GVoltStable:0000000000000000 $t
+     /tmp/ccyblaXp.s:24     .text.unlikely.Insulation_CheckN2GVoltStable:0000000000000000 Insulation_CheckN2GVoltStable
+     /tmp/ccyblaXp.s:87     .text.unlikely.Insulation_CheckN2GVoltStable:0000000000000038 $d
+                            *COM*:0000000000000040 gs_InsulationDetectMng
+     /tmp/ccyblaXp.s:92     .text.unlikely.Insulation_GetN2GandP2GVoltage:0000000000000000 $t
+     /tmp/ccyblaXp.s:98     .text.unlikely.Insulation_GetN2GandP2GVoltage:0000000000000000 Insulation_GetN2GandP2GVoltage
+     /tmp/ccyblaXp.s:134    .text.unlikely.Insulation_GetN2GandP2GVoltage:0000000000000018 $d
+     /tmp/ccyblaXp.s:139    .text.ControlRLYSwitchTime:0000000000000000 $t
+     /tmp/ccyblaXp.s:146    .text.ControlRLYSwitchTime:0000000000000000 ControlRLYSwitchTime
+     /tmp/ccyblaXp.s:171    .text.ControlRLYSwitchTime:000000000000000c $d
+     /tmp/ccyblaXp.s:176    .text.Insulation_InitInsulationData:0000000000000000 $t
+     /tmp/ccyblaXp.s:183    .text.Insulation_InitInsulationData:0000000000000000 Insulation_InitInsulationData
+     /tmp/ccyblaXp.s:239    .text.Insulation_InitInsulationData:0000000000000030 $d
+     /tmp/ccyblaXp.s:257    .text.InsulationProcess:0000000000000000 $t
+     /tmp/ccyblaXp.s:264    .text.InsulationProcess:0000000000000000 InsulationProcess
+     /tmp/ccyblaXp.s:932    .text.InsulationProcess:00000000000002cc $d
+     /tmp/ccyblaXp.s:952    .text.InsulationProcess:0000000000000308 $t
+     /tmp/ccyblaXp.s:1617   .text.InsulationProcess:0000000000000698 $d
+     /tmp/ccyblaXp.s:1642   .text.InsulationProcess:00000000000006f4 $t
+     /tmp/ccyblaXp.s:1713   .text.InsulationProcess:000000000000073c $d
+     /tmp/ccyblaXp.s:1727   .bss.CtrlCmdFeedback_56:0000000000000000 CtrlCmdFeedback_56
+     /tmp/ccyblaXp.s:1740   .bss.UserCtrlCmd_55:0000000000000000 UserCtrlCmd_55
+     /tmp/ccyblaXp.s:1723   .bss.CtrlCmdFeedback_56:0000000000000000 $d
+     /tmp/ccyblaXp.s:1730   .bss.Period.11818:0000000000000000 $d
+     /tmp/ccyblaXp.s:1734   .bss.Period.11818:0000000000000000 Period.11818
+     /tmp/ccyblaXp.s:1737   .bss.UserCtrlCmd_55:0000000000000000 $d
+     /tmp/ccyblaXp.s:1743   .bss.s_TermHoldTimer.11812:0000000000000000 $d
+     /tmp/ccyblaXp.s:1747   .bss.s_TermHoldTimer.11812:0000000000000000 s_TermHoldTimer.11812
+     /tmp/ccyblaXp.s:1753   .bss.s_u8PeriodInit.11819:0000000000000000 s_u8PeriodInit.11819
+     /tmp/ccyblaXp.s:1754   .bss.s_u8PeriodInit.11819:0000000000000000 $d
+     /tmp/ccyblaXp.s:1759   .bss.s_u8PeriodResetReq:0000000000000000 s_u8PeriodResetReq
+     /tmp/ccyblaXp.s:1760   .bss.s_u8PeriodResetReq:0000000000000000 $d
+     /tmp/ccyblaXp.s:1765   .bss.s_u8StartTimerInit.11811:0000000000000000 s_u8StartTimerInit.11811
+     /tmp/ccyblaXp.s:1766   .bss.s_u8StartTimerInit.11811:0000000000000000 $d
+     /tmp/ccyblaXp.s:1771   .bss.s_u8TermHoldInit.11813:0000000000000000 s_u8TermHoldInit.11813
+     /tmp/ccyblaXp.s:1772   .bss.s_u8TermHoldInit.11813:0000000000000000 $d
+     /tmp/ccyblaXp.s:1774   .bss.u32StartTimer.11810:0000000000000000 $d
+     /tmp/ccyblaXp.s:1778   .bss.u32StartTimer.11810:0000000000000000 u32StartTimer.11810
+     /tmp/ccyblaXp.s:1781   .bss.u32Step1StartTimer.11857:0000000000000000 $d
+     /tmp/ccyblaXp.s:1785   .bss.u32Step1StartTimer.11857:0000000000000000 u32Step1StartTimer.11857
+     /tmp/ccyblaXp.s:1788   .bss.u32Step1StartTimer.11862:0000000000000000 $d
+     /tmp/ccyblaXp.s:1792   .bss.u32Step1StartTimer.11862:0000000000000000 u32Step1StartTimer.11862
+     /tmp/ccyblaXp.s:1795   .bss.xLastWakeTime.11817:0000000000000000 $d
+     /tmp/ccyblaXp.s:1799   .bss.xLastWakeTime.11817:0000000000000000 xLastWakeTime.11817
+
+UNDEFINED SYMBOLS
+__aeabi_fsub
+__aeabi_fcmplt
+GetfAdjustPeGndVolt
+osDelay
+stParameter
+__aeabi_fcmpge
+__aeabi_fcmpgt
+__aeabi_fdiv
+__aeabi_fcmple
+ARM GAS  /tmp/ccyblaXp.s 			page 54
+
+
+__aeabi_fmul
+__aeabi_f2d
+__aeabi_dcmpgt
+__aeabi_dcmplt
+__aeabi_fadd
+__aeabi_fcmpeq
+__aeabi_f2iz
+__aeabi_idivmod
+GetfAdjustBatVolt
+xTaskGetTickCount
+PE_RLY_Contr_Open
+IMD_RLY_Open
+PE_RLY_Contr_Close
+GetRunTimers
+DiagSetErrNowStateAPI
+IMD_RLY_Close
+wakeUpState
+FirstSampleFinishedFlag
+SEGGER_RTT_printf
+InPutSystemDataArray

@@ -1,0 +1,879 @@
+ARM GAS  /tmp/cc1NHDNb.s 			page 1
+
+
+   1              		.cpu cortex-m0plus
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 4
+   9              		.eabi_attribute 34, 0
+  10              		.eabi_attribute 18, 4
+  11              		.file	"BSPQueue.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.QueInit,"ax",%progbits
+  16              		.align	1
+  17              		.global	QueInit
+  18              		.syntax unified
+  19              		.code	16
+  20              		.thumb_func
+  21              		.fpu softvfp
+  23              	QueInit:
+  24              	.LFB0:
+  25              		.file 1 "./Application/BSPSys/Util/BSPQueue.c"
+   1:./Application/BSPSys/Util/BSPQueue.c **** /*==========================================Copyright(c)=======================================
+   2:./Application/BSPSys/Util/BSPQueue.c **** **                                  Shenzhen Infypower Co., Ltd.
+   3:./Application/BSPSys/Util/BSPQueue.c **** **                                  Power conversion Department
+   4:./Application/BSPSys/Util/BSPQueue.c **** **                                       BMS Product Line
+   5:./Application/BSPSys/Util/BSPQueue.c **** **
+   6:./Application/BSPSys/Util/BSPQueue.c **** **---------------------------------------File Information--------------------------------------
+   7:./Application/BSPSys/Util/BSPQueue.c **** ** @File Name    : OSUserHOOK.c
+   8:./Application/BSPSys/Util/BSPQueue.c **** ** @Founder      : ZSY342
+   9:./Application/BSPSys/Util/BSPQueue.c **** ** @Date         : 2019.10.31
+  10:./Application/BSPSys/Util/BSPQueue.c **** ** @Function     : BSP通用队列函数模块
+  11:./Application/BSPSys/Util/BSPQueue.c **** ** @Instructions :
+  12:./Application/BSPSys/Util/BSPQueue.c **** **===========================================================================================*/
+  13:./Application/BSPSys/Util/BSPQueue.c **** 
+  14:./Application/BSPSys/Util/BSPQueue.c **** /*=============================================================================================
+  15:./Application/BSPSys/Util/BSPQueue.c **** ** @Header file definition
+  16:./Application/BSPSys/Util/BSPQueue.c **** **===========================================================================================*/
+  17:./Application/BSPSys/Util/BSPQueue.c **** #include "BSPTypeDef.h"
+  18:./Application/BSPSys/Util/BSPQueue.c **** //#include "BSPIRQ.h"
+  19:./Application/BSPSys/Util/BSPQueue.c **** #include "BSPQueue.h"
+  20:./Application/BSPSys/Util/BSPQueue.c **** 
+  21:./Application/BSPSys/Util/BSPQueue.c **** /*=============================================================================================
+  22:./Application/BSPSys/Util/BSPQueue.c **** ** @Global variable definition
+  23:./Application/BSPSys/Util/BSPQueue.c **** **===========================================================================================*/
+  24:./Application/BSPSys/Util/BSPQueue.c **** 
+  25:./Application/BSPSys/Util/BSPQueue.c **** /*=============================================================================================
+  26:./Application/BSPSys/Util/BSPQueue.c **** ** @Static function declaration
+  27:./Application/BSPSys/Util/BSPQueue.c **** **===========================================================================================*/
+  28:./Application/BSPSys/Util/BSPQueue.c **** 
+  29:./Application/BSPSys/Util/BSPQueue.c **** /*=============================================================================================
+  30:./Application/BSPSys/Util/BSPQueue.c **** ** @Interface function definition
+  31:./Application/BSPSys/Util/BSPQueue.c **** **===========================================================================================*/
+  32:./Application/BSPSys/Util/BSPQueue.c **** /*=============================================================================================
+  33:./Application/BSPSys/Util/BSPQueue.c **** ** @Name      : u8 QueInit(void *pQ, u8 unitSize, u8 unitNum)
+ARM GAS  /tmp/cc1NHDNb.s 			page 2
+
+
+  34:./Application/BSPSys/Util/BSPQueue.c **** ** @Input     : pQ:队列地址指针，unitSize:单元大小，unitNum:单元数目
+  35:./Application/BSPSys/Util/BSPQueue.c **** ** @Output    : TRUE OR FALSE
+  36:./Application/BSPSys/Util/BSPQueue.c **** ** @Function  : 将pQ指向的地址初始化为队列
+  37:./Application/BSPSys/Util/BSPQueue.c **** ** @The notes : pQ分配的空间要和参数符合
+  38:./Application/BSPSys/Util/BSPQueue.c **** **===========================================================================================*/
+  39:./Application/BSPSys/Util/BSPQueue.c **** u8 QueInit(void *pQ, u8 unitSize, u8 unitNum)
+  40:./Application/BSPSys/Util/BSPQueue.c **** {
+  26              		.loc 1 40 0
+  27              		.cfi_startproc
+  28              		@ args = 0, pretend = 0, frame = 0
+  29              		@ frame_needed = 0, uses_anonymous_args = 0
+  30              		@ link register save eliminated.
+  31              	.LVL0:
+  32              		.loc 1 40 0
+  33 0000 031E     		subs	r3, r0, #0
+  41:./Application/BSPSys/Util/BSPQueue.c ****     if(IsEqual(pQ, (void *)0))
+  34              		.loc 1 41 0
+  35 0002 0DD0     		beq	.L3
+  42:./Application/BSPSys/Util/BSPQueue.c ****     {
+  43:./Application/BSPSys/Util/BSPQueue.c ****         return(FALSE);
+  44:./Application/BSPSys/Util/BSPQueue.c ****     }
+  45:./Application/BSPSys/Util/BSPQueue.c ****     
+  46:./Application/BSPSys/Util/BSPQueue.c ****     if(IsEqual(unitSize, 0))
+  36              		.loc 1 46 0
+  37 0004 0029     		cmp	r1, #0
+  38 0006 09D0     		beq	.L2
+  39 0008 0020     		movs	r0, #0
+  40              	.LVL1:
+  47:./Application/BSPSys/Util/BSPQueue.c ****     {
+  48:./Application/BSPSys/Util/BSPQueue.c ****         return(FALSE);
+  49:./Application/BSPSys/Util/BSPQueue.c ****     }
+  50:./Application/BSPSys/Util/BSPQueue.c ****     
+  51:./Application/BSPSys/Util/BSPQueue.c ****     if(IsEqual(unitNum, 0))
+  41              		.loc 1 51 0
+  42 000a 8242     		cmp	r2, r0
+  43 000c 0AD0     		beq	.L4
+  52:./Application/BSPSys/Util/BSPQueue.c ****     {
+  53:./Application/BSPSys/Util/BSPQueue.c ****         return(FALSE);
+  54:./Application/BSPSys/Util/BSPQueue.c ****     }
+  55:./Application/BSPSys/Util/BSPQueue.c ****     
+  56:./Application/BSPSys/Util/BSPQueue.c ****     //BSP_DISABLE_IRQ();//打开会出现数据发送失败
+  57:./Application/BSPSys/Util/BSPQueue.c ****     QUE_CTRLFLAG(pQ) = 0;
+  58:./Application/BSPSys/Util/BSPQueue.c ****     QUE_UNITSIZE(pQ) = unitSize;
+  44              		.loc 1 58 0
+  45 000e 5970     		strb	r1, [r3, #1]
+  59:./Application/BSPSys/Util/BSPQueue.c ****     QUE_UNITNUM(pQ)  = unitNum;
+  60:./Application/BSPSys/Util/BSPQueue.c ****     QUE_INPOINT(pQ)  = 0;
+  61:./Application/BSPSys/Util/BSPQueue.c ****     QUE_OUTPOINT(pQ) = 0;
+  62:./Application/BSPSys/Util/BSPQueue.c ****     QUE_CURNUM(pQ)   = 0;
+  63:./Application/BSPSys/Util/BSPQueue.c ****     //BSP_ENABLE_IRQ();
+  64:./Application/BSPSys/Util/BSPQueue.c ****     
+  65:./Application/BSPSys/Util/BSPQueue.c ****     return(TRUE);
+  46              		.loc 1 65 0
+  47 0010 0121     		movs	r1, #1
+  48              	.LVL2:
+  57:./Application/BSPSys/Util/BSPQueue.c ****     QUE_UNITSIZE(pQ) = unitSize;
+  49              		.loc 1 57 0
+ARM GAS  /tmp/cc1NHDNb.s 			page 3
+
+
+  50 0012 1870     		strb	r0, [r3]
+  59:./Application/BSPSys/Util/BSPQueue.c ****     QUE_UNITNUM(pQ)  = unitNum;
+  51              		.loc 1 59 0
+  52 0014 9A70     		strb	r2, [r3, #2]
+  60:./Application/BSPSys/Util/BSPQueue.c ****     QUE_OUTPOINT(pQ) = 0;
+  53              		.loc 1 60 0
+  54 0016 D870     		strb	r0, [r3, #3]
+  61:./Application/BSPSys/Util/BSPQueue.c ****     QUE_CURNUM(pQ)   = 0;
+  55              		.loc 1 61 0
+  56 0018 1871     		strb	r0, [r3, #4]
+  62:./Application/BSPSys/Util/BSPQueue.c ****     //BSP_ENABLE_IRQ();
+  57              		.loc 1 62 0
+  58 001a 5871     		strb	r0, [r3, #5]
+  59              	.LVL3:
+  60              	.L2:
+  66:./Application/BSPSys/Util/BSPQueue.c **** }
+  61              		.loc 1 66 0
+  62 001c 0800     		movs	r0, r1
+  63              		@ sp needed
+  64 001e 7047     		bx	lr
+  65              	.LVL4:
+  66              	.L3:
+  43:./Application/BSPSys/Util/BSPQueue.c ****     }
+  67              		.loc 1 43 0
+  68 0020 0100     		movs	r1, r0
+  69              	.LVL5:
+  70 0022 FBE7     		b	.L2
+  71              	.LVL6:
+  72              	.L4:
+  73 0024 1100     		movs	r1, r2
+  74              	.LVL7:
+  75 0026 F9E7     		b	.L2
+  76              		.cfi_endproc
+  77              	.LFE0:
+  79              		.section	.text.QueIn,"ax",%progbits
+  80              		.align	1
+  81              		.global	QueIn
+  82              		.syntax unified
+  83              		.code	16
+  84              		.thumb_func
+  85              		.fpu softvfp
+  87              	QueIn:
+  88              	.LFB1:
+  67:./Application/BSPSys/Util/BSPQueue.c **** 
+  68:./Application/BSPSys/Util/BSPQueue.c **** /*=============================================================================================
+  69:./Application/BSPSys/Util/BSPQueue.c **** ** @Name      : u8 QueIn(void *pQ, void *pU)
+  70:./Application/BSPSys/Util/BSPQueue.c **** ** @Input     : pQ:队列指针，pU:待写入单元指针
+  71:./Application/BSPSys/Util/BSPQueue.c **** ** @Output    : TRUE OR FALSE
+  72:./Application/BSPSys/Util/BSPQueue.c **** ** @Function  : 将pu指向单元压入pQ队列
+  73:./Application/BSPSys/Util/BSPQueue.c **** ** @The notes :
+  74:./Application/BSPSys/Util/BSPQueue.c **** **===========================================================================================*/
+  75:./Application/BSPSys/Util/BSPQueue.c **** u8 QueIn(void *pQ, void *pU)
+  76:./Application/BSPSys/Util/BSPQueue.c **** {
+  89              		.loc 1 76 0
+  90              		.cfi_startproc
+  91              		@ args = 0, pretend = 0, frame = 0
+  92              		@ frame_needed = 0, uses_anonymous_args = 0
+ARM GAS  /tmp/cc1NHDNb.s 			page 4
+
+
+  93              	.LVL8:
+  94 0000 30B5     		push	{r4, r5, lr}
+  95              	.LCFI0:
+  96              		.cfi_def_cfa_offset 12
+  97              		.cfi_offset 4, -12
+  98              		.cfi_offset 5, -8
+  99              		.cfi_offset 14, -4
+ 100              		.loc 1 76 0
+ 101 0002 031E     		subs	r3, r0, #0
+ 102              	.LVL9:
+  77:./Application/BSPSys/Util/BSPQueue.c ****     u8 i = 0;
+  78:./Application/BSPSys/Util/BSPQueue.c ****     
+  79:./Application/BSPSys/Util/BSPQueue.c ****     if(IsEqual(pQ, (void*)0))                               //指向空间为空错误
+ 103              		.loc 1 79 0
+ 104 0004 13D0     		beq	.L9
+  80:./Application/BSPSys/Util/BSPQueue.c ****     {
+  81:./Application/BSPSys/Util/BSPQueue.c ****         return(FALSE);
+  82:./Application/BSPSys/Util/BSPQueue.c ****     }
+  83:./Application/BSPSys/Util/BSPQueue.c ****     
+  84:./Application/BSPSys/Util/BSPQueue.c ****     if(IsEqual(QUE_UNITNUM(pQ), QUE_CURNUM(pQ)))            //队列满
+ 105              		.loc 1 84 0
+ 106 0006 4279     		ldrb	r2, [r0, #5]
+ 107 0008 8478     		ldrb	r4, [r0, #2]
+  81:./Application/BSPSys/Util/BSPQueue.c ****     }
+ 108              		.loc 1 81 0
+ 109 000a 0020     		movs	r0, #0
+ 110              	.LVL10:
+ 111              		.loc 1 84 0
+ 112 000c 9442     		cmp	r4, r2
+ 113 000e 0ED0     		beq	.L9
+  85:./Application/BSPSys/Util/BSPQueue.c ****     {
+  86:./Application/BSPSys/Util/BSPQueue.c ****         return(FALSE);
+  87:./Application/BSPSys/Util/BSPQueue.c ****     }
+  88:./Application/BSPSys/Util/BSPQueue.c ****     
+  89:./Application/BSPSys/Util/BSPQueue.c ****     //BSP_DISABLE_IRQ();
+  90:./Application/BSPSys/Util/BSPQueue.c ****     
+  91:./Application/BSPSys/Util/BSPQueue.c ****     QUE_CURNUM(pQ) += 1;                                    //队列单元数++
+ 114              		.loc 1 91 0
+ 115 0010 0132     		adds	r2, r2, #1
+ 116 0012 5A71     		strb	r2, [r3, #5]
+ 117              	.LVL11:
+ 118              	.L10:
+  92:./Application/BSPSys/Util/BSPQueue.c ****     
+  93:./Application/BSPSys/Util/BSPQueue.c ****     for(i = 0; i < QUE_UNITSIZE(pQ); i++)
+ 119              		.loc 1 93 0 discriminator 1
+ 120 0014 5C78     		ldrb	r4, [r3, #1]
+ 121 0016 DA78     		ldrb	r2, [r3, #3]
+ 122 0018 8442     		cmp	r4, r0
+ 123 001a 09D8     		bhi	.L11
+ 124              	.LVL12:
+ 125              	.LBB4:
+ 126              	.LBB5:
+  94:./Application/BSPSys/Util/BSPQueue.c ****     {
+  95:./Application/BSPSys/Util/BSPQueue.c ****         *(QUEP_UNIT(pQ) + QUE_INPOINT(pQ) * QUE_UNITSIZE(pQ) + i) = *((u8*)pU+i);
+  96:./Application/BSPSys/Util/BSPQueue.c ****     }
+  97:./Application/BSPSys/Util/BSPQueue.c ****     
+  98:./Application/BSPSys/Util/BSPQueue.c ****     QUE_INPOINT(pQ) += 1;
+ARM GAS  /tmp/cc1NHDNb.s 			page 5
+
+
+ 127              		.loc 1 98 0
+ 128 001c 0132     		adds	r2, r2, #1
+  99:./Application/BSPSys/Util/BSPQueue.c ****     
+ 100:./Application/BSPSys/Util/BSPQueue.c ****     if(QUE_INPOINT(pQ) >= QUE_UNITNUM(pQ))                  //如果到头
+ 129              		.loc 1 100 0
+ 130 001e 9978     		ldrb	r1, [r3, #2]
+ 131              	.LVL13:
+  98:./Application/BSPSys/Util/BSPQueue.c ****     
+ 132              		.loc 1 98 0
+ 133 0020 D2B2     		uxtb	r2, r2
+ 134 0022 DA70     		strb	r2, [r3, #3]
+ 135              		.loc 1 100 0
+ 136 0024 0120     		movs	r0, #1
+ 137              	.LVL14:
+ 138 0026 9142     		cmp	r1, r2
+ 139 0028 01D8     		bhi	.L9
+ 101:./Application/BSPSys/Util/BSPQueue.c ****     {
+ 102:./Application/BSPSys/Util/BSPQueue.c ****         QUE_INPOINT(pQ) = 0;
+ 140              		.loc 1 102 0
+ 141 002a 0022     		movs	r2, #0
+ 142 002c DA70     		strb	r2, [r3, #3]
+ 143              	.LVL15:
+ 144              	.L9:
+ 145              	.LBE5:
+ 146              	.LBE4:
+ 103:./Application/BSPSys/Util/BSPQueue.c ****     }
+ 104:./Application/BSPSys/Util/BSPQueue.c ****     
+ 105:./Application/BSPSys/Util/BSPQueue.c ****     //BSP_ENABLE_IRQ();
+ 106:./Application/BSPSys/Util/BSPQueue.c ****     
+ 107:./Application/BSPSys/Util/BSPQueue.c ****     return(TRUE);
+ 108:./Application/BSPSys/Util/BSPQueue.c **** }
+ 147              		.loc 1 108 0
+ 148              		@ sp needed
+ 149 002e 30BD     		pop	{r4, r5, pc}
+ 150              	.LVL16:
+ 151              	.L11:
+  95:./Application/BSPSys/Util/BSPQueue.c ****     }
+ 152              		.loc 1 95 0 discriminator 3
+ 153 0030 6243     		muls	r2, r4
+ 154 0032 0D5C     		ldrb	r5, [r1, r0]
+ 155 0034 1C18     		adds	r4, r3, r0
+ 156 0036 A218     		adds	r2, r4, r2
+  93:./Application/BSPSys/Util/BSPQueue.c ****     {
+ 157              		.loc 1 93 0 discriminator 3
+ 158 0038 0130     		adds	r0, r0, #1
+ 159              	.LVL17:
+  95:./Application/BSPSys/Util/BSPQueue.c ****     }
+ 160              		.loc 1 95 0 discriminator 3
+ 161 003a 9571     		strb	r5, [r2, #6]
+  93:./Application/BSPSys/Util/BSPQueue.c ****     {
+ 162              		.loc 1 93 0 discriminator 3
+ 163 003c C0B2     		uxtb	r0, r0
+ 164              	.LVL18:
+ 165 003e E9E7     		b	.L10
+ 166              		.cfi_endproc
+ 167              	.LFE1:
+ 169              		.section	.text.QueInDiff,"ax",%progbits
+ARM GAS  /tmp/cc1NHDNb.s 			page 6
+
+
+ 170              		.align	1
+ 171              		.global	QueInDiff
+ 172              		.syntax unified
+ 173              		.code	16
+ 174              		.thumb_func
+ 175              		.fpu softvfp
+ 177              	QueInDiff:
+ 178              	.LFB2:
+ 109:./Application/BSPSys/Util/BSPQueue.c **** 
+ 110:./Application/BSPSys/Util/BSPQueue.c **** /*=============================================================================================
+ 111:./Application/BSPSys/Util/BSPQueue.c **** ** @Name      : u8 QueInDiff(void *pQ, void *pU)
+ 112:./Application/BSPSys/Util/BSPQueue.c **** ** @Input     : pQ:队列指针，pU:待写入单元指针
+ 113:./Application/BSPSys/Util/BSPQueue.c **** ** @Output    : TRUE OR FALSE
+ 114:./Application/BSPSys/Util/BSPQueue.c **** ** @Function  : 将pu指向单元与队列中现有单元对比，如果没有则压入pQ队列
+ 115:./Application/BSPSys/Util/BSPQueue.c **** ** @The notes : 仅用于u8单位成员
+ 116:./Application/BSPSys/Util/BSPQueue.c **** **===========================================================================================*/
+ 117:./Application/BSPSys/Util/BSPQueue.c **** u8 QueInDiff(void *pQ, void *pU)
+ 118:./Application/BSPSys/Util/BSPQueue.c **** {
+ 179              		.loc 1 118 0
+ 180              		.cfi_startproc
+ 181              		@ args = 0, pretend = 0, frame = 0
+ 182              		@ frame_needed = 0, uses_anonymous_args = 0
+ 183              	.LVL19:
+ 184 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+ 185              	.LCFI1:
+ 186              		.cfi_def_cfa_offset 24
+ 187              		.cfi_offset 3, -24
+ 188              		.cfi_offset 4, -20
+ 189              		.cfi_offset 5, -16
+ 190              		.cfi_offset 6, -12
+ 191              		.cfi_offset 7, -8
+ 192              		.cfi_offset 14, -4
+ 119:./Application/BSPSys/Util/BSPQueue.c ****     u8 j = 0;
+ 120:./Application/BSPSys/Util/BSPQueue.c ****     u8 size = 0;
+ 121:./Application/BSPSys/Util/BSPQueue.c ****     u8 isDiff = 1;
+ 122:./Application/BSPSys/Util/BSPQueue.c ****     u8 curNum = 0;
+ 123:./Application/BSPSys/Util/BSPQueue.c ****     u8 curPoint = 0;
+ 124:./Application/BSPSys/Util/BSPQueue.c ****     
+ 125:./Application/BSPSys/Util/BSPQueue.c ****     if(IsNotEqual(QUE_UNITSIZE(pQ), 1))                     //非u32成员
+ 193              		.loc 1 125 0
+ 194 0002 4478     		ldrb	r4, [r0, #1]
+ 195 0004 012C     		cmp	r4, #1
+ 196 0006 18D1     		bne	.L22
+ 126:./Application/BSPSys/Util/BSPQueue.c ****     {
+ 127:./Application/BSPSys/Util/BSPQueue.c ****         return(FALSE);
+ 128:./Application/BSPSys/Util/BSPQueue.c ****     }
+ 129:./Application/BSPSys/Util/BSPQueue.c ****     
+ 130:./Application/BSPSys/Util/BSPQueue.c ****     if(IsEqual(QUE_UNITNUM(pQ), QUE_CURNUM(pQ)))            //队列满
+ 197              		.loc 1 130 0
+ 198 0008 8678     		ldrb	r6, [r0, #2]
+ 199 000a 4579     		ldrb	r5, [r0, #5]
+ 200 000c AE42     		cmp	r6, r5
+ 201 000e 14D0     		beq	.L22
+ 202              	.LVL20:
+ 131:./Application/BSPSys/Util/BSPQueue.c ****     {
+ 132:./Application/BSPSys/Util/BSPQueue.c ****         return(FALSE);
+ 133:./Application/BSPSys/Util/BSPQueue.c ****     }
+ARM GAS  /tmp/cc1NHDNb.s 			page 7
+
+
+ 134:./Application/BSPSys/Util/BSPQueue.c ****     
+ 135:./Application/BSPSys/Util/BSPQueue.c ****     //BSP_DISABLE_IRQ();
+ 136:./Application/BSPSys/Util/BSPQueue.c ****     
+ 137:./Application/BSPSys/Util/BSPQueue.c ****     curNum = QUE_CURNUM(pQ);                                //获得成员数目
+ 138:./Application/BSPSys/Util/BSPQueue.c ****     curPoint = QUE_OUTPOINT(pQ);
+ 139:./Application/BSPSys/Util/BSPQueue.c ****     size = QUE_UNITNUM(pQ);
+ 140:./Application/BSPSys/Util/BSPQueue.c ****     
+ 141:./Application/BSPSys/Util/BSPQueue.c ****     //检查当前队列中是否有相同成员
+ 142:./Application/BSPSys/Util/BSPQueue.c ****     for(j = 0; j < curNum; j++)
+ 203              		.loc 1 142 0
+ 204 0010 0022     		movs	r2, #0
+ 138:./Application/BSPSys/Util/BSPQueue.c ****     size = QUE_UNITNUM(pQ);
+ 205              		.loc 1 138 0
+ 206 0012 0379     		ldrb	r3, [r0, #4]
+ 207              	.LVL21:
+ 208              	.L17:
+ 209              		.loc 1 142 0 discriminator 1
+ 210 0014 9542     		cmp	r5, r2
+ 211 0016 02D1     		bne	.L19
+ 143:./Application/BSPSys/Util/BSPQueue.c ****     {
+ 144:./Application/BSPSys/Util/BSPQueue.c ****         //如果有相同成员
+ 145:./Application/BSPSys/Util/BSPQueue.c ****         if(*(QUEP_UNIT(pQ) + curPoint) == *((u8 *)pU))
+ 146:./Application/BSPSys/Util/BSPQueue.c ****         {
+ 147:./Application/BSPSys/Util/BSPQueue.c ****             //设置标志
+ 148:./Application/BSPSys/Util/BSPQueue.c ****             isDiff = 0;
+ 149:./Application/BSPSys/Util/BSPQueue.c ****             break;
+ 150:./Application/BSPSys/Util/BSPQueue.c ****         }
+ 151:./Application/BSPSys/Util/BSPQueue.c ****         
+ 152:./Application/BSPSys/Util/BSPQueue.c ****         curPoint++;
+ 153:./Application/BSPSys/Util/BSPQueue.c ****         if(curPoint >= size)
+ 154:./Application/BSPSys/Util/BSPQueue.c ****         {
+ 155:./Application/BSPSys/Util/BSPQueue.c ****             curPoint = 0;
+ 156:./Application/BSPSys/Util/BSPQueue.c ****         }
+ 157:./Application/BSPSys/Util/BSPQueue.c ****     }
+ 158:./Application/BSPSys/Util/BSPQueue.c ****     
+ 159:./Application/BSPSys/Util/BSPQueue.c ****     //如果没有相同的成员
+ 160:./Application/BSPSys/Util/BSPQueue.c ****     if(isDiff == 1)
+ 161:./Application/BSPSys/Util/BSPQueue.c ****     {
+ 162:./Application/BSPSys/Util/BSPQueue.c ****         //插入此成员
+ 163:./Application/BSPSys/Util/BSPQueue.c ****         (void)QueIn(pQ,pU);
+ 212              		.loc 1 163 0
+ 213 0018 FFF7FEFF 		bl	QueIn
+ 214              	.LVL22:
+ 215 001c 0EE0     		b	.L23
+ 216              	.LVL23:
+ 217              	.L19:
+ 145:./Application/BSPSys/Util/BSPQueue.c ****         {
+ 218              		.loc 1 145 0
+ 219 001e C718     		adds	r7, r0, r3
+ 220 0020 BF79     		ldrb	r7, [r7, #6]
+ 221 0022 BC46     		mov	ip, r7
+ 222 0024 0F78     		ldrb	r7, [r1]
+ 223 0026 BC45     		cmp	ip, r7
+ 224 0028 08D0     		beq	.L23
+ 152:./Application/BSPSys/Util/BSPQueue.c ****         if(curPoint >= size)
+ 225              		.loc 1 152 0
+ 226 002a 0133     		adds	r3, r3, #1
+ARM GAS  /tmp/cc1NHDNb.s 			page 8
+
+
+ 227              	.LVL24:
+ 228 002c DBB2     		uxtb	r3, r3
+ 229              	.LVL25:
+ 155:./Application/BSPSys/Util/BSPQueue.c ****         }
+ 230              		.loc 1 155 0
+ 231 002e B342     		cmp	r3, r6
+ 232 0030 BF41     		sbcs	r7, r7, r7
+ 142:./Application/BSPSys/Util/BSPQueue.c ****     {
+ 233              		.loc 1 142 0
+ 234 0032 0132     		adds	r2, r2, #1
+ 235              	.LVL26:
+ 155:./Application/BSPSys/Util/BSPQueue.c ****         }
+ 236              		.loc 1 155 0
+ 237 0034 3B40     		ands	r3, r7
+ 238              	.LVL27:
+ 142:./Application/BSPSys/Util/BSPQueue.c ****     {
+ 239              		.loc 1 142 0
+ 240 0036 D2B2     		uxtb	r2, r2
+ 241              	.LVL28:
+ 242 0038 ECE7     		b	.L17
+ 243              	.LVL29:
+ 244              	.L22:
+ 127:./Application/BSPSys/Util/BSPQueue.c ****     }
+ 245              		.loc 1 127 0
+ 246 003a 0024     		movs	r4, #0
+ 247              	.LVL30:
+ 248              	.L23:
+ 164:./Application/BSPSys/Util/BSPQueue.c ****     }
+ 165:./Application/BSPSys/Util/BSPQueue.c ****     
+ 166:./Application/BSPSys/Util/BSPQueue.c ****     //BSP_ENABLE_IRQ();
+ 167:./Application/BSPSys/Util/BSPQueue.c ****     
+ 168:./Application/BSPSys/Util/BSPQueue.c ****     return(TRUE);
+ 169:./Application/BSPSys/Util/BSPQueue.c **** }
+ 249              		.loc 1 169 0
+ 250 003c 2000     		movs	r0, r4
+ 251              		@ sp needed
+ 252 003e F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 253              		.cfi_endproc
+ 254              	.LFE2:
+ 256              		.section	.text.QueOut,"ax",%progbits
+ 257              		.align	1
+ 258              		.global	QueOut
+ 259              		.syntax unified
+ 260              		.code	16
+ 261              		.thumb_func
+ 262              		.fpu softvfp
+ 264              	QueOut:
+ 265              	.LFB3:
+ 170:./Application/BSPSys/Util/BSPQueue.c **** 
+ 171:./Application/BSPSys/Util/BSPQueue.c **** /*=============================================================================================
+ 172:./Application/BSPSys/Util/BSPQueue.c **** ** @Name      : u8 QueOut(void *pQ, void *pU)
+ 173:./Application/BSPSys/Util/BSPQueue.c **** ** @Input     : pQ:队列指针，pU:读出单元写入指针
+ 174:./Application/BSPSys/Util/BSPQueue.c **** ** @Output    : TRUE OR FALSE
+ 175:./Application/BSPSys/Util/BSPQueue.c **** ** @Function  : 将pQ中数据读出到pU中
+ 176:./Application/BSPSys/Util/BSPQueue.c **** ** @The notes :
+ 177:./Application/BSPSys/Util/BSPQueue.c **** **===========================================================================================*/
+ 178:./Application/BSPSys/Util/BSPQueue.c **** u8 QueOut(void *pQ, void *pU)
+ARM GAS  /tmp/cc1NHDNb.s 			page 9
+
+
+ 179:./Application/BSPSys/Util/BSPQueue.c **** {
+ 266              		.loc 1 179 0
+ 267              		.cfi_startproc
+ 268              		@ args = 0, pretend = 0, frame = 0
+ 269              		@ frame_needed = 0, uses_anonymous_args = 0
+ 270              	.LVL31:
+ 271 0000 10B5     		push	{r4, lr}
+ 272              	.LCFI2:
+ 273              		.cfi_def_cfa_offset 8
+ 274              		.cfi_offset 4, -8
+ 275              		.cfi_offset 14, -4
+ 276              		.loc 1 179 0
+ 277 0002 031E     		subs	r3, r0, #0
+ 180:./Application/BSPSys/Util/BSPQueue.c ****     u8 i = 0;
+ 181:./Application/BSPSys/Util/BSPQueue.c ****     
+ 182:./Application/BSPSys/Util/BSPQueue.c ****     if(IsEqual(pQ, (void*)0))                               //指向空间为空错误
+ 278              		.loc 1 182 0
+ 279 0004 15D0     		beq	.L26
+ 183:./Application/BSPSys/Util/BSPQueue.c ****     {
+ 184:./Application/BSPSys/Util/BSPQueue.c ****         return(FALSE);
+ 185:./Application/BSPSys/Util/BSPQueue.c ****     }
+ 186:./Application/BSPSys/Util/BSPQueue.c ****     
+ 187:./Application/BSPSys/Util/BSPQueue.c ****     if(IsEqual(QUE_UNITNUM(pQ), 0))                         //队列空
+ 280              		.loc 1 187 0
+ 281 0006 8078     		ldrb	r0, [r0, #2]
+ 282              	.LVL32:
+ 283 0008 0028     		cmp	r0, #0
+ 284 000a 12D0     		beq	.L26
+ 188:./Application/BSPSys/Util/BSPQueue.c ****     {
+ 189:./Application/BSPSys/Util/BSPQueue.c ****         return(FALSE);
+ 190:./Application/BSPSys/Util/BSPQueue.c ****     }
+ 191:./Application/BSPSys/Util/BSPQueue.c ****     if(IsEqual(QUE_CURNUM(pQ), 0))                          //队列空
+ 285              		.loc 1 191 0
+ 286 000c 5879     		ldrb	r0, [r3, #5]
+ 287 000e 0028     		cmp	r0, #0
+ 288 0010 0FD0     		beq	.L26
+ 192:./Application/BSPSys/Util/BSPQueue.c ****     {
+ 193:./Application/BSPSys/Util/BSPQueue.c ****         return(FALSE);
+ 194:./Application/BSPSys/Util/BSPQueue.c ****     }
+ 195:./Application/BSPSys/Util/BSPQueue.c ****     
+ 196:./Application/BSPSys/Util/BSPQueue.c ****     //BSP_DISABLE_IRQ();
+ 197:./Application/BSPSys/Util/BSPQueue.c ****     
+ 198:./Application/BSPSys/Util/BSPQueue.c ****     QUE_CURNUM(pQ) -= 1;                                    //队列单元数--
+ 289              		.loc 1 198 0
+ 290 0012 0138     		subs	r0, r0, #1
+ 291 0014 5871     		strb	r0, [r3, #5]
+ 199:./Application/BSPSys/Util/BSPQueue.c ****     
+ 200:./Application/BSPSys/Util/BSPQueue.c ****     for(i = 0; i < QUE_UNITSIZE(pQ); i++)
+ 292              		.loc 1 200 0
+ 293 0016 0020     		movs	r0, #0
+ 294              	.LVL33:
+ 295              	.L27:
+ 296              		.loc 1 200 0 is_stmt 0 discriminator 1
+ 297 0018 5C78     		ldrb	r4, [r3, #1]
+ 298 001a 1A79     		ldrb	r2, [r3, #4]
+ 299 001c 8442     		cmp	r4, r0
+ 300 001e 09D8     		bhi	.L28
+ARM GAS  /tmp/cc1NHDNb.s 			page 10
+
+
+ 201:./Application/BSPSys/Util/BSPQueue.c ****     {
+ 202:./Application/BSPSys/Util/BSPQueue.c ****         *((u8*)pU+i) = *(QUEP_UNIT(pQ) + QUE_OUTPOINT(pQ) * QUE_UNITSIZE(pQ) + i);
+ 203:./Application/BSPSys/Util/BSPQueue.c ****     }
+ 204:./Application/BSPSys/Util/BSPQueue.c ****     
+ 205:./Application/BSPSys/Util/BSPQueue.c ****     QUE_OUTPOINT(pQ) += 1;
+ 301              		.loc 1 205 0 is_stmt 1
+ 302 0020 0132     		adds	r2, r2, #1
+ 206:./Application/BSPSys/Util/BSPQueue.c ****     
+ 207:./Application/BSPSys/Util/BSPQueue.c ****     if(QUE_OUTPOINT(pQ) >= QUE_UNITNUM(pQ))                 //如果到头
+ 303              		.loc 1 207 0
+ 304 0022 9978     		ldrb	r1, [r3, #2]
+ 305              	.LVL34:
+ 205:./Application/BSPSys/Util/BSPQueue.c ****     
+ 306              		.loc 1 205 0
+ 307 0024 D2B2     		uxtb	r2, r2
+ 308 0026 1A71     		strb	r2, [r3, #4]
+ 208:./Application/BSPSys/Util/BSPQueue.c ****     {
+ 209:./Application/BSPSys/Util/BSPQueue.c ****         QUE_OUTPOINT(pQ) = 0;
+ 210:./Application/BSPSys/Util/BSPQueue.c ****     }    
+ 211:./Application/BSPSys/Util/BSPQueue.c ****     
+ 212:./Application/BSPSys/Util/BSPQueue.c ****     //BSP_ENABLE_IRQ();
+ 213:./Application/BSPSys/Util/BSPQueue.c ****     
+ 214:./Application/BSPSys/Util/BSPQueue.c ****     return(TRUE);
+ 309              		.loc 1 214 0
+ 310 0028 0120     		movs	r0, #1
+ 311              	.LVL35:
+ 207:./Application/BSPSys/Util/BSPQueue.c ****     {
+ 312              		.loc 1 207 0
+ 313 002a 9142     		cmp	r1, r2
+ 314 002c 01D8     		bhi	.L26
+ 209:./Application/BSPSys/Util/BSPQueue.c ****     }    
+ 315              		.loc 1 209 0
+ 316 002e 0022     		movs	r2, #0
+ 317 0030 1A71     		strb	r2, [r3, #4]
+ 318              	.L26:
+ 215:./Application/BSPSys/Util/BSPQueue.c **** }
+ 319              		.loc 1 215 0
+ 320              		@ sp needed
+ 321 0032 10BD     		pop	{r4, pc}
+ 322              	.LVL36:
+ 323              	.L28:
+ 202:./Application/BSPSys/Util/BSPQueue.c ****     }
+ 324              		.loc 1 202 0 discriminator 3
+ 325 0034 6243     		muls	r2, r4
+ 326 0036 1C18     		adds	r4, r3, r0
+ 327 0038 A218     		adds	r2, r4, r2
+ 328 003a 9279     		ldrb	r2, [r2, #6]
+ 329 003c 0A54     		strb	r2, [r1, r0]
+ 200:./Application/BSPSys/Util/BSPQueue.c ****     {
+ 330              		.loc 1 200 0 discriminator 3
+ 331 003e 0130     		adds	r0, r0, #1
+ 332              	.LVL37:
+ 333 0040 C0B2     		uxtb	r0, r0
+ 334              	.LVL38:
+ 335 0042 E9E7     		b	.L27
+ 336              		.cfi_endproc
+ 337              	.LFE3:
+ARM GAS  /tmp/cc1NHDNb.s 			page 11
+
+
+ 339              		.section	.text.QueGetUnit,"ax",%progbits
+ 340              		.align	1
+ 341              		.global	QueGetUnit
+ 342              		.syntax unified
+ 343              		.code	16
+ 344              		.thumb_func
+ 345              		.fpu softvfp
+ 347              	QueGetUnit:
+ 348              	.LFB4:
+ 216:./Application/BSPSys/Util/BSPQueue.c **** 
+ 217:./Application/BSPSys/Util/BSPQueue.c **** /*=============================================================================================
+ 218:./Application/BSPSys/Util/BSPQueue.c **** ** @Name      : u8 QueGetUnit(void *pQ, void *pU, u32 index)
+ 219:./Application/BSPSys/Util/BSPQueue.c **** ** @Input     : pQ:队列指针，pU:读出单元写入指针
+ 220:./Application/BSPSys/Util/BSPQueue.c **** ** @Output    : TRUE OR FALSE
+ 221:./Application/BSPSys/Util/BSPQueue.c **** ** @Function  : 将pQ中数据读出到pU中,但是队列中不取消
+ 222:./Application/BSPSys/Util/BSPQueue.c **** ** @The notes :
+ 223:./Application/BSPSys/Util/BSPQueue.c **** **===========================================================================================*/
+ 224:./Application/BSPSys/Util/BSPQueue.c **** u8 QueGetUnit(void *pQ, void *pU, u32 index)
+ 225:./Application/BSPSys/Util/BSPQueue.c **** {
+ 349              		.loc 1 225 0
+ 350              		.cfi_startproc
+ 351              		@ args = 0, pretend = 0, frame = 0
+ 352              		@ frame_needed = 0, uses_anonymous_args = 0
+ 353              	.LVL39:
+ 354 0000 30B5     		push	{r4, r5, lr}
+ 355              	.LCFI3:
+ 356              		.cfi_def_cfa_offset 12
+ 357              		.cfi_offset 4, -12
+ 358              		.cfi_offset 5, -8
+ 359              		.cfi_offset 14, -4
+ 226:./Application/BSPSys/Util/BSPQueue.c ****     u8 i = 0;
+ 227:./Application/BSPSys/Util/BSPQueue.c ****     u8 num = 0;
+ 228:./Application/BSPSys/Util/BSPQueue.c ****     
+ 229:./Application/BSPSys/Util/BSPQueue.c ****     num = QUE_UNITNUM(pQ);
+ 360              		.loc 1 229 0
+ 361 0002 8378     		ldrb	r3, [r0, #2]
+ 362              	.LVL40:
+ 230:./Application/BSPSys/Util/BSPQueue.c ****     
+ 231:./Application/BSPSys/Util/BSPQueue.c ****     if(IsEqual(pQ, (void *)0))                              //指向空间为空错误
+ 232:./Application/BSPSys/Util/BSPQueue.c ****     {
+ 233:./Application/BSPSys/Util/BSPQueue.c ****         return(FALSE);
+ 234:./Application/BSPSys/Util/BSPQueue.c ****     }
+ 235:./Application/BSPSys/Util/BSPQueue.c ****     
+ 236:./Application/BSPSys/Util/BSPQueue.c ****     if(IsEqual(num, 0))                                     //队列空
+ 363              		.loc 1 236 0
+ 364 0004 002B     		cmp	r3, #0
+ 365 0006 0CD0     		beq	.L38
+ 237:./Application/BSPSys/Util/BSPQueue.c ****     {
+ 238:./Application/BSPSys/Util/BSPQueue.c ****         return(FALSE);
+ 239:./Application/BSPSys/Util/BSPQueue.c ****     }
+ 240:./Application/BSPSys/Util/BSPQueue.c ****     
+ 241:./Application/BSPSys/Util/BSPQueue.c ****     if(index >= QUE_CURNUM(pQ))                             //目前队列中没有这么多元素
+ 366              		.loc 1 241 0
+ 367 0008 4479     		ldrb	r4, [r0, #5]
+ 368 000a 9442     		cmp	r4, r2
+ 369 000c 13D9     		bls	.L42
+ 242:./Application/BSPSys/Util/BSPQueue.c ****     {
+ARM GAS  /tmp/cc1NHDNb.s 			page 12
+
+
+ 243:./Application/BSPSys/Util/BSPQueue.c ****         return(FALSE);
+ 244:./Application/BSPSys/Util/BSPQueue.c ****     }
+ 245:./Application/BSPSys/Util/BSPQueue.c ****     
+ 246:./Application/BSPSys/Util/BSPQueue.c ****     //BSP_DISABLE_IRQ();
+ 247:./Application/BSPSys/Util/BSPQueue.c ****     
+ 248:./Application/BSPSys/Util/BSPQueue.c ****     index += QUE_OUTPOINT(pQ);
+ 370              		.loc 1 248 0
+ 371 000e 0479     		ldrb	r4, [r0, #4]
+ 372 0010 A218     		adds	r2, r4, r2
+ 373              	.LVL41:
+ 249:./Application/BSPSys/Util/BSPQueue.c ****     
+ 250:./Application/BSPSys/Util/BSPQueue.c ****     if(index >= num)
+ 374              		.loc 1 250 0
+ 375 0012 9342     		cmp	r3, r2
+ 376 0014 00D8     		bhi	.L39
+ 251:./Application/BSPSys/Util/BSPQueue.c ****     {
+ 252:./Application/BSPSys/Util/BSPQueue.c ****         index -= num;
+ 377              		.loc 1 252 0
+ 378 0016 D21A     		subs	r2, r2, r3
+ 379              	.LVL42:
+ 380              	.L39:
+ 253:./Application/BSPSys/Util/BSPQueue.c ****     }
+ 254:./Application/BSPSys/Util/BSPQueue.c ****     
+ 255:./Application/BSPSys/Util/BSPQueue.c ****     for(i = 0; i < QUE_UNITSIZE(pQ); i++)
+ 381              		.loc 1 255 0
+ 382 0018 0023     		movs	r3, #0
+ 383              	.LVL43:
+ 384              	.L40:
+ 385              		.loc 1 255 0 is_stmt 0 discriminator 1
+ 386 001a 4478     		ldrb	r4, [r0, #1]
+ 387 001c 9C42     		cmp	r4, r3
+ 388 001e 02D8     		bhi	.L41
+ 256:./Application/BSPSys/Util/BSPQueue.c ****     {
+ 257:./Application/BSPSys/Util/BSPQueue.c ****         *((u8*)pU+i) = *(QUEP_UNIT(pQ) + index * QUE_UNITSIZE(pQ) + i);
+ 258:./Application/BSPSys/Util/BSPQueue.c ****     }
+ 259:./Application/BSPSys/Util/BSPQueue.c ****     
+ 260:./Application/BSPSys/Util/BSPQueue.c ****     //BSP_ENABLE_IRQ();
+ 261:./Application/BSPSys/Util/BSPQueue.c ****     
+ 262:./Application/BSPSys/Util/BSPQueue.c ****     return(TRUE);
+ 389              		.loc 1 262 0 is_stmt 1
+ 390 0020 0123     		movs	r3, #1
+ 391              	.LVL44:
+ 392              	.L38:
+ 263:./Application/BSPSys/Util/BSPQueue.c **** }
+ 393              		.loc 1 263 0
+ 394 0022 1800     		movs	r0, r3
+ 395              	.LVL45:
+ 396              		@ sp needed
+ 397 0024 30BD     		pop	{r4, r5, pc}
+ 398              	.LVL46:
+ 399              	.L41:
+ 257:./Application/BSPSys/Util/BSPQueue.c ****     }
+ 400              		.loc 1 257 0 discriminator 3
+ 401 0026 5443     		muls	r4, r2
+ 402 0028 C518     		adds	r5, r0, r3
+ 403 002a 2C19     		adds	r4, r5, r4
+ 404 002c A479     		ldrb	r4, [r4, #6]
+ARM GAS  /tmp/cc1NHDNb.s 			page 13
+
+
+ 405 002e CC54     		strb	r4, [r1, r3]
+ 255:./Application/BSPSys/Util/BSPQueue.c ****     {
+ 406              		.loc 1 255 0 discriminator 3
+ 407 0030 0133     		adds	r3, r3, #1
+ 408              	.LVL47:
+ 409 0032 DBB2     		uxtb	r3, r3
+ 410              	.LVL48:
+ 411 0034 F1E7     		b	.L40
+ 412              	.LVL49:
+ 413              	.L42:
+ 238:./Application/BSPSys/Util/BSPQueue.c ****     }
+ 414              		.loc 1 238 0
+ 415 0036 0023     		movs	r3, #0
+ 416              	.LVL50:
+ 417 0038 F3E7     		b	.L38
+ 418              		.cfi_endproc
+ 419              	.LFE4:
+ 421              		.section	.text.QueClear,"ax",%progbits
+ 422              		.align	1
+ 423              		.global	QueClear
+ 424              		.syntax unified
+ 425              		.code	16
+ 426              		.thumb_func
+ 427              		.fpu softvfp
+ 429              	QueClear:
+ 430              	.LFB5:
+ 264:./Application/BSPSys/Util/BSPQueue.c **** 
+ 265:./Application/BSPSys/Util/BSPQueue.c **** /*=============================================================================================
+ 266:./Application/BSPSys/Util/BSPQueue.c **** ** @Name      : u8 QueClear(void *pQ)
+ 267:./Application/BSPSys/Util/BSPQueue.c **** ** @Input     : pQ:队列指针
+ 268:./Application/BSPSys/Util/BSPQueue.c **** ** @Output    : TRUE OR FALSE
+ 269:./Application/BSPSys/Util/BSPQueue.c **** ** @Function  : 清零队列
+ 270:./Application/BSPSys/Util/BSPQueue.c **** ** @The notes :
+ 271:./Application/BSPSys/Util/BSPQueue.c **** **===========================================================================================*/
+ 272:./Application/BSPSys/Util/BSPQueue.c **** u8 QueClear(void *pQ)
+ 273:./Application/BSPSys/Util/BSPQueue.c **** {
+ 431              		.loc 1 273 0
+ 432              		.cfi_startproc
+ 433              		@ args = 0, pretend = 0, frame = 0
+ 434              		@ frame_needed = 0, uses_anonymous_args = 0
+ 435              		@ link register save eliminated.
+ 436              	.LVL51:
+ 437 0000 0022     		movs	r2, #0
+ 274:./Application/BSPSys/Util/BSPQueue.c ****     if(IsEqual(pQ, (void *)0))            //指向空间为空错误
+ 438              		.loc 1 274 0
+ 439 0002 9042     		cmp	r0, r2
+ 440 0004 04D0     		beq	.L47
+ 275:./Application/BSPSys/Util/BSPQueue.c ****     {
+ 276:./Application/BSPSys/Util/BSPQueue.c ****         return(FALSE);
+ 277:./Application/BSPSys/Util/BSPQueue.c ****     }
+ 278:./Application/BSPSys/Util/BSPQueue.c ****     
+ 279:./Application/BSPSys/Util/BSPQueue.c ****     //BSP_DISABLE_IRQ();
+ 280:./Application/BSPSys/Util/BSPQueue.c ****     QUE_CTRLFLAG(pQ) = 0;
+ 441              		.loc 1 280 0
+ 442 0006 0270     		strb	r2, [r0]
+ 281:./Application/BSPSys/Util/BSPQueue.c ****     QUE_INPOINT(pQ)  = 0;
+ 443              		.loc 1 281 0
+ARM GAS  /tmp/cc1NHDNb.s 			page 14
+
+
+ 444 0008 C270     		strb	r2, [r0, #3]
+ 282:./Application/BSPSys/Util/BSPQueue.c ****     QUE_OUTPOINT(pQ) = 0;
+ 445              		.loc 1 282 0
+ 446 000a 0271     		strb	r2, [r0, #4]
+ 283:./Application/BSPSys/Util/BSPQueue.c ****     QUE_CURNUM(pQ)   = 0;
+ 447              		.loc 1 283 0
+ 448 000c 4271     		strb	r2, [r0, #5]
+ 284:./Application/BSPSys/Util/BSPQueue.c ****     //BSP_ENABLE_IRQ();
+ 285:./Application/BSPSys/Util/BSPQueue.c ****     
+ 286:./Application/BSPSys/Util/BSPQueue.c ****     return(TRUE);
+ 449              		.loc 1 286 0
+ 450 000e 0120     		movs	r0, #1
+ 451              	.LVL52:
+ 452              	.L47:
+ 287:./Application/BSPSys/Util/BSPQueue.c **** }
+ 453              		.loc 1 287 0
+ 454              		@ sp needed
+ 455 0010 7047     		bx	lr
+ 456              		.cfi_endproc
+ 457              	.LFE5:
+ 459              		.section	.text.QueGetUnitNum,"ax",%progbits
+ 460              		.align	1
+ 461              		.global	QueGetUnitNum
+ 462              		.syntax unified
+ 463              		.code	16
+ 464              		.thumb_func
+ 465              		.fpu softvfp
+ 467              	QueGetUnitNum:
+ 468              	.LFB6:
+ 288:./Application/BSPSys/Util/BSPQueue.c **** 
+ 289:./Application/BSPSys/Util/BSPQueue.c **** /*=============================================================================================
+ 290:./Application/BSPSys/Util/BSPQueue.c **** ** @Name      : u8 QueGetUnitNum(void *pQ)
+ 291:./Application/BSPSys/Util/BSPQueue.c **** ** @Input     : pQ:队列指针
+ 292:./Application/BSPSys/Util/BSPQueue.c **** ** @Output    : TRUE OR FALSE
+ 293:./Application/BSPSys/Util/BSPQueue.c **** ** @Function  : 获得当前队列长度
+ 294:./Application/BSPSys/Util/BSPQueue.c **** ** @The notes :
+ 295:./Application/BSPSys/Util/BSPQueue.c **** **===========================================================================================*/
+ 296:./Application/BSPSys/Util/BSPQueue.c **** u8 QueGetUnitNum(void *pQ)
+ 297:./Application/BSPSys/Util/BSPQueue.c **** {
+ 469              		.loc 1 297 0
+ 470              		.cfi_startproc
+ 471              		@ args = 0, pretend = 0, frame = 0
+ 472              		@ frame_needed = 0, uses_anonymous_args = 0
+ 473              		@ link register save eliminated.
+ 474              	.LVL53:
+ 298:./Application/BSPSys/Util/BSPQueue.c ****     if(IsEqual(pQ, (void *)0))          //指向空间为空错误
+ 475              		.loc 1 298 0
+ 476 0000 0028     		cmp	r0, #0
+ 477 0002 00D0     		beq	.L50
+ 299:./Application/BSPSys/Util/BSPQueue.c ****     {
+ 300:./Application/BSPSys/Util/BSPQueue.c ****         return(FALSE);
+ 301:./Application/BSPSys/Util/BSPQueue.c ****     }
+ 302:./Application/BSPSys/Util/BSPQueue.c ****     
+ 303:./Application/BSPSys/Util/BSPQueue.c ****     return(QUE_CURNUM(pQ));
+ 478              		.loc 1 303 0
+ 479 0004 4079     		ldrb	r0, [r0, #5]
+ 480              	.LVL54:
+ARM GAS  /tmp/cc1NHDNb.s 			page 15
+
+
+ 481              	.L50:
+ 304:./Application/BSPSys/Util/BSPQueue.c **** }
+ 482              		.loc 1 304 0
+ 483              		@ sp needed
+ 484 0006 7047     		bx	lr
+ 485              		.cfi_endproc
+ 486              	.LFE6:
+ 488              		.text
+ 489              	.Letext0:
+ 490              		.file 2 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/lock.h"
+ 491              		.file 3 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_types.h"
+ 492              		.file 4 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/lib/gcc/arm-none-eabi/7.3.1/include/stddef.h"
+ 493              		.file 5 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/reent.h"
+ 494              		.file 6 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/stdlib.h"
+ 495              		.file 7 "./Application/BSPSys/Util/BSPTypeDef.h"
+ARM GAS  /tmp/cc1NHDNb.s 			page 16
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 BSPQueue.c
+     /tmp/cc1NHDNb.s:16     .text.QueInit:0000000000000000 $t
+     /tmp/cc1NHDNb.s:23     .text.QueInit:0000000000000000 QueInit
+     /tmp/cc1NHDNb.s:80     .text.QueIn:0000000000000000 $t
+     /tmp/cc1NHDNb.s:87     .text.QueIn:0000000000000000 QueIn
+     /tmp/cc1NHDNb.s:170    .text.QueInDiff:0000000000000000 $t
+     /tmp/cc1NHDNb.s:177    .text.QueInDiff:0000000000000000 QueInDiff
+     /tmp/cc1NHDNb.s:257    .text.QueOut:0000000000000000 $t
+     /tmp/cc1NHDNb.s:264    .text.QueOut:0000000000000000 QueOut
+     /tmp/cc1NHDNb.s:340    .text.QueGetUnit:0000000000000000 $t
+     /tmp/cc1NHDNb.s:347    .text.QueGetUnit:0000000000000000 QueGetUnit
+     /tmp/cc1NHDNb.s:422    .text.QueClear:0000000000000000 $t
+     /tmp/cc1NHDNb.s:429    .text.QueClear:0000000000000000 QueClear
+     /tmp/cc1NHDNb.s:460    .text.QueGetUnitNum:0000000000000000 $t
+     /tmp/cc1NHDNb.s:467    .text.QueGetUnitNum:0000000000000000 QueGetUnitNum
+
+NO UNDEFINED SYMBOLS

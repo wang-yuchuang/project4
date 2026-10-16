@@ -1,0 +1,536 @@
+ARM GAS  /tmp/ccrBBaT0.s 			page 1
+
+
+   1              		.cpu cortex-m0plus
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 4
+   9              		.eabi_attribute 34, 0
+  10              		.eabi_attribute 18, 4
+  11              		.file	"BSPGPIO.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.BSPALLGPIOInit,"ax",%progbits
+  16              		.align	1
+  17              		.global	BSPALLGPIOInit
+  18              		.syntax unified
+  19              		.code	16
+  20              		.thumb_func
+  21              		.fpu softvfp
+  23              	BSPALLGPIOInit:
+  24              	.LFB493:
+  25              		.file 1 "./Application/BSPSys/BSPDriver/BSPGPIO.c"
+   1:./Application/BSPSys/BSPDriver/BSPGPIO.c **** /*==========================================Copyright(c)=======================================
+   2:./Application/BSPSys/BSPDriver/BSPGPIO.c **** **                                  Shenzhen Infypower Co., Ltd.
+   3:./Application/BSPSys/BSPDriver/BSPGPIO.c **** **                                  Power conversion Department
+   4:./Application/BSPSys/BSPDriver/BSPGPIO.c **** **                                       BMS Product Line
+   5:./Application/BSPSys/BSPDriver/BSPGPIO.c **** **
+   6:./Application/BSPSys/BSPDriver/BSPGPIO.c **** **---------------------------------------File Information--------------------------------------
+   7:./Application/BSPSys/BSPDriver/BSPGPIO.c **** ** @File Name    : BSPGPIO.h
+   8:./Application/BSPSys/BSPDriver/BSPGPIO.c **** ** @Founder      : WYC834
+   9:./Application/BSPSys/BSPDriver/BSPGPIO.c **** ** @Date         : 2025.08.21
+  10:./Application/BSPSys/BSPDriver/BSPGPIO.c **** ** @Function     : 输入输出IO驱动函数模块
+  11:./Application/BSPSys/BSPDriver/BSPGPIO.c **** ** @Instructions : 用户完善
+  12:./Application/BSPSys/BSPDriver/BSPGPIO.c **** **===========================================================================================*/
+  13:./Application/BSPSys/BSPDriver/BSPGPIO.c **** 
+  14:./Application/BSPSys/BSPDriver/BSPGPIO.c **** /*=============================================================================================
+  15:./Application/BSPSys/BSPDriver/BSPGPIO.c **** ** @Header file definition
+  16:./Application/BSPSys/BSPDriver/BSPGPIO.c **** **===========================================================================================*/
+  17:./Application/BSPSys/BSPDriver/BSPGPIO.c **** #include "main.h"
+  18:./Application/BSPSys/BSPDriver/BSPGPIO.c **** #include "BSPConfig.h"
+  19:./Application/BSPSys/BSPDriver/BSPGPIO.c **** #include "BSPGPIO.h"
+  20:./Application/BSPSys/BSPDriver/BSPGPIO.c **** #include "gpio.h"
+  21:./Application/BSPSys/BSPDriver/BSPGPIO.c **** /*=============================================================================================
+  22:./Application/BSPSys/BSPDriver/BSPGPIO.c **** ** @Global variable definition
+  23:./Application/BSPSys/BSPDriver/BSPGPIO.c **** **===========================================================================================*/
+  24:./Application/BSPSys/BSPDriver/BSPGPIO.c **** extern volatile u_BSPFunCfg gBSPFunCfg;
+  25:./Application/BSPSys/BSPDriver/BSPGPIO.c **** 
+  26:./Application/BSPSys/BSPDriver/BSPGPIO.c **** /*=============================================================================================
+  27:./Application/BSPSys/BSPDriver/BSPGPIO.c **** ** @Static function declaration
+  28:./Application/BSPSys/BSPDriver/BSPGPIO.c **** **===========================================================================================*/
+  29:./Application/BSPSys/BSPDriver/BSPGPIO.c **** /*=============================================================================================
+  30:./Application/BSPSys/BSPDriver/BSPGPIO.c **** ** @Static function definition
+  31:./Application/BSPSys/BSPDriver/BSPGPIO.c **** **===========================================================================================*/
+  32:./Application/BSPSys/BSPDriver/BSPGPIO.c **** /*=============================================================================================
+  33:./Application/BSPSys/BSPDriver/BSPGPIO.c **** ** @Name      : static GPIO_T* GPIOChangeToGPIOType(eGPIOPORT port)
+ARM GAS  /tmp/ccrBBaT0.s 			page 2
+
+
+  34:./Application/BSPSys/BSPDriver/BSPGPIO.c **** ** @Input     : port:端口
+  35:./Application/BSPSys/BSPDriver/BSPGPIO.c **** ** @Output    : 端口类型
+  36:./Application/BSPSys/BSPDriver/BSPGPIO.c **** ** @Function  : 转换端口对应的类型
+  37:./Application/BSPSys/BSPDriver/BSPGPIO.c **** ** @The notes :
+  38:./Application/BSPSys/BSPDriver/BSPGPIO.c **** **===========================================================================================*/
+  39:./Application/BSPSys/BSPDriver/BSPGPIO.c **** static GPIO_TypeDef* GPIOChangeToGPIOType(eGPIOPORT port);
+  40:./Application/BSPSys/BSPDriver/BSPGPIO.c **** 
+  41:./Application/BSPSys/BSPDriver/BSPGPIO.c **** /*=============================================================================================
+  42:./Application/BSPSys/BSPDriver/BSPGPIO.c **** ** @Name      : static u32 GPIOPINChangeToPinType(eGPIOPIN pin)
+  43:./Application/BSPSys/BSPDriver/BSPGPIO.c **** ** @Input     : pin:引脚号
+  44:./Application/BSPSys/BSPDriver/BSPGPIO.c **** ** @Output    : 端口类型
+  45:./Application/BSPSys/BSPDriver/BSPGPIO.c **** ** @Function  : 转换端口对应的引脚类型
+  46:./Application/BSPSys/BSPDriver/BSPGPIO.c **** ** @The notes :
+  47:./Application/BSPSys/BSPDriver/BSPGPIO.c **** **===========================================================================================*/
+  48:./Application/BSPSys/BSPDriver/BSPGPIO.c **** static u32 GPIOPINChangeToPinType(eGPIOPIN pin);
+  49:./Application/BSPSys/BSPDriver/BSPGPIO.c **** 
+  50:./Application/BSPSys/BSPDriver/BSPGPIO.c **** /*=============================================================================================
+  51:./Application/BSPSys/BSPDriver/BSPGPIO.c **** ** @Interface function definition
+  52:./Application/BSPSys/BSPDriver/BSPGPIO.c **** **===========================================================================================*/
+  53:./Application/BSPSys/BSPDriver/BSPGPIO.c **** /*=============================================================================================
+  54:./Application/BSPSys/BSPDriver/BSPGPIO.c **** ** @Name      : void BSPALLGPIOInit(void)
+  55:./Application/BSPSys/BSPDriver/BSPGPIO.c **** ** @Input     : 
+  56:./Application/BSPSys/BSPDriver/BSPGPIO.c **** ** @Output    : TRUE:初始化成功 FALSE:初始化失败
+  57:./Application/BSPSys/BSPDriver/BSPGPIO.c **** ** @Function  : 整体GPIO初始化
+  58:./Application/BSPSys/BSPDriver/BSPGPIO.c **** ** @The notes : 用户调用
+  59:./Application/BSPSys/BSPDriver/BSPGPIO.c **** **===========================================================================================*/
+  60:./Application/BSPSys/BSPDriver/BSPGPIO.c **** void BSPALLGPIOInit(void)
+  61:./Application/BSPSys/BSPDriver/BSPGPIO.c **** {
+  26              		.loc 1 61 0
+  27              		.cfi_startproc
+  28              		@ args = 0, pretend = 0, frame = 0
+  29              		@ frame_needed = 0, uses_anonymous_args = 0
+  30 0000 10B5     		push	{r4, lr}
+  31              	.LCFI0:
+  32              		.cfi_def_cfa_offset 8
+  33              		.cfi_offset 4, -8
+  34              		.cfi_offset 14, -4
+  62:./Application/BSPSys/BSPDriver/BSPGPIO.c ****     MX_GPIO_Init();//GPIO口初始化
+  35              		.loc 1 62 0
+  36 0002 FFF7FEFF 		bl	MX_GPIO_Init
+  37              	.LVL0:
+  63:./Application/BSPSys/BSPDriver/BSPGPIO.c **** }
+  38              		.loc 1 63 0
+  39              		@ sp needed
+  40 0006 10BD     		pop	{r4, pc}
+  41              		.cfi_endproc
+  42              	.LFE493:
+  44              		.section	.text.BSPGPIOSetPortState,"ax",%progbits
+  45              		.align	1
+  46              		.global	BSPGPIOSetPortState
+  47              		.syntax unified
+  48              		.code	16
+  49              		.thumb_func
+  50              		.fpu softvfp
+  52              	BSPGPIOSetPortState:
+  53              	.LFB494:
+  64:./Application/BSPSys/BSPDriver/BSPGPIO.c **** 
+ARM GAS  /tmp/ccrBBaT0.s 			page 3
+
+
+  65:./Application/BSPSys/BSPDriver/BSPGPIO.c **** /*=============================================================================================
+  66:./Application/BSPSys/BSPDriver/BSPGPIO.c **** ** @Name      : u8 BSPGPIOSetPortState(eGPIOPORT port, eGPIOPIN pin, e_IOState data)
+  67:./Application/BSPSys/BSPDriver/BSPGPIO.c **** ** @Input     : port:端口 pin:第几个引脚 data:端口值(0低电平 1高电平)
+  68:./Application/BSPSys/BSPDriver/BSPGPIO.c **** ** @Output    : TRUE:设置成功 FALSE:设置失败
+  69:./Application/BSPSys/BSPDriver/BSPGPIO.c **** ** @Function  : 设置GPIO端口输出电平值
+  70:./Application/BSPSys/BSPDriver/BSPGPIO.c **** ** @The notes : 用户调用
+  71:./Application/BSPSys/BSPDriver/BSPGPIO.c **** **===========================================================================================*/
+  72:./Application/BSPSys/BSPDriver/BSPGPIO.c **** u8 BSPGPIOSetPortState(eGPIOPORT port, eGPIOPIN pin, e_IOState data)
+  73:./Application/BSPSys/BSPDriver/BSPGPIO.c **** {
+  54              		.loc 1 73 0
+  55              		.cfi_startproc
+  56              		@ args = 0, pretend = 0, frame = 0
+  57              		@ frame_needed = 0, uses_anonymous_args = 0
+  58              	.LVL1:
+  59 0000 10B5     		push	{r4, lr}
+  60              	.LCFI1:
+  61              		.cfi_def_cfa_offset 8
+  62              		.cfi_offset 4, -8
+  63              		.cfi_offset 14, -4
+  64              		.loc 1 73 0
+  65 0002 1400     		movs	r4, r2
+  74:./Application/BSPSys/BSPDriver/BSPGPIO.c ****     GPIO_TypeDef* GPIOx;
+  75:./Application/BSPSys/BSPDriver/BSPGPIO.c ****     u32 PINx = 0;
+  76:./Application/BSPSys/BSPDriver/BSPGPIO.c ****     
+  77:./Application/BSPSys/BSPDriver/BSPGPIO.c ****     if(1 != gBSPFunCfg.Bits.GPIOEn)
+  66              		.loc 1 77 0
+  67 0004 124A     		ldr	r2, .L15
+  68              	.LVL2:
+  73:./Application/BSPSys/BSPDriver/BSPGPIO.c ****     GPIO_TypeDef* GPIOx;
+  69              		.loc 1 73 0
+  70 0006 0300     		movs	r3, r0
+  71              		.loc 1 77 0
+  72 0008 1288     		ldrh	r2, [r2]
+  78:./Application/BSPSys/BSPDriver/BSPGPIO.c ****     {
+  79:./Application/BSPSys/BSPDriver/BSPGPIO.c ****         return(FALSE);
+  73              		.loc 1 79 0
+  74 000a 0020     		movs	r0, #0
+  75              	.LVL3:
+  77:./Application/BSPSys/BSPDriver/BSPGPIO.c ****     {
+  76              		.loc 1 77 0
+  77 000c D204     		lsls	r2, r2, #19
+  78 000e 1DD5     		bpl	.L3
+  80:./Application/BSPSys/BSPDriver/BSPGPIO.c ****     }
+  81:./Application/BSPSys/BSPDriver/BSPGPIO.c ****     
+  82:./Application/BSPSys/BSPDriver/BSPGPIO.c ****    if((port >= ePOR_NUM) || ((pin >= ePIN_NUM) && (pin != ePIN_ALL)) || (data >= eIOSTATE))
+  79              		.loc 1 82 0
+  80 0010 082B     		cmp	r3, #8
+  81 0012 1BD8     		bhi	.L3
+  82              		.loc 1 82 0 is_stmt 0 discriminator 1
+  83 0014 0A00     		movs	r2, r1
+  84 0016 103A     		subs	r2, r2, #16
+  85 0018 D2B2     		uxtb	r2, r2
+  86 001a EE2A     		cmp	r2, #238
+  87 001c 16D9     		bls	.L3
+  88              		.loc 1 82 0 discriminator 2
+  89 001e 012C     		cmp	r4, #1
+  90 0020 14D8     		bhi	.L3
+ARM GAS  /tmp/ccrBBaT0.s 			page 4
+
+
+  91              	.LVL4:
+  92 0022 052B     		cmp	r3, #5
+  93 0024 02D8     		bhi	.L4
+  94 0026 0B4A     		ldr	r2, .L15+4
+  95 0028 9B00     		lsls	r3, r3, #2
+  96              	.LVL5:
+  97 002a 9858     		ldr	r0, [r3, r2]
+  98              	.L4:
+  99              	.LVL6:
+ 100 002c 0139     		subs	r1, r1, #1
+ 101              	.LVL7:
+ 102 002e C9B2     		uxtb	r1, r1
+ 103              		.loc 1 82 0
+ 104 0030 0123     		movs	r3, #1
+ 105 0032 0E29     		cmp	r1, #14
+ 106 0034 02D8     		bhi	.L5
+ 107 0036 9940     		lsls	r1, r1, r3
+ 108 0038 074B     		ldr	r3, .L15+8
+ 109 003a CB5A     		ldrh	r3, [r1, r3]
+ 110              	.L5:
+ 111              	.LVL8:
+ 112 003c 99B2     		uxth	r1, r3
+  83:./Application/BSPSys/BSPDriver/BSPGPIO.c ****    {
+  84:./Application/BSPSys/BSPDriver/BSPGPIO.c ****        return(FALSE);
+  85:./Application/BSPSys/BSPDriver/BSPGPIO.c ****    }
+  86:./Application/BSPSys/BSPDriver/BSPGPIO.c **** 
+  87:./Application/BSPSys/BSPDriver/BSPGPIO.c **** 
+  88:./Application/BSPSys/BSPDriver/BSPGPIO.c ****     /*转换为对应的PORT类型*/
+  89:./Application/BSPSys/BSPDriver/BSPGPIO.c ****     GPIOx = GPIOChangeToGPIOType(port);
+  90:./Application/BSPSys/BSPDriver/BSPGPIO.c ****     /*转换对应引脚号*/
+  91:./Application/BSPSys/BSPDriver/BSPGPIO.c ****     PINx = GPIOPINChangeToPinType(pin);
+  92:./Application/BSPSys/BSPDriver/BSPGPIO.c ****     
+  93:./Application/BSPSys/BSPDriver/BSPGPIO.c ****     /*设置高or低电平*/
+  94:./Application/BSPSys/BSPDriver/BSPGPIO.c ****         /*设置高电平*/
+  95:./Application/BSPSys/BSPDriver/BSPGPIO.c ****     if(eIOHIG == data)
+  96:./Application/BSPSys/BSPDriver/BSPGPIO.c ****     {
+  97:./Application/BSPSys/BSPDriver/BSPGPIO.c ****     	HAL_GPIO_WritePin(GPIOx, PINx, GPIO_PIN_SET);
+ 113              		.loc 1 97 0 is_stmt 1
+ 114 003e 2200     		movs	r2, r4
+  95:./Application/BSPSys/BSPDriver/BSPGPIO.c ****     {
+ 115              		.loc 1 95 0
+ 116 0040 012C     		cmp	r4, #1
+ 117 0042 00D0     		beq	.L14
+  98:./Application/BSPSys/BSPDriver/BSPGPIO.c ****     }
+  99:./Application/BSPSys/BSPDriver/BSPGPIO.c ****     else
+ 100:./Application/BSPSys/BSPDriver/BSPGPIO.c ****     {
+ 101:./Application/BSPSys/BSPDriver/BSPGPIO.c ****     	HAL_GPIO_WritePin(GPIOx, PINx, GPIO_PIN_RESET);
+ 118              		.loc 1 101 0
+ 119 0044 0022     		movs	r2, #0
+ 120              	.L14:
+ 121 0046 FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 122              	.LVL9:
+ 102:./Application/BSPSys/BSPDriver/BSPGPIO.c ****     }
+ 103:./Application/BSPSys/BSPDriver/BSPGPIO.c **** 
+ 104:./Application/BSPSys/BSPDriver/BSPGPIO.c ****     return(TRUE);
+ 123              		.loc 1 104 0
+ 124 004a 0120     		movs	r0, #1
+ARM GAS  /tmp/ccrBBaT0.s 			page 5
+
+
+ 125              	.L3:
+ 105:./Application/BSPSys/BSPDriver/BSPGPIO.c **** }
+ 126              		.loc 1 105 0
+ 127              		@ sp needed
+ 128 004c 10BD     		pop	{r4, pc}
+ 129              	.L16:
+ 130 004e C046     		.align	2
+ 131              	.L15:
+ 132 0050 00000000 		.word	gBSPFunCfg
+ 133 0054 00000000 		.word	.LANCHOR0
+ 134 0058 00000000 		.word	.LANCHOR1
+ 135              		.cfi_endproc
+ 136              	.LFE494:
+ 138              		.section	.text.BSPGPIOGetPortState,"ax",%progbits
+ 139              		.align	1
+ 140              		.global	BSPGPIOGetPortState
+ 141              		.syntax unified
+ 142              		.code	16
+ 143              		.thumb_func
+ 144              		.fpu softvfp
+ 146              	BSPGPIOGetPortState:
+ 147              	.LFB495:
+ 106:./Application/BSPSys/BSPDriver/BSPGPIO.c **** 
+ 107:./Application/BSPSys/BSPDriver/BSPGPIO.c **** /*=============================================================================================
+ 108:./Application/BSPSys/BSPDriver/BSPGPIO.c **** ** @Name      : u8 BSPGPIOGetOutPortState(eGPIOPORT port, eGPIOPIN pin)
+ 109:./Application/BSPSys/BSPDriver/BSPGPIO.c **** ** @Input     : port:端口 pin:第几个引脚
+ 110:./Application/BSPSys/BSPDriver/BSPGPIO.c **** ** @Output    : 0：低电平 1：高电平
+ 111:./Application/BSPSys/BSPDriver/BSPGPIO.c **** ** @Function  : 获取GPIO端口输出电平值
+ 112:./Application/BSPSys/BSPDriver/BSPGPIO.c **** ** @The notes : 用户调用
+ 113:./Application/BSPSys/BSPDriver/BSPGPIO.c **** **===========================================================================================*/
+ 114:./Application/BSPSys/BSPDriver/BSPGPIO.c **** u8 BSPGPIOGetPortState(eGPIOPORT port, eGPIOPIN pin)
+ 115:./Application/BSPSys/BSPDriver/BSPGPIO.c **** {
+ 148              		.loc 1 115 0
+ 149              		.cfi_startproc
+ 150              		@ args = 0, pretend = 0, frame = 0
+ 151              		@ frame_needed = 0, uses_anonymous_args = 0
+ 152              	.LVL10:
+ 116:./Application/BSPSys/BSPDriver/BSPGPIO.c ****     GPIO_TypeDef* GPIOx;
+ 117:./Application/BSPSys/BSPDriver/BSPGPIO.c ****     u32 PINx = 0;
+ 118:./Application/BSPSys/BSPDriver/BSPGPIO.c ****     u8 state = 0;
+ 119:./Application/BSPSys/BSPDriver/BSPGPIO.c ****     if(1 != gBSPFunCfg.Bits.GPIOEn)
+ 153              		.loc 1 119 0
+ 154 0000 0F4A     		ldr	r2, .L27
+ 115:./Application/BSPSys/BSPDriver/BSPGPIO.c ****     GPIO_TypeDef* GPIOx;
+ 155              		.loc 1 115 0
+ 156 0002 0300     		movs	r3, r0
+ 157              		.loc 1 119 0
+ 158 0004 1288     		ldrh	r2, [r2]
+ 115:./Application/BSPSys/BSPDriver/BSPGPIO.c ****     GPIO_TypeDef* GPIOx;
+ 159              		.loc 1 115 0
+ 160 0006 10B5     		push	{r4, lr}
+ 161              	.LCFI2:
+ 162              		.cfi_def_cfa_offset 8
+ 163              		.cfi_offset 4, -8
+ 164              		.cfi_offset 14, -4
+ 120:./Application/BSPSys/BSPDriver/BSPGPIO.c ****     {
+ 121:./Application/BSPSys/BSPDriver/BSPGPIO.c ****         return(FALSE);
+ARM GAS  /tmp/ccrBBaT0.s 			page 6
+
+
+ 165              		.loc 1 121 0
+ 166 0008 0020     		movs	r0, #0
+ 167              	.LVL11:
+ 119:./Application/BSPSys/BSPDriver/BSPGPIO.c ****     {
+ 168              		.loc 1 119 0
+ 169 000a D204     		lsls	r2, r2, #19
+ 170 000c 16D5     		bpl	.L18
+ 122:./Application/BSPSys/BSPDriver/BSPGPIO.c ****     }
+ 123:./Application/BSPSys/BSPDriver/BSPGPIO.c ****     
+ 124:./Application/BSPSys/BSPDriver/BSPGPIO.c ****     if((port >= ePOR_NUM) || ((pin >= ePIN_NUM) && (pin != ePIN_ALL)))
+ 171              		.loc 1 124 0
+ 172 000e 082B     		cmp	r3, #8
+ 173 0010 14D8     		bhi	.L18
+ 174              		.loc 1 124 0 is_stmt 0 discriminator 1
+ 175 0012 0A00     		movs	r2, r1
+ 176 0014 103A     		subs	r2, r2, #16
+ 177 0016 D2B2     		uxtb	r2, r2
+ 178 0018 EE2A     		cmp	r2, #238
+ 179 001a 0FD9     		bls	.L18
+ 180              	.LVL12:
+ 181 001c 052B     		cmp	r3, #5
+ 182 001e 02D8     		bhi	.L19
+ 183 0020 084A     		ldr	r2, .L27+4
+ 184 0022 9B00     		lsls	r3, r3, #2
+ 185              	.LVL13:
+ 186 0024 9858     		ldr	r0, [r3, r2]
+ 187              	.L19:
+ 188              	.LVL14:
+ 189 0026 0139     		subs	r1, r1, #1
+ 190              	.LVL15:
+ 191 0028 C9B2     		uxtb	r1, r1
+ 192              		.loc 1 124 0
+ 193 002a 0123     		movs	r3, #1
+ 194 002c 0E29     		cmp	r1, #14
+ 195 002e 02D8     		bhi	.L20
+ 196 0030 9940     		lsls	r1, r1, r3
+ 197 0032 054B     		ldr	r3, .L27+8
+ 198 0034 CB5A     		ldrh	r3, [r1, r3]
+ 199              	.L20:
+ 200              	.LVL16:
+ 125:./Application/BSPSys/BSPDriver/BSPGPIO.c ****     {
+ 126:./Application/BSPSys/BSPDriver/BSPGPIO.c ****         return(FALSE);
+ 127:./Application/BSPSys/BSPDriver/BSPGPIO.c ****     }
+ 128:./Application/BSPSys/BSPDriver/BSPGPIO.c **** 
+ 129:./Application/BSPSys/BSPDriver/BSPGPIO.c ****     /*转换为对应的PORT类型*/
+ 130:./Application/BSPSys/BSPDriver/BSPGPIO.c ****     GPIOx = GPIOChangeToGPIOType(port);
+ 131:./Application/BSPSys/BSPDriver/BSPGPIO.c ****     
+ 132:./Application/BSPSys/BSPDriver/BSPGPIO.c ****     /*转换对应引脚号*/
+ 133:./Application/BSPSys/BSPDriver/BSPGPIO.c ****     PINx = GPIOPINChangeToPinType(pin);
+ 134:./Application/BSPSys/BSPDriver/BSPGPIO.c ****     
+ 135:./Application/BSPSys/BSPDriver/BSPGPIO.c **** 	state = HAL_GPIO_ReadPin(GPIOx,PINx);
+ 201              		.loc 1 135 0 is_stmt 1
+ 202 0036 99B2     		uxth	r1, r3
+ 203 0038 FFF7FEFF 		bl	HAL_GPIO_ReadPin
+ 204              	.LVL17:
+ 205              	.L18:
+ 136:./Application/BSPSys/BSPDriver/BSPGPIO.c ****  
+ARM GAS  /tmp/ccrBBaT0.s 			page 7
+
+
+ 137:./Application/BSPSys/BSPDriver/BSPGPIO.c ****     return(state);
+ 138:./Application/BSPSys/BSPDriver/BSPGPIO.c **** }
+ 206              		.loc 1 138 0
+ 207              		@ sp needed
+ 208 003c 10BD     		pop	{r4, pc}
+ 209              	.L28:
+ 210 003e C046     		.align	2
+ 211              	.L27:
+ 212 0040 00000000 		.word	gBSPFunCfg
+ 213 0044 00000000 		.word	.LANCHOR0
+ 214 0048 00000000 		.word	.LANCHOR1
+ 215              		.cfi_endproc
+ 216              	.LFE495:
+ 218              		.section	.text.BSPGPIOTogglePortData,"ax",%progbits
+ 219              		.align	1
+ 220              		.global	BSPGPIOTogglePortData
+ 221              		.syntax unified
+ 222              		.code	16
+ 223              		.thumb_func
+ 224              		.fpu softvfp
+ 226              	BSPGPIOTogglePortData:
+ 227              	.LFB496:
+ 139:./Application/BSPSys/BSPDriver/BSPGPIO.c **** 
+ 140:./Application/BSPSys/BSPDriver/BSPGPIO.c **** /*=============================================================================================
+ 141:./Application/BSPSys/BSPDriver/BSPGPIO.c **** ** @Name      : u8 BSPGPIOTogglePortData(eGPIOPORT port, eGPIOPIN pin)
+ 142:./Application/BSPSys/BSPDriver/BSPGPIO.c **** ** @Input     : pinNum: GPIO索引
+ 143:./Application/BSPSys/BSPDriver/BSPGPIO.c **** ** @Output    : void
+ 144:./Application/BSPSys/BSPDriver/BSPGPIO.c **** ** @Function  : 翻转指定IO口的电平
+ 145:./Application/BSPSys/BSPDriver/BSPGPIO.c **** ** @The notes :
+ 146:./Application/BSPSys/BSPDriver/BSPGPIO.c **** **===========================================================================================*/
+ 147:./Application/BSPSys/BSPDriver/BSPGPIO.c **** u8 BSPGPIOTogglePortData(eGPIOPORT port, eGPIOPIN pin)
+ 148:./Application/BSPSys/BSPDriver/BSPGPIO.c **** {
+ 228              		.loc 1 148 0
+ 229              		.cfi_startproc
+ 230              		@ args = 0, pretend = 0, frame = 0
+ 231              		@ frame_needed = 0, uses_anonymous_args = 0
+ 232              	.LVL18:
+ 233 0000 10B5     		push	{r4, lr}
+ 234              	.LCFI3:
+ 235              		.cfi_def_cfa_offset 8
+ 236              		.cfi_offset 4, -8
+ 237              		.cfi_offset 14, -4
+ 238              		.loc 1 148 0
+ 239 0002 0022     		movs	r2, #0
+ 240 0004 0528     		cmp	r0, #5
+ 241 0006 02D8     		bhi	.L30
+ 242 0008 084B     		ldr	r3, .L34
+ 243 000a 8000     		lsls	r0, r0, #2
+ 244              	.LVL19:
+ 245 000c C258     		ldr	r2, [r0, r3]
+ 246              	.L30:
+ 247              	.LVL20:
+ 248 000e 0139     		subs	r1, r1, #1
+ 249              	.LVL21:
+ 250 0010 C9B2     		uxtb	r1, r1
+ 251 0012 0123     		movs	r3, #1
+ 252 0014 0E29     		cmp	r1, #14
+ARM GAS  /tmp/ccrBBaT0.s 			page 8
+
+
+ 253 0016 02D8     		bhi	.L31
+ 254 0018 9940     		lsls	r1, r1, r3
+ 255 001a 054B     		ldr	r3, .L34+4
+ 256 001c CB5A     		ldrh	r3, [r1, r3]
+ 257              	.L31:
+ 258              	.LVL22:
+ 149:./Application/BSPSys/BSPDriver/BSPGPIO.c ****     GPIO_TypeDef* GPIOx;
+ 150:./Application/BSPSys/BSPDriver/BSPGPIO.c ****     u32 PINx = 0;
+ 151:./Application/BSPSys/BSPDriver/BSPGPIO.c ****     /*转换为对应的PORT类型*/
+ 152:./Application/BSPSys/BSPDriver/BSPGPIO.c ****     GPIOx = GPIOChangeToGPIOType(port);
+ 153:./Application/BSPSys/BSPDriver/BSPGPIO.c ****     /*转换对应引脚号*/
+ 154:./Application/BSPSys/BSPDriver/BSPGPIO.c ****     PINx = GPIOPINChangeToPinType(pin);
+ 155:./Application/BSPSys/BSPDriver/BSPGPIO.c ****     HAL_GPIO_TogglePin(GPIOx,PINx);
+ 259              		.loc 1 155 0
+ 260 001e 1000     		movs	r0, r2
+ 261 0020 99B2     		uxth	r1, r3
+ 262 0022 FFF7FEFF 		bl	HAL_GPIO_TogglePin
+ 263              	.LVL23:
+ 156:./Application/BSPSys/BSPDriver/BSPGPIO.c ****     
+ 157:./Application/BSPSys/BSPDriver/BSPGPIO.c ****     return(TRUE);
+ 158:./Application/BSPSys/BSPDriver/BSPGPIO.c **** }
+ 264              		.loc 1 158 0
+ 265              		@ sp needed
+ 266 0026 0120     		movs	r0, #1
+ 267 0028 10BD     		pop	{r4, pc}
+ 268              	.L35:
+ 269 002a C046     		.align	2
+ 270              	.L34:
+ 271 002c 00000000 		.word	.LANCHOR0
+ 272 0030 00000000 		.word	.LANCHOR1
+ 273              		.cfi_endproc
+ 274              	.LFE496:
+ 276              		.section	.rodata.CSWTCH.1,"a",%progbits
+ 277              		.align	2
+ 278              		.set	.LANCHOR0,. + 0
+ 281              	CSWTCH.1:
+ 282 0000 00000050 		.word	1342177280
+ 283 0004 00040050 		.word	1342178304
+ 284 0008 00080050 		.word	1342179328
+ 285 000c 000C0050 		.word	1342180352
+ 286 0010 00100050 		.word	1342181376
+ 287 0014 00140050 		.word	1342182400
+ 288              		.section	.rodata.CSWTCH.3,"a",%progbits
+ 289              		.align	1
+ 290              		.set	.LANCHOR1,. + 0
+ 293              	CSWTCH.3:
+ 294 0000 0200     		.short	2
+ 295 0002 0400     		.short	4
+ 296 0004 0800     		.short	8
+ 297 0006 1000     		.short	16
+ 298 0008 2000     		.short	32
+ 299 000a 4000     		.short	64
+ 300 000c 8000     		.short	128
+ 301 000e 0001     		.short	256
+ 302 0010 0002     		.short	512
+ 303 0012 0004     		.short	1024
+ 304 0014 0008     		.short	2048
+ARM GAS  /tmp/ccrBBaT0.s 			page 9
+
+
+ 305 0016 0010     		.short	4096
+ 306 0018 0020     		.short	8192
+ 307 001a 0040     		.short	16384
+ 308 001c 0080     		.short	-32768
+ 309              		.text
+ 310              	.Letext0:
+ 311              		.file 2 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/machine/_default_types.h"
+ 312              		.file 3 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_stdint.h"
+ 313              		.file 4 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/system_stm32g0xx.h"
+ 314              		.file 5 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/stm32g0b1xx.h"
+ 315              		.file 6 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_def.h"
+ 316              		.file 7 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_gpio.h"
+ 317              		.file 8 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_flash.h"
+ 318              		.file 9 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_uart.h"
+ 319              		.file 10 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal.h"
+ 320              		.file 11 "Core/Inc/main.h"
+ 321              		.file 12 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/lock.h"
+ 322              		.file 13 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_types.h"
+ 323              		.file 14 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/lib/gcc/arm-none-eabi/7.3.1/include/stddef.h"
+ 324              		.file 15 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/reent.h"
+ 325              		.file 16 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/stdlib.h"
+ 326              		.file 17 "Application/BSPSys/Util/BSPTypeDef.h"
+ 327              		.file 18 "Application/BSPSys/BSPCfg/BSPConfig.h"
+ 328              		.file 19 "./Application/BSPSys/BSPDriver/BSPGPIO.h"
+ 329              		.file 20 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_ll_dma.h"
+ 330              		.file 21 "Core/Inc/gpio.h"
+ARM GAS  /tmp/ccrBBaT0.s 			page 10
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 BSPGPIO.c
+     /tmp/ccrBBaT0.s:16     .text.BSPALLGPIOInit:0000000000000000 $t
+     /tmp/ccrBBaT0.s:23     .text.BSPALLGPIOInit:0000000000000000 BSPALLGPIOInit
+     /tmp/ccrBBaT0.s:45     .text.BSPGPIOSetPortState:0000000000000000 $t
+     /tmp/ccrBBaT0.s:52     .text.BSPGPIOSetPortState:0000000000000000 BSPGPIOSetPortState
+     /tmp/ccrBBaT0.s:132    .text.BSPGPIOSetPortState:0000000000000050 $d
+     /tmp/ccrBBaT0.s:139    .text.BSPGPIOGetPortState:0000000000000000 $t
+     /tmp/ccrBBaT0.s:146    .text.BSPGPIOGetPortState:0000000000000000 BSPGPIOGetPortState
+     /tmp/ccrBBaT0.s:212    .text.BSPGPIOGetPortState:0000000000000040 $d
+     /tmp/ccrBBaT0.s:219    .text.BSPGPIOTogglePortData:0000000000000000 $t
+     /tmp/ccrBBaT0.s:226    .text.BSPGPIOTogglePortData:0000000000000000 BSPGPIOTogglePortData
+     /tmp/ccrBBaT0.s:271    .text.BSPGPIOTogglePortData:000000000000002c $d
+     /tmp/ccrBBaT0.s:277    .rodata.CSWTCH.1:0000000000000000 $d
+     /tmp/ccrBBaT0.s:281    .rodata.CSWTCH.1:0000000000000000 CSWTCH.1
+     /tmp/ccrBBaT0.s:289    .rodata.CSWTCH.3:0000000000000000 $d
+     /tmp/ccrBBaT0.s:293    .rodata.CSWTCH.3:0000000000000000 CSWTCH.3
+
+UNDEFINED SYMBOLS
+MX_GPIO_Init
+HAL_GPIO_WritePin
+gBSPFunCfg
+HAL_GPIO_ReadPin
+HAL_GPIO_TogglePin

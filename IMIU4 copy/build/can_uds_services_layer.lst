@@ -1,0 +1,2115 @@
+ARM GAS  /tmp/cczFJ59v.s 			page 1
+
+
+   1              		.cpu cortex-m0plus
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 4
+   9              		.eabi_attribute 34, 0
+  10              		.eabi_attribute 18, 4
+  11              		.file	"can_uds_services_layer.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.cpy_send_to_sfpack,"ax",%progbits
+  16              		.align	1
+  17              		.syntax unified
+  18              		.code	16
+  19              		.thumb_func
+  20              		.fpu softvfp
+  22              	cpy_send_to_sfpack:
+  23              	.LFB494:
+  24              		.file 1 "./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c"
+   1:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** /* ******************* 
+   2:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****  * can uds
+   3:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****  **********************/
+   4:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** #include <string.h>
+   5:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** #include "network_layer/can_uds_network_layer.h"
+   6:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** #include "services_layer/device_role/can_uds_services_layer.h"
+   7:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** #include "services_layer/device_role/sid_internal_header.h"
+   8:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 
+   9:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 
+  10:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** enum{
+  11:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 	e2rom_app_sw_id_str = 0,
+  12:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 	e2rom_active_diag_session_id_str,
+  13:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 	e2rom_vehicle_spare_num_id_str,
+  14:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 	e2rom_vehicle_ecu_num_id_str,
+  15:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 	e2rom_vehicle_ecu_sw_ver_id_str,
+  16:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 	e2rom_sys_supplier_id_str,
+  17:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 	e2rom_ecu_manufacturing_id_str,
+  18:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 	e2rom_ecu_serial_num_id_str,
+  19:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 	e2rom_vin_id_str,
+  20:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 	e2rom_vehicle_ecu_hw_num_id_str,
+  21:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 	e2rom_sys_supplier_ecu_hw_id_str,
+  22:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 	e2rom_ecu_hw_ver_str,
+  23:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 	e2rom_sys_supplier_ecu_sw_num_id_str,
+  24:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 	e2rom_sys_supplier_ecu_sw_ver_id_str,
+  25:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 	e2rom_sys_name_or_engine_type_id_str,
+  26:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 	e2rom_ecu_install_date_id_str
+  27:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** };
+  28:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 
+  29:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** #define RECV_DATA_COMMING_OVERTIME      500
+  30:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 
+  31:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 
+  32:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 
+  33:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 
+  34:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 
+ARM GAS  /tmp/cczFJ59v.s 			page 2
+
+
+  35:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** // --- 
+  36:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** static unsigned char phy_func_mode = 0;//0 is phy mode, 1 is func mode
+  37:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** unsigned char cur_session_type = DEFAULT_SESSION;
+  38:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** static struct UDS_SEND_BUF uds_send_buf;
+  39:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** static struct SF_PACK single_pack_send_buf;
+  40:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** static struct MF_PACK multi_pack_send_buf;
+  41:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** struct SF_PACK single_pack_recv_buf;
+  42:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** struct MF_PACK multi_pack_recv_buf;
+  43:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** static struct FC_STATUS cur_fc_sta;
+  44:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** unsigned char cur_communication_type = COMMU_EN_RX_TX;
+  45:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** unsigned char dtc_update_flg = 0;
+  46:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** unsigned char uds_busy_flag = FALSE;
+  47:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** unsigned short dtc_count = 0;
+  48:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** unsigned long pg_memory_address = 0,pg_memory_size = 0;
+  49:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 
+  50:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** void uds_start_send(void);
+  51:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** #if 0 //以下四个函数不区分单帧还是多帧，全部统一处理
+  52:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** void uds_solve_sf_data(struct SF_PACK *sf_pack);
+  53:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** void uds_solve_sf_error(struct SF_PACK *sf_pack,unsigned char err_type);
+  54:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** void uds_solve_mf_data(struct MF_PACK *mf_pack);
+  55:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** void uds_solve_mf_error(struct MF_PACK *mf_pack,unsigned char err_type);
+  56:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** #else
+  57:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** void uds_solve_recv_data(unsigned char *buff, unsigned short len);
+  58:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** void uds_solve_recv_error(unsigned char *buff, unsigned char err_type);
+  59:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** #endif
+  60:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** static void cpy_send_to_sfpack(void);
+  61:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** static void cpy_send_to_mfpack(void);
+  62:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 
+  63:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 
+  64:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 
+  65:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** // --- 重置发送缓冲区 ---
+  66:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** void reset_uds_send_buf(void)
+  67:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** {
+  68:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     uds_send_buf.sw = FALSE;
+  69:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     memset(uds_send_buf.buf,0,MAX_SEND_BUF_LEN);
+  70:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     uds_send_buf.len = 0;
+  71:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** }
+  72:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 
+  73:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** void cpy_send_to_sfpack(void)
+  74:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** {
+  25              		.loc 1 74 0
+  26              		.cfi_startproc
+  27              		@ args = 0, pretend = 0, frame = 0
+  28              		@ frame_needed = 0, uses_anonymous_args = 0
+  29              	.LVL0:
+  30 0000 70B5     		push	{r4, r5, r6, lr}
+  31              	.LCFI0:
+  32              		.cfi_def_cfa_offset 16
+  33              		.cfi_offset 4, -16
+  34              		.cfi_offset 5, -12
+  35              		.cfi_offset 6, -8
+  36              		.cfi_offset 14, -4
+  75:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 	unsigned short i = 0;
+  76:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     unsigned short max_len = 0;
+  77:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 
+  78:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     if(uds_is_canfd()){
+  37              		.loc 1 78 0
+ARM GAS  /tmp/cczFJ59v.s 			page 3
+
+
+  38 0002 FFF7FEFF 		bl	uds_is_canfd
+  39              	.LVL1:
+  79:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         max_len = 62;
+  40              		.loc 1 79 0
+  41 0006 3E23     		movs	r3, #62
+  78:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         max_len = 62;
+  42              		.loc 1 78 0
+  43 0008 0028     		cmp	r0, #0
+  44 000a 00D1     		bne	.L2
+  80:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     }else{
+  81:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         max_len = 8;
+  45              		.loc 1 81 0
+  46 000c 363B     		subs	r3, r3, #54
+  47              	.L2:
+  48              	.LVL2:
+  82:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     }
+  83:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 
+  84:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 	if(uds_send_buf.len > max_len)
+  49              		.loc 1 84 0
+  50 000e 0A49     		ldr	r1, .L8
+  51 0010 0A4A     		ldr	r2, .L8+4
+  52 0012 4888     		ldrh	r0, [r1, #2]
+  53 0014 9842     		cmp	r0, r3
+  54 0016 06D9     		bls	.L3
+  85:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 		single_pack_send_buf.data_len = max_len;
+  55              		.loc 1 85 0
+  56 0018 1380     		strh	r3, [r2]
+  57              	.L5:
+  86:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 	else
+  87:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 		single_pack_send_buf.data_len = uds_send_buf.len;
+  88:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 	for(i = 0; i <single_pack_send_buf.data_len; i++)
+  58              		.loc 1 88 0 discriminator 1
+  59 001a 0023     		movs	r3, #0
+  60              	.LVL3:
+  61 001c 1488     		ldrh	r4, [r2]
+  62              	.LVL4:
+  63              	.L4:
+  64 001e 98B2     		uxth	r0, r3
+  65 0020 8442     		cmp	r4, r0
+  66 0022 02D8     		bhi	.L6
+  89:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 	{
+  90:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 		single_pack_send_buf.data_buf[i] = uds_send_buf.buf[i];
+  91:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 	}
+  92:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** }
+  67              		.loc 1 92 0
+  68              		@ sp needed
+  69 0024 70BD     		pop	{r4, r5, r6, pc}
+  70              	.LVL5:
+  71              	.L3:
+  87:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 	for(i = 0; i <single_pack_send_buf.data_len; i++)
+  72              		.loc 1 87 0
+  73 0026 1080     		strh	r0, [r2]
+  74 0028 F7E7     		b	.L5
+  75              	.LVL6:
+  76              	.L6:
+  90:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 	}
+  77              		.loc 1 90 0 discriminator 3
+ARM GAS  /tmp/cczFJ59v.s 			page 4
+
+
+  78 002a CD18     		adds	r5, r1, r3
+  79 002c 2D79     		ldrb	r5, [r5, #4]
+  80 002e D018     		adds	r0, r2, r3
+  81 0030 8570     		strb	r5, [r0, #2]
+  82              	.LVL7:
+  83 0032 0133     		adds	r3, r3, #1
+  84              	.LVL8:
+  85 0034 F3E7     		b	.L4
+  86              	.L9:
+  87 0036 C046     		.align	2
+  88              	.L8:
+  89 0038 00000000 		.word	uds_send_buf
+  90 003c 00000000 		.word	.LANCHOR0
+  91              		.cfi_endproc
+  92              	.LFE494:
+  94              		.section	.text.reset_uds_send_buf,"ax",%progbits
+  95              		.align	1
+  96              		.global	reset_uds_send_buf
+  97              		.syntax unified
+  98              		.code	16
+  99              		.thumb_func
+ 100              		.fpu softvfp
+ 102              	reset_uds_send_buf:
+ 103              	.LFB493:
+  67:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     uds_send_buf.sw = FALSE;
+ 104              		.loc 1 67 0
+ 105              		.cfi_startproc
+ 106              		@ args = 0, pretend = 0, frame = 0
+ 107              		@ frame_needed = 0, uses_anonymous_args = 0
+ 108 0000 70B5     		push	{r4, r5, r6, lr}
+ 109              	.LCFI1:
+ 110              		.cfi_def_cfa_offset 16
+ 111              		.cfi_offset 4, -16
+ 112              		.cfi_offset 5, -12
+ 113              		.cfi_offset 6, -8
+ 114              		.cfi_offset 14, -4
+  69:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     uds_send_buf.len = 0;
+ 115              		.loc 1 69 0
+ 116 0002 8022     		movs	r2, #128
+  68:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     memset(uds_send_buf.buf,0,MAX_SEND_BUF_LEN);
+ 117              		.loc 1 68 0
+ 118 0004 0024     		movs	r4, #0
+ 119 0006 044D     		ldr	r5, .L11
+  69:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     uds_send_buf.len = 0;
+ 120              		.loc 1 69 0
+ 121 0008 D200     		lsls	r2, r2, #3
+ 122 000a 2100     		movs	r1, r4
+ 123 000c 0348     		ldr	r0, .L11+4
+  68:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     memset(uds_send_buf.buf,0,MAX_SEND_BUF_LEN);
+ 124              		.loc 1 68 0
+ 125 000e 2C70     		strb	r4, [r5]
+  71:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 
+ 126              		.loc 1 71 0
+ 127              		@ sp needed
+  69:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     uds_send_buf.len = 0;
+ 128              		.loc 1 69 0
+ 129 0010 FFF7FEFF 		bl	memset
+ARM GAS  /tmp/cczFJ59v.s 			page 5
+
+
+ 130              	.LVL9:
+  70:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** }
+ 131              		.loc 1 70 0
+ 132 0014 6C80     		strh	r4, [r5, #2]
+  71:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 
+ 133              		.loc 1 71 0
+ 134 0016 70BD     		pop	{r4, r5, r6, pc}
+ 135              	.L12:
+ 136              		.align	2
+ 137              	.L11:
+ 138 0018 00000000 		.word	uds_send_buf
+ 139 001c 04000000 		.word	uds_send_buf+4
+ 140              		.cfi_endproc
+ 141              	.LFE493:
+ 143              		.section	.text.uds_start_send,"ax",%progbits
+ 144              		.align	1
+ 145              		.global	uds_start_send
+ 146              		.syntax unified
+ 147              		.code	16
+ 148              		.thumb_func
+ 149              		.fpu softvfp
+ 151              	uds_start_send:
+ 152              	.LFB496:
+  93:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 
+  94:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** void cpy_send_to_mfpack(void)
+  95:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** {
+  96:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 	unsigned short i = 0;
+  97:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 
+  98:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 	if(uds_send_buf.len > MAX_MF_PACK_LEN)
+  99:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 		multi_pack_send_buf.data_len = MAX_MF_PACK_LEN;
+ 100:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 	else
+ 101:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 		multi_pack_send_buf.data_len = uds_send_buf.len;
+ 102:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 	for(i = 0; i <multi_pack_send_buf.data_len; i++)
+ 103:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 	{
+ 104:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 		multi_pack_send_buf.data_buf[i] = uds_send_buf.buf[i];
+ 105:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 	}
+ 106:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** }
+ 107:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 
+ 108:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** void uds_start_send(void)
+ 109:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** {
+ 153              		.loc 1 109 0
+ 154              		.cfi_startproc
+ 155              		@ args = 0, pretend = 0, frame = 0
+ 156              		@ frame_needed = 0, uses_anonymous_args = 0
+ 157              		@ link register save eliminated.
+ 110:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 	uds_send_buf.sw = TRUE;
+ 158              		.loc 1 110 0
+ 159 0000 0122     		movs	r2, #1
+ 160 0002 014B     		ldr	r3, .L14
+ 111:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** }
+ 161              		.loc 1 111 0
+ 162              		@ sp needed
+ 110:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 	uds_send_buf.sw = TRUE;
+ 163              		.loc 1 110 0
+ 164 0004 1A70     		strb	r2, [r3]
+ 165              		.loc 1 111 0
+ 166 0006 7047     		bx	lr
+ARM GAS  /tmp/cczFJ59v.s 			page 6
+
+
+ 167              	.L15:
+ 168              		.align	2
+ 169              	.L14:
+ 170 0008 00000000 		.word	uds_send_buf
+ 171              		.cfi_endproc
+ 172              	.LFE496:
+ 174              		.section	.text.uds_ack_accept,"ax",%progbits
+ 175              		.align	1
+ 176              		.global	uds_ack_accept
+ 177              		.syntax unified
+ 178              		.code	16
+ 179              		.thumb_func
+ 180              		.fpu softvfp
+ 182              	uds_ack_accept:
+ 183              	.LFB499:
+ 112:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 
+ 113:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** void uds_solve_recv_data(unsigned char *buff, unsigned short len)
+ 114:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** {
+ 115:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     switch(buff[0])
+ 116:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     {// pack 0 is diagnostic service 's id
+ 117:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     case ds_diagnostic_session_ctrl://支持,SID10
+ 118:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         sid10_diagnostic_session_ctrl_solve(&buff[0],len);
+ 119:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         break;
+ 120:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     case ds_security_access://支持,SID27
+ 121:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         sid27_security_access_solve(&buff[0],len);
+ 122:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         break;
+ 123:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     case ds_tester_present://支持,SID3E
+ 124:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         sid3e_tester_present_solve(&buff[0],len);
+ 125:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         break;
+ 126:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     case ds_ecu_reset://支持,SID11
+ 127:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         sid11_ecu_reset_solve(&buff[0],len);
+ 128:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         break;
+ 129:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     case ds_communication_ctrl://支持,SID28
+ 130:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         sid28_communication_ctrl_solve(&buff[0],len);
+ 131:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         break;
+ 132:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     case ds_ctrl_dtc_setting://不支持,SID85
+ 133:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         uds_ack_refuse(ds_write_data_by_id,nrc_service_not_supported);
+ 134:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 		break;
+ 135:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     case ds_read_data_by_id://支持,SID22
+ 136:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         sid22_read_data_by_id_solve(&buff[0],len);
+ 137:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         break;
+ 138:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     case ds_write_data_by_id://支持,SID2E
+ 139:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         sid2e_write_data_by_id_solve(&buff[0],len);
+ 140:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         break;
+ 141:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     case ds_read_dtc_info://不支持,SID14
+ 142:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         uds_ack_refuse(ds_write_data_by_id,nrc_service_not_supported);
+ 143:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         break;
+ 144:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     case ds_clr_diagnostic_info://不支持,SID14
+ 145:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         uds_ack_refuse(ds_write_data_by_id,nrc_service_not_supported);
+ 146:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         break;
+ 147:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     case ds_io_ctrl_by_id://不支持,SID2F
+ 148:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         uds_ack_refuse(ds_write_data_by_id,nrc_service_not_supported);
+ 149:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         break;
+ 150:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     case ds_routine_ctrl://支持,SID31
+ 151:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         sid31_routine_ctrl_solve(&buff[0],len);
+ 152:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         break;
+ 153:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     case ds_request_download://支持,SID34
+ARM GAS  /tmp/cczFJ59v.s 			page 7
+
+
+ 154:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         sid34_request_download_solve(&buff[0],len);
+ 155:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         break;
+ 156:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     case ds_request_upload://不支持,SID35
+ 157:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         uds_ack_refuse(ds_write_data_by_id,nrc_service_not_supported);
+ 158:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         break;
+ 159:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     case ds_transfer_data://支持,SID36
+ 160:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         sid36_transfer_data_solve(&buff[0],len);
+ 161:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         break;
+ 162:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     case ds_request_transferexit://支持,SID37
+ 163:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         sid37_transfer_exit_solve(&buff[0],len);
+ 164:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         break;
+ 165:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 	}
+ 166:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** }
+ 167:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 
+ 168:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** void uds_solve_recv_error(unsigned char *buff, unsigned char err_type)
+ 169:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** {
+ 170:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     if(err_type == ERR_SF_DL_WRR || 
+ 171:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****        err_type == ERR_SF_DAT_WRR){// send len or data's style wrong  0x13
+ 172:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         uds_ack_refuse(buff[0],nrc_invalid_message_lenth_or_format);
+ 173:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     }
+ 174:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** }
+ 175:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 
+ 176:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** void uds_ack_accept(unsigned char *msg_buff,unsigned short len)
+ 177:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** {
+ 184              		.loc 1 177 0
+ 185              		.cfi_startproc
+ 186              		@ args = 0, pretend = 0, frame = 0
+ 187              		@ frame_needed = 0, uses_anonymous_args = 0
+ 188              	.LVL10:
+ 189              	.LBB15:
+ 178:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     uds_send_buf.len = len;
+ 179:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     for(int i=0;i<len;i++){
+ 190              		.loc 1 179 0
+ 191 0000 0023     		movs	r3, #0
+ 192              	.LBE15:
+ 178:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     uds_send_buf.len = len;
+ 193              		.loc 1 178 0
+ 194 0002 064A     		ldr	r2, .L19
+ 177:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     uds_send_buf.len = len;
+ 195              		.loc 1 177 0
+ 196 0004 30B5     		push	{r4, r5, lr}
+ 197              	.LCFI2:
+ 198              		.cfi_def_cfa_offset 12
+ 199              		.cfi_offset 4, -12
+ 200              		.cfi_offset 5, -8
+ 201              		.cfi_offset 14, -4
+ 178:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     uds_send_buf.len = len;
+ 202              		.loc 1 178 0
+ 203 0006 5180     		strh	r1, [r2, #2]
+ 204              	.LVL11:
+ 205              	.L17:
+ 206              	.LBB16:
+ 207              		.loc 1 179 0 discriminator 1
+ 208 0008 9942     		cmp	r1, r3
+ 209 000a 02DC     		bgt	.L18
+ 210              	.LBE16:
+ 211              	.LBB17:
+ARM GAS  /tmp/cczFJ59v.s 			page 8
+
+
+ 212              	.LBB18:
+ 110:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** }
+ 213              		.loc 1 110 0
+ 214 000c 0123     		movs	r3, #1
+ 215              	.LVL12:
+ 216              	.LBE18:
+ 217              	.LBE17:
+ 180:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         uds_send_buf.buf[i] = msg_buff[i];
+ 181:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     }
+ 182:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     uds_start_send();
+ 183:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** }
+ 218              		.loc 1 183 0
+ 219              		@ sp needed
+ 220              	.LBB20:
+ 221              	.LBB19:
+ 110:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** }
+ 222              		.loc 1 110 0
+ 223 000e 1370     		strb	r3, [r2]
+ 224              	.LBE19:
+ 225              	.LBE20:
+ 226              		.loc 1 183 0
+ 227 0010 30BD     		pop	{r4, r5, pc}
+ 228              	.LVL13:
+ 229              	.L18:
+ 230              	.LBB21:
+ 180:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         uds_send_buf.buf[i] = msg_buff[i];
+ 231              		.loc 1 180 0 discriminator 3
+ 232 0012 C55C     		ldrb	r5, [r0, r3]
+ 233 0014 D418     		adds	r4, r2, r3
+ 234 0016 2571     		strb	r5, [r4, #4]
+ 179:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         uds_send_buf.buf[i] = msg_buff[i];
+ 235              		.loc 1 179 0 discriminator 3
+ 236 0018 0133     		adds	r3, r3, #1
+ 237              	.LVL14:
+ 238 001a F5E7     		b	.L17
+ 239              	.L20:
+ 240              		.align	2
+ 241              	.L19:
+ 242 001c 00000000 		.word	uds_send_buf
+ 243              	.LBE21:
+ 244              		.cfi_endproc
+ 245              	.LFE499:
+ 247              		.section	.text.uds_ack_refuse,"ax",%progbits
+ 248              		.align	1
+ 249              		.global	uds_ack_refuse
+ 250              		.syntax unified
+ 251              		.code	16
+ 252              		.thumb_func
+ 253              		.fpu softvfp
+ 255              	uds_ack_refuse:
+ 256              	.LFB500:
+ 184:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 
+ 185:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 
+ 186:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** void uds_ack_refuse(unsigned char ds_type,unsigned char para)
+ 187:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** {
+ 257              		.loc 1 187 0
+ 258              		.cfi_startproc
+ARM GAS  /tmp/cczFJ59v.s 			page 9
+
+
+ 259              		@ args = 0, pretend = 0, frame = 0
+ 260              		@ frame_needed = 0, uses_anonymous_args = 0
+ 261              		@ link register save eliminated.
+ 262              	.LVL15:
+ 263              	.LBB26:
+ 264              	.LBB27:
+ 188:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     if(phy_func_mode == 1)//only phy mode solve error, when func do not send nay error
+ 189:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         return;
+ 190:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     // pack 0 is diagnostic service 's id
+ 191:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     uds_send_buf.len  = 3;
+ 265              		.loc 1 191 0
+ 266 0000 0322     		movs	r2, #3
+ 267 0002 044B     		ldr	r3, .L22
+ 268              	.LBE27:
+ 269              	.LBE26:
+ 192:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     uds_send_buf.buf[0] = 0x7f;
+ 193:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     uds_send_buf.buf[1] = ds_type;
+ 194:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     uds_send_buf.buf[2] = para;
+ 195:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     uds_start_send();
+ 196:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** }
+ 270              		.loc 1 196 0
+ 271              		@ sp needed
+ 272              	.LBB33:
+ 273              	.LBB32:
+ 191:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     uds_send_buf.buf[0] = 0x7f;
+ 274              		.loc 1 191 0
+ 275 0004 5A80     		strh	r2, [r3, #2]
+ 192:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     uds_send_buf.buf[0] = 0x7f;
+ 276              		.loc 1 192 0
+ 277 0006 7C32     		adds	r2, r2, #124
+ 278 0008 1A71     		strb	r2, [r3, #4]
+ 279              	.LBB28:
+ 280              	.LBB29:
+ 110:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** }
+ 281              		.loc 1 110 0
+ 282 000a 7E3A     		subs	r2, r2, #126
+ 283              	.LBE29:
+ 284              	.LBE28:
+ 193:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     uds_send_buf.buf[2] = para;
+ 285              		.loc 1 193 0
+ 286 000c 5871     		strb	r0, [r3, #5]
+ 194:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     uds_start_send();
+ 287              		.loc 1 194 0
+ 288 000e 9971     		strb	r1, [r3, #6]
+ 289              	.LBB31:
+ 290              	.LBB30:
+ 110:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** }
+ 291              		.loc 1 110 0
+ 292 0010 1A70     		strb	r2, [r3]
+ 293              	.LBE30:
+ 294              	.LBE31:
+ 295              	.LBE32:
+ 296              	.LBE33:
+ 297              		.loc 1 196 0
+ 298 0012 7047     		bx	lr
+ 299              	.L23:
+ 300              		.align	2
+ARM GAS  /tmp/cczFJ59v.s 			page 10
+
+
+ 301              	.L22:
+ 302 0014 00000000 		.word	uds_send_buf
+ 303              		.cfi_endproc
+ 304              	.LFE500:
+ 306              		.section	.text.uds_solve_recv_data,"ax",%progbits
+ 307              		.align	1
+ 308              		.global	uds_solve_recv_data
+ 309              		.syntax unified
+ 310              		.code	16
+ 311              		.thumb_func
+ 312              		.fpu softvfp
+ 314              	uds_solve_recv_data:
+ 315              	.LFB497:
+ 114:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     switch(buff[0])
+ 316              		.loc 1 114 0
+ 317              		.cfi_startproc
+ 318              		@ args = 0, pretend = 0, frame = 0
+ 319              		@ frame_needed = 0, uses_anonymous_args = 0
+ 320              	.LVL16:
+ 321 0000 10B5     		push	{r4, lr}
+ 322              	.LCFI3:
+ 323              		.cfi_def_cfa_offset 8
+ 324              		.cfi_offset 4, -8
+ 325              		.cfi_offset 14, -4
+ 115:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     {// pack 0 is diagnostic service 's id
+ 326              		.loc 1 115 0
+ 327 0002 0378     		ldrb	r3, [r0]
+ 328 0004 2E2B     		cmp	r3, #46
+ 329 0006 37D0     		beq	.L26
+ 330 0008 14D8     		bhi	.L27
+ 331 000a 192B     		cmp	r3, #25
+ 332 000c 1BD0     		beq	.L28
+ 333 000e 08D8     		bhi	.L29
+ 334 0010 112B     		cmp	r3, #17
+ 335 0012 2BD0     		beq	.L30
+ 336 0014 142B     		cmp	r3, #20
+ 337 0016 16D0     		beq	.L28
+ 338 0018 102B     		cmp	r3, #16
+ 339 001a 20D1     		bne	.L24
+ 118:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         break;
+ 340              		.loc 1 118 0
+ 341 001c FFF7FEFF 		bl	sid10_diagnostic_session_ctrl_solve
+ 342              	.LVL17:
+ 119:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     case ds_security_access://支持,SID27
+ 343              		.loc 1 119 0
+ 344 0020 1DE0     		b	.L24
+ 345              	.LVL18:
+ 346              	.L29:
+ 115:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     {// pack 0 is diagnostic service 's id
+ 347              		.loc 1 115 0
+ 348 0022 272B     		cmp	r3, #39
+ 349 0024 1CD0     		beq	.L32
+ 350 0026 282B     		cmp	r3, #40
+ 351 0028 23D0     		beq	.L33
+ 352 002a 222B     		cmp	r3, #34
+ 353 002c 17D1     		bne	.L24
+ 136:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         break;
+ARM GAS  /tmp/cczFJ59v.s 			page 11
+
+
+ 354              		.loc 1 136 0
+ 355 002e FFF7FEFF 		bl	sid22_read_data_by_id_solve
+ 356              	.LVL19:
+ 137:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     case ds_write_data_by_id://支持,SID2E
+ 357              		.loc 1 137 0
+ 358 0032 14E0     		b	.L24
+ 359              	.LVL20:
+ 360              	.L27:
+ 115:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     {// pack 0 is diagnostic service 's id
+ 361              		.loc 1 115 0
+ 362 0034 352B     		cmp	r3, #53
+ 363 0036 06D0     		beq	.L28
+ 364 0038 0AD8     		bhi	.L35
+ 365 003a 312B     		cmp	r3, #49
+ 366 003c 1FD0     		beq	.L36
+ 367 003e 342B     		cmp	r3, #52
+ 368 0040 20D0     		beq	.L37
+ 369 0042 2F2B     		cmp	r3, #47
+ 370 0044 0BD1     		bne	.L24
+ 371              	.L28:
+ 133:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 		break;
+ 372              		.loc 1 133 0
+ 373 0046 1121     		movs	r1, #17
+ 374              	.LVL21:
+ 375 0048 2E20     		movs	r0, #46
+ 376              	.LVL22:
+ 377 004a FFF7FEFF 		bl	uds_ack_refuse
+ 378              	.LVL23:
+ 134:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     case ds_read_data_by_id://支持,SID22
+ 379              		.loc 1 134 0
+ 380 004e 06E0     		b	.L24
+ 381              	.LVL24:
+ 382              	.L35:
+ 115:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     {// pack 0 is diagnostic service 's id
+ 383              		.loc 1 115 0
+ 384 0050 372B     		cmp	r3, #55
+ 385 0052 1DD0     		beq	.L38
+ 386 0054 19D3     		bcc	.L39
+ 387 0056 3E2B     		cmp	r3, #62
+ 388 0058 05D0     		beq	.L40
+ 389 005a 852B     		cmp	r3, #133
+ 390 005c F3D0     		beq	.L28
+ 391              	.LVL25:
+ 392              	.L24:
+ 166:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 
+ 393              		.loc 1 166 0
+ 394              		@ sp needed
+ 395 005e 10BD     		pop	{r4, pc}
+ 396              	.LVL26:
+ 397              	.L32:
+ 121:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         break;
+ 398              		.loc 1 121 0
+ 399 0060 FFF7FEFF 		bl	sid27_security_access_solve
+ 400              	.LVL27:
+ 122:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     case ds_tester_present://支持,SID3E
+ 401              		.loc 1 122 0
+ 402 0064 FBE7     		b	.L24
+ARM GAS  /tmp/cczFJ59v.s 			page 12
+
+
+ 403              	.LVL28:
+ 404              	.L40:
+ 124:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         break;
+ 405              		.loc 1 124 0
+ 406 0066 FFF7FEFF 		bl	sid3e_tester_present_solve
+ 407              	.LVL29:
+ 125:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     case ds_ecu_reset://支持,SID11
+ 408              		.loc 1 125 0
+ 409 006a F8E7     		b	.L24
+ 410              	.LVL30:
+ 411              	.L30:
+ 127:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         break;
+ 412              		.loc 1 127 0
+ 413 006c FFF7FEFF 		bl	sid11_ecu_reset_solve
+ 414              	.LVL31:
+ 128:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     case ds_communication_ctrl://支持,SID28
+ 415              		.loc 1 128 0
+ 416 0070 F5E7     		b	.L24
+ 417              	.LVL32:
+ 418              	.L33:
+ 130:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         break;
+ 419              		.loc 1 130 0
+ 420 0072 FFF7FEFF 		bl	sid28_communication_ctrl_solve
+ 421              	.LVL33:
+ 131:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     case ds_ctrl_dtc_setting://不支持,SID85
+ 422              		.loc 1 131 0
+ 423 0076 F2E7     		b	.L24
+ 424              	.LVL34:
+ 425              	.L26:
+ 139:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         break;
+ 426              		.loc 1 139 0
+ 427 0078 FFF7FEFF 		bl	sid2e_write_data_by_id_solve
+ 428              	.LVL35:
+ 140:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     case ds_read_dtc_info://不支持,SID14
+ 429              		.loc 1 140 0
+ 430 007c EFE7     		b	.L24
+ 431              	.LVL36:
+ 432              	.L36:
+ 151:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         break;
+ 433              		.loc 1 151 0
+ 434 007e FFF7FEFF 		bl	sid31_routine_ctrl_solve
+ 435              	.LVL37:
+ 152:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     case ds_request_download://支持,SID34
+ 436              		.loc 1 152 0
+ 437 0082 ECE7     		b	.L24
+ 438              	.LVL38:
+ 439              	.L37:
+ 154:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         break;
+ 440              		.loc 1 154 0
+ 441 0084 FFF7FEFF 		bl	sid34_request_download_solve
+ 442              	.LVL39:
+ 155:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     case ds_request_upload://不支持,SID35
+ 443              		.loc 1 155 0
+ 444 0088 E9E7     		b	.L24
+ 445              	.LVL40:
+ 446              	.L39:
+ 160:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         break;
+ARM GAS  /tmp/cczFJ59v.s 			page 13
+
+
+ 447              		.loc 1 160 0
+ 448 008a FFF7FEFF 		bl	sid36_transfer_data_solve
+ 449              	.LVL41:
+ 161:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     case ds_request_transferexit://支持,SID37
+ 450              		.loc 1 161 0
+ 451 008e E6E7     		b	.L24
+ 452              	.LVL42:
+ 453              	.L38:
+ 163:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         break;
+ 454              		.loc 1 163 0
+ 455 0090 FFF7FEFF 		bl	sid37_transfer_exit_solve
+ 456              	.LVL43:
+ 166:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 
+ 457              		.loc 1 166 0
+ 458 0094 E3E7     		b	.L24
+ 459              		.cfi_endproc
+ 460              	.LFE497:
+ 462              		.section	.text.uds_solve_recv_error,"ax",%progbits
+ 463              		.align	1
+ 464              		.global	uds_solve_recv_error
+ 465              		.syntax unified
+ 466              		.code	16
+ 467              		.thumb_func
+ 468              		.fpu softvfp
+ 470              	uds_solve_recv_error:
+ 471              	.LFB498:
+ 169:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     if(err_type == ERR_SF_DL_WRR || 
+ 472              		.loc 1 169 0
+ 473              		.cfi_startproc
+ 474              		@ args = 0, pretend = 0, frame = 0
+ 475              		@ frame_needed = 0, uses_anonymous_args = 0
+ 476              	.LVL44:
+ 170:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****        err_type == ERR_SF_DAT_WRR){// send len or data's style wrong  0x13
+ 477              		.loc 1 170 0
+ 478 0000 0531     		adds	r1, r1, #5
+ 479              	.LVL45:
+ 480 0002 C9B2     		uxtb	r1, r1
+ 169:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     if(err_type == ERR_SF_DL_WRR || 
+ 481              		.loc 1 169 0
+ 482 0004 10B5     		push	{r4, lr}
+ 483              	.LCFI4:
+ 484              		.cfi_def_cfa_offset 8
+ 485              		.cfi_offset 4, -8
+ 486              		.cfi_offset 14, -4
+ 170:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****        err_type == ERR_SF_DAT_WRR){// send len or data's style wrong  0x13
+ 487              		.loc 1 170 0
+ 488 0006 0129     		cmp	r1, #1
+ 489 0008 03D8     		bhi	.L56
+ 490              	.LVL46:
+ 491              	.LBB36:
+ 492              	.LBB37:
+ 172:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     }
+ 493              		.loc 1 172 0
+ 494 000a 0078     		ldrb	r0, [r0]
+ 495              	.LVL47:
+ 496 000c 1321     		movs	r1, #19
+ 497 000e FFF7FEFF 		bl	uds_ack_refuse
+ARM GAS  /tmp/cczFJ59v.s 			page 14
+
+
+ 498              	.LVL48:
+ 499              	.L56:
+ 500              	.LBE37:
+ 501              	.LBE36:
+ 174:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 
+ 502              		.loc 1 174 0
+ 503              		@ sp needed
+ 504 0012 10BD     		pop	{r4, pc}
+ 505              		.cfi_endproc
+ 506              	.LFE498:
+ 508              		.section	.text.uds_phy_recv,"ax",%progbits
+ 509              		.align	1
+ 510              		.global	uds_phy_recv
+ 511              		.syntax unified
+ 512              		.code	16
+ 513              		.thumb_func
+ 514              		.fpu softvfp
+ 516              	uds_phy_recv:
+ 517              	.LFB501:
+ 197:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 
+ 198:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** //接收CAN报文，处理单帧、首帧、连续帧
+ 199:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** void uds_phy_recv(struct CAN_DATA *p_can_data,unsigned char reset)
+ 200:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** {
+ 518              		.loc 1 200 0
+ 519              		.cfi_startproc
+ 520              		@ args = 0, pretend = 0, frame = 0
+ 521              		@ frame_needed = 0, uses_anonymous_args = 0
+ 522              	.LVL49:
+ 523 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+ 524              	.LCFI5:
+ 525              		.cfi_def_cfa_offset 24
+ 526              		.cfi_offset 3, -24
+ 527              		.cfi_offset 4, -20
+ 528              		.cfi_offset 5, -16
+ 529              		.cfi_offset 6, -12
+ 530              		.cfi_offset 7, -8
+ 531              		.cfi_offset 14, -4
+ 532              		.loc 1 200 0
+ 533 0002 0400     		movs	r4, r0
+ 534 0004 514D     		ldr	r5, .L81
+ 201:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     static unsigned char sta = 0;
+ 202:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     static unsigned long tick = 0;
+ 203:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     unsigned char frame_type = 0;
+ 204:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     unsigned char tmp_re = 0;
+ 205:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 
+ 206:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     if(reset == TRUE)
+ 535              		.loc 1 206 0
+ 536 0006 0129     		cmp	r1, #1
+ 537 0008 05D1     		bne	.L59
+ 207:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     {
+ 208:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         sta = 0;
+ 538              		.loc 1 208 0
+ 539 000a 0023     		movs	r3, #0
+ 209:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         tick = 0;
+ 540              		.loc 1 209 0
+ 541 000c 504A     		ldr	r2, .L81+4
+ 208:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         tick = 0;
+ARM GAS  /tmp/cczFJ59v.s 			page 15
+
+
+ 542              		.loc 1 208 0
+ 543 000e 2B70     		strb	r3, [r5]
+ 544              		.loc 1 209 0
+ 545 0010 1360     		str	r3, [r2]
+ 210:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         uds_busy_flag = FALSE;
+ 546              		.loc 1 210 0
+ 547 0012 504A     		ldr	r2, .L81+8
+ 548 0014 1370     		strb	r3, [r2]
+ 549              	.L59:
+ 211:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     }
+ 212:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     switch(sta)
+ 550              		.loc 1 212 0
+ 551 0016 2F78     		ldrb	r7, [r5]
+ 552 0018 002F     		cmp	r7, #0
+ 553 001a 02D0     		beq	.L61
+ 554 001c 012F     		cmp	r7, #1
+ 555 001e 45D0     		beq	.L62
+ 556              	.LVL50:
+ 557              	.L58:
+ 213:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     {
+ 214:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     case 0:
+ 215:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         if(p_can_data == 0)//如果无数据输入,不做处理
+ 216:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             break;
+ 217:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         frame_type = check_uds_type(p_can_data);
+ 218:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 
+ 219:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         if(frame_type == SF_UDS_TYPE){// 单帧
+ 220:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             tmp_re = analyze_uds_SF(p_can_data, &single_pack_recv_buf);
+ 221:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             if(tmp_re == 0xff)
+ 222:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 uds_solve_recv_error(single_pack_recv_buf.data_buf,ERR_SF_DL_WRR);
+ 223:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             else
+ 224:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 uds_solve_recv_data(single_pack_recv_buf.data_buf,single_pack_recv_buf.data_len);
+ 225:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                  d_printf("SF_UDS_TYPE: %02x\r\n",single_pack_recv_buf.data_buf[0]);
+ 226:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             uds_busy_flag = FALSE;
+ 227:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         }
+ 228:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         else if(frame_type == FF_UDS_TYPE)// 首帧
+ 229:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         {
+ 230:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             uds_busy_flag = TRUE;
+ 231:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             tmp_re = analyze_uds_FF(p_can_data,&multi_pack_recv_buf);// 解析首帧，获取总数
+ 232:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             //send FC
+ 233:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             send_uds_FC(FC_FS_CTS,0,g_uds_config.stmin);// continue send , there are no cf,STmin=50
+ 234:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             tick = get_timer_tick();
+ 235:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 
+ 236:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             d_printf("over FC_FS_CTS tick: %02x\r\n",tick);
+ 237:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             sta = 1; // 进入多帧接收状态
+ 238:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         }
+ 239:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         else if(frame_type == CF_UDS_TYPE){// error
+ 240:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             uds_busy_flag = FALSE;
+ 241:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         }
+ 242:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         else if(frame_type == FC_UDS_TYPE){// if receive FC, update fc status
+ 243:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             analyze_uds_FC(p_can_data, &cur_fc_sta);
+ 244:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         }
+ 245:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         break;
+ 246:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 
+ 247:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     case 1://多帧接收
+ 248:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         //超时检查
+ 249:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         if((unsigned long)(get_timer_tick() - tick) > RECV_DATA_COMMING_OVERTIME){// if over 500ms,
+ 250:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             sta = 0;
+ARM GAS  /tmp/cczFJ59v.s 			page 16
+
+
+ 251:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             uds_busy_flag = FALSE;// 
+ 252:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             tick = get_timer_tick();
+ 253:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             d_printf("over 500ms tick: %02x\r\n",tick);
+ 254:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         }
+ 255:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         else
+ 256:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         {
+ 257:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             if(p_can_data == 0)//如果无数据输入,不做处理
+ 258:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 break;
+ 259:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             frame_type = check_uds_type(p_can_data);
+ 260:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 
+ 261:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             if(frame_type == SF_UDS_TYPE){// if it is single frame ,solve it ,  but this maybe some
+ 262:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 tmp_re = analyze_uds_SF(p_can_data, &single_pack_recv_buf);
+ 263:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 if(tmp_re == 0xff)
+ 264:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                     //uds_solve_sf_error(&single_pack_recv_buf,ERR_SF_DL_WRR);
+ 265:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                     uds_solve_recv_error(single_pack_recv_buf.data_buf,ERR_SF_DL_WRR);
+ 266:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 else
+ 267:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                     //uds_solve_sf_data(&single_pack_recv_buf);// solve data
+ 268:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                     uds_solve_recv_data(single_pack_recv_buf.data_buf,single_pack_recv_buf.data_len
+ 269:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                      d_printf("SF_UDS_TYPE: %02x\r\n",single_pack_recv_buf.data_buf[0]);
+ 270:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             }
+ 271:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             else if(frame_type == CF_UDS_TYPE)// 收到连续帧
+ 272:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             {
+ 273:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 tmp_re = analyze_uds_CF(p_can_data,&multi_pack_recv_buf);// check  SN 
+ 274:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 if(tmp_re == ERR_SN_WRONG){// SN wrong 序列号错误
+ 275:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                     sta = 0;
+ 276:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                     uds_busy_flag = FALSE;
+ 277:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                     //### solve sn wrong###
+ 278:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                     //### need add code ####
+ 279:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                     // N_WRONG_SN N_UDSData.indication
+ 280:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                     //uds_solve_mf_error(&multi_pack_recv_buf,ERR_SN_WRONG);
+ 281:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                     uds_solve_recv_error(multi_pack_recv_buf.data_buf,ERR_SN_WRONG);
+ 282:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 }
+ 283:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 else if(tmp_re == ERR_RECV_END)
+ 284:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 {// all data has been received
+ 285:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                     //uds_solve_mf_data(&multi_pack_recv_buf);
+ 286:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                     // d_printf("case12:slove CF data: %02x\r\n",multi_pack_recv_buf.data_buf[0]);
+ 287:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                    
+ 288:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                     d_printf("case12:slove CF data: %02x\r\n",multi_pack_recv_buf.data_buf[0]);
+ 289:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                     uds_solve_recv_data(multi_pack_recv_buf.data_buf,multi_pack_recv_buf.data_len);
+ 290:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                     sta = 0;
+ 291:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                     uds_busy_flag = FALSE;
+ 292:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 }
+ 293:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 else{// SN is right
+ 294:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                     tick = get_timer_tick();// update timer
+ 295:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 }
+ 296:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             }
+ 297:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         }
+ 298:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         break;
+ 299:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     }
+ 300:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** }
+ 558              		.loc 1 300 0
+ 559              		@ sp needed
+ 560 0020 F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 561              	.LVL51:
+ 562              	.L61:
+ 215:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             break;
+ 563              		.loc 1 215 0
+ARM GAS  /tmp/cczFJ59v.s 			page 17
+
+
+ 564 0022 002C     		cmp	r4, #0
+ 565 0024 FCD0     		beq	.L58
+ 217:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 
+ 566              		.loc 1 217 0
+ 567 0026 2000     		movs	r0, r4
+ 568              	.LVL52:
+ 569 0028 FFF7FEFF 		bl	check_uds_type
+ 570              	.LVL53:
+ 571 002c 061E     		subs	r6, r0, #0
+ 572              	.LVL54:
+ 219:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             tmp_re = analyze_uds_SF(p_can_data, &single_pack_recv_buf);
+ 573              		.loc 1 219 0
+ 574 002e 18D1     		bne	.L64
+ 220:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             if(tmp_re == 0xff)
+ 575              		.loc 1 220 0
+ 576 0030 494D     		ldr	r5, .L81+12
+ 577 0032 2000     		movs	r0, r4
+ 578              	.LVL55:
+ 579 0034 2900     		movs	r1, r5
+ 580 0036 FFF7FEFF 		bl	analyze_uds_SF
+ 581              	.LVL56:
+ 221:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 uds_solve_recv_error(single_pack_recv_buf.data_buf,ERR_SF_DL_WRR);
+ 582              		.loc 1 221 0
+ 583 003a FF28     		cmp	r0, #255
+ 584 003c 0CD1     		bne	.L65
+ 585              	.LVL57:
+ 586              	.LBB46:
+ 587              	.LBB47:
+ 588              	.LBB48:
+ 172:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     }
+ 589              		.loc 1 172 0
+ 590 003e A878     		ldrb	r0, [r5, #2]
+ 591              	.LVL58:
+ 592 0040 1321     		movs	r1, #19
+ 593 0042 FFF7FEFF 		bl	uds_ack_refuse
+ 594              	.LVL59:
+ 595              	.L66:
+ 596              	.LBE48:
+ 597              	.LBE47:
+ 598              	.LBE46:
+ 225:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             uds_busy_flag = FALSE;
+ 599              		.loc 1 225 0
+ 600 0046 AA78     		ldrb	r2, [r5, #2]
+ 601 0048 4449     		ldr	r1, .L81+16
+ 602 004a 0020     		movs	r0, #0
+ 603 004c FFF7FEFF 		bl	SEGGER_RTT_printf
+ 604              	.LVL60:
+ 226:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         }
+ 605              		.loc 1 226 0
+ 606 0050 0022     		movs	r2, #0
+ 607 0052 404B     		ldr	r3, .L81+8
+ 608 0054 1A70     		strb	r2, [r3]
+ 609 0056 E3E7     		b	.L58
+ 610              	.LVL61:
+ 611              	.L65:
+ 224:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                  d_printf("SF_UDS_TYPE: %02x\r\n",single_pack_recv_buf.data_buf[0]);
+ 612              		.loc 1 224 0
+ARM GAS  /tmp/cczFJ59v.s 			page 18
+
+
+ 613 0058 2988     		ldrh	r1, [r5]
+ 614 005a 4148     		ldr	r0, .L81+20
+ 615              	.LVL62:
+ 616 005c FFF7FEFF 		bl	uds_solve_recv_data
+ 617              	.LVL63:
+ 618 0060 F1E7     		b	.L66
+ 619              	.LVL64:
+ 620              	.L64:
+ 228:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         {
+ 621              		.loc 1 228 0
+ 622 0062 0128     		cmp	r0, #1
+ 623 0064 16D1     		bne	.L67
+ 230:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             tmp_re = analyze_uds_FF(p_can_data,&multi_pack_recv_buf);// 解析首帧，获取总数
+ 624              		.loc 1 230 0
+ 625 0066 3B4B     		ldr	r3, .L81+8
+ 231:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             //send FC
+ 626              		.loc 1 231 0
+ 627 0068 3E49     		ldr	r1, .L81+24
+ 230:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             tmp_re = analyze_uds_FF(p_can_data,&multi_pack_recv_buf);// 解析首帧，获取总数
+ 628              		.loc 1 230 0
+ 629 006a 1870     		strb	r0, [r3]
+ 231:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             //send FC
+ 630              		.loc 1 231 0
+ 631 006c 2000     		movs	r0, r4
+ 632              	.LVL65:
+ 633 006e FFF7FEFF 		bl	analyze_uds_FF
+ 634              	.LVL66:
+ 233:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             tick = get_timer_tick();
+ 635              		.loc 1 233 0
+ 636 0072 3D4B     		ldr	r3, .L81+28
+ 637 0074 3900     		movs	r1, r7
+ 638 0076 1A7C     		ldrb	r2, [r3, #16]
+ 639 0078 3800     		movs	r0, r7
+ 640 007a FFF7FEFF 		bl	send_uds_FC
+ 641              	.LVL67:
+ 234:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 
+ 642              		.loc 1 234 0
+ 643 007e FFF7FEFF 		bl	get_timer_tick
+ 644              	.LVL68:
+ 645 0082 334B     		ldr	r3, .L81+4
+ 646 0084 0200     		movs	r2, r0
+ 647 0086 1860     		str	r0, [r3]
+ 236:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             sta = 1; // 进入多帧接收状态
+ 648              		.loc 1 236 0
+ 649 0088 3849     		ldr	r1, .L81+32
+ 650 008a 3800     		movs	r0, r7
+ 651 008c FFF7FEFF 		bl	SEGGER_RTT_printf
+ 652              	.LVL69:
+ 237:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         }
+ 653              		.loc 1 237 0
+ 654 0090 2E70     		strb	r6, [r5]
+ 655 0092 C5E7     		b	.L58
+ 656              	.LVL70:
+ 657              	.L67:
+ 239:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             uds_busy_flag = FALSE;
+ 658              		.loc 1 239 0
+ 659 0094 0228     		cmp	r0, #2
+ARM GAS  /tmp/cczFJ59v.s 			page 19
+
+
+ 660 0096 02D1     		bne	.L68
+ 240:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         }
+ 661              		.loc 1 240 0
+ 662 0098 2E4B     		ldr	r3, .L81+8
+ 663 009a 1F70     		strb	r7, [r3]
+ 664 009c C0E7     		b	.L58
+ 665              	.L68:
+ 242:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             analyze_uds_FC(p_can_data, &cur_fc_sta);
+ 666              		.loc 1 242 0
+ 667 009e 0328     		cmp	r0, #3
+ 668 00a0 BED1     		bne	.L58
+ 243:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         }
+ 669              		.loc 1 243 0
+ 670 00a2 3349     		ldr	r1, .L81+36
+ 671 00a4 2000     		movs	r0, r4
+ 672              	.LVL71:
+ 673 00a6 FFF7FEFF 		bl	analyze_uds_FC
+ 674              	.LVL72:
+ 675 00aa B9E7     		b	.L58
+ 676              	.LVL73:
+ 677              	.L62:
+ 249:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             sta = 0;
+ 678              		.loc 1 249 0
+ 679 00ac FFF7FEFF 		bl	get_timer_tick
+ 680              	.LVL74:
+ 681 00b0 274E     		ldr	r6, .L81+4
+ 682 00b2 3368     		ldr	r3, [r6]
+ 683 00b4 C01A     		subs	r0, r0, r3
+ 684 00b6 FA23     		movs	r3, #250
+ 685 00b8 5B00     		lsls	r3, r3, #1
+ 686 00ba 9842     		cmp	r0, r3
+ 687 00bc 0CD9     		bls	.L70
+ 250:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             uds_busy_flag = FALSE;// 
+ 688              		.loc 1 250 0
+ 689 00be 0024     		movs	r4, #0
+ 690              	.LVL75:
+ 251:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             tick = get_timer_tick();
+ 691              		.loc 1 251 0
+ 692 00c0 244B     		ldr	r3, .L81+8
+ 250:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             uds_busy_flag = FALSE;// 
+ 693              		.loc 1 250 0
+ 694 00c2 2C70     		strb	r4, [r5]
+ 251:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             tick = get_timer_tick();
+ 695              		.loc 1 251 0
+ 696 00c4 1C70     		strb	r4, [r3]
+ 252:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             d_printf("over 500ms tick: %02x\r\n",tick);
+ 697              		.loc 1 252 0
+ 698 00c6 FFF7FEFF 		bl	get_timer_tick
+ 699              	.LVL76:
+ 700 00ca 0200     		movs	r2, r0
+ 253:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         }
+ 701              		.loc 1 253 0
+ 702 00cc 2949     		ldr	r1, .L81+40
+ 252:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             d_printf("over 500ms tick: %02x\r\n",tick);
+ 703              		.loc 1 252 0
+ 704 00ce 3060     		str	r0, [r6]
+ 705              	.LVL77:
+ARM GAS  /tmp/cczFJ59v.s 			page 20
+
+
+ 706              	.L80:
+ 269:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             }
+ 707              		.loc 1 269 0
+ 708 00d0 0020     		movs	r0, #0
+ 709 00d2 FFF7FEFF 		bl	SEGGER_RTT_printf
+ 710              	.LVL78:
+ 711 00d6 A3E7     		b	.L58
+ 712              	.LVL79:
+ 713              	.L70:
+ 257:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 break;
+ 714              		.loc 1 257 0
+ 715 00d8 002C     		cmp	r4, #0
+ 716 00da A1D0     		beq	.L58
+ 259:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 
+ 717              		.loc 1 259 0
+ 718 00dc 2000     		movs	r0, r4
+ 719 00de FFF7FEFF 		bl	check_uds_type
+ 720              	.LVL80:
+ 261:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 tmp_re = analyze_uds_SF(p_can_data, &single_pack_recv_buf);
+ 721              		.loc 1 261 0
+ 722 00e2 0028     		cmp	r0, #0
+ 723 00e4 12D1     		bne	.L71
+ 262:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 if(tmp_re == 0xff)
+ 724              		.loc 1 262 0
+ 725 00e6 1C4D     		ldr	r5, .L81+12
+ 726 00e8 2000     		movs	r0, r4
+ 727              	.LVL81:
+ 728 00ea 2900     		movs	r1, r5
+ 729 00ec FFF7FEFF 		bl	analyze_uds_SF
+ 730              	.LVL82:
+ 263:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                     //uds_solve_sf_error(&single_pack_recv_buf,ERR_SF_DL_WRR);
+ 731              		.loc 1 263 0
+ 732 00f0 FF28     		cmp	r0, #255
+ 733 00f2 06D1     		bne	.L72
+ 734              	.LVL83:
+ 735              	.LBB49:
+ 736              	.LBB50:
+ 737              	.LBB51:
+ 172:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     }
+ 738              		.loc 1 172 0
+ 739 00f4 A878     		ldrb	r0, [r5, #2]
+ 740              	.LVL84:
+ 741 00f6 1321     		movs	r1, #19
+ 742 00f8 FFF7FEFF 		bl	uds_ack_refuse
+ 743              	.LVL85:
+ 744              	.L73:
+ 745              	.LBE51:
+ 746              	.LBE50:
+ 747              	.LBE49:
+ 269:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             }
+ 748              		.loc 1 269 0
+ 749 00fc AA78     		ldrb	r2, [r5, #2]
+ 750 00fe 1749     		ldr	r1, .L81+16
+ 751 0100 E6E7     		b	.L80
+ 752              	.LVL86:
+ 753              	.L72:
+ 268:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                      d_printf("SF_UDS_TYPE: %02x\r\n",single_pack_recv_buf.data_buf[0]);
+ARM GAS  /tmp/cczFJ59v.s 			page 21
+
+
+ 754              		.loc 1 268 0
+ 755 0102 2988     		ldrh	r1, [r5]
+ 756 0104 1648     		ldr	r0, .L81+20
+ 757              	.LVL87:
+ 758 0106 FFF7FEFF 		bl	uds_solve_recv_data
+ 759              	.LVL88:
+ 760 010a F7E7     		b	.L73
+ 761              	.LVL89:
+ 762              	.L71:
+ 271:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             {
+ 763              		.loc 1 271 0
+ 764 010c 0228     		cmp	r0, #2
+ 765 010e 00D0     		beq	.LCB726
+ 766 0110 86E7     		b	.L58	@long jump
+ 767              	.LCB726:
+ 273:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 if(tmp_re == ERR_SN_WRONG){// SN wrong 序列号错误
+ 768              		.loc 1 273 0
+ 769 0112 144F     		ldr	r7, .L81+24
+ 770 0114 2000     		movs	r0, r4
+ 771              	.LVL90:
+ 772 0116 3900     		movs	r1, r7
+ 773 0118 FFF7FEFF 		bl	analyze_uds_CF
+ 774              	.LVL91:
+ 274:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                     sta = 0;
+ 775              		.loc 1 274 0
+ 776 011c FF28     		cmp	r0, #255
+ 777 011e 04D1     		bne	.L74
+ 778              	.LVL92:
+ 779              	.L79:
+ 290:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                     uds_busy_flag = FALSE;
+ 780              		.loc 1 290 0
+ 781 0120 0023     		movs	r3, #0
+ 291:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 }
+ 782              		.loc 1 291 0
+ 783 0122 0C4A     		ldr	r2, .L81+8
+ 290:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                     uds_busy_flag = FALSE;
+ 784              		.loc 1 290 0
+ 785 0124 2B70     		strb	r3, [r5]
+ 291:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 }
+ 786              		.loc 1 291 0
+ 787 0126 1370     		strb	r3, [r2]
+ 788 0128 7AE7     		b	.L58
+ 789              	.LVL93:
+ 790              	.L74:
+ 283:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 {// all data has been received
+ 791              		.loc 1 283 0
+ 792 012a FD28     		cmp	r0, #253
+ 793 012c 09D1     		bne	.L75
+ 288:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                     uds_solve_recv_data(multi_pack_recv_buf.data_buf,multi_pack_recv_buf.data_len);
+ 794              		.loc 1 288 0
+ 795 012e BA78     		ldrb	r2, [r7, #2]
+ 796 0130 1149     		ldr	r1, .L81+44
+ 797 0132 0020     		movs	r0, #0
+ 798              	.LVL94:
+ 799 0134 FFF7FEFF 		bl	SEGGER_RTT_printf
+ 800              	.LVL95:
+ 289:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                     sta = 0;
+ARM GAS  /tmp/cczFJ59v.s 			page 22
+
+
+ 801              		.loc 1 289 0
+ 802 0138 3988     		ldrh	r1, [r7]
+ 803 013a 1048     		ldr	r0, .L81+48
+ 804 013c FFF7FEFF 		bl	uds_solve_recv_data
+ 805              	.LVL96:
+ 806 0140 EEE7     		b	.L79
+ 807              	.LVL97:
+ 808              	.L75:
+ 294:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 }
+ 809              		.loc 1 294 0
+ 810 0142 FFF7FEFF 		bl	get_timer_tick
+ 811              	.LVL98:
+ 812 0146 3060     		str	r0, [r6]
+ 813              		.loc 1 300 0
+ 814 0148 6AE7     		b	.L58
+ 815              	.L82:
+ 816 014a C046     		.align	2
+ 817              	.L81:
+ 818 014c 00000000 		.word	.LANCHOR1
+ 819 0150 00000000 		.word	.LANCHOR2
+ 820 0154 00000000 		.word	.LANCHOR3
+ 821 0158 00000000 		.word	single_pack_recv_buf
+ 822 015c 00000000 		.word	.LC17
+ 823 0160 02000000 		.word	single_pack_recv_buf+2
+ 824 0164 00000000 		.word	multi_pack_recv_buf
+ 825 0168 00000000 		.word	g_uds_config
+ 826 016c 14000000 		.word	.LC21
+ 827 0170 00000000 		.word	.LANCHOR4
+ 828 0174 30000000 		.word	.LC24
+ 829 0178 48000000 		.word	.LC26
+ 830 017c 02000000 		.word	multi_pack_recv_buf+2
+ 831              		.cfi_endproc
+ 832              	.LFE501:
+ 834              		.section	.text.uds_phy_send,"ax",%progbits
+ 835              		.align	1
+ 836              		.global	uds_phy_send
+ 837              		.syntax unified
+ 838              		.code	16
+ 839              		.thumb_func
+ 840              		.fpu softvfp
+ 842              	uds_phy_send:
+ 843              	.LFB502:
+ 301:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 
+ 302:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** void uds_phy_send(unsigned char reset)
+ 303:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** {
+ 844              		.loc 1 303 0
+ 845              		.cfi_startproc
+ 846              		@ args = 0, pretend = 0, frame = 0
+ 847              		@ frame_needed = 0, uses_anonymous_args = 0
+ 848              	.LVL99:
+ 849 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+ 850              	.LCFI6:
+ 851              		.cfi_def_cfa_offset 24
+ 852              		.cfi_offset 3, -24
+ 853              		.cfi_offset 4, -20
+ 854              		.cfi_offset 5, -16
+ 855              		.cfi_offset 6, -12
+ARM GAS  /tmp/cczFJ59v.s 			page 23
+
+
+ 856              		.cfi_offset 7, -8
+ 857              		.cfi_offset 14, -4
+ 858 0002 6D4D     		ldr	r5, .L119
+ 304:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     static unsigned char sta = 0; // 发送状态：0=空闲,1=等待FC,2=准备发送CF,3=发送CF
+ 305:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     static unsigned long tick = 0; 
+ 306:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     static unsigned long delay_tick = 0;
+ 307:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     unsigned short max_len = 0;
+ 308:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     if(reset == TRUE){
+ 859              		.loc 1 308 0
+ 860 0004 0128     		cmp	r0, #1
+ 861 0006 05D1     		bne	.L84
+ 309:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         sta = 0;
+ 862              		.loc 1 309 0
+ 863 0008 0023     		movs	r3, #0
+ 310:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         tick = 0;
+ 864              		.loc 1 310 0
+ 865 000a 6C4A     		ldr	r2, .L119+4
+ 309:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         sta = 0;
+ 866              		.loc 1 309 0
+ 867 000c 2B70     		strb	r3, [r5]
+ 868              		.loc 1 310 0
+ 869 000e 1360     		str	r3, [r2]
+ 311:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         reset_uds_send_buf();
+ 870              		.loc 1 311 0
+ 871 0010 FFF7FEFF 		bl	reset_uds_send_buf
+ 872              	.LVL100:
+ 873              	.L84:
+ 312:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     }
+ 313:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     if(uds_is_canfd()){//单帧有效数据字节为(64-2=62)
+ 874              		.loc 1 313 0
+ 875 0014 FFF7FEFF 		bl	uds_is_canfd
+ 876              	.LVL101:
+ 314:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         max_len = 62;
+ 877              		.loc 1 314 0
+ 878 0018 3E23     		movs	r3, #62
+ 313:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         max_len = 62;
+ 879              		.loc 1 313 0
+ 880 001a 0028     		cmp	r0, #0
+ 881 001c 00D1     		bne	.L85
+ 315:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     }else{
+ 316:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         max_len = 7;
+ 882              		.loc 1 316 0
+ 883 001e 373B     		subs	r3, r3, #55
+ 884              	.L85:
+ 885              	.LVL102:
+ 317:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     }
+ 318:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 
+ 319:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     switch(sta)
+ 886              		.loc 1 319 0
+ 887 0020 2E78     		ldrb	r6, [r5]
+ 888 0022 032E     		cmp	r6, #3
+ 889 0024 32D8     		bhi	.L83
+ 890 0026 3000     		movs	r0, r6
+ 891 0028 FFF7FEFF 		bl	__gnu_thumb1_case_uqi
+ 892              	.L88:
+ 893 002c 02       		.byte	(.L87-.L88)/2
+ 894 002d 39       		.byte	(.L89-.L88)/2
+ARM GAS  /tmp/cczFJ59v.s 			page 24
+
+
+ 895 002e 6D       		.byte	(.L90-.L88)/2
+ 896 002f 96       		.byte	(.L91-.L88)/2
+ 897              		.p2align 1
+ 898              	.L87:
+ 320:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     {
+ 321:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     case 0:// 空闲状态，准备发送
+ 322:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         if(uds_send_buf.sw == TRUE){// only if uds_send_buf have data and open , just send 
+ 899              		.loc 1 322 0
+ 900 0030 634A     		ldr	r2, .L119+8
+ 901 0032 1178     		ldrb	r1, [r2]
+ 902 0034 0129     		cmp	r1, #1
+ 903 0036 29D1     		bne	.L83
+ 323:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             if(uds_send_buf.len <= max_len){// send single buff
+ 904              		.loc 1 323 0
+ 905 0038 5188     		ldrh	r1, [r2, #2]
+ 906 003a 9942     		cmp	r1, r3
+ 907 003c 07D8     		bhi	.L93
+ 324:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 cpy_send_to_sfpack();// copy send_buf to sf_pack
+ 908              		.loc 1 324 0
+ 909 003e FFF7FEFF 		bl	cpy_send_to_sfpack
+ 910              	.LVL103:
+ 325:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 send_uds_SF(&single_pack_send_buf);
+ 911              		.loc 1 325 0
+ 912 0042 6048     		ldr	r0, .L119+12
+ 913 0044 FFF7FEFF 		bl	send_uds_SF
+ 914              	.LVL104:
+ 915              	.L117:
+ 326:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 reset_uds_send_buf();// if send over , reset send_buf
+ 327:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             }else{// multi buff
+ 328:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 cpy_send_to_mfpack();// copy send_buf to mf_pack
+ 329:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 send_uds_FF(&multi_pack_send_buf);
+ 330:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 if(uds_is_canfd()){
+ 331:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                     multi_pack_send_buf.cur_recv_idx = 58;
+ 332:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 }else{
+ 333:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                     multi_pack_send_buf.cur_recv_idx = 6;
+ 334:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 }
+ 335:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 tick = get_timer_tick();
+ 336:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 sta = 1;
+ 337:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 reset_fc_sta(&cur_fc_sta);//reset fc sta
+ 338:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             }
+ 339:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         }
+ 340:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         break;
+ 341:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     case 1:// wait for FC流控帧
+ 342:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         if((unsigned long)(get_timer_tick() - tick) > DEFAULT_STMIN_TIME){// if over 200ms, the FC 
+ 343:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             sta = 0;
+ 344:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             reset_uds_send_buf();
+ 916              		.loc 1 344 0
+ 917 0048 FFF7FEFF 		bl	reset_uds_send_buf
+ 918              	.LVL105:
+ 919 004c 1EE0     		b	.L83
+ 920              	.LVL106:
+ 921              	.L93:
+ 922              	.LBB54:
+ 923              	.LBB55:
+  98:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 		multi_pack_send_buf.data_len = MAX_MF_PACK_LEN;
+ 924              		.loc 1 98 0
+ 925 004e 8823     		movs	r3, #136
+ARM GAS  /tmp/cczFJ59v.s 			page 25
+
+
+ 926              	.LVL107:
+ 927 0050 5D4C     		ldr	r4, .L119+16
+ 928 0052 DB00     		lsls	r3, r3, #3
+ 929 0054 9942     		cmp	r1, r3
+ 930 0056 1AD9     		bls	.L94
+  99:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 	else
+ 931              		.loc 1 99 0
+ 932 0058 2380     		strh	r3, [r4]
+ 933              	.L95:
+ 102:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 	{
+ 934              		.loc 1 102 0
+ 935 005a 0023     		movs	r3, #0
+ 936 005c 2088     		ldrh	r0, [r4]
+ 937              	.LVL108:
+ 938              	.L96:
+ 939 005e 99B2     		uxth	r1, r3
+ 940 0060 8842     		cmp	r0, r1
+ 941 0062 16D8     		bhi	.L97
+ 942              	.LVL109:
+ 943              	.LBE55:
+ 944              	.LBE54:
+ 329:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 if(uds_is_canfd()){
+ 945              		.loc 1 329 0
+ 946 0064 2000     		movs	r0, r4
+ 947 0066 FFF7FEFF 		bl	send_uds_FF
+ 948              	.LVL110:
+ 330:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                     multi_pack_send_buf.cur_recv_idx = 58;
+ 949              		.loc 1 330 0
+ 950 006a FFF7FEFF 		bl	uds_is_canfd
+ 951              	.LVL111:
+ 952 006e 574B     		ldr	r3, .L119+20
+ 331:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 }else{
+ 953              		.loc 1 331 0
+ 954 0070 3A22     		movs	r2, #58
+ 330:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                     multi_pack_send_buf.cur_recv_idx = 58;
+ 955              		.loc 1 330 0
+ 956 0072 0028     		cmp	r0, #0
+ 957 0074 00D1     		bne	.L115
+ 333:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 }
+ 958              		.loc 1 333 0
+ 959 0076 0622     		movs	r2, #6
+ 960              	.L115:
+ 961 0078 E252     		strh	r2, [r4, r3]
+ 335:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 sta = 1;
+ 962              		.loc 1 335 0
+ 963 007a FFF7FEFF 		bl	get_timer_tick
+ 964              	.LVL112:
+ 965 007e 4F4B     		ldr	r3, .L119+4
+ 966 0080 1860     		str	r0, [r3]
+ 336:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 reset_fc_sta(&cur_fc_sta);//reset fc sta
+ 967              		.loc 1 336 0
+ 968 0082 0123     		movs	r3, #1
+ 337:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             }
+ 969              		.loc 1 337 0
+ 970 0084 5248     		ldr	r0, .L119+24
+ 336:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 reset_fc_sta(&cur_fc_sta);//reset fc sta
+ 971              		.loc 1 336 0
+ARM GAS  /tmp/cczFJ59v.s 			page 26
+
+
+ 972 0086 2B70     		strb	r3, [r5]
+ 337:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             }
+ 973              		.loc 1 337 0
+ 974 0088 FFF7FEFF 		bl	reset_fc_sta
+ 975              	.LVL113:
+ 976              	.L83:
+ 345:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         }else if(cur_fc_sta.fs != FC_FS_UNUSED){// there is a new FC comming
+ 346:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             if(cur_fc_sta.fs == FC_FS_CTS){// continue
+ 347:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 sta = 2;
+ 348:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 if(cur_fc_sta.stmin <= 0x7f){
+ 349:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                     tick = get_timer_tick();
+ 350:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                     delay_tick = (cur_fc_sta.stmin>0)?cur_fc_sta.stmin:1;//直接指定STmin至少�
+ 351:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 }else if(cur_fc_sta.stmin >= 0xf1 && cur_fc_sta.stmin <= 0xf9){
+ 352:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                     tick= get_timer_tick();
+ 353:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                     delay_tick = 1;//目前不支持微秒的延时，STmin指定为微秒级时，
+ 354:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 }else{
+ 355:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                     tick= get_timer_tick();
+ 356:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                     delay_tick = DEFAULT_STMIN_TIME;// 默认STmin指定由宏定义
+ 357:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 }
+ 358:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             }else if(cur_fc_sta.fs == FC_FS_WT){// wait next fc
+ 359:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 tick = get_timer_tick();//update timer
+ 360:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             }
+ 361:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             //else fs == FC_FS_OVFLW do not solve
+ 362:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         }
+ 363:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         break;
+ 364:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     case 2://等待发送第一个连续帧
+ 365:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         if(uds_send_buf.sw == TRUE){// only if uds_send_buf have data and open , just send 
+ 366:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             if(uds_send_buf.len <= max_len){// send single buff
+ 367:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 cpy_send_to_sfpack();// copy send_buf to sf_pack
+ 368:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 send_uds_SF(&single_pack_send_buf);
+ 369:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 reset_uds_send_buf();// if send over , reset send_buf
+ 370:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             }
+ 371:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         }
+ 372:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         if((unsigned long)(get_timer_tick() - tick) > delay_tick){// 
+ 373:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             sta = 3;
+ 374:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             send_uds_CF(&multi_pack_send_buf);
+ 375:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             multi_pack_send_buf.cur_sn++;// this time , cur_sn is not 0x0f
+ 376:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             multi_pack_send_buf.cur_recv_idx += 63;
+ 377:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             tick = get_timer_tick();// reset tick
+ 378:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         }
+ 379:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         break;
+ 380:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     case 3:// 发送连续帧中
+ 381:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         if(uds_send_buf.sw == TRUE){// only if uds_send_buf have data and open , just send 
+ 382:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             if(uds_send_buf.len <= max_len){// send single buff
+ 383:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 cpy_send_to_sfpack();// copy send_buf to sf_pack
+ 384:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 send_uds_SF(&single_pack_send_buf);
+ 385:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 reset_uds_send_buf();// if send over , reset send_buf
+ 386:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             }
+ 387:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         }
+ 388:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         if(multi_pack_send_buf.cur_recv_idx >= multi_pack_send_buf.data_len){// if all data has bee
+ 389:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             sta = 0;
+ 390:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             reset_uds_send_buf();
+ 391:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         }else if((unsigned long)(get_timer_tick() - tick)> delay_tick){// 
+ 392:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             send_uds_CF(&multi_pack_send_buf);
+ 393:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             if(multi_pack_send_buf.cur_sn >= 0x0f)
+ 394:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 multi_pack_send_buf.cur_sn = 0;
+ 395:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             else
+ARM GAS  /tmp/cczFJ59v.s 			page 27
+
+
+ 396:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 multi_pack_send_buf.cur_sn++;
+ 397:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             multi_pack_send_buf.cur_recv_idx += 63;
+ 398:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             tick = get_timer_tick();// update timer
+ 399:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         }
+ 400:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         break;
+ 401:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****     }
+ 402:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** }
+ 977              		.loc 1 402 0
+ 978              		@ sp needed
+ 979 008c F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 980              	.LVL114:
+ 981              	.L94:
+ 982              	.LBB57:
+ 983              	.LBB56:
+ 101:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 	for(i = 0; i <multi_pack_send_buf.data_len; i++)
+ 984              		.loc 1 101 0
+ 985 008e 2180     		strh	r1, [r4]
+ 986 0090 E3E7     		b	.L95
+ 987              	.LVL115:
+ 988              	.L97:
+ 104:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c **** 	}
+ 989              		.loc 1 104 0
+ 990 0092 D618     		adds	r6, r2, r3
+ 991 0094 3679     		ldrb	r6, [r6, #4]
+ 992 0096 E118     		adds	r1, r4, r3
+ 993 0098 8E70     		strb	r6, [r1, #2]
+ 994              	.LVL116:
+ 995 009a 0133     		adds	r3, r3, #1
+ 996              	.LVL117:
+ 997 009c DFE7     		b	.L96
+ 998              	.LVL118:
+ 999              	.L89:
+ 1000              	.LBE56:
+ 1001              	.LBE57:
+ 342:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             sta = 0;
+ 1002              		.loc 1 342 0
+ 1003 009e FFF7FEFF 		bl	get_timer_tick
+ 1004              	.LVL119:
+ 1005 00a2 464C     		ldr	r4, .L119+4
+ 1006 00a4 2368     		ldr	r3, [r4]
+ 1007 00a6 C01A     		subs	r0, r0, r3
+ 1008 00a8 C828     		cmp	r0, #200
+ 1009 00aa 02D9     		bls	.L100
+ 1010              	.L108:
+ 343:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             reset_uds_send_buf();
+ 1011              		.loc 1 343 0
+ 1012 00ac 0023     		movs	r3, #0
+ 1013 00ae 2B70     		strb	r3, [r5]
+ 1014 00b0 CAE7     		b	.L117
+ 1015              	.L100:
+ 345:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             if(cur_fc_sta.fs == FC_FS_CTS){// continue
+ 1016              		.loc 1 345 0
+ 1017 00b2 474F     		ldr	r7, .L119+24
+ 1018 00b4 3B78     		ldrb	r3, [r7]
+ 1019 00b6 FF2B     		cmp	r3, #255
+ 1020 00b8 E8D0     		beq	.L83
+ 346:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 sta = 2;
+ARM GAS  /tmp/cczFJ59v.s 			page 28
+
+
+ 1021              		.loc 1 346 0
+ 1022 00ba 002B     		cmp	r3, #0
+ 1023 00bc 1DD1     		bne	.L102
+ 347:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 if(cur_fc_sta.stmin <= 0x7f){
+ 1024              		.loc 1 347 0
+ 1025 00be 0233     		adds	r3, r3, #2
+ 1026 00c0 2B70     		strb	r3, [r5]
+ 348:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                     tick = get_timer_tick();
+ 1027              		.loc 1 348 0
+ 1028 00c2 BB78     		ldrb	r3, [r7, #2]
+ 1029 00c4 434D     		ldr	r5, .L119+28
+ 1030 00c6 5AB2     		sxtb	r2, r3
+ 1031 00c8 002A     		cmp	r2, #0
+ 1032 00ca 08DB     		blt	.L103
+ 349:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                     delay_tick = (cur_fc_sta.stmin>0)?cur_fc_sta.stmin:1;//直接指定STmin至少�
+ 1033              		.loc 1 349 0
+ 1034 00cc FFF7FEFF 		bl	get_timer_tick
+ 1035              	.LVL120:
+ 1036 00d0 2060     		str	r0, [r4]
+ 350:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 }else if(cur_fc_sta.stmin >= 0xf1 && cur_fc_sta.stmin <= 0xf9){
+ 1037              		.loc 1 350 0
+ 1038 00d2 BB78     		ldrb	r3, [r7, #2]
+ 1039 00d4 002B     		cmp	r3, #0
+ 1040 00d6 00D1     		bne	.L118
+ 1041 00d8 3300     		movs	r3, r6
+ 1042              	.L118:
+ 353:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 }else{
+ 1043              		.loc 1 353 0
+ 1044 00da 2B60     		str	r3, [r5]
+ 1045 00dc D6E7     		b	.L83
+ 1046              	.L103:
+ 351:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                     tick= get_timer_tick();
+ 1047              		.loc 1 351 0
+ 1048 00de 0F33     		adds	r3, r3, #15
+ 1049 00e0 DBB2     		uxtb	r3, r3
+ 1050 00e2 082B     		cmp	r3, #8
+ 1051 00e4 04D8     		bhi	.L105
+ 352:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                     delay_tick = 1;//目前不支持微秒的延时，STmin指定为微秒级时，
+ 1052              		.loc 1 352 0
+ 1053 00e6 FFF7FEFF 		bl	get_timer_tick
+ 1054              	.LVL121:
+ 353:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 }else{
+ 1055              		.loc 1 353 0
+ 1056 00ea 0123     		movs	r3, #1
+ 352:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                     delay_tick = 1;//目前不支持微秒的延时，STmin指定为微秒级时，
+ 1057              		.loc 1 352 0
+ 1058 00ec 2060     		str	r0, [r4]
+ 1059 00ee F4E7     		b	.L118
+ 1060              	.L105:
+ 355:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                     delay_tick = DEFAULT_STMIN_TIME;// 默认STmin指定由宏定义
+ 1061              		.loc 1 355 0
+ 1062 00f0 FFF7FEFF 		bl	get_timer_tick
+ 1063              	.LVL122:
+ 356:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 }
+ 1064              		.loc 1 356 0
+ 1065 00f4 C823     		movs	r3, #200
+ 355:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                     delay_tick = DEFAULT_STMIN_TIME;// 默认STmin指定由宏定义
+ARM GAS  /tmp/cczFJ59v.s 			page 29
+
+
+ 1066              		.loc 1 355 0
+ 1067 00f6 2060     		str	r0, [r4]
+ 1068 00f8 EFE7     		b	.L118
+ 1069              	.L102:
+ 358:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 tick = get_timer_tick();//update timer
+ 1070              		.loc 1 358 0
+ 1071 00fa 012B     		cmp	r3, #1
+ 1072 00fc C6D1     		bne	.L83
+ 359:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             }
+ 1073              		.loc 1 359 0
+ 1074 00fe FFF7FEFF 		bl	get_timer_tick
+ 1075              	.LVL123:
+ 1076 0102 2060     		str	r0, [r4]
+ 1077 0104 C2E7     		b	.L83
+ 1078              	.LVL124:
+ 1079              	.L90:
+ 365:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             if(uds_send_buf.len <= max_len){// send single buff
+ 1080              		.loc 1 365 0
+ 1081 0106 2E4A     		ldr	r2, .L119+8
+ 1082 0108 1178     		ldrb	r1, [r2]
+ 1083 010a 0129     		cmp	r1, #1
+ 1084 010c 09D1     		bne	.L106
+ 366:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 cpy_send_to_sfpack();// copy send_buf to sf_pack
+ 1085              		.loc 1 366 0
+ 1086 010e 5288     		ldrh	r2, [r2, #2]
+ 1087 0110 9A42     		cmp	r2, r3
+ 1088 0112 06D8     		bhi	.L106
+ 367:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 send_uds_SF(&single_pack_send_buf);
+ 1089              		.loc 1 367 0
+ 1090 0114 FFF7FEFF 		bl	cpy_send_to_sfpack
+ 1091              	.LVL125:
+ 368:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 reset_uds_send_buf();// if send over , reset send_buf
+ 1092              		.loc 1 368 0
+ 1093 0118 2A48     		ldr	r0, .L119+12
+ 1094 011a FFF7FEFF 		bl	send_uds_SF
+ 1095              	.LVL126:
+ 369:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             }
+ 1096              		.loc 1 369 0
+ 1097 011e FFF7FEFF 		bl	reset_uds_send_buf
+ 1098              	.LVL127:
+ 1099              	.L106:
+ 372:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             sta = 3;
+ 1100              		.loc 1 372 0
+ 1101 0122 FFF7FEFF 		bl	get_timer_tick
+ 1102              	.LVL128:
+ 1103 0126 254E     		ldr	r6, .L119+4
+ 1104 0128 3368     		ldr	r3, [r6]
+ 1105 012a C01A     		subs	r0, r0, r3
+ 1106 012c 294B     		ldr	r3, .L119+28
+ 1107 012e 1B68     		ldr	r3, [r3]
+ 1108 0130 9842     		cmp	r0, r3
+ 1109 0132 ABD9     		bls	.L83
+ 373:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             send_uds_CF(&multi_pack_send_buf);
+ 1110              		.loc 1 373 0
+ 1111 0134 0323     		movs	r3, #3
+ 374:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             multi_pack_send_buf.cur_sn++;// this time , cur_sn is not 0x0f
+ 1112              		.loc 1 374 0
+ARM GAS  /tmp/cczFJ59v.s 			page 30
+
+
+ 1113 0136 244C     		ldr	r4, .L119+16
+ 373:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             send_uds_CF(&multi_pack_send_buf);
+ 1114              		.loc 1 373 0
+ 1115 0138 2B70     		strb	r3, [r5]
+ 374:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             multi_pack_send_buf.cur_sn++;// this time , cur_sn is not 0x0f
+ 1116              		.loc 1 374 0
+ 1117 013a 2000     		movs	r0, r4
+ 1118 013c FFF7FEFF 		bl	send_uds_CF
+ 1119              	.LVL129:
+ 375:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             multi_pack_send_buf.cur_recv_idx += 63;
+ 1120              		.loc 1 375 0
+ 1121 0140 254A     		ldr	r2, .L119+32
+ 1122 0142 A35C     		ldrb	r3, [r4, r2]
+ 1123 0144 0133     		adds	r3, r3, #1
+ 1124 0146 A354     		strb	r3, [r4, r2]
+ 376:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             tick = get_timer_tick();// reset tick
+ 1125              		.loc 1 376 0
+ 1126 0148 204A     		ldr	r2, .L119+20
+ 1127 014a A35A     		ldrh	r3, [r4, r2]
+ 1128 014c 3F33     		adds	r3, r3, #63
+ 1129 014e A352     		strh	r3, [r4, r2]
+ 377:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         }
+ 1130              		.loc 1 377 0
+ 1131 0150 FFF7FEFF 		bl	get_timer_tick
+ 1132              	.LVL130:
+ 1133 0154 3060     		str	r0, [r6]
+ 1134 0156 99E7     		b	.L83
+ 1135              	.LVL131:
+ 1136              	.L91:
+ 381:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             if(uds_send_buf.len <= max_len){// send single buff
+ 1137              		.loc 1 381 0
+ 1138 0158 194A     		ldr	r2, .L119+8
+ 1139 015a 1178     		ldrb	r1, [r2]
+ 1140 015c 0129     		cmp	r1, #1
+ 1141 015e 09D1     		bne	.L107
+ 382:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 cpy_send_to_sfpack();// copy send_buf to sf_pack
+ 1142              		.loc 1 382 0
+ 1143 0160 5288     		ldrh	r2, [r2, #2]
+ 1144 0162 9A42     		cmp	r2, r3
+ 1145 0164 06D8     		bhi	.L107
+ 383:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 send_uds_SF(&single_pack_send_buf);
+ 1146              		.loc 1 383 0
+ 1147 0166 FFF7FEFF 		bl	cpy_send_to_sfpack
+ 1148              	.LVL132:
+ 384:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 reset_uds_send_buf();// if send over , reset send_buf
+ 1149              		.loc 1 384 0
+ 1150 016a 1648     		ldr	r0, .L119+12
+ 1151 016c FFF7FEFF 		bl	send_uds_SF
+ 1152              	.LVL133:
+ 385:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             }
+ 1153              		.loc 1 385 0
+ 1154 0170 FFF7FEFF 		bl	reset_uds_send_buf
+ 1155              	.LVL134:
+ 1156              	.L107:
+ 388:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             sta = 0;
+ 1157              		.loc 1 388 0
+ 1158 0174 144C     		ldr	r4, .L119+16
+ARM GAS  /tmp/cczFJ59v.s 			page 31
+
+
+ 1159 0176 154E     		ldr	r6, .L119+20
+ 1160 0178 2388     		ldrh	r3, [r4]
+ 1161 017a A25B     		ldrh	r2, [r4, r6]
+ 1162 017c 9A42     		cmp	r2, r3
+ 1163 017e 95D2     		bcs	.L108
+ 391:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             send_uds_CF(&multi_pack_send_buf);
+ 1164              		.loc 1 391 0
+ 1165 0180 FFF7FEFF 		bl	get_timer_tick
+ 1166              	.LVL135:
+ 1167 0184 0D4D     		ldr	r5, .L119+4
+ 1168 0186 2B68     		ldr	r3, [r5]
+ 1169 0188 C01A     		subs	r0, r0, r3
+ 1170 018a 124B     		ldr	r3, .L119+28
+ 1171 018c 1B68     		ldr	r3, [r3]
+ 1172 018e 9842     		cmp	r0, r3
+ 1173 0190 00D8     		bhi	.LCB1094
+ 1174 0192 7BE7     		b	.L83	@long jump
+ 1175              	.LCB1094:
+ 392:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             if(multi_pack_send_buf.cur_sn >= 0x0f)
+ 1176              		.loc 1 392 0
+ 1177 0194 2000     		movs	r0, r4
+ 1178 0196 FFF7FEFF 		bl	send_uds_CF
+ 1179              	.LVL136:
+ 393:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****                 multi_pack_send_buf.cur_sn = 0;
+ 1180              		.loc 1 393 0
+ 1181 019a 0F4A     		ldr	r2, .L119+32
+ 1182 019c A35C     		ldrb	r3, [r4, r2]
+ 1183 019e 0E2B     		cmp	r3, #14
+ 1184 01a0 08D9     		bls	.L109
+ 394:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             else
+ 1185              		.loc 1 394 0
+ 1186 01a2 0023     		movs	r3, #0
+ 1187              	.L116:
+ 396:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             multi_pack_send_buf.cur_recv_idx += 63;
+ 1188              		.loc 1 396 0
+ 1189 01a4 A354     		strb	r3, [r4, r2]
+ 397:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             tick = get_timer_tick();// update timer
+ 1190              		.loc 1 397 0
+ 1191 01a6 A35B     		ldrh	r3, [r4, r6]
+ 1192 01a8 3F33     		adds	r3, r3, #63
+ 1193 01aa A353     		strh	r3, [r4, r6]
+ 398:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****         }
+ 1194              		.loc 1 398 0
+ 1195 01ac FFF7FEFF 		bl	get_timer_tick
+ 1196              	.LVL137:
+ 1197 01b0 2860     		str	r0, [r5]
+ 1198              		.loc 1 402 0
+ 1199 01b2 6BE7     		b	.L83
+ 1200              	.L109:
+ 396:./Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.c ****             multi_pack_send_buf.cur_recv_idx += 63;
+ 1201              		.loc 1 396 0
+ 1202 01b4 0133     		adds	r3, r3, #1
+ 1203 01b6 F5E7     		b	.L116
+ 1204              	.L120:
+ 1205              		.align	2
+ 1206              	.L119:
+ 1207 01b8 00000000 		.word	.LANCHOR5
+ARM GAS  /tmp/cczFJ59v.s 			page 32
+
+
+ 1208 01bc 00000000 		.word	.LANCHOR6
+ 1209 01c0 00000000 		.word	uds_send_buf
+ 1210 01c4 00000000 		.word	.LANCHOR0
+ 1211 01c8 00000000 		.word	multi_pack_send_buf
+ 1212 01cc 44040000 		.word	1092
+ 1213 01d0 00000000 		.word	.LANCHOR4
+ 1214 01d4 00000000 		.word	.LANCHOR7
+ 1215 01d8 43040000 		.word	1091
+ 1216              		.cfi_endproc
+ 1217              	.LFE502:
+ 1219              		.global	pg_memory_size
+ 1220              		.global	pg_memory_address
+ 1221              		.global	dtc_count
+ 1222              		.global	uds_busy_flag
+ 1223              		.global	dtc_update_flg
+ 1224              		.global	cur_communication_type
+ 1225              		.comm	multi_pack_recv_buf,1094,2
+ 1226              		.comm	single_pack_recv_buf,66,2
+ 1227              		.global	cur_session_type
+ 1228              		.section	.bss.cur_communication_type,"aw",%nobits
+ 1231              	cur_communication_type:
+ 1232 0000 00       		.space	1
+ 1233              		.section	.bss.cur_fc_sta,"aw",%nobits
+ 1234              		.set	.LANCHOR4,. + 0
+ 1237              	cur_fc_sta:
+ 1238 0000 000000   		.space	3
+ 1239              		.section	.bss.delay_tick.10370,"aw",%nobits
+ 1240              		.align	2
+ 1241              		.set	.LANCHOR7,. + 0
+ 1244              	delay_tick.10370:
+ 1245 0000 00000000 		.space	4
+ 1246              		.section	.bss.dtc_count,"aw",%nobits
+ 1247              		.align	1
+ 1250              	dtc_count:
+ 1251 0000 0000     		.space	2
+ 1252              		.section	.bss.dtc_update_flg,"aw",%nobits
+ 1255              	dtc_update_flg:
+ 1256 0000 00       		.space	1
+ 1257              		.section	.bss.multi_pack_send_buf,"aw",%nobits
+ 1258              		.align	1
+ 1261              	multi_pack_send_buf:
+ 1262 0000 00000000 		.space	1094
+ 1262      00000000 
+ 1262      00000000 
+ 1262      00000000 
+ 1262      00000000 
+ 1263              		.section	.bss.pg_memory_address,"aw",%nobits
+ 1264              		.align	2
+ 1267              	pg_memory_address:
+ 1268 0000 00000000 		.space	4
+ 1269              		.section	.bss.pg_memory_size,"aw",%nobits
+ 1270              		.align	2
+ 1273              	pg_memory_size:
+ 1274 0000 00000000 		.space	4
+ 1275              		.section	.bss.single_pack_send_buf,"aw",%nobits
+ 1276              		.align	1
+ 1277              		.set	.LANCHOR0,. + 0
+ARM GAS  /tmp/cczFJ59v.s 			page 33
+
+
+ 1280              	single_pack_send_buf:
+ 1281 0000 00000000 		.space	66
+ 1281      00000000 
+ 1281      00000000 
+ 1281      00000000 
+ 1281      00000000 
+ 1282              		.section	.bss.sta.10358,"aw",%nobits
+ 1283              		.set	.LANCHOR1,. + 0
+ 1286              	sta.10358:
+ 1287 0000 00       		.space	1
+ 1288              		.section	.bss.sta.10368,"aw",%nobits
+ 1289              		.set	.LANCHOR5,. + 0
+ 1292              	sta.10368:
+ 1293 0000 00       		.space	1
+ 1294              		.section	.bss.tick.10359,"aw",%nobits
+ 1295              		.align	2
+ 1296              		.set	.LANCHOR2,. + 0
+ 1299              	tick.10359:
+ 1300 0000 00000000 		.space	4
+ 1301              		.section	.bss.tick.10369,"aw",%nobits
+ 1302              		.align	2
+ 1303              		.set	.LANCHOR6,. + 0
+ 1306              	tick.10369:
+ 1307 0000 00000000 		.space	4
+ 1308              		.section	.bss.uds_busy_flag,"aw",%nobits
+ 1309              		.set	.LANCHOR3,. + 0
+ 1312              	uds_busy_flag:
+ 1313 0000 00       		.space	1
+ 1314              		.section	.bss.uds_send_buf,"aw",%nobits
+ 1315              		.align	1
+ 1318              	uds_send_buf:
+ 1319 0000 00000000 		.space	1028
+ 1319      00000000 
+ 1319      00000000 
+ 1319      00000000 
+ 1319      00000000 
+ 1320              		.section	.data.cur_session_type,"aw",%progbits
+ 1323              	cur_session_type:
+ 1324 0000 01       		.byte	1
+ 1325              		.section	.rodata.uds_phy_recv.str1.1,"aMS",%progbits,1
+ 1326              	.LC17:
+ 1327 0000 53465F55 		.ascii	"SF_UDS_TYPE: %02x\015\012\000"
+ 1327      44535F54 
+ 1327      5950453A 
+ 1327      20253032 
+ 1327      780D0A00 
+ 1328              	.LC21:
+ 1329 0014 6F766572 		.ascii	"over FC_FS_CTS tick: %02x\015\012\000"
+ 1329      2046435F 
+ 1329      46535F43 
+ 1329      54532074 
+ 1329      69636B3A 
+ 1330              	.LC24:
+ 1331 0030 6F766572 		.ascii	"over 500ms tick: %02x\015\012\000"
+ 1331      20353030 
+ 1331      6D732074 
+ 1331      69636B3A 
+ARM GAS  /tmp/cczFJ59v.s 			page 34
+
+
+ 1331      20253032 
+ 1332              	.LC26:
+ 1333 0048 63617365 		.ascii	"case12:slove CF data: %02x\015\012\000"
+ 1333      31323A73 
+ 1333      6C6F7665 
+ 1333      20434620 
+ 1333      64617461 
+ 1334              		.text
+ 1335              	.Letext0:
+ 1336              		.file 2 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/machine/_default_types.h"
+ 1337              		.file 3 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/lock.h"
+ 1338              		.file 4 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_types.h"
+ 1339              		.file 5 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/lib/gcc/arm-none-eabi/7.3.1/include/stddef.h"
+ 1340              		.file 6 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/reent.h"
+ 1341              		.file 7 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/stdlib.h"
+ 1342              		.file 8 "Application/BSPSys/Util/BSPTypeDef.h"
+ 1343              		.file 9 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_stdint.h"
+ 1344              		.file 10 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/system_stm32g0xx.h"
+ 1345              		.file 11 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/stm32g0b1xx.h"
+ 1346              		.file 12 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_def.h"
+ 1347              		.file 13 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_dma.h"
+ 1348              		.file 14 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_flash.h"
+ 1349              		.file 15 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_spi.h"
+ 1350              		.file 16 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_uart.h"
+ 1351              		.file 17 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal.h"
+ 1352              		.file 18 "Core/Inc/main.h"
+ 1353              		.file 19 "Core/Inc/spi.h"
+ 1354              		.file 20 "Application/BSPSys/BSPDevice/gd25q32e/BSPGD25Q32E.h"
+ 1355              		.file 21 "Application/Addition/UDSCanfd/can_uds_arch.h"
+ 1356              		.file 22 "Application/Addition/UDSCanfd/network_layer/can_uds_network_layer.h"
+ 1357              		.file 23 "Application/Addition/UDSCanfd/services_layer/device_role/can_uds_services_layer.h"
+ 1358              		.file 24 "Application/Addition/RTT/SEGGER_RTT.h"
+ 1359              		.file 25 "Application/Addition/UDSCanfd/services_layer/device_role/sid_internal_header.h"
+ 1360              		.file 26 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_ll_dma.h"
+ 1361              		.file 27 "<built-in>"
+ARM GAS  /tmp/cczFJ59v.s 			page 35
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 can_uds_services_layer.c
+     /tmp/cczFJ59v.s:16     .text.cpy_send_to_sfpack:0000000000000000 $t
+     /tmp/cczFJ59v.s:22     .text.cpy_send_to_sfpack:0000000000000000 cpy_send_to_sfpack
+     /tmp/cczFJ59v.s:89     .text.cpy_send_to_sfpack:0000000000000038 $d
+     /tmp/cczFJ59v.s:1318   .bss.uds_send_buf:0000000000000000 uds_send_buf
+     /tmp/cczFJ59v.s:95     .text.reset_uds_send_buf:0000000000000000 $t
+     /tmp/cczFJ59v.s:102    .text.reset_uds_send_buf:0000000000000000 reset_uds_send_buf
+     /tmp/cczFJ59v.s:138    .text.reset_uds_send_buf:0000000000000018 $d
+     /tmp/cczFJ59v.s:144    .text.uds_start_send:0000000000000000 $t
+     /tmp/cczFJ59v.s:151    .text.uds_start_send:0000000000000000 uds_start_send
+     /tmp/cczFJ59v.s:170    .text.uds_start_send:0000000000000008 $d
+     /tmp/cczFJ59v.s:175    .text.uds_ack_accept:0000000000000000 $t
+     /tmp/cczFJ59v.s:182    .text.uds_ack_accept:0000000000000000 uds_ack_accept
+     /tmp/cczFJ59v.s:242    .text.uds_ack_accept:000000000000001c $d
+     /tmp/cczFJ59v.s:248    .text.uds_ack_refuse:0000000000000000 $t
+     /tmp/cczFJ59v.s:255    .text.uds_ack_refuse:0000000000000000 uds_ack_refuse
+     /tmp/cczFJ59v.s:302    .text.uds_ack_refuse:0000000000000014 $d
+     /tmp/cczFJ59v.s:307    .text.uds_solve_recv_data:0000000000000000 $t
+     /tmp/cczFJ59v.s:314    .text.uds_solve_recv_data:0000000000000000 uds_solve_recv_data
+     /tmp/cczFJ59v.s:463    .text.uds_solve_recv_error:0000000000000000 $t
+     /tmp/cczFJ59v.s:470    .text.uds_solve_recv_error:0000000000000000 uds_solve_recv_error
+     /tmp/cczFJ59v.s:509    .text.uds_phy_recv:0000000000000000 $t
+     /tmp/cczFJ59v.s:516    .text.uds_phy_recv:0000000000000000 uds_phy_recv
+     /tmp/cczFJ59v.s:818    .text.uds_phy_recv:000000000000014c $d
+                            *COM*:0000000000000042 single_pack_recv_buf
+                            *COM*:0000000000000446 multi_pack_recv_buf
+     /tmp/cczFJ59v.s:835    .text.uds_phy_send:0000000000000000 $t
+     /tmp/cczFJ59v.s:842    .text.uds_phy_send:0000000000000000 uds_phy_send
+     /tmp/cczFJ59v.s:893    .text.uds_phy_send:000000000000002c $d
+     /tmp/cczFJ59v.s:897    .text.uds_phy_send:0000000000000030 $t
+     /tmp/cczFJ59v.s:1207   .text.uds_phy_send:00000000000001b8 $d
+     /tmp/cczFJ59v.s:1261   .bss.multi_pack_send_buf:0000000000000000 multi_pack_send_buf
+     /tmp/cczFJ59v.s:1273   .bss.pg_memory_size:0000000000000000 pg_memory_size
+     /tmp/cczFJ59v.s:1267   .bss.pg_memory_address:0000000000000000 pg_memory_address
+     /tmp/cczFJ59v.s:1250   .bss.dtc_count:0000000000000000 dtc_count
+     /tmp/cczFJ59v.s:1312   .bss.uds_busy_flag:0000000000000000 uds_busy_flag
+     /tmp/cczFJ59v.s:1255   .bss.dtc_update_flg:0000000000000000 dtc_update_flg
+     /tmp/cczFJ59v.s:1231   .bss.cur_communication_type:0000000000000000 cur_communication_type
+     /tmp/cczFJ59v.s:1323   .data.cur_session_type:0000000000000000 cur_session_type
+     /tmp/cczFJ59v.s:1232   .bss.cur_communication_type:0000000000000000 $d
+     /tmp/cczFJ59v.s:1237   .bss.cur_fc_sta:0000000000000000 cur_fc_sta
+     /tmp/cczFJ59v.s:1238   .bss.cur_fc_sta:0000000000000000 $d
+     /tmp/cczFJ59v.s:1240   .bss.delay_tick.10370:0000000000000000 $d
+     /tmp/cczFJ59v.s:1244   .bss.delay_tick.10370:0000000000000000 delay_tick.10370
+     /tmp/cczFJ59v.s:1247   .bss.dtc_count:0000000000000000 $d
+     /tmp/cczFJ59v.s:1256   .bss.dtc_update_flg:0000000000000000 $d
+     /tmp/cczFJ59v.s:1258   .bss.multi_pack_send_buf:0000000000000000 $d
+     /tmp/cczFJ59v.s:1264   .bss.pg_memory_address:0000000000000000 $d
+     /tmp/cczFJ59v.s:1270   .bss.pg_memory_size:0000000000000000 $d
+     /tmp/cczFJ59v.s:1276   .bss.single_pack_send_buf:0000000000000000 $d
+     /tmp/cczFJ59v.s:1280   .bss.single_pack_send_buf:0000000000000000 single_pack_send_buf
+     /tmp/cczFJ59v.s:1286   .bss.sta.10358:0000000000000000 sta.10358
+     /tmp/cczFJ59v.s:1287   .bss.sta.10358:0000000000000000 $d
+     /tmp/cczFJ59v.s:1292   .bss.sta.10368:0000000000000000 sta.10368
+     /tmp/cczFJ59v.s:1293   .bss.sta.10368:0000000000000000 $d
+     /tmp/cczFJ59v.s:1295   .bss.tick.10359:0000000000000000 $d
+ARM GAS  /tmp/cczFJ59v.s 			page 36
+
+
+     /tmp/cczFJ59v.s:1299   .bss.tick.10359:0000000000000000 tick.10359
+     /tmp/cczFJ59v.s:1302   .bss.tick.10369:0000000000000000 $d
+     /tmp/cczFJ59v.s:1306   .bss.tick.10369:0000000000000000 tick.10369
+     /tmp/cczFJ59v.s:1313   .bss.uds_busy_flag:0000000000000000 $d
+     /tmp/cczFJ59v.s:1315   .bss.uds_send_buf:0000000000000000 $d
+
+UNDEFINED SYMBOLS
+uds_is_canfd
+memset
+sid10_diagnostic_session_ctrl_solve
+sid22_read_data_by_id_solve
+sid27_security_access_solve
+sid3e_tester_present_solve
+sid11_ecu_reset_solve
+sid28_communication_ctrl_solve
+sid2e_write_data_by_id_solve
+sid31_routine_ctrl_solve
+sid34_request_download_solve
+sid36_transfer_data_solve
+sid37_transfer_exit_solve
+check_uds_type
+analyze_uds_SF
+SEGGER_RTT_printf
+analyze_uds_FF
+send_uds_FC
+get_timer_tick
+analyze_uds_FC
+analyze_uds_CF
+g_uds_config
+__gnu_thumb1_case_uqi
+send_uds_SF
+send_uds_FF
+reset_fc_sta
+send_uds_CF

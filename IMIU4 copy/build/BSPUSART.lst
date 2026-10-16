@@ -1,0 +1,1563 @@
+ARM GAS  /tmp/ccHJ61Gv.s 			page 1
+
+
+   1              		.cpu cortex-m0plus
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 4
+   9              		.eabi_attribute 34, 0
+  10              		.eabi_attribute 18, 4
+  11              		.file	"BSPUSART.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.BSPUSARTInit,"ax",%progbits
+  16              		.align	1
+  17              		.global	BSPUSARTInit
+  18              		.syntax unified
+  19              		.code	16
+  20              		.thumb_func
+  21              		.fpu softvfp
+  23              	BSPUSARTInit:
+  24              	.LFB493:
+  25              		.file 1 "./Application/BSPSys/BSPDriver/BSPUSART.c"
+   1:./Application/BSPSys/BSPDriver/BSPUSART.c **** /*==========================================Copyright(c)=======================================
+   2:./Application/BSPSys/BSPDriver/BSPUSART.c **** **                                  Shenzhen Infypower Co., Ltd.
+   3:./Application/BSPSys/BSPDriver/BSPUSART.c **** **                                  Power conversion Department
+   4:./Application/BSPSys/BSPDriver/BSPUSART.c **** **                                       BMS Product Line
+   5:./Application/BSPSys/BSPDriver/BSPUSART.c **** **
+   6:./Application/BSPSys/BSPDriver/BSPUSART.c **** **---------------------------------------File Information--------------------------------------
+   7:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @File Name    : BSPUSART.h
+   8:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Founder      : WYC834
+   9:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Date         : 2025.09.04
+  10:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Function     : USART驱动函数模块
+  11:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Instructions :
+  12:./Application/BSPSys/BSPDriver/BSPUSART.c **** **===========================================================================================*/
+  13:./Application/BSPSys/BSPDriver/BSPUSART.c **** 
+  14:./Application/BSPSys/BSPDriver/BSPUSART.c **** /*=============================================================================================
+  15:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Header file definition
+  16:./Application/BSPSys/BSPDriver/BSPUSART.c **** **===========================================================================================*/
+  17:./Application/BSPSys/BSPDriver/BSPUSART.c **** #include "main.h"
+  18:./Application/BSPSys/BSPDriver/BSPUSART.c **** #include "BSPTypeDef.h"
+  19:./Application/BSPSys/BSPDriver/BSPUSART.c **** #include "BSPConfig.h"
+  20:./Application/BSPSys/BSPDriver/BSPUSART.c **** #include "BSPQueue.h"
+  21:./Application/BSPSys/BSPDriver/BSPUSART.c **** #include "BSPUserHook.h"
+  22:./Application/BSPSys/BSPDriver/BSPUSART.c **** #include "BSPIRQ.h"
+  23:./Application/BSPSys/BSPDriver/BSPUSART.c **** #include "BSPUSART.h"
+  24:./Application/BSPSys/BSPDriver/BSPUSART.c **** #include "usart.h"
+  25:./Application/BSPSys/BSPDriver/BSPUSART.c **** #include "BSPDIDO.h"
+  26:./Application/BSPSys/BSPDriver/BSPUSART.c **** #include "FreeRTOS.h"
+  27:./Application/BSPSys/BSPDriver/BSPUSART.c **** #include "task.h"
+  28:./Application/BSPSys/BSPDriver/BSPUSART.c **** #include "cmsis_os.h"
+  29:./Application/BSPSys/BSPDriver/BSPUSART.c **** /*=============================================================================================
+  30:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Global variable definition
+  31:./Application/BSPSys/BSPDriver/BSPUSART.c **** **===========================================================================================*/
+  32:./Application/BSPSys/BSPDriver/BSPUSART.c **** 
+  33:./Application/BSPSys/BSPDriver/BSPUSART.c **** extern DMA_HandleTypeDef hdma_usart6_rx;
+ARM GAS  /tmp/ccHJ61Gv.s 			page 2
+
+
+  34:./Application/BSPSys/BSPDriver/BSPUSART.c **** static u8 sUSARTSendBuff[eUSARTNUM][QUE_SIZEOF(USART_QUEUE_SIZE, USART_QUEUE_NUM)];//定义USART发
+  35:./Application/BSPSys/BSPDriver/BSPUSART.c **** static t_UsartCyRcvBuf sUSARTRcvCyBuf[eUSARTNUM];                               //USART接收环形
+  36:./Application/BSPSys/BSPDriver/BSPUSART.c **** static u8 sUSARTCyUnDealNum[eUSARTNUM] = {0};                                   //USART环形缓冲
+  37:./Application/BSPSys/BSPDriver/BSPUSART.c **** 
+  38:./Application/BSPSys/BSPDriver/BSPUSART.c **** u16 UsartRcvDataLenth = 0;				    /*串口接收数据长度*/
+  39:./Application/BSPSys/BSPDriver/BSPUSART.c **** u8 UsartRcvDataBuff[eUSARTNUM][USART_DATA_LEN] = {0};	/*串口接收数据buff*/
+  40:./Application/BSPSys/BSPDriver/BSPUSART.c **** 
+  41:./Application/BSPSys/BSPDriver/BSPUSART.c **** /*=============================================================================================
+  42:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Static function declaration
+  43:./Application/BSPSys/BSPDriver/BSPUSART.c **** **===========================================================================================*/
+  44:./Application/BSPSys/BSPDriver/BSPUSART.c **** /*=============================================================================================
+  45:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Name      : static UART_HandleTypeDef GetUsartHandle(e_SCINUM sciNum)
+  46:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Input     : sciNum:SCI通道号
+  47:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Output    : 串口对应句柄
+  48:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Function  : 获取串口对应句柄
+  49:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @The notes :
+  50:./Application/BSPSys/BSPDriver/BSPUSART.c **** **===========================================================================================*/
+  51:./Application/BSPSys/BSPDriver/BSPUSART.c **** static UART_HandleTypeDef* GetUsartHandle(e_USARTNUM usartNum);
+  52:./Application/BSPSys/BSPDriver/BSPUSART.c **** 
+  53:./Application/BSPSys/BSPDriver/BSPUSART.c **** /*=============================================================================================
+  54:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Name      : static void USARTRcvCyBufInit(e_USARTNUM usartNum)
+  55:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Input     : usartNum:CAN通道号
+  56:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Output    : void
+  57:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Function  : 环形接收缓冲区初始化
+  58:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @The notes :
+  59:./Application/BSPSys/BSPDriver/BSPUSART.c **** **===========================================================================================*/
+  60:./Application/BSPSys/BSPDriver/BSPUSART.c **** static void USARTRcvCyBufInit(e_USARTNUM usartNum);
+  61:./Application/BSPSys/BSPDriver/BSPUSART.c **** 
+  62:./Application/BSPSys/BSPDriver/BSPUSART.c **** /*=============================================================================================
+  63:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Name      : static u8 USARTReadRcvCyBuf(e_USARTNUM usartNum, t_USARTMSG *pRcvMsg)
+  64:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Input     : usartNum:CAN通道号, *pRcvMsg:CAN信息结构体接收数据指针
+  65:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Output    : TRUE:成功 FALSE:失败
+  66:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Function  : USART接收处理任务读USART接收环形缓冲区信息出来处理
+  67:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @The notes :
+  68:./Application/BSPSys/BSPDriver/BSPUSART.c **** **===========================================================================================*/
+  69:./Application/BSPSys/BSPDriver/BSPUSART.c **** static u8 USARTReadRcvCyBuf(e_USARTNUM usartNum, t_USARTMSG *pRcvMsg);
+  70:./Application/BSPSys/BSPDriver/BSPUSART.c **** 
+  71:./Application/BSPSys/BSPDriver/BSPUSART.c **** /*=============================================================================================
+  72:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Name      : static u8 USARTWriteRcvCyBuf(e_USARTNUM usartNum, u8 * data,u8 size)
+  73:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Input     : usartNum:USART通道号, *data:USART信息接收数组指针, size：读取到的�
+  74:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Output    : TRUE:成功 FALSE:失败
+  75:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Function  : USART接收中断函数将USART报文写入接收环形缓冲区
+  76:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @The notes :
+  77:./Application/BSPSys/BSPDriver/BSPUSART.c **** **===========================================================================================*/
+  78:./Application/BSPSys/BSPDriver/BSPUSART.c **** static u8 USARTWriteRcvCyBuf(e_USARTNUM usartNum, u8 * wdata, u8 size);
+  79:./Application/BSPSys/BSPDriver/BSPUSART.c **** 
+  80:./Application/BSPSys/BSPDriver/BSPUSART.c **** /*=============================================================================================
+  81:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Interface function definition
+  82:./Application/BSPSys/BSPDriver/BSPUSART.c **** **===========================================================================================*/
+  83:./Application/BSPSys/BSPDriver/BSPUSART.c **** /*=============================================================================================
+  84:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Name      : void BSPUSARTInit(e_USARTNUM usartNum)
+  85:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Input     : usartNum:USART通道号
+  86:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Output    : 初始化结果 TRUE:成功 FALSE:失败
+  87:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Function  : USART驱动模块初始化
+  88:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @The notes : BSP调用,用户调用
+  89:./Application/BSPSys/BSPDriver/BSPUSART.c **** **===========================================================================================*/
+  90:./Application/BSPSys/BSPDriver/BSPUSART.c **** void BSPUSARTInit(e_USARTNUM usartNum)
+ARM GAS  /tmp/ccHJ61Gv.s 			page 3
+
+
+  91:./Application/BSPSys/BSPDriver/BSPUSART.c **** {
+  26              		.loc 1 91 0
+  27              		.cfi_startproc
+  28              		@ args = 0, pretend = 0, frame = 0
+  29              		@ frame_needed = 0, uses_anonymous_args = 0
+  30              	.LVL0:
+  31 0000 10B5     		push	{r4, lr}
+  32              	.LCFI0:
+  33              		.cfi_def_cfa_offset 8
+  34              		.cfi_offset 4, -8
+  35              		.cfi_offset 14, -4
+  92:./Application/BSPSys/BSPDriver/BSPUSART.c ****     //模块未使能不进行初始化
+  93:./Application/BSPSys/BSPDriver/BSPUSART.c ****     if((eUSART6 == usartNum) && (1 != gBSPFunCfg.Bits.USART6En))
+  36              		.loc 1 93 0
+  37 0002 0028     		cmp	r0, #0
+  38 0004 10D1     		bne	.L1
+  39              		.loc 1 93 0 is_stmt 0 discriminator 1
+  40 0006 094B     		ldr	r3, .L6
+  41 0008 1B88     		ldrh	r3, [r3]
+  42 000a 9B07     		lsls	r3, r3, #30
+  43 000c 0CD5     		bpl	.L1
+  94:./Application/BSPSys/BSPDriver/BSPUSART.c ****     {
+  95:./Application/BSPSys/BSPDriver/BSPUSART.c ****         return;
+  96:./Application/BSPSys/BSPDriver/BSPUSART.c ****     }
+  97:./Application/BSPSys/BSPDriver/BSPUSART.c ****     if(usartNum >= eUSARTNUM)
+  98:./Application/BSPSys/BSPDriver/BSPUSART.c ****     {
+  99:./Application/BSPSys/BSPDriver/BSPUSART.c ****         return;
+ 100:./Application/BSPSys/BSPDriver/BSPUSART.c ****     }
+ 101:./Application/BSPSys/BSPDriver/BSPUSART.c **** 
+ 102:./Application/BSPSys/BSPDriver/BSPUSART.c ****     switch(usartNum)
+ 103:./Application/BSPSys/BSPDriver/BSPUSART.c ****     {
+ 104:./Application/BSPSys/BSPDriver/BSPUSART.c ****         case eUSART6:
+ 105:./Application/BSPSys/BSPDriver/BSPUSART.c ****             MX_USART6_UART_Init();
+  44              		.loc 1 105 0 is_stmt 1
+  45 000e FFF7FEFF 		bl	MX_USART6_UART_Init
+  46              	.LVL1:
+ 106:./Application/BSPSys/BSPDriver/BSPUSART.c ****             __HAL_UART_CLEAR_IDLEFLAG(&huart6);//清除空闲标志
+  47              		.loc 1 106 0
+  48 0012 1023     		movs	r3, #16
+  49 0014 0648     		ldr	r0, .L6+4
+  50 0016 0268     		ldr	r2, [r0]
+  51 0018 1362     		str	r3, [r2, #32]
+ 107:./Application/BSPSys/BSPDriver/BSPUSART.c ****             __HAL_UART_ENABLE_IT(&huart6,UART_IT_IDLE);//使能空闲中断
+  52              		.loc 1 107 0
+  53 001a 1168     		ldr	r1, [r2]
+  54 001c 0B43     		orrs	r3, r1
+  55 001e 1360     		str	r3, [r2]
+ 108:./Application/BSPSys/BSPDriver/BSPUSART.c ****             HAL_UARTEx_ReceiveToIdle_DMA(&huart6,UsartRcvDataBuff[eUSART6],USART_DATA_LEN);//这个
+  56              		.loc 1 108 0
+  57 0020 0449     		ldr	r1, .L6+8
+  58 0022 C822     		movs	r2, #200
+  59 0024 FFF7FEFF 		bl	HAL_UARTEx_ReceiveToIdle_DMA
+  60              	.LVL2:
+  61              	.L1:
+ 109:./Application/BSPSys/BSPDriver/BSPUSART.c ****         break;
+ 110:./Application/BSPSys/BSPDriver/BSPUSART.c ****         default:
+ 111:./Application/BSPSys/BSPDriver/BSPUSART.c ****             return;
+ARM GAS  /tmp/ccHJ61Gv.s 			page 4
+
+
+ 112:./Application/BSPSys/BSPDriver/BSPUSART.c ****         break;
+ 113:./Application/BSPSys/BSPDriver/BSPUSART.c ****     }
+ 114:./Application/BSPSys/BSPDriver/BSPUSART.c **** }
+  62              		.loc 1 114 0
+  63              		@ sp needed
+  64 0028 10BD     		pop	{r4, pc}
+  65              	.L7:
+  66 002a C046     		.align	2
+  67              	.L6:
+  68 002c 00000000 		.word	gBSPFunCfg
+  69 0030 00000000 		.word	huart6
+  70 0034 00000000 		.word	UsartRcvDataBuff
+  71              		.cfi_endproc
+  72              	.LFE493:
+  74              		.section	.text.BSPUSARTSendDataOnISR,"ax",%progbits
+  75              		.align	1
+  76              		.global	BSPUSARTSendDataOnISR
+  77              		.syntax unified
+  78              		.code	16
+  79              		.thumb_func
+  80              		.fpu softvfp
+  82              	BSPUSARTSendDataOnISR:
+  83              	.LFB494:
+ 115:./Application/BSPSys/BSPDriver/BSPUSART.c **** 
+ 116:./Application/BSPSys/BSPDriver/BSPUSART.c **** /*=============================================================================================
+ 117:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Name      : u8 BSPUSARTSendDataOnISR(e_USARTNUM usartNum, u8 *sendbuf, u8 size)
+ 118:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Input     : usartNum:USART通道号 *sendbuf:发送的数据 size:数据长度
+ 119:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Output    : TRUE:成功 FALSE:失败
+ 120:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Function  : USART中断方式发送串口数据
+ 121:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @The notes : 直接发送,暂不实现
+ 122:./Application/BSPSys/BSPDriver/BSPUSART.c **** **===========================================================================================*/
+ 123:./Application/BSPSys/BSPDriver/BSPUSART.c **** u8 BSPUSARTSendDataOnISR(e_USARTNUM usartNum, u8 *sendbuf, u8 size)
+ 124:./Application/BSPSys/BSPDriver/BSPUSART.c **** {       
+  84              		.loc 1 124 0
+  85              		.cfi_startproc
+  86              		@ args = 0, pretend = 0, frame = 0
+  87              		@ frame_needed = 0, uses_anonymous_args = 0
+  88              	.LVL3:
+  89 0000 70B5     		push	{r4, r5, r6, lr}
+  90              	.LCFI1:
+  91              		.cfi_def_cfa_offset 16
+  92              		.cfi_offset 4, -16
+  93              		.cfi_offset 5, -12
+  94              		.cfi_offset 6, -8
+  95              		.cfi_offset 14, -4
+  96              		.loc 1 124 0
+  97 0002 0400     		movs	r4, r0
+  98 0004 0E00     		movs	r6, r1
+  99 0006 1500     		movs	r5, r2
+ 125:./Application/BSPSys/BSPDriver/BSPUSART.c ****     //模块未使能
+ 126:./Application/BSPSys/BSPDriver/BSPUSART.c ****     if((eUSART6 == usartNum) && (1 != gBSPFunCfg.Bits.USART6En))
+ 100              		.loc 1 126 0
+ 101 0008 0028     		cmp	r0, #0
+ 102 000a 0AD1     		bne	.L9
+ 103              		.loc 1 126 0 is_stmt 0 discriminator 1
+ 104 000c 0D4B     		ldr	r3, .L16
+ 105 000e 1B88     		ldrh	r3, [r3]
+ARM GAS  /tmp/ccHJ61Gv.s 			page 5
+
+
+ 106 0010 9B07     		lsls	r3, r3, #30
+ 107 0012 01D4     		bmi	.L10
+ 108              	.LVL4:
+ 109              	.L12:
+ 127:./Application/BSPSys/BSPDriver/BSPUSART.c ****     {
+ 128:./Application/BSPSys/BSPDriver/BSPUSART.c ****         return(FALSE);
+ 110              		.loc 1 128 0 is_stmt 1
+ 111 0014 0020     		movs	r0, #0
+ 112              	.L11:
+ 129:./Application/BSPSys/BSPDriver/BSPUSART.c ****     }
+ 130:./Application/BSPSys/BSPDriver/BSPUSART.c ****     UART_HandleTypeDef *huart;
+ 131:./Application/BSPSys/BSPDriver/BSPUSART.c ****     huart = GetUsartHandle(usartNum);//获取对应串口句柄
+ 132:./Application/BSPSys/BSPDriver/BSPUSART.c ****     //BSP_DISABLE_IRQ();
+ 133:./Application/BSPSys/BSPDriver/BSPUSART.c ****     switch(usartNum)
+ 134:./Application/BSPSys/BSPDriver/BSPUSART.c ****     {   
+ 135:./Application/BSPSys/BSPDriver/BSPUSART.c ****         case eUSART6:
+ 136:./Application/BSPSys/BSPDriver/BSPUSART.c ****             RS485_SendEnable();
+ 137:./Application/BSPSys/BSPDriver/BSPUSART.c ****         break;
+ 138:./Application/BSPSys/BSPDriver/BSPUSART.c ****         default:
+ 139:./Application/BSPSys/BSPDriver/BSPUSART.c ****         break;
+ 140:./Application/BSPSys/BSPDriver/BSPUSART.c **** 
+ 141:./Application/BSPSys/BSPDriver/BSPUSART.c ****     }
+ 142:./Application/BSPSys/BSPDriver/BSPUSART.c ****     if(HAL_UART_Transmit_IT(huart, sendbuf, size) != HAL_OK)//中断方式发送
+ 143:./Application/BSPSys/BSPDriver/BSPUSART.c ****     {
+ 144:./Application/BSPSys/BSPDriver/BSPUSART.c ****         return(FALSE);
+ 145:./Application/BSPSys/BSPDriver/BSPUSART.c ****     }
+ 146:./Application/BSPSys/BSPDriver/BSPUSART.c ****     switch(usartNum)
+ 147:./Application/BSPSys/BSPDriver/BSPUSART.c ****     {   
+ 148:./Application/BSPSys/BSPDriver/BSPUSART.c ****         case eUSART6:
+ 149:./Application/BSPSys/BSPDriver/BSPUSART.c ****             RS485_ReceiveEnable();
+ 150:./Application/BSPSys/BSPDriver/BSPUSART.c ****         break;
+ 151:./Application/BSPSys/BSPDriver/BSPUSART.c ****         default:
+ 152:./Application/BSPSys/BSPDriver/BSPUSART.c ****         break;
+ 153:./Application/BSPSys/BSPDriver/BSPUSART.c ****     }
+ 154:./Application/BSPSys/BSPDriver/BSPUSART.c ****     //BSP_ENABLE_IRQ();
+ 155:./Application/BSPSys/BSPDriver/BSPUSART.c ****     return(TRUE);
+ 156:./Application/BSPSys/BSPDriver/BSPUSART.c **** }
+ 113              		.loc 1 156 0
+ 114              		@ sp needed
+ 115              	.LVL5:
+ 116 0016 70BD     		pop	{r4, r5, r6, pc}
+ 117              	.LVL6:
+ 118              	.L10:
+ 136:./Application/BSPSys/BSPDriver/BSPUSART.c ****         break;
+ 119              		.loc 1 136 0
+ 120 0018 0221     		movs	r1, #2
+ 121              	.LVL7:
+ 122 001a 0122     		movs	r2, #1
+ 123              	.LVL8:
+ 124 001c 0800     		movs	r0, r1
+ 125              	.LVL9:
+ 126 001e FFF7FEFF 		bl	BSPGPIOSetPortState
+ 127              	.LVL10:
+ 128              	.L9:
+ 142:./Application/BSPSys/BSPDriver/BSPUSART.c ****     {
+ 129              		.loc 1 142 0
+ 130 0022 AAB2     		uxth	r2, r5
+ARM GAS  /tmp/ccHJ61Gv.s 			page 6
+
+
+ 131 0024 3100     		movs	r1, r6
+ 132 0026 0848     		ldr	r0, .L16+4
+ 133 0028 FFF7FEFF 		bl	HAL_UART_Transmit_IT
+ 134              	.LVL11:
+ 135 002c 0028     		cmp	r0, #0
+ 136 002e F1D1     		bne	.L12
+ 146:./Application/BSPSys/BSPDriver/BSPUSART.c ****     {   
+ 137              		.loc 1 146 0
+ 138 0030 002C     		cmp	r4, #0
+ 139 0032 04D1     		bne	.L15
+ 149:./Application/BSPSys/BSPDriver/BSPUSART.c ****         break;
+ 140              		.loc 1 149 0
+ 141 0034 0221     		movs	r1, #2
+ 142 0036 2200     		movs	r2, r4
+ 143 0038 0800     		movs	r0, r1
+ 144 003a FFF7FEFF 		bl	BSPGPIOSetPortState
+ 145              	.LVL12:
+ 146              	.L15:
+ 155:./Application/BSPSys/BSPDriver/BSPUSART.c **** }
+ 147              		.loc 1 155 0
+ 148 003e 0120     		movs	r0, #1
+ 149 0040 E9E7     		b	.L11
+ 150              	.L17:
+ 151 0042 C046     		.align	2
+ 152              	.L16:
+ 153 0044 00000000 		.word	gBSPFunCfg
+ 154 0048 00000000 		.word	huart6
+ 155              		.cfi_endproc
+ 156              	.LFE494:
+ 158              		.section	.text.BSPSCISendDataOnAsk,"ax",%progbits
+ 159              		.align	1
+ 160              		.global	BSPSCISendDataOnAsk
+ 161              		.syntax unified
+ 162              		.code	16
+ 163              		.thumb_func
+ 164              		.fpu softvfp
+ 166              	BSPSCISendDataOnAsk:
+ 167              	.LFB495:
+ 157:./Application/BSPSys/BSPDriver/BSPUSART.c **** 
+ 158:./Application/BSPSys/BSPDriver/BSPUSART.c **** /*=============================================================================================
+ 159:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Name      : u8 BSPSCISendDataOnAsk(e_SCINUM sciNum, u8 *sendbuf, u8 size)
+ 160:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Input     : usartNum:USART通道号*sendbuf:发送的数据 size:数据长度
+ 161:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Output    : TRUE:成功 FALSE:失败
+ 162:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Function  : USART询问方式发送串口数据
+ 163:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @The notes :  直接发送,用户调用
+ 164:./Application/BSPSys/BSPDriver/BSPUSART.c **** **===========================================================================================*/
+ 165:./Application/BSPSys/BSPDriver/BSPUSART.c **** u8 BSPSCISendDataOnAsk(e_USARTNUM usartNum, u8 *sendbuf, u8 size)
+ 166:./Application/BSPSys/BSPDriver/BSPUSART.c **** {
+ 168              		.loc 1 166 0
+ 169              		.cfi_startproc
+ 170              		@ args = 0, pretend = 0, frame = 0
+ 171              		@ frame_needed = 0, uses_anonymous_args = 0
+ 172              	.LVL13:
+ 173 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+ 174              	.LCFI2:
+ 175              		.cfi_def_cfa_offset 24
+ 176              		.cfi_offset 3, -24
+ARM GAS  /tmp/ccHJ61Gv.s 			page 7
+
+
+ 177              		.cfi_offset 4, -20
+ 178              		.cfi_offset 5, -16
+ 179              		.cfi_offset 6, -12
+ 180              		.cfi_offset 7, -8
+ 181              		.cfi_offset 14, -4
+ 182              		.loc 1 166 0
+ 183 0002 0500     		movs	r5, r0
+ 184 0004 0F00     		movs	r7, r1
+ 185 0006 1600     		movs	r6, r2
+ 167:./Application/BSPSys/BSPDriver/BSPUSART.c ****     //模块未使能
+ 168:./Application/BSPSys/BSPDriver/BSPUSART.c ****     if((eUSART6 == usartNum) && (1 != gBSPFunCfg.Bits.USART6En))
+ 186              		.loc 1 168 0
+ 187 0008 0028     		cmp	r0, #0
+ 188 000a 09D1     		bne	.L19
+ 189              		.loc 1 168 0 is_stmt 0 discriminator 1
+ 190 000c 0E4B     		ldr	r3, .L24
+ 169:./Application/BSPSys/BSPDriver/BSPUSART.c ****     {
+ 170:./Application/BSPSys/BSPDriver/BSPUSART.c ****         return(FALSE);
+ 191              		.loc 1 170 0 is_stmt 1 discriminator 1
+ 192 000e 0400     		movs	r4, r0
+ 168:./Application/BSPSys/BSPDriver/BSPUSART.c ****     {
+ 193              		.loc 1 168 0 discriminator 1
+ 194 0010 1B88     		ldrh	r3, [r3]
+ 195 0012 9B07     		lsls	r3, r3, #30
+ 196 0014 15D5     		bpl	.L20
+ 197              	.LVL14:
+ 171:./Application/BSPSys/BSPDriver/BSPUSART.c ****     }
+ 172:./Application/BSPSys/BSPDriver/BSPUSART.c ****     UART_HandleTypeDef *huart;
+ 173:./Application/BSPSys/BSPDriver/BSPUSART.c ****     u8 sendstate = FALSE;
+ 174:./Application/BSPSys/BSPDriver/BSPUSART.c ****     huart = GetUsartHandle(usartNum);//获取对应串口句柄
+ 175:./Application/BSPSys/BSPDriver/BSPUSART.c ****     //BSP_DISABLE_IRQ();
+ 176:./Application/BSPSys/BSPDriver/BSPUSART.c **** 
+ 177:./Application/BSPSys/BSPDriver/BSPUSART.c ****     switch(usartNum)
+ 178:./Application/BSPSys/BSPDriver/BSPUSART.c ****     {   
+ 179:./Application/BSPSys/BSPDriver/BSPUSART.c ****         case eUSART6:
+ 180:./Application/BSPSys/BSPDriver/BSPUSART.c ****             RS485_SendEnable();
+ 198              		.loc 1 180 0
+ 199 0016 0221     		movs	r1, #2
+ 200              	.LVL15:
+ 201 0018 0122     		movs	r2, #1
+ 202              	.LVL16:
+ 203 001a 0800     		movs	r0, r1
+ 204              	.LVL17:
+ 205 001c FFF7FEFF 		bl	BSPGPIOSetPortState
+ 206              	.LVL18:
+ 207              	.L19:
+ 181:./Application/BSPSys/BSPDriver/BSPUSART.c ****         break;
+ 182:./Application/BSPSys/BSPDriver/BSPUSART.c ****         default:
+ 183:./Application/BSPSys/BSPDriver/BSPUSART.c ****         break;
+ 184:./Application/BSPSys/BSPDriver/BSPUSART.c **** 
+ 185:./Application/BSPSys/BSPDriver/BSPUSART.c ****     }
+ 186:./Application/BSPSys/BSPDriver/BSPUSART.c ****     if(HAL_UART_Transmit(huart, sendbuf, size, 1000) != HAL_OK)//轮询方式发送
+ 208              		.loc 1 186 0
+ 209 0020 FA23     		movs	r3, #250
+ 210 0022 B2B2     		uxth	r2, r6
+ 211 0024 9B00     		lsls	r3, r3, #2
+ 212 0026 3900     		movs	r1, r7
+ARM GAS  /tmp/ccHJ61Gv.s 			page 8
+
+
+ 213 0028 0848     		ldr	r0, .L24+4
+ 214 002a FFF7FEFF 		bl	HAL_UART_Transmit
+ 215              	.LVL19:
+ 216 002e 4442     		rsbs	r4, r0, #0
+ 217 0030 4441     		adcs	r4, r4, r0
+ 187:./Application/BSPSys/BSPDriver/BSPUSART.c ****     {
+ 188:./Application/BSPSys/BSPDriver/BSPUSART.c ****         sendstate = FALSE;
+ 218              		.loc 1 188 0
+ 219 0032 E4B2     		uxtb	r4, r4
+ 220              	.LVL20:
+ 189:./Application/BSPSys/BSPDriver/BSPUSART.c ****     }else
+ 190:./Application/BSPSys/BSPDriver/BSPUSART.c ****     {
+ 191:./Application/BSPSys/BSPDriver/BSPUSART.c ****         sendstate = TRUE;
+ 192:./Application/BSPSys/BSPDriver/BSPUSART.c ****     }
+ 193:./Application/BSPSys/BSPDriver/BSPUSART.c ****     
+ 194:./Application/BSPSys/BSPDriver/BSPUSART.c ****     switch(usartNum)
+ 221              		.loc 1 194 0
+ 222 0034 002D     		cmp	r5, #0
+ 223 0036 04D1     		bne	.L20
+ 195:./Application/BSPSys/BSPDriver/BSPUSART.c ****     {   
+ 196:./Application/BSPSys/BSPDriver/BSPUSART.c ****         case eUSART6:
+ 197:./Application/BSPSys/BSPDriver/BSPUSART.c ****             RS485_ReceiveEnable();
+ 224              		.loc 1 197 0
+ 225 0038 0221     		movs	r1, #2
+ 226 003a 2A00     		movs	r2, r5
+ 227 003c 0800     		movs	r0, r1
+ 228 003e FFF7FEFF 		bl	BSPGPIOSetPortState
+ 229              	.LVL21:
+ 230              	.L20:
+ 198:./Application/BSPSys/BSPDriver/BSPUSART.c ****         break;
+ 199:./Application/BSPSys/BSPDriver/BSPUSART.c ****         default:
+ 200:./Application/BSPSys/BSPDriver/BSPUSART.c ****         break;
+ 201:./Application/BSPSys/BSPDriver/BSPUSART.c ****     }
+ 202:./Application/BSPSys/BSPDriver/BSPUSART.c ****     //BSP_ENABLE_IRQ();
+ 203:./Application/BSPSys/BSPDriver/BSPUSART.c ****     return(sendstate);
+ 204:./Application/BSPSys/BSPDriver/BSPUSART.c **** }
+ 231              		.loc 1 204 0
+ 232 0042 2000     		movs	r0, r4
+ 233              		@ sp needed
+ 234              	.LVL22:
+ 235 0044 F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 236              	.L25:
+ 237 0046 C046     		.align	2
+ 238              	.L24:
+ 239 0048 00000000 		.word	gBSPFunCfg
+ 240 004c 00000000 		.word	huart6
+ 241              		.cfi_endproc
+ 242              	.LFE495:
+ 244              		.section	.text.BSPSCISendDataOnDMA,"ax",%progbits
+ 245              		.align	1
+ 246              		.global	BSPSCISendDataOnDMA
+ 247              		.syntax unified
+ 248              		.code	16
+ 249              		.thumb_func
+ 250              		.fpu softvfp
+ 252              	BSPSCISendDataOnDMA:
+ 253              	.LFB496:
+ARM GAS  /tmp/ccHJ61Gv.s 			page 9
+
+
+ 205:./Application/BSPSys/BSPDriver/BSPUSART.c **** 
+ 206:./Application/BSPSys/BSPDriver/BSPUSART.c **** /*=============================================================================================
+ 207:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Name      : u8 BSPSCISendDataOnDMA(e_USARTNUM usartNum, u8 *sendbuf, u8 size)
+ 208:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Input     : usartNum:USART通道号 *sendbuf:发送的数据 size:数据长度
+ 209:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Output    : TRUE:成功 FALSE:失败
+ 210:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Function  : USART DMA方式发送串口数据
+ 211:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @The notes :  直接发送,用户调用
+ 212:./Application/BSPSys/BSPDriver/BSPUSART.c **** **===========================================================================================*/
+ 213:./Application/BSPSys/BSPDriver/BSPUSART.c **** u8 BSPSCISendDataOnDMA(e_USARTNUM usartNum, u8 *sendbuf, u8 size)
+ 214:./Application/BSPSys/BSPDriver/BSPUSART.c **** {
+ 254              		.loc 1 214 0
+ 255              		.cfi_startproc
+ 256              		@ args = 0, pretend = 0, frame = 0
+ 257              		@ frame_needed = 0, uses_anonymous_args = 0
+ 258              		@ link register save eliminated.
+ 259              	.LVL23:
+ 215:./Application/BSPSys/BSPDriver/BSPUSART.c ****     //dma没配置
+ 216:./Application/BSPSys/BSPDriver/BSPUSART.c ****     return(FALSE);
+ 217:./Application/BSPSys/BSPDriver/BSPUSART.c **** }
+ 260              		.loc 1 217 0
+ 261 0000 0020     		movs	r0, #0
+ 262              	.LVL24:
+ 263              		@ sp needed
+ 264 0002 7047     		bx	lr
+ 265              		.cfi_endproc
+ 266              	.LFE496:
+ 268              		.section	.text.BSPUSARTBufInit,"ax",%progbits
+ 269              		.align	1
+ 270              		.global	BSPUSARTBufInit
+ 271              		.syntax unified
+ 272              		.code	16
+ 273              		.thumb_func
+ 274              		.fpu softvfp
+ 276              	BSPUSARTBufInit:
+ 277              	.LFB497:
+ 218:./Application/BSPSys/BSPDriver/BSPUSART.c **** 
+ 219:./Application/BSPSys/BSPDriver/BSPUSART.c **** /*=============================================================================================
+ 220:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Name      : void BSPUSARTBufInit(void)
+ 221:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Input     : void
+ 222:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Output    : void
+ 223:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Function  : 初始化USART发送/接收BUF
+ 224:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @The notes : Main()函数调用，上电初始化
+ 225:./Application/BSPSys/BSPDriver/BSPUSART.c **** **===========================================================================================*/
+ 226:./Application/BSPSys/BSPDriver/BSPUSART.c **** void BSPUSARTBufInit(void)
+ 227:./Application/BSPSys/BSPDriver/BSPUSART.c **** {
+ 278              		.loc 1 227 0
+ 279              		.cfi_startproc
+ 280              		@ args = 0, pretend = 0, frame = 0
+ 281              		@ frame_needed = 0, uses_anonymous_args = 0
+ 282              	.LVL25:
+ 283 0000 10B5     		push	{r4, lr}
+ 284              	.LCFI3:
+ 285              		.cfi_def_cfa_offset 8
+ 286              		.cfi_offset 4, -8
+ 287              		.cfi_offset 14, -4
+ 288              	.LBB8:
+ 289              	.LBB9:
+ARM GAS  /tmp/ccHJ61Gv.s 			page 10
+
+
+ 228:./Application/BSPSys/BSPDriver/BSPUSART.c ****     u8 usartNum = 0; 
+ 229:./Application/BSPSys/BSPDriver/BSPUSART.c ****     //初始化发送缓冲区队列和接收缓冲区队列
+ 230:./Application/BSPSys/BSPDriver/BSPUSART.c ****     for(usartNum = 0; usartNum < eUSARTNUM; usartNum++)
+ 231:./Application/BSPSys/BSPDriver/BSPUSART.c ****     {
+ 232:./Application/BSPSys/BSPDriver/BSPUSART.c ****         //环形接收缓冲区初始化
+ 233:./Application/BSPSys/BSPDriver/BSPUSART.c ****         USARTRcvCyBufInit((e_USARTNUM)usartNum);
+ 234:./Application/BSPSys/BSPDriver/BSPUSART.c ****         //发送队列缓冲区初始化
+ 235:./Application/BSPSys/BSPDriver/BSPUSART.c ****         (void)QueInit((void *)&sUSARTSendBuff[usartNum], USART_QUEUE_SIZE, USART_QUEUE_NUM);
+ 236:./Application/BSPSys/BSPDriver/BSPUSART.c ****     }
+ 237:./Application/BSPSys/BSPDriver/BSPUSART.c **** }
+ 238:./Application/BSPSys/BSPDriver/BSPUSART.c ****          
+ 239:./Application/BSPSys/BSPDriver/BSPUSART.c **** /*=============================================================================================
+ 240:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Name      : u8 BSPUSARTSendQin(e_USARTNUM usartNum, u8 *tdata, u8 size)
+ 241:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Input     : canNum:通道号 *data:发送信息数组 xize 发送数组大小（不超过100）
+ 242:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Output    : 发送结果:TRUE-成功 FALSE-失败
+ 243:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Function  : CAN发送信息(数据压入队列)
+ 244:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @The notes : 用户调用
+ 245:./Application/BSPSys/BSPDriver/BSPUSART.c **** **===========================================================================================*/
+ 246:./Application/BSPSys/BSPDriver/BSPUSART.c **** u8 BSPUSARTSendQin(e_USARTNUM usartNum, u8 *tdata, u8 size)
+ 247:./Application/BSPSys/BSPDriver/BSPUSART.c **** {
+ 248:./Application/BSPSys/BSPDriver/BSPUSART.c **** 
+ 249:./Application/BSPSys/BSPDriver/BSPUSART.c ****     if((eUSART6 == usartNum) && (1 != gBSPFunCfg.Bits.USART6En))
+ 250:./Application/BSPSys/BSPDriver/BSPUSART.c ****     {
+ 251:./Application/BSPSys/BSPDriver/BSPUSART.c ****         return(FALSE);
+ 252:./Application/BSPSys/BSPDriver/BSPUSART.c ****     }
+ 253:./Application/BSPSys/BSPDriver/BSPUSART.c ****     if((usartNum >= eUSARTNUM) || (size > USART_DATA_LEN))
+ 254:./Application/BSPSys/BSPDriver/BSPUSART.c ****     {
+ 255:./Application/BSPSys/BSPDriver/BSPUSART.c ****         return(FALSE);
+ 256:./Application/BSPSys/BSPDriver/BSPUSART.c ****     }
+ 257:./Application/BSPSys/BSPDriver/BSPUSART.c ****     u8 result = 0;
+ 258:./Application/BSPSys/BSPDriver/BSPUSART.c ****     t_USARTMSG msg;
+ 259:./Application/BSPSys/BSPDriver/BSPUSART.c ****     memcpy(msg.data,tdata, size);
+ 260:./Application/BSPSys/BSPDriver/BSPUSART.c ****     msg.len = size;
+ 261:./Application/BSPSys/BSPDriver/BSPUSART.c ****     result = QueIn( (void*)sUSARTSendBuff[usartNum], (void*)(&msg));//发送数据入队列
+ 262:./Application/BSPSys/BSPDriver/BSPUSART.c ****     return(result);
+ 263:./Application/BSPSys/BSPDriver/BSPUSART.c **** }     
+ 264:./Application/BSPSys/BSPDriver/BSPUSART.c **** 
+ 265:./Application/BSPSys/BSPDriver/BSPUSART.c **** /*=============================================================================================
+ 266:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Name      : void BSPUSARTSendTask(void)
+ 267:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Input     : void
+ 268:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Output    : void
+ 269:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Function  : USART信息发送任务
+ 270:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @The notes : BSP调用
+ 271:./Application/BSPSys/BSPDriver/BSPUSART.c **** **===========================================================================================*/
+ 272:./Application/BSPSys/BSPDriver/BSPUSART.c **** void BSPUSARTSendTask()
+ 273:./Application/BSPSys/BSPDriver/BSPUSART.c **** {
+ 274:./Application/BSPSys/BSPDriver/BSPUSART.c **** 	u8 index = 0;
+ 275:./Application/BSPSys/BSPDriver/BSPUSART.c **** 	static t_USARTMSG txMsg;
+ 276:./Application/BSPSys/BSPDriver/BSPUSART.c **** 	static u8 sHisErr[eUSARTNUM] = {TRUE};
+ 277:./Application/BSPSys/BSPDriver/BSPUSART.c **** 
+ 278:./Application/BSPSys/BSPDriver/BSPUSART.c **** 	//BSP_DISABLE_IRQ();
+ 279:./Application/BSPSys/BSPDriver/BSPUSART.c **** 	for(index = 0; index < eUSARTNUM; index++)
+ 280:./Application/BSPSys/BSPDriver/BSPUSART.c **** 	{
+ 281:./Application/BSPSys/BSPDriver/BSPUSART.c **** 		if(QueGetUnitNum((void *)&sUSARTSendBuff[index]))                     //判断USART发送缓冲�
+ 282:./Application/BSPSys/BSPDriver/BSPUSART.c **** 		{
+ 283:./Application/BSPSys/BSPDriver/BSPUSART.c **** 			if(FALSE == sHisErr[index])                                     //上次发送失败
+ 284:./Application/BSPSys/BSPDriver/BSPUSART.c **** 			{
+ARM GAS  /tmp/ccHJ61Gv.s 			page 11
+
+
+ 285:./Application/BSPSys/BSPDriver/BSPUSART.c **** 				(void)BSPUSARTSendMsg((e_USARTNUM)index, &txMsg);               //直接重发一次
+ 286:./Application/BSPSys/BSPDriver/BSPUSART.c ****                                 osDelay(5);//防止串口报文粘连
+ 287:./Application/BSPSys/BSPDriver/BSPUSART.c **** 				sHisErr[index] = TRUE;
+ 288:./Application/BSPSys/BSPDriver/BSPUSART.c **** 			}
+ 289:./Application/BSPSys/BSPDriver/BSPUSART.c **** 			else if(QueOut((void *)&sUSARTSendBuff[index], (void *)(&txMsg))) //出对列成功
+ 290:./Application/BSPSys/BSPDriver/BSPUSART.c **** 			{
+ 291:./Application/BSPSys/BSPDriver/BSPUSART.c **** 				sHisErr[index] = BSPUSARTSendMsg((e_USARTNUM)index, &txMsg);    //发送数据	
+ 292:./Application/BSPSys/BSPDriver/BSPUSART.c ****                                 osDelay(5);//防止串口报文粘连
+ 293:./Application/BSPSys/BSPDriver/BSPUSART.c **** 			}
+ 294:./Application/BSPSys/BSPDriver/BSPUSART.c **** 		}
+ 295:./Application/BSPSys/BSPDriver/BSPUSART.c **** 	}
+ 296:./Application/BSPSys/BSPDriver/BSPUSART.c **** 	//BSP_ENABLE_IRQ();
+ 297:./Application/BSPSys/BSPDriver/BSPUSART.c **** }
+ 298:./Application/BSPSys/BSPDriver/BSPUSART.c **** 
+ 299:./Application/BSPSys/BSPDriver/BSPUSART.c **** /*=============================================================================================
+ 300:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Name      : u8 BSPUSARTSendMsg(e_USARTNUM usartNum, t_USARTMSG *msg)
+ 301:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Input     : usartNum:通道号 *msg:发送信息结构体
+ 302:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Output    : 发送结果:TRUE-成功 FALSE-失败
+ 303:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Function  : USART发送信息(直接发送)
+ 304:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @The notes : 用户调用
+ 305:./Application/BSPSys/BSPDriver/BSPUSART.c **** **===========================================================================================*/
+ 306:./Application/BSPSys/BSPDriver/BSPUSART.c **** u8 BSPUSARTSendMsg(e_USARTNUM usartNum, t_USARTMSG *msg)
+ 307:./Application/BSPSys/BSPDriver/BSPUSART.c **** {	
+ 308:./Application/BSPSys/BSPDriver/BSPUSART.c ****     if(0 == msg->len)
+ 309:./Application/BSPSys/BSPDriver/BSPUSART.c ****     {
+ 310:./Application/BSPSys/BSPDriver/BSPUSART.c ****         return(FALSE);
+ 311:./Application/BSPSys/BSPDriver/BSPUSART.c ****     }
+ 312:./Application/BSPSys/BSPDriver/BSPUSART.c ****     //模块未使能
+ 313:./Application/BSPSys/BSPDriver/BSPUSART.c ****     if((eUSART6 == usartNum) && (1 != gBSPFunCfg.Bits.USART6En))
+ 314:./Application/BSPSys/BSPDriver/BSPUSART.c ****     {
+ 315:./Application/BSPSys/BSPDriver/BSPUSART.c ****         return(FALSE);
+ 316:./Application/BSPSys/BSPDriver/BSPUSART.c ****     }
+ 317:./Application/BSPSys/BSPDriver/BSPUSART.c ****     if(TRUE != BSPSCISendDataOnAsk(usartNum, msg->data, msg->len))//串口轮询发送
+ 318:./Application/BSPSys/BSPDriver/BSPUSART.c ****     {
+ 319:./Application/BSPSys/BSPDriver/BSPUSART.c ****         return(FALSE);
+ 320:./Application/BSPSys/BSPDriver/BSPUSART.c ****     }
+ 321:./Application/BSPSys/BSPDriver/BSPUSART.c ****     return(TRUE);
+ 322:./Application/BSPSys/BSPDriver/BSPUSART.c **** }
+ 323:./Application/BSPSys/BSPDriver/BSPUSART.c **** 
+ 324:./Application/BSPSys/BSPDriver/BSPUSART.c **** /*=============================================================================================
+ 325:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Name      : void BSPUSARTRcvTask(void)
+ 326:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Input     : void
+ 327:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Output    : void
+ 328:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Function  : USART接收信息处理任务
+ 329:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @The notes : BSP调用
+ 330:./Application/BSPSys/BSPDriver/BSPUSART.c **** **===========================================================================================*/
+ 331:./Application/BSPSys/BSPDriver/BSPUSART.c **** void BSPUSARTRcvTask()
+ 332:./Application/BSPSys/BSPDriver/BSPUSART.c **** {
+ 333:./Application/BSPSys/BSPDriver/BSPUSART.c ****     u8 index = 0;
+ 334:./Application/BSPSys/BSPDriver/BSPUSART.c ****     t_USARTMSG rcvMsg;
+ 335:./Application/BSPSys/BSPDriver/BSPUSART.c ****     
+ 336:./Application/BSPSys/BSPDriver/BSPUSART.c ****     
+ 337:./Application/BSPSys/BSPDriver/BSPUSART.c ****     //BSP_DISABLE_IRQ();
+ 338:./Application/BSPSys/BSPDriver/BSPUSART.c ****     for(index = 0; index < eUSARTNUM; index++)
+ 339:./Application/BSPSys/BSPDriver/BSPUSART.c ****     {
+ 340:./Application/BSPSys/BSPDriver/BSPUSART.c ****         //从缓冲区读取接收到的报文提交到用户处理
+ 341:./Application/BSPSys/BSPDriver/BSPUSART.c ****         if(USARTReadRcvCyBuf((e_USARTNUM)index, &rcvMsg) == TRUE)
+ARM GAS  /tmp/ccHJ61Gv.s 			page 12
+
+
+ 342:./Application/BSPSys/BSPDriver/BSPUSART.c ****         {
+ 343:./Application/BSPSys/BSPDriver/BSPUSART.c ****             //计算缓冲区未处理信息
+ 344:./Application/BSPSys/BSPDriver/BSPUSART.c ****             if(sUSARTCyUnDealNum[index] >= 1)
+ 345:./Application/BSPSys/BSPDriver/BSPUSART.c ****             {
+ 346:./Application/BSPSys/BSPDriver/BSPUSART.c ****                 sUSARTCyUnDealNum[index]--;
+ 347:./Application/BSPSys/BSPDriver/BSPUSART.c ****             }
+ 348:./Application/BSPSys/BSPDriver/BSPUSART.c **** 
+ 349:./Application/BSPSys/BSPDriver/BSPUSART.c ****             //USART接收报文处理函数
+ 350:./Application/BSPSys/BSPDriver/BSPUSART.c ****             (void)USARTRcvMsgHandle_Hook((e_USARTNUM)index, &rcvMsg);
+ 351:./Application/BSPSys/BSPDriver/BSPUSART.c **** 			
+ 352:./Application/BSPSys/BSPDriver/BSPUSART.c ****         }
+ 353:./Application/BSPSys/BSPDriver/BSPUSART.c ****     }
+ 354:./Application/BSPSys/BSPDriver/BSPUSART.c ****     //BSP_ENABLE_IRQ();
+ 355:./Application/BSPSys/BSPDriver/BSPUSART.c **** }
+ 356:./Application/BSPSys/BSPDriver/BSPUSART.c **** 
+ 357:./Application/BSPSys/BSPDriver/BSPUSART.c **** /*=============================================================================================
+ 358:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Static function definition
+ 359:./Application/BSPSys/BSPDriver/BSPUSART.c **** **===========================================================================================*/
+ 360:./Application/BSPSys/BSPDriver/BSPUSART.c **** /*=============================================================================================
+ 361:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Name      : static UART_HandleTypeDef GetUsartHandle(e_USARTNUM usartNum)
+ 362:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Input     : sciNum:SCI通道号
+ 363:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Output    : 串口对应句柄
+ 364:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Function  : 获取串口对应句柄
+ 365:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @The notes :
+ 366:./Application/BSPSys/BSPDriver/BSPUSART.c **** **===========================================================================================*/
+ 367:./Application/BSPSys/BSPDriver/BSPUSART.c **** static UART_HandleTypeDef* GetUsartHandle(e_USARTNUM usartNum)
+ 368:./Application/BSPSys/BSPDriver/BSPUSART.c **** {
+ 369:./Application/BSPSys/BSPDriver/BSPUSART.c ****      switch(usartNum)
+ 370:./Application/BSPSys/BSPDriver/BSPUSART.c ****     {
+ 371:./Application/BSPSys/BSPDriver/BSPUSART.c ****         case eUSART6:
+ 372:./Application/BSPSys/BSPDriver/BSPUSART.c ****             return &huart6;
+ 373:./Application/BSPSys/BSPDriver/BSPUSART.c ****         break;
+ 374:./Application/BSPSys/BSPDriver/BSPUSART.c ****         default:
+ 375:./Application/BSPSys/BSPDriver/BSPUSART.c ****             return &huart6;
+ 376:./Application/BSPSys/BSPDriver/BSPUSART.c ****         break;
+ 377:./Application/BSPSys/BSPDriver/BSPUSART.c ****     }
+ 378:./Application/BSPSys/BSPDriver/BSPUSART.c **** }
+ 379:./Application/BSPSys/BSPDriver/BSPUSART.c **** 
+ 380:./Application/BSPSys/BSPDriver/BSPUSART.c **** /*=============================================================================================
+ 381:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Name      : static void USARTRcvCyBufInit(e_USARTNUM usartNum)
+ 382:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Input     : usartNum:CAN通道号
+ 383:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Output    : void
+ 384:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Function  : 环形接收缓冲区初始化
+ 385:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @The notes :
+ 386:./Application/BSPSys/BSPDriver/BSPUSART.c **** **===========================================================================================*/
+ 387:./Application/BSPSys/BSPDriver/BSPUSART.c **** static void USARTRcvCyBufInit(e_USARTNUM usartNum)
+ 388:./Application/BSPSys/BSPDriver/BSPUSART.c **** {
+ 389:./Application/BSPSys/BSPDriver/BSPUSART.c ****     if(usartNum >= eUSARTNUM)
+ 390:./Application/BSPSys/BSPDriver/BSPUSART.c ****     {
+ 391:./Application/BSPSys/BSPDriver/BSPUSART.c ****             return;
+ 392:./Application/BSPSys/BSPDriver/BSPUSART.c ****     }	
+ 393:./Application/BSPSys/BSPDriver/BSPUSART.c ****     memset((u8 *)(&(sUSARTRcvCyBuf[usartNum])), 0, sizeof(sUSARTRcvCyBuf[usartNum]));
+ 290              		.loc 1 393 0
+ 291 0002 054A     		ldr	r2, .L28
+ 292 0004 0021     		movs	r1, #0
+ 293 0006 0548     		ldr	r0, .L28+4
+ 294 0008 FFF7FEFF 		bl	memset
+ARM GAS  /tmp/ccHJ61Gv.s 			page 13
+
+
+ 295              	.LVL26:
+ 296              	.LBE9:
+ 297              	.LBE8:
+ 235:./Application/BSPSys/BSPDriver/BSPUSART.c ****     }
+ 298              		.loc 1 235 0
+ 299 000c 0A22     		movs	r2, #10
+ 300 000e C921     		movs	r1, #201
+ 301 0010 0348     		ldr	r0, .L28+8
+ 302 0012 FFF7FEFF 		bl	QueInit
+ 303              	.LVL27:
+ 237:./Application/BSPSys/BSPDriver/BSPUSART.c ****          
+ 304              		.loc 1 237 0
+ 305              		@ sp needed
+ 306 0016 10BD     		pop	{r4, pc}
+ 307              	.L29:
+ 308              		.align	2
+ 309              	.L28:
+ 310 0018 DD070000 		.word	2013
+ 311 001c 00000000 		.word	sUSARTRcvCyBuf
+ 312 0020 00000000 		.word	sUSARTSendBuff
+ 313              		.cfi_endproc
+ 314              	.LFE497:
+ 316              		.section	.text.BSPUSARTSendQin,"ax",%progbits
+ 317              		.align	1
+ 318              		.global	BSPUSARTSendQin
+ 319              		.syntax unified
+ 320              		.code	16
+ 321              		.thumb_func
+ 322              		.fpu softvfp
+ 324              	BSPUSARTSendQin:
+ 325              	.LFB498:
+ 247:./Application/BSPSys/BSPDriver/BSPUSART.c **** 
+ 326              		.loc 1 247 0
+ 327              		.cfi_startproc
+ 328              		@ args = 0, pretend = 0, frame = 208
+ 329              		@ frame_needed = 0, uses_anonymous_args = 0
+ 330              	.LVL28:
+ 331 0000 0300     		movs	r3, r0
+ 255:./Application/BSPSys/BSPDriver/BSPUSART.c ****     }
+ 332              		.loc 1 255 0
+ 333 0002 0020     		movs	r0, #0
+ 334              	.LVL29:
+ 247:./Application/BSPSys/BSPDriver/BSPUSART.c **** 
+ 335              		.loc 1 247 0
+ 336 0004 10B5     		push	{r4, lr}
+ 337              	.LCFI4:
+ 338              		.cfi_def_cfa_offset 8
+ 339              		.cfi_offset 4, -8
+ 340              		.cfi_offset 14, -4
+ 341 0006 1400     		movs	r4, r2
+ 342 0008 B4B0     		sub	sp, sp, #208
+ 343              	.LCFI5:
+ 344              		.cfi_def_cfa_offset 216
+ 249:./Application/BSPSys/BSPDriver/BSPUSART.c ****     {
+ 345              		.loc 1 249 0
+ 346 000a 8342     		cmp	r3, r0
+ 347 000c 0ED1     		bne	.L31
+ARM GAS  /tmp/ccHJ61Gv.s 			page 14
+
+
+ 249:./Application/BSPSys/BSPDriver/BSPUSART.c ****     {
+ 348              		.loc 1 249 0 is_stmt 0 discriminator 1
+ 349 000e 084B     		ldr	r3, .L36
+ 350 0010 1B88     		ldrh	r3, [r3]
+ 351 0012 9B07     		lsls	r3, r3, #30
+ 352 0014 0AD5     		bpl	.L31
+ 253:./Application/BSPSys/BSPDriver/BSPUSART.c ****     {
+ 353              		.loc 1 253 0 is_stmt 1 discriminator 1
+ 354 0016 C82A     		cmp	r2, #200
+ 355 0018 08D8     		bhi	.L31
+ 356              	.LVL30:
+ 259:./Application/BSPSys/BSPDriver/BSPUSART.c ****     msg.len = size;
+ 357              		.loc 1 259 0
+ 358 001a 01A8     		add	r0, sp, #4
+ 359 001c FFF7FEFF 		bl	memcpy
+ 360              	.LVL31:
+ 260:./Application/BSPSys/BSPDriver/BSPUSART.c ****     result = QueIn( (void*)sUSARTSendBuff[usartNum], (void*)(&msg));//发送数据入队列
+ 361              		.loc 1 260 0
+ 362 0020 33AB     		add	r3, sp, #204
+ 261:./Application/BSPSys/BSPDriver/BSPUSART.c ****     return(result);
+ 363              		.loc 1 261 0
+ 364 0022 01A9     		add	r1, sp, #4
+ 365 0024 0348     		ldr	r0, .L36+4
+ 260:./Application/BSPSys/BSPDriver/BSPUSART.c ****     result = QueIn( (void*)sUSARTSendBuff[usartNum], (void*)(&msg));//发送数据入队列
+ 366              		.loc 1 260 0
+ 367 0026 1C70     		strb	r4, [r3]
+ 261:./Application/BSPSys/BSPDriver/BSPUSART.c ****     return(result);
+ 368              		.loc 1 261 0
+ 369 0028 FFF7FEFF 		bl	QueIn
+ 370              	.LVL32:
+ 371              	.L31:
+ 263:./Application/BSPSys/BSPDriver/BSPUSART.c **** 
+ 372              		.loc 1 263 0
+ 373 002c 34B0     		add	sp, sp, #208
+ 374              		@ sp needed
+ 375 002e 10BD     		pop	{r4, pc}
+ 376              	.L37:
+ 377              		.align	2
+ 378              	.L36:
+ 379 0030 00000000 		.word	gBSPFunCfg
+ 380 0034 00000000 		.word	sUSARTSendBuff
+ 381              		.cfi_endproc
+ 382              	.LFE498:
+ 384              		.section	.text.BSPUSARTSendMsg,"ax",%progbits
+ 385              		.align	1
+ 386              		.global	BSPUSARTSendMsg
+ 387              		.syntax unified
+ 388              		.code	16
+ 389              		.thumb_func
+ 390              		.fpu softvfp
+ 392              	BSPUSARTSendMsg:
+ 393              	.LFB500:
+ 307:./Application/BSPSys/BSPDriver/BSPUSART.c ****     if(0 == msg->len)
+ 394              		.loc 1 307 0
+ 395              		.cfi_startproc
+ 396              		@ args = 0, pretend = 0, frame = 0
+ 397              		@ frame_needed = 0, uses_anonymous_args = 0
+ARM GAS  /tmp/ccHJ61Gv.s 			page 15
+
+
+ 398              	.LVL33:
+ 308:./Application/BSPSys/BSPDriver/BSPUSART.c ****     {
+ 399              		.loc 1 308 0
+ 400 0000 0B00     		movs	r3, r1
+ 307:./Application/BSPSys/BSPDriver/BSPUSART.c ****     if(0 == msg->len)
+ 401              		.loc 1 307 0
+ 402 0002 10B5     		push	{r4, lr}
+ 403              	.LCFI6:
+ 404              		.cfi_def_cfa_offset 8
+ 405              		.cfi_offset 4, -8
+ 406              		.cfi_offset 14, -4
+ 308:./Application/BSPSys/BSPDriver/BSPUSART.c ****     {
+ 407              		.loc 1 308 0
+ 408 0004 C833     		adds	r3, r3, #200
+ 409 0006 1A78     		ldrb	r2, [r3]
+ 410 0008 002A     		cmp	r2, #0
+ 411 000a 0CD0     		beq	.L39
+ 313:./Application/BSPSys/BSPDriver/BSPUSART.c ****     {
+ 412              		.loc 1 313 0
+ 413 000c 0028     		cmp	r0, #0
+ 414 000e 04D1     		bne	.L40
+ 313:./Application/BSPSys/BSPDriver/BSPUSART.c ****     {
+ 415              		.loc 1 313 0 is_stmt 0 discriminator 1
+ 416 0010 074B     		ldr	r3, .L45
+ 417 0012 1B88     		ldrh	r3, [r3]
+ 418 0014 9B07     		lsls	r3, r3, #30
+ 419 0016 DB0F     		lsrs	r3, r3, #31
+ 420 0018 07D0     		beq	.L41
+ 421              	.L40:
+ 317:./Application/BSPSys/BSPDriver/BSPUSART.c ****     {
+ 422              		.loc 1 317 0 is_stmt 1
+ 423 001a FFF7FEFF 		bl	BSPSCISendDataOnAsk
+ 424              	.LVL34:
+ 425 001e 0138     		subs	r0, r0, #1
+ 426 0020 4242     		rsbs	r2, r0, #0
+ 427 0022 4241     		adcs	r2, r2, r0
+ 310:./Application/BSPSys/BSPDriver/BSPUSART.c ****     }
+ 428              		.loc 1 310 0
+ 429 0024 D2B2     		uxtb	r2, r2
+ 430              	.L39:
+ 322:./Application/BSPSys/BSPDriver/BSPUSART.c **** 
+ 431              		.loc 1 322 0
+ 432 0026 1000     		movs	r0, r2
+ 433              		@ sp needed
+ 434 0028 10BD     		pop	{r4, pc}
+ 435              	.LVL35:
+ 436              	.L41:
+ 310:./Application/BSPSys/BSPDriver/BSPUSART.c ****     }
+ 437              		.loc 1 310 0
+ 438 002a 1A00     		movs	r2, r3
+ 439 002c FBE7     		b	.L39
+ 440              	.L46:
+ 441 002e C046     		.align	2
+ 442              	.L45:
+ 443 0030 00000000 		.word	gBSPFunCfg
+ 444              		.cfi_endproc
+ 445              	.LFE500:
+ARM GAS  /tmp/ccHJ61Gv.s 			page 16
+
+
+ 447              		.section	.text.BSPUSARTSendTask,"ax",%progbits
+ 448              		.align	1
+ 449              		.global	BSPUSARTSendTask
+ 450              		.syntax unified
+ 451              		.code	16
+ 452              		.thumb_func
+ 453              		.fpu softvfp
+ 455              	BSPUSARTSendTask:
+ 456              	.LFB499:
+ 273:./Application/BSPSys/BSPDriver/BSPUSART.c **** 	u8 index = 0;
+ 457              		.loc 1 273 0
+ 458              		.cfi_startproc
+ 459              		@ args = 0, pretend = 0, frame = 0
+ 460              		@ frame_needed = 0, uses_anonymous_args = 0
+ 461              	.LVL36:
+ 462 0000 70B5     		push	{r4, r5, r6, lr}
+ 463              	.LCFI7:
+ 464              		.cfi_def_cfa_offset 16
+ 465              		.cfi_offset 4, -16
+ 466              		.cfi_offset 5, -12
+ 467              		.cfi_offset 6, -8
+ 468              		.cfi_offset 14, -4
+ 281:./Application/BSPSys/BSPDriver/BSPUSART.c **** 		{
+ 469              		.loc 1 281 0
+ 470 0002 114E     		ldr	r6, .L55
+ 471 0004 3000     		movs	r0, r6
+ 472 0006 FFF7FEFF 		bl	QueGetUnitNum
+ 473              	.LVL37:
+ 474 000a 0028     		cmp	r0, #0
+ 475 000c 0CD0     		beq	.L47
+ 283:./Application/BSPSys/BSPDriver/BSPUSART.c **** 			{
+ 476              		.loc 1 283 0
+ 477 000e 0F4C     		ldr	r4, .L55+4
+ 478 0010 0F4D     		ldr	r5, .L55+8
+ 479 0012 2078     		ldrb	r0, [r4]
+ 285:./Application/BSPSys/BSPDriver/BSPUSART.c ****                                 osDelay(5);//防止串口报文粘连
+ 480              		.loc 1 285 0
+ 481 0014 2900     		movs	r1, r5
+ 283:./Application/BSPSys/BSPDriver/BSPUSART.c **** 			{
+ 482              		.loc 1 283 0
+ 483 0016 0028     		cmp	r0, #0
+ 484 0018 07D1     		bne	.L50
+ 285:./Application/BSPSys/BSPDriver/BSPUSART.c ****                                 osDelay(5);//防止串口报文粘连
+ 485              		.loc 1 285 0
+ 486 001a FFF7FEFF 		bl	BSPUSARTSendMsg
+ 487              	.LVL38:
+ 286:./Application/BSPSys/BSPDriver/BSPUSART.c **** 				sHisErr[index] = TRUE;
+ 488              		.loc 1 286 0
+ 489 001e 0520     		movs	r0, #5
+ 490 0020 FFF7FEFF 		bl	osDelay
+ 491              	.LVL39:
+ 287:./Application/BSPSys/BSPDriver/BSPUSART.c **** 			}
+ 492              		.loc 1 287 0
+ 493 0024 0123     		movs	r3, #1
+ 494 0026 2370     		strb	r3, [r4]
+ 495              	.LVL40:
+ 496              	.L47:
+ARM GAS  /tmp/ccHJ61Gv.s 			page 17
+
+
+ 297:./Application/BSPSys/BSPDriver/BSPUSART.c **** 
+ 497              		.loc 1 297 0
+ 498              		@ sp needed
+ 499 0028 70BD     		pop	{r4, r5, r6, pc}
+ 500              	.LVL41:
+ 501              	.L50:
+ 289:./Application/BSPSys/BSPDriver/BSPUSART.c **** 			{
+ 502              		.loc 1 289 0
+ 503 002a 3000     		movs	r0, r6
+ 504 002c FFF7FEFF 		bl	QueOut
+ 505              	.LVL42:
+ 506 0030 0028     		cmp	r0, #0
+ 507 0032 F9D0     		beq	.L47
+ 291:./Application/BSPSys/BSPDriver/BSPUSART.c ****                                 osDelay(5);//防止串口报文粘连
+ 508              		.loc 1 291 0
+ 509 0034 2900     		movs	r1, r5
+ 510 0036 0020     		movs	r0, #0
+ 511 0038 FFF7FEFF 		bl	BSPUSARTSendMsg
+ 512              	.LVL43:
+ 513 003c 2070     		strb	r0, [r4]
+ 292:./Application/BSPSys/BSPDriver/BSPUSART.c **** 			}
+ 514              		.loc 1 292 0
+ 515 003e 0520     		movs	r0, #5
+ 516 0040 FFF7FEFF 		bl	osDelay
+ 517              	.LVL44:
+ 297:./Application/BSPSys/BSPDriver/BSPUSART.c **** 
+ 518              		.loc 1 297 0
+ 519 0044 F0E7     		b	.L47
+ 520              	.L56:
+ 521 0046 C046     		.align	2
+ 522              	.L55:
+ 523 0048 00000000 		.word	sUSARTSendBuff
+ 524 004c 00000000 		.word	.LANCHOR0
+ 525 0050 00000000 		.word	txMsg.10882
+ 526              		.cfi_endproc
+ 527              	.LFE499:
+ 529              		.section	.text.BSPUSARTRcvTask,"ax",%progbits
+ 530              		.align	1
+ 531              		.global	BSPUSARTRcvTask
+ 532              		.syntax unified
+ 533              		.code	16
+ 534              		.thumb_func
+ 535              		.fpu softvfp
+ 537              	BSPUSARTRcvTask:
+ 538              	.LFB501:
+ 332:./Application/BSPSys/BSPDriver/BSPUSART.c ****     u8 index = 0;
+ 539              		.loc 1 332 0
+ 540              		.cfi_startproc
+ 541              		@ args = 0, pretend = 0, frame = 208
+ 542              		@ frame_needed = 0, uses_anonymous_args = 0
+ 543              	.LVL45:
+ 544 0000 30B5     		push	{r4, r5, lr}
+ 545              	.LCFI8:
+ 546              		.cfi_def_cfa_offset 12
+ 547              		.cfi_offset 4, -12
+ 548              		.cfi_offset 5, -8
+ 549              		.cfi_offset 14, -4
+ARM GAS  /tmp/ccHJ61Gv.s 			page 18
+
+
+ 550              	.LBB12:
+ 551              	.LBB13:
+ 394:./Application/BSPSys/BSPDriver/BSPUSART.c ****     sUSARTRcvCyBuf[usartNum].uFullFlag   = 0;   
+ 395:./Application/BSPSys/BSPDriver/BSPUSART.c ****     sUSARTRcvCyBuf[usartNum].uReadPoint  = 0;
+ 396:./Application/BSPSys/BSPDriver/BSPUSART.c ****     sUSARTRcvCyBuf[usartNum].uWritePoint = 0;
+ 397:./Application/BSPSys/BSPDriver/BSPUSART.c **** }
+ 398:./Application/BSPSys/BSPDriver/BSPUSART.c **** 
+ 399:./Application/BSPSys/BSPDriver/BSPUSART.c **** /*=============================================================================================
+ 400:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Name      : static u8 USARTReadRcvCyBuf(e_USARTNUM usartNum, t_USARTMSG *pRcvMsg)
+ 401:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Input     : usartNum:CAN通道号, *pRcvMsg:CAN信息结构体接收数据指针
+ 402:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Output    : TRUE:成功 FALSE:失败
+ 403:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Function  : USART接收处理任务读USART接收环形缓冲区信息出来处理
+ 404:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @The notes :
+ 405:./Application/BSPSys/BSPDriver/BSPUSART.c **** **===========================================================================================*/
+ 406:./Application/BSPSys/BSPDriver/BSPUSART.c **** static u8 USARTReadRcvCyBuf(e_USARTNUM usartNum, t_USARTMSG *pRcvMsg)
+ 407:./Application/BSPSys/BSPDriver/BSPUSART.c **** {  
+ 408:./Application/BSPSys/BSPDriver/BSPUSART.c ****     if((usartNum >= eUSARTNUM) || (pRcvMsg == (void *)0))
+ 409:./Application/BSPSys/BSPDriver/BSPUSART.c ****     {
+ 410:./Application/BSPSys/BSPDriver/BSPUSART.c ****         return(FALSE);
+ 411:./Application/BSPSys/BSPDriver/BSPUSART.c ****     }
+ 412:./Application/BSPSys/BSPDriver/BSPUSART.c ****     u8 result = 0;
+ 413:./Application/BSPSys/BSPDriver/BSPUSART.c ****     //有数据则把数据从缓冲区中读出来
+ 414:./Application/BSPSys/BSPDriver/BSPUSART.c ****     if((sUSARTRcvCyBuf[usartNum].uReadPoint != sUSARTRcvCyBuf[usartNum].uWritePoint)
+ 552              		.loc 1 414 0
+ 553 0002 134D     		ldr	r5, .L69
+ 554              	.LBE13:
+ 555              	.LBE12:
+ 332:./Application/BSPSys/BSPDriver/BSPUSART.c ****     u8 index = 0;
+ 556              		.loc 1 332 0
+ 557 0004 B5B0     		sub	sp, sp, #212
+ 558              	.LCFI9:
+ 559              		.cfi_def_cfa_offset 224
+ 560              	.LVL46:
+ 561              	.LBB17:
+ 562              	.LBB14:
+ 563              		.loc 1 414 0
+ 564 0006 6C78     		ldrb	r4, [r5, #1]
+ 565 0008 2B78     		ldrb	r3, [r5]
+ 566 000a A342     		cmp	r3, r4
+ 567 000c 02D1     		bne	.L58
+ 415:./Application/BSPSys/BSPDriver/BSPUSART.c ****             || (sUSARTRcvCyBuf[usartNum].uFullFlag != 0))
+ 568              		.loc 1 415 0
+ 569 000e AB78     		ldrb	r3, [r5, #2]
+ 570 0010 002B     		cmp	r3, #0
+ 571 0012 18D0     		beq	.L57
+ 572              	.L58:
+ 416:./Application/BSPSys/BSPDriver/BSPUSART.c ****     {
+ 417:./Application/BSPSys/BSPDriver/BSPUSART.c ****         *pRcvMsg = sUSARTRcvCyBuf[usartNum].uRcvBuf[sUSARTRcvCyBuf[usartNum].uReadPoint];
+ 573              		.loc 1 417 0
+ 574 0014 C922     		movs	r2, #201
+ 575 0016 1100     		movs	r1, r2
+ 576 0018 6143     		muls	r1, r4
+ 418:./Application/BSPSys/BSPDriver/BSPUSART.c ****         
+ 419:./Application/BSPSys/BSPDriver/BSPUSART.c ****         if(++sUSARTRcvCyBuf[usartNum].uReadPoint >= USART_RCV_CYBUF)
+ 577              		.loc 1 419 0
+ 578 001a 0134     		adds	r4, r4, #1
+ 417:./Application/BSPSys/BSPDriver/BSPUSART.c ****         
+ARM GAS  /tmp/ccHJ61Gv.s 			page 19
+
+
+ 579              		.loc 1 417 0
+ 580 001c 6918     		adds	r1, r5, r1
+ 581 001e 0331     		adds	r1, r1, #3
+ 582 0020 01A8     		add	r0, sp, #4
+ 583              	.LVL47:
+ 584              		.loc 1 419 0
+ 585 0022 E4B2     		uxtb	r4, r4
+ 417:./Application/BSPSys/BSPDriver/BSPUSART.c ****         
+ 586              		.loc 1 417 0
+ 587 0024 FFF7FEFF 		bl	memcpy
+ 588              	.LVL48:
+ 589 0028 0023     		movs	r3, #0
+ 590              		.loc 1 419 0
+ 591 002a 092C     		cmp	r4, #9
+ 592 002c 0DD8     		bhi	.L60
+ 593 002e 6C70     		strb	r4, [r5, #1]
+ 594              	.L61:
+ 595              	.LBE14:
+ 596              	.LBE17:
+ 344:./Application/BSPSys/BSPDriver/BSPUSART.c ****             {
+ 597              		.loc 1 344 0
+ 598 0030 084A     		ldr	r2, .L69+4
+ 599              	.LBB18:
+ 600              	.LBB15:
+ 420:./Application/BSPSys/BSPDriver/BSPUSART.c ****         {
+ 421:./Application/BSPSys/BSPDriver/BSPUSART.c ****                 sUSARTRcvCyBuf[usartNum].uReadPoint = 0;
+ 422:./Application/BSPSys/BSPDriver/BSPUSART.c ****         }           
+ 423:./Application/BSPSys/BSPDriver/BSPUSART.c ****         sUSARTRcvCyBuf[usartNum].uFullFlag = 0;
+ 601              		.loc 1 423 0
+ 602 0032 AB70     		strb	r3, [r5, #2]
+ 603              	.LVL49:
+ 604              	.LBE15:
+ 605              	.LBE18:
+ 344:./Application/BSPSys/BSPDriver/BSPUSART.c ****             {
+ 606              		.loc 1 344 0
+ 607 0034 1378     		ldrb	r3, [r2]
+ 608 0036 002B     		cmp	r3, #0
+ 609 0038 01D0     		beq	.L62
+ 346:./Application/BSPSys/BSPDriver/BSPUSART.c ****             }
+ 610              		.loc 1 346 0
+ 611 003a 013B     		subs	r3, r3, #1
+ 612 003c 1370     		strb	r3, [r2]
+ 613              	.L62:
+ 350:./Application/BSPSys/BSPDriver/BSPUSART.c **** 			
+ 614              		.loc 1 350 0
+ 615 003e 01A9     		add	r1, sp, #4
+ 616 0040 0020     		movs	r0, #0
+ 617 0042 FFF7FEFF 		bl	USARTRcvMsgHandle_Hook
+ 618              	.LVL50:
+ 619              	.L57:
+ 355:./Application/BSPSys/BSPDriver/BSPUSART.c **** 
+ 620              		.loc 1 355 0
+ 621 0046 35B0     		add	sp, sp, #212
+ 622              		@ sp needed
+ 623 0048 30BD     		pop	{r4, r5, pc}
+ 624              	.LVL51:
+ 625              	.L60:
+ARM GAS  /tmp/ccHJ61Gv.s 			page 20
+
+
+ 626              	.LBB19:
+ 627              	.LBB16:
+ 421:./Application/BSPSys/BSPDriver/BSPUSART.c ****         }           
+ 628              		.loc 1 421 0
+ 629 004a 6B70     		strb	r3, [r5, #1]
+ 630 004c F0E7     		b	.L61
+ 631              	.L70:
+ 632 004e C046     		.align	2
+ 633              	.L69:
+ 634 0050 00000000 		.word	sUSARTRcvCyBuf
+ 635 0054 00000000 		.word	.LANCHOR1
+ 636              	.LBE16:
+ 637              	.LBE19:
+ 638              		.cfi_endproc
+ 639              	.LFE501:
+ 641              		.section	.text.HAL_UARTEx_RxEventCallback,"ax",%progbits
+ 642              		.align	1
+ 643              		.global	HAL_UARTEx_RxEventCallback
+ 644              		.syntax unified
+ 645              		.code	16
+ 646              		.thumb_func
+ 647              		.fpu softvfp
+ 649              	HAL_UARTEx_RxEventCallback:
+ 650              	.LFB506:
+ 424:./Application/BSPSys/BSPDriver/BSPUSART.c ****         result = TRUE;
+ 425:./Application/BSPSys/BSPDriver/BSPUSART.c ****     }
+ 426:./Application/BSPSys/BSPDriver/BSPUSART.c ****     //缓冲区无数据
+ 427:./Application/BSPSys/BSPDriver/BSPUSART.c ****     else 
+ 428:./Application/BSPSys/BSPDriver/BSPUSART.c ****     {
+ 429:./Application/BSPSys/BSPDriver/BSPUSART.c ****         result = FALSE;
+ 430:./Application/BSPSys/BSPDriver/BSPUSART.c ****     }
+ 431:./Application/BSPSys/BSPDriver/BSPUSART.c **** 
+ 432:./Application/BSPSys/BSPDriver/BSPUSART.c ****     return(result);
+ 433:./Application/BSPSys/BSPDriver/BSPUSART.c **** }
+ 434:./Application/BSPSys/BSPDriver/BSPUSART.c **** 
+ 435:./Application/BSPSys/BSPDriver/BSPUSART.c **** /*=============================================================================================
+ 436:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Name      : static u8 USARTWriteRcvCyBuf(e_USARTNUM usartNum, u8 * wdata,u8 size)
+ 437:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Input     : usartNum:USART通道号, *data:USART信息接收数组指针, size：读取到的�
+ 438:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Output    : TRUE:成功 FALSE:失败
+ 439:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Function  : USART接收中断函数将USART报文写入接收环形缓冲区
+ 440:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @The notes :
+ 441:./Application/BSPSys/BSPDriver/BSPUSART.c **** **===========================================================================================*/
+ 442:./Application/BSPSys/BSPDriver/BSPUSART.c **** static u8 USARTWriteRcvCyBuf(e_USARTNUM usartNum, u8 * wdata, u8 size)
+ 443:./Application/BSPSys/BSPDriver/BSPUSART.c **** {
+ 444:./Application/BSPSys/BSPDriver/BSPUSART.c ****     if((usartNum >= eUSARTNUM) || (wdata == (void *)0))
+ 445:./Application/BSPSys/BSPDriver/BSPUSART.c ****     {
+ 446:./Application/BSPSys/BSPDriver/BSPUSART.c ****         return(FALSE);
+ 447:./Application/BSPSys/BSPDriver/BSPUSART.c ****     }
+ 448:./Application/BSPSys/BSPDriver/BSPUSART.c ****     u8 i = 0;
+ 449:./Application/BSPSys/BSPDriver/BSPUSART.c ****     u8 result = 0;
+ 450:./Application/BSPSys/BSPDriver/BSPUSART.c ****     u8 wrtPoint = 0;
+ 451:./Application/BSPSys/BSPDriver/BSPUSART.c ****     //计算缓冲区未处理信息
+ 452:./Application/BSPSys/BSPDriver/BSPUSART.c ****     if(sUSARTCyUnDealNum[usartNum] < 0xff)
+ 453:./Application/BSPSys/BSPDriver/BSPUSART.c ****     {
+ 454:./Application/BSPSys/BSPDriver/BSPUSART.c ****         sUSARTCyUnDealNum[usartNum]++;
+ 455:./Application/BSPSys/BSPDriver/BSPUSART.c ****     }
+ 456:./Application/BSPSys/BSPDriver/BSPUSART.c ****     //获得缓冲区写入点
+ARM GAS  /tmp/ccHJ61Gv.s 			page 21
+
+
+ 457:./Application/BSPSys/BSPDriver/BSPUSART.c ****     wrtPoint = sUSARTRcvCyBuf[usartNum].uWritePoint;
+ 458:./Application/BSPSys/BSPDriver/BSPUSART.c ****     //缓冲区未满
+ 459:./Application/BSPSys/BSPDriver/BSPUSART.c ****     if((0 == sUSARTRcvCyBuf[usartNum].uFullFlag))
+ 460:./Application/BSPSys/BSPDriver/BSPUSART.c ****     {
+ 461:./Application/BSPSys/BSPDriver/BSPUSART.c **** 
+ 462:./Application/BSPSys/BSPDriver/BSPUSART.c ****         //写长度
+ 463:./Application/BSPSys/BSPDriver/BSPUSART.c ****         sUSARTRcvCyBuf[usartNum].uRcvBuf[wrtPoint].len = size;		
+ 464:./Application/BSPSys/BSPDriver/BSPUSART.c **** 
+ 465:./Application/BSPSys/BSPDriver/BSPUSART.c ****         //写数据
+ 466:./Application/BSPSys/BSPDriver/BSPUSART.c ****         for (i = 0; i < sUSARTRcvCyBuf[usartNum].uRcvBuf[wrtPoint].len; i++)
+ 467:./Application/BSPSys/BSPDriver/BSPUSART.c ****         {
+ 468:./Application/BSPSys/BSPDriver/BSPUSART.c ****                 sUSARTRcvCyBuf[usartNum].uRcvBuf[wrtPoint].data[i] = wdata[i];
+ 469:./Application/BSPSys/BSPDriver/BSPUSART.c ****         }
+ 470:./Application/BSPSys/BSPDriver/BSPUSART.c ****         //判断写缓冲指针是否超过最大值
+ 471:./Application/BSPSys/BSPDriver/BSPUSART.c ****         if(++sUSARTRcvCyBuf[usartNum].uWritePoint >= USART_RCV_CYBUF)
+ 472:./Application/BSPSys/BSPDriver/BSPUSART.c ****         {
+ 473:./Application/BSPSys/BSPDriver/BSPUSART.c ****                 sUSARTRcvCyBuf[usartNum].uWritePoint= 0;
+ 474:./Application/BSPSys/BSPDriver/BSPUSART.c ****         }
+ 475:./Application/BSPSys/BSPDriver/BSPUSART.c ****         //判断读指针是否等于写指针
+ 476:./Application/BSPSys/BSPDriver/BSPUSART.c ****         if(sUSARTRcvCyBuf[usartNum].uWritePoint == sUSARTRcvCyBuf[usartNum].uReadPoint)
+ 477:./Application/BSPSys/BSPDriver/BSPUSART.c ****         {
+ 478:./Application/BSPSys/BSPDriver/BSPUSART.c ****                 sUSARTRcvCyBuf[usartNum].uFullFlag = 1;
+ 479:./Application/BSPSys/BSPDriver/BSPUSART.c ****         }
+ 480:./Application/BSPSys/BSPDriver/BSPUSART.c ****         result = TRUE;
+ 481:./Application/BSPSys/BSPDriver/BSPUSART.c ****     }
+ 482:./Application/BSPSys/BSPDriver/BSPUSART.c ****     //缓冲区写满
+ 483:./Application/BSPSys/BSPDriver/BSPUSART.c ****     else
+ 484:./Application/BSPSys/BSPDriver/BSPUSART.c ****     {
+ 485:./Application/BSPSys/BSPDriver/BSPUSART.c ****         result = FALSE;
+ 486:./Application/BSPSys/BSPDriver/BSPUSART.c ****     }
+ 487:./Application/BSPSys/BSPDriver/BSPUSART.c **** 
+ 488:./Application/BSPSys/BSPDriver/BSPUSART.c ****     return(result);
+ 489:./Application/BSPSys/BSPDriver/BSPUSART.c **** }
+ 490:./Application/BSPSys/BSPDriver/BSPUSART.c **** /*=============================================================================================
+ 491:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Name      : void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *UartHandle, uint16_t Size)
+ 492:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Input     : uUartHandle:usart句柄 size：
+ 493:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Output    : void
+ 494:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @Function  : USART接收回调函数重定义
+ 495:./Application/BSPSys/BSPDriver/BSPUSART.c **** ** @The notes :
+ 496:./Application/BSPSys/BSPDriver/BSPUSART.c **** **===========================================================================================*/
+ 497:./Application/BSPSys/BSPDriver/BSPUSART.c **** void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *UartHandle, uint16_t Size) {
+ 651              		.loc 1 497 0
+ 652              		.cfi_startproc
+ 653              		@ args = 0, pretend = 0, frame = 0
+ 654              		@ frame_needed = 0, uses_anonymous_args = 0
+ 655              	.LVL52:
+ 656 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+ 657              	.LCFI10:
+ 658              		.cfi_def_cfa_offset 24
+ 659              		.cfi_offset 3, -24
+ 660              		.cfi_offset 4, -20
+ 661              		.cfi_offset 5, -16
+ 662              		.cfi_offset 6, -12
+ 663              		.cfi_offset 7, -8
+ 664              		.cfi_offset 14, -4
+ 498:./Application/BSPSys/BSPDriver/BSPUSART.c ****   
+ 499:./Application/BSPSys/BSPDriver/BSPUSART.c ****     if(UartHandle == &huart6){
+ARM GAS  /tmp/ccHJ61Gv.s 			page 22
+
+
+ 665              		.loc 1 499 0
+ 666 0002 1D4B     		ldr	r3, .L84
+ 667 0004 9842     		cmp	r0, r3
+ 668 0006 2DD1     		bne	.L71
+ 500:./Application/BSPSys/BSPDriver/BSPUSART.c ****         HAL_UART_DMAStop(&huart6);  //暂停DMA接收
+ 669              		.loc 1 500 0
+ 670 0008 FFF7FEFF 		bl	HAL_UART_DMAStop
+ 671              	.LVL53:
+ 501:./Application/BSPSys/BSPDriver/BSPUSART.c ****         UsartRcvDataLenth = USART_DATA_LEN - __HAL_DMA_GET_COUNTER(&hdma_usart6_rx);//这个是本�
+ 672              		.loc 1 501 0
+ 673 000c C822     		movs	r2, #200
+ 674 000e 1B4B     		ldr	r3, .L84+4
+ 675              	.LBB22:
+ 676              	.LBB23:
+ 452:./Application/BSPSys/BSPDriver/BSPUSART.c ****     {
+ 677              		.loc 1 452 0
+ 678 0010 1B49     		ldr	r1, .L84+8
+ 679              	.LBE23:
+ 680              	.LBE22:
+ 681              		.loc 1 501 0
+ 682 0012 1B68     		ldr	r3, [r3]
+ 683 0014 5B68     		ldr	r3, [r3, #4]
+ 684 0016 D21A     		subs	r2, r2, r3
+ 685 0018 1A4B     		ldr	r3, .L84+12
+ 686 001a 92B2     		uxth	r2, r2
+ 687 001c 1A80     		strh	r2, [r3]
+ 688              	.LVL54:
+ 689              	.LBB27:
+ 690              	.LBB24:
+ 452:./Application/BSPSys/BSPDriver/BSPUSART.c ****     {
+ 691              		.loc 1 452 0
+ 692 001e 0B78     		ldrb	r3, [r1]
+ 693 0020 FF2B     		cmp	r3, #255
+ 694 0022 01D0     		beq	.L73
+ 454:./Application/BSPSys/BSPDriver/BSPUSART.c ****     }
+ 695              		.loc 1 454 0
+ 696 0024 0133     		adds	r3, r3, #1
+ 697 0026 0B70     		strb	r3, [r1]
+ 698              	.L73:
+ 699              	.LVL55:
+ 459:./Application/BSPSys/BSPDriver/BSPUSART.c ****     {
+ 700              		.loc 1 459 0
+ 701 0028 174B     		ldr	r3, .L84+16
+ 702 002a 1848     		ldr	r0, .L84+20
+ 703 002c 9978     		ldrb	r1, [r3, #2]
+ 704 002e 0029     		cmp	r1, #0
+ 705 0030 14D1     		bne	.L75
+ 463:./Application/BSPSys/BSPDriver/BSPUSART.c **** 
+ 706              		.loc 1 463 0
+ 707 0032 C925     		movs	r5, #201
+ 457:./Application/BSPSys/BSPDriver/BSPUSART.c ****     //缓冲区未满
+ 708              		.loc 1 457 0
+ 709 0034 1C78     		ldrb	r4, [r3]
+ 710              	.LBE24:
+ 711              	.LBE27:
+ 502:./Application/BSPSys/BSPDriver/BSPUSART.c ****         USARTWriteRcvCyBuf(eUSART6,UsartRcvDataBuff[eUSART6],UsartRcvDataLenth);
+ 712              		.loc 1 502 0
+ARM GAS  /tmp/ccHJ61Gv.s 			page 23
+
+
+ 713 0036 D2B2     		uxtb	r2, r2
+ 714              	.LBB28:
+ 715              	.LBB25:
+ 463:./Application/BSPSys/BSPDriver/BSPUSART.c **** 
+ 716              		.loc 1 463 0
+ 717 0038 6543     		muls	r5, r4
+ 718 003a 5E19     		adds	r6, r3, r5
+ 719 003c CB36     		adds	r6, r6, #203
+ 720 003e 3270     		strb	r2, [r6]
+ 721              	.LVL56:
+ 722              	.L76:
+ 466:./Application/BSPSys/BSPDriver/BSPUSART.c ****         {
+ 723              		.loc 1 466 0
+ 724 0040 CEB2     		uxtb	r6, r1
+ 725 0042 B242     		cmp	r2, r6
+ 726 0044 0FD8     		bhi	.L77
+ 471:./Application/BSPSys/BSPDriver/BSPUSART.c ****         {
+ 727              		.loc 1 471 0
+ 728 0046 0134     		adds	r4, r4, #1
+ 729              	.LVL57:
+ 730 0048 E4B2     		uxtb	r4, r4
+ 731              	.LVL58:
+ 732 004a 092C     		cmp	r4, #9
+ 733 004c 11D8     		bhi	.L78
+ 734 004e 1C70     		strb	r4, [r3]
+ 735              	.LVL59:
+ 736              	.L79:
+ 476:./Application/BSPSys/BSPDriver/BSPUSART.c ****         {
+ 737              		.loc 1 476 0
+ 738 0050 1978     		ldrb	r1, [r3]
+ 739              	.LVL60:
+ 740 0052 5A78     		ldrb	r2, [r3, #1]
+ 741 0054 9142     		cmp	r1, r2
+ 742 0056 01D1     		bne	.L75
+ 478:./Application/BSPSys/BSPDriver/BSPUSART.c ****         }
+ 743              		.loc 1 478 0
+ 744 0058 0122     		movs	r2, #1
+ 745 005a 9A70     		strb	r2, [r3, #2]
+ 746              	.LVL61:
+ 747              	.L75:
+ 748              	.LBE25:
+ 749              	.LBE28:
+ 503:./Application/BSPSys/BSPDriver/BSPUSART.c ****         //重启接收
+ 504:./Application/BSPSys/BSPDriver/BSPUSART.c ****         memset(UsartRcvDataBuff[eUSART6],0,USART_DATA_LEN);  //清除接收到的数据
+ 750              		.loc 1 504 0
+ 751 005c C822     		movs	r2, #200
+ 752 005e 0021     		movs	r1, #0
+ 753 0060 FFF7FEFF 		bl	memset
+ 754              	.LVL62:
+ 755              	.L71:
+ 505:./Application/BSPSys/BSPDriver/BSPUSART.c ****     }
+ 506:./Application/BSPSys/BSPDriver/BSPUSART.c **** }
+ 756              		.loc 1 506 0
+ 757              		@ sp needed
+ 758 0064 F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 759              	.LVL63:
+ 760              	.L77:
+ARM GAS  /tmp/ccHJ61Gv.s 			page 24
+
+
+ 761              	.LBB29:
+ 762              	.LBB26:
+ 468:./Application/BSPSys/BSPDriver/BSPUSART.c ****         }
+ 763              		.loc 1 468 0
+ 764 0066 4E19     		adds	r6, r1, r5
+ 765 0068 475C     		ldrb	r7, [r0, r1]
+ 766 006a 9E19     		adds	r6, r3, r6
+ 767 006c F770     		strb	r7, [r6, #3]
+ 768              	.LVL64:
+ 769 006e 0131     		adds	r1, r1, #1
+ 770              	.LVL65:
+ 771 0070 E6E7     		b	.L76
+ 772              	.LVL66:
+ 773              	.L78:
+ 473:./Application/BSPSys/BSPDriver/BSPUSART.c ****         }
+ 774              		.loc 1 473 0
+ 775 0072 0022     		movs	r2, #0
+ 776              	.LVL67:
+ 777 0074 1A70     		strb	r2, [r3]
+ 778 0076 EBE7     		b	.L79
+ 779              	.L85:
+ 780              		.align	2
+ 781              	.L84:
+ 782 0078 00000000 		.word	huart6
+ 783 007c 00000000 		.word	hdma_usart6_rx
+ 784 0080 00000000 		.word	.LANCHOR1
+ 785 0084 00000000 		.word	.LANCHOR2
+ 786 0088 00000000 		.word	sUSARTRcvCyBuf
+ 787 008c 00000000 		.word	UsartRcvDataBuff
+ 788              	.LBE26:
+ 789              	.LBE29:
+ 790              		.cfi_endproc
+ 791              	.LFE506:
+ 793              		.global	UsartRcvDataBuff
+ 794              		.global	UsartRcvDataLenth
+ 795              		.section	.bss.UsartRcvDataBuff,"aw",%nobits
+ 798              	UsartRcvDataBuff:
+ 799 0000 00000000 		.space	200
+ 799      00000000 
+ 799      00000000 
+ 799      00000000 
+ 799      00000000 
+ 800              		.section	.bss.UsartRcvDataLenth,"aw",%nobits
+ 801              		.align	1
+ 802              		.set	.LANCHOR2,. + 0
+ 805              	UsartRcvDataLenth:
+ 806 0000 0000     		.space	2
+ 807              		.section	.bss.sUSARTCyUnDealNum,"aw",%nobits
+ 808              		.set	.LANCHOR1,. + 0
+ 811              	sUSARTCyUnDealNum:
+ 812 0000 00       		.space	1
+ 813              		.section	.bss.sUSARTRcvCyBuf,"aw",%nobits
+ 816              	sUSARTRcvCyBuf:
+ 817 0000 00000000 		.space	2013
+ 817      00000000 
+ 817      00000000 
+ 817      00000000 
+ARM GAS  /tmp/ccHJ61Gv.s 			page 25
+
+
+ 817      00000000 
+ 818              		.section	.bss.sUSARTSendBuff,"aw",%nobits
+ 821              	sUSARTSendBuff:
+ 822 0000 00000000 		.space	2016
+ 822      00000000 
+ 822      00000000 
+ 822      00000000 
+ 822      00000000 
+ 823              		.section	.bss.txMsg.10882,"aw",%nobits
+ 826              	txMsg.10882:
+ 827 0000 00000000 		.space	201
+ 827      00000000 
+ 827      00000000 
+ 827      00000000 
+ 827      00000000 
+ 828              		.section	.data.sHisErr.10883,"aw",%progbits
+ 829              		.set	.LANCHOR0,. + 0
+ 832              	sHisErr.10883:
+ 833 0000 01       		.byte	1
+ 834              		.text
+ 835              	.Letext0:
+ 836              		.file 2 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/machine/_default_types.h"
+ 837              		.file 3 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_stdint.h"
+ 838              		.file 4 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/system_stm32g0xx.h"
+ 839              		.file 5 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/stm32g0b1xx.h"
+ 840              		.file 6 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/stm32g0xx.h"
+ 841              		.file 7 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_def.h"
+ 842              		.file 8 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_dma.h"
+ 843              		.file 9 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_flash.h"
+ 844              		.file 10 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_fdcan.h"
+ 845              		.file 11 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_uart.h"
+ 846              		.file 12 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal.h"
+ 847              		.file 13 "Core/Inc/main.h"
+ 848              		.file 14 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/lock.h"
+ 849              		.file 15 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_types.h"
+ 850              		.file 16 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/lib/gcc/arm-none-eabi/7.3.1/include/stddef.h"
+ 851              		.file 17 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/reent.h"
+ 852              		.file 18 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/stdlib.h"
+ 853              		.file 19 "Application/BSPSys/Util/BSPTypeDef.h"
+ 854              		.file 20 "Application/BSPSys/BSPCfg/BSPConfig.h"
+ 855              		.file 21 "Application/BSPSys/BSPDriver/BSPGPIO.h"
+ 856              		.file 22 "Application/BSPSys/BSPDriver/BSPUSART.h"
+ 857              		.file 23 "Core/Inc/fdcan.h"
+ 858              		.file 24 "Core/Inc/usart.h"
+ 859              		.file 25 "Application/Funtion/SystemInfo/SystemInfo.h"
+ 860              		.file 26 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_ll_dma.h"
+ 861              		.file 27 "<built-in>"
+ 862              		.file 28 "Application/BSPSys/BSPUser/BSPUserHook.h"
+ 863              		.file 29 "Application/BSPSys/Util/BSPQueue.h"
+ 864              		.file 30 "Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h"
+ 865              		.file 31 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_uart_ex.h"
+ARM GAS  /tmp/ccHJ61Gv.s 			page 26
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 BSPUSART.c
+     /tmp/ccHJ61Gv.s:16     .text.BSPUSARTInit:0000000000000000 $t
+     /tmp/ccHJ61Gv.s:23     .text.BSPUSARTInit:0000000000000000 BSPUSARTInit
+     /tmp/ccHJ61Gv.s:68     .text.BSPUSARTInit:000000000000002c $d
+     /tmp/ccHJ61Gv.s:798    .bss.UsartRcvDataBuff:0000000000000000 UsartRcvDataBuff
+     /tmp/ccHJ61Gv.s:75     .text.BSPUSARTSendDataOnISR:0000000000000000 $t
+     /tmp/ccHJ61Gv.s:82     .text.BSPUSARTSendDataOnISR:0000000000000000 BSPUSARTSendDataOnISR
+     /tmp/ccHJ61Gv.s:153    .text.BSPUSARTSendDataOnISR:0000000000000044 $d
+     /tmp/ccHJ61Gv.s:159    .text.BSPSCISendDataOnAsk:0000000000000000 $t
+     /tmp/ccHJ61Gv.s:166    .text.BSPSCISendDataOnAsk:0000000000000000 BSPSCISendDataOnAsk
+     /tmp/ccHJ61Gv.s:239    .text.BSPSCISendDataOnAsk:0000000000000048 $d
+     /tmp/ccHJ61Gv.s:245    .text.BSPSCISendDataOnDMA:0000000000000000 $t
+     /tmp/ccHJ61Gv.s:252    .text.BSPSCISendDataOnDMA:0000000000000000 BSPSCISendDataOnDMA
+     /tmp/ccHJ61Gv.s:269    .text.BSPUSARTBufInit:0000000000000000 $t
+     /tmp/ccHJ61Gv.s:276    .text.BSPUSARTBufInit:0000000000000000 BSPUSARTBufInit
+     /tmp/ccHJ61Gv.s:310    .text.BSPUSARTBufInit:0000000000000018 $d
+     /tmp/ccHJ61Gv.s:816    .bss.sUSARTRcvCyBuf:0000000000000000 sUSARTRcvCyBuf
+     /tmp/ccHJ61Gv.s:821    .bss.sUSARTSendBuff:0000000000000000 sUSARTSendBuff
+     /tmp/ccHJ61Gv.s:317    .text.BSPUSARTSendQin:0000000000000000 $t
+     /tmp/ccHJ61Gv.s:324    .text.BSPUSARTSendQin:0000000000000000 BSPUSARTSendQin
+     /tmp/ccHJ61Gv.s:379    .text.BSPUSARTSendQin:0000000000000030 $d
+     /tmp/ccHJ61Gv.s:385    .text.BSPUSARTSendMsg:0000000000000000 $t
+     /tmp/ccHJ61Gv.s:392    .text.BSPUSARTSendMsg:0000000000000000 BSPUSARTSendMsg
+     /tmp/ccHJ61Gv.s:443    .text.BSPUSARTSendMsg:0000000000000030 $d
+     /tmp/ccHJ61Gv.s:448    .text.BSPUSARTSendTask:0000000000000000 $t
+     /tmp/ccHJ61Gv.s:455    .text.BSPUSARTSendTask:0000000000000000 BSPUSARTSendTask
+     /tmp/ccHJ61Gv.s:523    .text.BSPUSARTSendTask:0000000000000048 $d
+     /tmp/ccHJ61Gv.s:826    .bss.txMsg.10882:0000000000000000 txMsg.10882
+     /tmp/ccHJ61Gv.s:530    .text.BSPUSARTRcvTask:0000000000000000 $t
+     /tmp/ccHJ61Gv.s:537    .text.BSPUSARTRcvTask:0000000000000000 BSPUSARTRcvTask
+     /tmp/ccHJ61Gv.s:634    .text.BSPUSARTRcvTask:0000000000000050 $d
+     /tmp/ccHJ61Gv.s:642    .text.HAL_UARTEx_RxEventCallback:0000000000000000 $t
+     /tmp/ccHJ61Gv.s:649    .text.HAL_UARTEx_RxEventCallback:0000000000000000 HAL_UARTEx_RxEventCallback
+     /tmp/ccHJ61Gv.s:782    .text.HAL_UARTEx_RxEventCallback:0000000000000078 $d
+     /tmp/ccHJ61Gv.s:805    .bss.UsartRcvDataLenth:0000000000000000 UsartRcvDataLenth
+     /tmp/ccHJ61Gv.s:799    .bss.UsartRcvDataBuff:0000000000000000 $d
+     /tmp/ccHJ61Gv.s:801    .bss.UsartRcvDataLenth:0000000000000000 $d
+     /tmp/ccHJ61Gv.s:811    .bss.sUSARTCyUnDealNum:0000000000000000 sUSARTCyUnDealNum
+     /tmp/ccHJ61Gv.s:812    .bss.sUSARTCyUnDealNum:0000000000000000 $d
+     /tmp/ccHJ61Gv.s:817    .bss.sUSARTRcvCyBuf:0000000000000000 $d
+     /tmp/ccHJ61Gv.s:822    .bss.sUSARTSendBuff:0000000000000000 $d
+     /tmp/ccHJ61Gv.s:827    .bss.txMsg.10882:0000000000000000 $d
+     /tmp/ccHJ61Gv.s:832    .data.sHisErr.10883:0000000000000000 sHisErr.10883
+
+UNDEFINED SYMBOLS
+MX_USART6_UART_Init
+HAL_UARTEx_ReceiveToIdle_DMA
+gBSPFunCfg
+huart6
+BSPGPIOSetPortState
+HAL_UART_Transmit_IT
+HAL_UART_Transmit
+memset
+QueInit
+memcpy
+QueIn
+ARM GAS  /tmp/ccHJ61Gv.s 			page 27
+
+
+QueGetUnitNum
+osDelay
+QueOut
+USARTRcvMsgHandle_Hook
+HAL_UART_DMAStop
+hdma_usart6_rx

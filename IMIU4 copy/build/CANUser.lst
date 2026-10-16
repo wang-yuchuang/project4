@@ -1,0 +1,816 @@
+ARM GAS  /tmp/ccyIbExF.s 			page 1
+
+
+   1              		.cpu cortex-m0plus
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 4
+   9              		.eabi_attribute 34, 0
+  10              		.eabi_attribute 18, 4
+  11              		.file	"CANUser.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.CANDeviceTableInit,"ax",%progbits
+  16              		.align	1
+  17              		.global	CANDeviceTableInit
+  18              		.syntax unified
+  19              		.code	16
+  20              		.thumb_func
+  21              		.fpu softvfp
+  23              	CANDeviceTableInit:
+  24              	.LFB493:
+  25              		.file 1 "./Application/Funtion/CanLib/CANUser.c"
+   1:./Application/Funtion/CanLib/CANUser.c **** /*==========================================Copyright(c)===========================================
+   2:./Application/Funtion/CanLib/CANUser.c **** **                                  Shenzhen Infypower Co., Ltd.
+   3:./Application/Funtion/CanLib/CANUser.c **** **                                  Power conversion Department
+   4:./Application/Funtion/CanLib/CANUser.c **** **                                       BMS Product Line
+   5:./Application/Funtion/CanLib/CANUser.c **** **
+   6:./Application/Funtion/CanLib/CANUser.c **** **---------------------------------------File Information------------------------------------------
+   7:./Application/Funtion/CanLib/CANUser.c **** ** @File Name    : CANUser.c
+   8:./Application/Funtion/CanLib/CANUser.c **** ** @Founder      : WYC834
+   9:./Application/Funtion/CanLib/CANUser.c **** ** @Date         : 2025.11.23
+  10:./Application/Funtion/CanLib/CANUser.c **** ** @Function     : CAN通信包用户接口
+  11:./Application/Funtion/CanLib/CANUser.c **** ** @Instructions :
+  12:./Application/Funtion/CanLib/CANUser.c **** **===============================================================================================*/
+  13:./Application/Funtion/CanLib/CANUser.c **** 
+  14:./Application/Funtion/CanLib/CANUser.c **** /*=================================================================================================
+  15:./Application/Funtion/CanLib/CANUser.c **** ** @Header file definition
+  16:./Application/Funtion/CanLib/CANUser.c **** **===============================================================================================*/
+  17:./Application/Funtion/CanLib/CANUser.c **** #include "BSPTypeDef.h"
+  18:./Application/Funtion/CanLib/CANUser.c **** #include "CANInterface.h"
+  19:./Application/Funtion/CanLib/CANUser.c **** #include "CANUser.h"
+  20:./Application/Funtion/CanLib/CANUser.c **** #include "SystemInfo.h"
+  21:./Application/Funtion/CanLib/CANUser.c **** #include "SystemData.h"
+  22:./Application/Funtion/CanLib/CANUser.c **** #include "SystemPara.h"
+  23:./Application/Funtion/CanLib/CANUser.c **** #include "SystemDebug.h"
+  24:./Application/Funtion/CanLib/CANUser.c **** #include "SystemDiag.h"
+  25:./Application/Funtion/CanLib/CANUser.c **** #include "Insulation.h"
+  26:./Application/Funtion/CanLib/CANUser.c **** #include "BSPCAN.h"
+  27:./Application/Funtion/CanLib/CANUser.c **** /*=================================================================================================
+  28:./Application/Funtion/CanLib/CANUser.c **** ** @Global variable definition
+  29:./Application/Funtion/CanLib/CANUser.c **** **===============================================================================================*/
+  30:./Application/Funtion/CanLib/CANUser.c **** 
+  31:./Application/Funtion/CanLib/CANUser.c **** /*=======================================基本配置信息========================================
+  32:./Application/Funtion/CanLib/CANUser.c **** u8 gCANBaseDef_3[CANINDEX3_LEN] =
+  33:./Application/Funtion/CanLib/CANUser.c **** {
+ARM GAS  /tmp/ccyIbExF.s 			page 2
+
+
+  34:./Application/Funtion/CanLib/CANUser.c ****     CAN_DEVTAB_NUM,                 /*通信设备表数目1*/
+  35:./Application/Funtion/CanLib/CANUser.c ****     BMU_INDEX_NUM,                  /*主控主索引数目16*/
+  36:./Application/Funtion/CanLib/CANUser.c ****     CAN_TRTAB_NUM,                  /*收发通信表数目10*/
+  37:./Application/Funtion/CanLib/CANUser.c ****     CAN_TX_VER_NUM,                 /*主动发送校时帧信息配置组数0*/
+  38:./Application/Funtion/CanLib/CANUser.c ****     CAN_TX_BRE_NUM,                 /*主动上传心跳帧信息配置组数3*/
+  39:./Application/Funtion/CanLib/CANUser.c ****     CAN_TX_MUL_NUM,                 /*主动更新发送长帧配置组数8*/
+  40:./Application/Funtion/CanLib/CANUser.c ****     CAN_TX_SIN_NUM,                 /*主动更新发送单帧配置组数6*/
+  41:./Application/Funtion/CanLib/CANUser.c ****     CAN_TX_CEL_NUM,                 /*主动上传单体信息配置组数6*/
+  42:./Application/Funtion/CanLib/CANUser.c ****     CAN_TX_PAR_NUM                  /*主动上传参数信息配置组数*/
+  43:./Application/Funtion/CanLib/CANUser.c **** };
+  44:./Application/Funtion/CanLib/CANUser.c **** 
+  45:./Application/Funtion/CanLib/CANUser.c **** 
+  46:./Application/Funtion/CanLib/CANUser.c **** 
+  47:./Application/Funtion/CanLib/CANUser.c **** /*=======================================校时帧发送配置=====================================
+  48:./Application/Funtion/CanLib/CANUser.c **** u8 gCANTxVerDef_10[CANINDEX10_LEN] =
+  49:./Application/Funtion/CanLib/CANUser.c **** {
+  50:./Application/Funtion/CanLib/CANUser.c ****     1                               /*校时帧发送方式(0:不转发不发送 1:仅转发 2:转�
+  51:./Application/Funtion/CanLib/CANUser.c **** 
+  52:./Application/Funtion/CanLib/CANUser.c ****     /*CAN1口1s周期*/
+  53:./Application/Funtion/CanLib/CANUser.c ****     /*eCAN1,*/                      /*第1组校时帧发送通道*/
+  54:./Application/Funtion/CanLib/CANUser.c ****     /*232,*/                        /*第1组校时帧发送周期L(1ms)*/
+  55:./Application/Funtion/CanLib/CANUser.c ****     /*3*/                           /*第1组校时帧发送周期H(1ms)*/
+  56:./Application/Funtion/CanLib/CANUser.c **** };
+  57:./Application/Funtion/CanLib/CANUser.c **** 
+  58:./Application/Funtion/CanLib/CANUser.c **** /*=======================================心跳帧发送配置=====================================
+  59:./Application/Funtion/CanLib/CANUser.c **** u8 gCANTxBreDef_11[CANINDEX11_LEN] =
+  60:./Application/Funtion/CanLib/CANUser.c **** {
+  61:./Application/Funtion/CanLib/CANUser.c ****     1,                              /*心跳帧发送使能(0:禁止 1:使能)*/
+  62:./Application/Funtion/CanLib/CANUser.c **** 
+  63:./Application/Funtion/CanLib/CANUser.c ****     /*CAN0口1s周期 */
+  64:./Application/Funtion/CanLib/CANUser.c ****     eCAN1,                          /*第1组心跳帧发送通道*/
+  65:./Application/Funtion/CanLib/CANUser.c ****     232,                            /*第1组心跳帧发送周期L(1ms)*/
+  66:./Application/Funtion/CanLib/CANUser.c ****     3,                              /*第1组心跳帧发送周期H(1ms)*/
+  67:./Application/Funtion/CanLib/CANUser.c **** 
+  68:./Application/Funtion/CanLib/CANUser.c **** };
+  69:./Application/Funtion/CanLib/CANUser.c **** 
+  70:./Application/Funtion/CanLib/CANUser.c **** /*=======================================主动更新(长帧)发送配置==========================
+  71:./Application/Funtion/CanLib/CANUser.c **** u8 gCANTxMulDef_12[CANINDEX12_LEN] =
+  72:./Application/Funtion/CanLib/CANUser.c **** {
+  73:./Application/Funtion/CanLib/CANUser.c ****     0,                              /*主动更新长帧发送使能(0:禁止 1:使能)*/
+  74:./Application/Funtion/CanLib/CANUser.c **** 
+  75:./Application/Funtion/CanLib/CANUser.c ****     // /*第4组:主索引 82(调试结果),CAN0口1s周期 */
+  76:./Application/Funtion/CanLib/CANUser.c ****     // 82,                             /*主动更新长帧主索引号*/
+  77:./Application/Funtion/CanLib/CANUser.c ****     // 0,                              /*主动更新长帧起始子索引号*/
+  78:./Application/Funtion/CanLib/CANUser.c ****     // GINDEX82_LEN,                   /*主动更新长帧子索引长度*/
+  79:./Application/Funtion/CanLib/CANUser.c ****     // 0xe8,                           /*主动更新长帧发送周期L(1ms)*/
+  80:./Application/Funtion/CanLib/CANUser.c ****     // 0x03,                           /*主动更新长帧发送周期H(1ms)*/
+  81:./Application/Funtion/CanLib/CANUser.c ****     // CAN_UPDATE_PORT,                /*主动更新长帧发送通道*/
+  82:./Application/Funtion/CanLib/CANUser.c ****     // 0xff,                           /*主动更新长帧发送目标地址*/
+  83:./Application/Funtion/CanLib/CANUser.c **** 
+  84:./Application/Funtion/CanLib/CANUser.c ****     // /*第5组:主索引 83(校准结果),CAN0口1s周期 */
+  85:./Application/Funtion/CanLib/CANUser.c ****     // 83,                             /*主动更新长帧主索引号*/
+  86:./Application/Funtion/CanLib/CANUser.c ****     // 0,                              /*主动更新长帧起始子索引号*/
+  87:./Application/Funtion/CanLib/CANUser.c ****     // GINDEX83_LEN,                   /*主动更新长帧子索引长度*/
+  88:./Application/Funtion/CanLib/CANUser.c ****     // 0xe8,                           /*主动更新长帧发送周期L(1ms)*/
+  89:./Application/Funtion/CanLib/CANUser.c ****     // 0x03,                           /*主动更新长帧发送周期H(1ms)*/
+  90:./Application/Funtion/CanLib/CANUser.c ****     // CAN_UPDATE_PORT,                /*主动更新长帧发送通道*/
+ARM GAS  /tmp/ccyIbExF.s 			page 3
+
+
+  91:./Application/Funtion/CanLib/CANUser.c ****     // 0xff,                           /*主动更新长帧发送目标地址*/
+  92:./Application/Funtion/CanLib/CANUser.c **** 
+  93:./Application/Funtion/CanLib/CANUser.c **** 
+  94:./Application/Funtion/CanLib/CANUser.c **** };
+  95:./Application/Funtion/CanLib/CANUser.c **** 
+  96:./Application/Funtion/CanLib/CANUser.c **** /*=======================================主动发送(单帧)发送配置==========================
+  97:./Application/Funtion/CanLib/CANUser.c **** u8 gCANTxSinDef_13[CANINDEX13_LEN] =
+  98:./Application/Funtion/CanLib/CANUser.c **** {
+  99:./Application/Funtion/CanLib/CANUser.c ****     1,                              /*主动更新单帧发送使能(0:禁止 1:使能)*/
+ 100:./Application/Funtion/CanLib/CANUser.c **** 
+ 101:./Application/Funtion/CanLib/CANUser.c ****     /*第1组:主索引 51(系统信息),CAN0口10ms周期 */
+ 102:./Application/Funtion/CanLib/CANUser.c ****     51,                             /*主动发送单帧主索引号*/
+ 103:./Application/Funtion/CanLib/CANUser.c ****     0,                              /*主动发送单帧起始子索引号*/
+ 104:./Application/Funtion/CanLib/CANUser.c ****     SystemData_Len,                   /*主动发送单帧子索引长度*/
+ 105:./Application/Funtion/CanLib/CANUser.c ****     (0x000A & 0xff),            /*主动发送单帧发送周期L(1ms)*/
+ 106:./Application/Funtion/CanLib/CANUser.c ****     ((0x000A >> 8) & 0xff),     /*主动发送单帧发送周期H(1ms)*/
+ 107:./Application/Funtion/CanLib/CANUser.c ****     CAN_UPDATE_PORT,                /*主动发送单帧发送通道*/
+ 108:./Application/Funtion/CanLib/CANUser.c ****     0xff,                           /*主动发送单帧发送目标地址*/
+ 109:./Application/Funtion/CanLib/CANUser.c **** 
+ 110:./Application/Funtion/CanLib/CANUser.c ****     /*第2组:主索引 54(权限信息),CAN0口1s周期 */
+ 111:./Application/Funtion/CanLib/CANUser.c ****     54,                             /*主动发送单帧主索引号*/
+ 112:./Application/Funtion/CanLib/CANUser.c ****     0,                              /*主动发送单帧起始子索引号*/
+ 113:./Application/Funtion/CanLib/CANUser.c ****     PermissionInfo_Len,                   /*主动发送单帧子索引长度*/
+ 114:./Application/Funtion/CanLib/CANUser.c ****     (0x03e8 & 0xff),            /*主动发送单帧发送周期L(1ms)*/
+ 115:./Application/Funtion/CanLib/CANUser.c ****     ((0x03e8 >> 8) & 0xff),     /*主动发送单帧发送周期H(1ms)*/
+ 116:./Application/Funtion/CanLib/CANUser.c ****     CAN_UPDATE_PORT,                /*主动发送单帧发送通道*/
+ 117:./Application/Funtion/CanLib/CANUser.c ****     0xff,  
+ 118:./Application/Funtion/CanLib/CANUser.c **** 
+ 119:./Application/Funtion/CanLib/CANUser.c ****     /*第3组:主索引 56(控制反馈),CAN0口1s周期 */
+ 120:./Application/Funtion/CanLib/CANUser.c ****     56,                             /*主动发送单帧主索引号*/
+ 121:./Application/Funtion/CanLib/CANUser.c ****     0,                              /*主动发送单帧起始子索引号*/
+ 122:./Application/Funtion/CanLib/CANUser.c ****     CtrlFeedback_len,                   /*主动发送单帧子索引长度*/
+ 123:./Application/Funtion/CanLib/CANUser.c ****     (0x03e8 & 0xff),            /*主动发送单帧发送周期L(1ms)*/
+ 124:./Application/Funtion/CanLib/CANUser.c ****     ((0x03e8 >> 8) & 0xff),     /*主动发送单帧发送周期H(1ms)*/
+ 125:./Application/Funtion/CanLib/CANUser.c ****     CAN_UPDATE_PORT,                /*主动发送单帧发送通道*/
+ 126:./Application/Funtion/CanLib/CANUser.c ****     0xff, 
+ 127:./Application/Funtion/CanLib/CANUser.c **** 
+ 128:./Application/Funtion/CanLib/CANUser.c ****     /*第4组:主索引 57(诊断信息),CAN0口1s周期 */
+ 129:./Application/Funtion/CanLib/CANUser.c ****     57,                             /*主动发送单帧主索引号*/
+ 130:./Application/Funtion/CanLib/CANUser.c ****     0,                              /*主动发送单帧起始子索引号*/
+ 131:./Application/Funtion/CanLib/CANUser.c ****     SystemDiag_Len,                   /*主动发送单帧子索引长度*/
+ 132:./Application/Funtion/CanLib/CANUser.c ****     (0x03e8 & 0xff),            /*主动发送单帧发送周期L(1ms)*/
+ 133:./Application/Funtion/CanLib/CANUser.c ****     ((0x03e8 >> 8) & 0xff),     /*主动发送单帧发送周期H(1ms)*/
+ 134:./Application/Funtion/CanLib/CANUser.c ****     CAN_UPDATE_PORT,                /*主动发送单帧发送通道*/
+ 135:./Application/Funtion/CanLib/CANUser.c ****     0xff, 
+ 136:./Application/Funtion/CanLib/CANUser.c **** 
+ 137:./Application/Funtion/CanLib/CANUser.c ****     /*第5组:主索引 58(诊断信息),CAN0口1s周期 */
+ 138:./Application/Funtion/CanLib/CANUser.c ****     58,                             /*主动发送单帧主索引号*/
+ 139:./Application/Funtion/CanLib/CANUser.c ****     0,                              /*主动发送单帧起始子索引号*/
+ 140:./Application/Funtion/CanLib/CANUser.c ****     Calibration_Len,                   /*主动发送单帧子索引长度*/
+ 141:./Application/Funtion/CanLib/CANUser.c ****     (0x03e8 & 0xff),            /*主动发送单帧发送周期L(1ms)*/
+ 142:./Application/Funtion/CanLib/CANUser.c ****     ((0x03e8 >> 8) & 0xff),     /*主动发送单帧发送周期H(1ms)*/
+ 143:./Application/Funtion/CanLib/CANUser.c ****     CAN_UPDATE_PORT,                /*主动发送单帧发送通道*/
+ 144:./Application/Funtion/CanLib/CANUser.c ****     0xff, 
+ 145:./Application/Funtion/CanLib/CANUser.c **** 
+ 146:./Application/Funtion/CanLib/CANUser.c ****     /*第6组:主索引 61(调试反馈),CAN0口1s周期 */
+ 147:./Application/Funtion/CanLib/CANUser.c ****     61,                             /*主动发送单帧主索引号*/
+ARM GAS  /tmp/ccyIbExF.s 			page 4
+
+
+ 148:./Application/Funtion/CanLib/CANUser.c ****     0,                              /*主动发送单帧起始子索引号*/
+ 149:./Application/Funtion/CanLib/CANUser.c ****     DebugFeedback_Len,                   /*主动发送单帧子索引长度*/
+ 150:./Application/Funtion/CanLib/CANUser.c ****     (0x03e8 & 0xff),            /*主动发送单帧发送周期L(1ms)*/
+ 151:./Application/Funtion/CanLib/CANUser.c ****     ((0x03e8 >> 8) & 0xff),     /*主动发送单帧发送周期H(1ms)*/
+ 152:./Application/Funtion/CanLib/CANUser.c ****     CAN_UPDATE_PORT,                /*主动发送单帧发送通道*/
+ 153:./Application/Funtion/CanLib/CANUser.c ****     0xff,
+ 154:./Application/Funtion/CanLib/CANUser.c **** };
+ 155:./Application/Funtion/CanLib/CANUser.c **** 
+ 156:./Application/Funtion/CanLib/CANUser.c **** 
+ 157:./Application/Funtion/CanLib/CANUser.c **** /*=======================================主动发送(单体)发送配置==========================
+ 158:./Application/Funtion/CanLib/CANUser.c **** u8 gCANTxCelDef_14[CANINDEX14_LEN] =
+ 159:./Application/Funtion/CanLib/CANUser.c **** {
+ 160:./Application/Funtion/CanLib/CANUser.c ****     1,                              /*主动更新单体发送使能(0:禁止 1:使能)*/
+ 161:./Application/Funtion/CanLib/CANUser.c **** 
+ 162:./Application/Funtion/CanLib/CANUser.c ****     // /*第1组:主索引 92(单体电压1),CAN0口1s周期 */
+ 163:./Application/Funtion/CanLib/CANUser.c ****     // 92,                             /*主动发送单体主索引号*/
+ 164:./Application/Funtion/CanLib/CANUser.c ****     // 0,                              /*主动发送单体起始子索引号*/
+ 165:./Application/Funtion/CanLib/CANUser.c ****     // GINDEX92_LEN,                   /*主动发送单体子索引长度*/
+ 166:./Application/Funtion/CanLib/CANUser.c ****     // 50,                             /*主动发送单体映射起始主索引号*/
+ 167:./Application/Funtion/CanLib/CANUser.c ****     // 0xe8,                           /*主动发送单体发送周期L(1ms)*/
+ 168:./Application/Funtion/CanLib/CANUser.c ****     // 0x03,                           /*主动发送单体发送周期H(1ms)*/
+ 169:./Application/Funtion/CanLib/CANUser.c ****     // CAN_UPDATE_PORT,                /*主动发送单体发送通道*/
+ 170:./Application/Funtion/CanLib/CANUser.c ****     // 0xff,                           /*主动发送单体发送目标地址*/
+ 171:./Application/Funtion/CanLib/CANUser.c **** 
+ 172:./Application/Funtion/CanLib/CANUser.c **** };
+ 173:./Application/Funtion/CanLib/CANUser.c **** /*=======================================主动发送(参数)发送配置==========================
+ 174:./Application/Funtion/CanLib/CANUser.c **** u8 gCANTxParDef_15[CANINDEX15_LEN] =
+ 175:./Application/Funtion/CanLib/CANUser.c **** {
+ 176:./Application/Funtion/CanLib/CANUser.c ****     0,                              /*主动更新参数发送使能(0:禁止 1:使能)*/
+ 177:./Application/Funtion/CanLib/CANUser.c **** 
+ 178:./Application/Funtion/CanLib/CANUser.c ****     // /*第1组:主索引 102(系统通用参数),CAN1口10s周期 */
+ 179:./Application/Funtion/CanLib/CANUser.c ****     // 102,                            /*主动发送参数主索引号*/
+ 180:./Application/Funtion/CanLib/CANUser.c ****     // 0,                              /*主动发送参数起始子索引号*/
+ 181:./Application/Funtion/CanLib/CANUser.c ****     // Parameter_Len,                  /*主动发送参数子索引长度*/
+ 182:./Application/Funtion/CanLib/CANUser.c ****     // 0,                              /*主动发送参数映射起始主索引号*/
+ 183:./Application/Funtion/CanLib/CANUser.c ****     // 0x10,                           /*主动发送单帧发送周期L(1ms)*/
+ 184:./Application/Funtion/CanLib/CANUser.c ****     // 0x27,                           /*主动发送单帧发送周期H(1ms)*/
+ 185:./Application/Funtion/CanLib/CANUser.c ****     // CAN_UPDATE_PORT,                /*主动发送参数发送通道*/
+ 186:./Application/Funtion/CanLib/CANUser.c ****     // 0xff,                           /*主动发送参数发送目标地址*/
+ 187:./Application/Funtion/CanLib/CANUser.c **** 
+ 188:./Application/Funtion/CanLib/CANUser.c **** 
+ 189:./Application/Funtion/CanLib/CANUser.c **** };
+ 190:./Application/Funtion/CanLib/CANUser.c **** 
+ 191:./Application/Funtion/CanLib/CANUser.c **** 
+ 192:./Application/Funtion/CanLib/CANUser.c **** 
+ 193:./Application/Funtion/CanLib/CANUser.c **** /*=======================================用户自定义信息(通信协议)=======================
+ 194:./Application/Funtion/CanLib/CANUser.c **** 
+ 195:./Application/Funtion/CanLib/CANUser.c **** 
+ 196:./Application/Funtion/CanLib/CANUser.c **** /*=======================================通信信息主索引表(BMU)=============================
+ 197:./Application/Funtion/CanLib/CANUser.c **** const t_CANIndexTab Filed_BMUTab[BMU_INDEX_NUM] =
+ 198:./Application/Funtion/CanLib/CANUser.c **** {
+ 199:./Application/Funtion/CanLib/CANUser.c ****     /*内部信息 23个主索引*/
+ 200:./Application/Funtion/CanLib/CANUser.c ****     DeclareIndexTableEntry(CAN_WRITE,    0,    SystemTime_0,          CAN_DT_U16, SystemTime_len),/
+ 201:./Application/Funtion/CanLib/CANUser.c ****     DeclareIndexTableEntry(CAN_READONLY, 1,    SystemInfo_1,          CAN_DT_U16, DeviceInfo1_len),
+ 202:./Application/Funtion/CanLib/CANUser.c ****     DeclareIndexTableEntry(CAN_WRITE,    2,    SystemSerialNum_2,     CAN_DT_U8,  SerialNum_len),//
+ 203:./Application/Funtion/CanLib/CANUser.c ****     DeclareIndexTableEntry(CAN_WRITE,    50,   SystemWorkState_50,    CAN_DT_U16, WorkMode_Len),//�
+ 204:./Application/Funtion/CanLib/CANUser.c ****     DeclareIndexTableEntry(CAN_READONLY, 51,   SystemData_51,         CAN_DT_S16, SystemData_Len),/
+ARM GAS  /tmp/ccyIbExF.s 			page 5
+
+
+ 205:./Application/Funtion/CanLib/CANUser.c ****     DeclareIndexTableEntry(CAN_WRITE,    52,   CalibrationCtrl_52,    CAN_DT_U16, SysCorrCmd_Len),/
+ 206:./Application/Funtion/CanLib/CANUser.c ****     DeclareIndexTableEntry(CAN_WRITE,    53,   AccessPassword_53,     CAN_DT_U16, Password_Len),//�
+ 207:./Application/Funtion/CanLib/CANUser.c ****     DeclareIndexTableEntry(CAN_READONLY, 54,   SystemPermission_54,   CAN_DT_U16, PermissionInfo_Le
+ 208:./Application/Funtion/CanLib/CANUser.c ****     DeclareIndexTableEntry(CAN_WRITE,    55,   UserCtrlCmd_55,        CAN_DT_U16, UserCtrlCmd_len),
+ 209:./Application/Funtion/CanLib/CANUser.c ****     DeclareIndexTableEntry(CAN_READONLY, 56,   CtrlCmdFeedback_56,    CAN_DT_U16, CtrlFeedback_len)
+ 210:./Application/Funtion/CanLib/CANUser.c ****     DeclareIndexTableEntry(CAN_READONLY, 57,   SystemDiag_57,         CAN_DT_U16, SystemDiag_Len),/
+ 211:./Application/Funtion/CanLib/CANUser.c ****     DeclareIndexTableEntry(CAN_READONLY, 58,   CaliFeedback_58,       CAN_DT_U16, Calibration_Len),
+ 212:./Application/Funtion/CanLib/CANUser.c ****     DeclareIndexTableEntry(CAN_WRITE,    60,   SystemDebugCmd_60,     CAN_DT_U16, Debug_Len),//系�
+ 213:./Application/Funtion/CanLib/CANUser.c ****     DeclareIndexTableEntry(CAN_READONLY, 61,   DebugFeedback_61,      CAN_DT_U16, DebugFeedback_Len
+ 214:./Application/Funtion/CanLib/CANUser.c ****     DeclareIndexTableEntry(CAN_READONLY, 102,  ParameterNow_102,      CAN_DT_U16, Parameter_Len),//
+ 215:./Application/Funtion/CanLib/CANUser.c ****     DeclareIndexTableEntry(CAN_WRITE,    107,  ParameterSet_107,      CAN_DT_U16, Parameter_Len), /
+ 216:./Application/Funtion/CanLib/CANUser.c **** };
+ 217:./Application/Funtion/CanLib/CANUser.c **** 
+ 218:./Application/Funtion/CanLib/CANUser.c **** /*=================================================================================================
+ 219:./Application/Funtion/CanLib/CANUser.c **** ** @Static function declaration
+ 220:./Application/Funtion/CanLib/CANUser.c **** **===============================================================================================*/
+ 221:./Application/Funtion/CanLib/CANUser.c **** 
+ 222:./Application/Funtion/CanLib/CANUser.c **** /*=================================================================================================
+ 223:./Application/Funtion/CanLib/CANUser.c **** ** @Interface function definition
+ 224:./Application/Funtion/CanLib/CANUser.c **** **===============================================================================================*/
+ 225:./Application/Funtion/CanLib/CANUser.c **** /*=================================================================================================
+ 226:./Application/Funtion/CanLib/CANUser.c **** ** @Name      : void CANDeviceTableInit(void)
+ 227:./Application/Funtion/CanLib/CANUser.c **** ** @Input     : void
+ 228:./Application/Funtion/CanLib/CANUser.c **** ** @Output    : void
+ 229:./Application/Funtion/CanLib/CANUser.c **** ** @Function  : CAN通信设备表初始化
+ 230:./Application/Funtion/CanLib/CANUser.c **** ** @The notes : CAN通信包总初始化调用
+ 231:./Application/Funtion/CanLib/CANUser.c **** **===============================================================================================*/
+ 232:./Application/Funtion/CanLib/CANUser.c **** void CANDeviceTableInit(void)
+ 233:./Application/Funtion/CanLib/CANUser.c **** {
+  26              		.loc 1 233 0
+  27              		.cfi_startproc
+  28              		@ args = 0, pretend = 0, frame = 0
+  29              		@ frame_needed = 0, uses_anonymous_args = 0
+  30 0000 10B5     		push	{r4, lr}
+  31              	.LCFI0:
+  32              		.cfi_def_cfa_offset 8
+  33              		.cfi_offset 4, -8
+  34              		.cfi_offset 14, -4
+ 234:./Application/Funtion/CanLib/CANUser.c ****     /*将通信主索引表创建到设备表*/
+ 235:./Application/Funtion/CanLib/CANUser.c ****     CANDevTabEntryInit_API((u8)SystemInfo_1[DeviceAddr], BMU_INDEX_NUM, Filed_BMUTab, 0);
+  35              		.loc 1 235 0
+  36 0002 044B     		ldr	r3, .L2
+  37 0004 044A     		ldr	r2, .L2+4
+  38 0006 9878     		ldrb	r0, [r3, #2]
+  39 0008 1021     		movs	r1, #16
+  40 000a 0023     		movs	r3, #0
+  41 000c FFF7FEFF 		bl	CANDevTabEntryInit_API
+  42              	.LVL0:
+ 236:./Application/Funtion/CanLib/CANUser.c **** }
+  43              		.loc 1 236 0
+  44              		@ sp needed
+  45 0010 10BD     		pop	{r4, pc}
+  46              	.L3:
+  47 0012 C046     		.align	2
+  48              	.L2:
+  49 0014 00000000 		.word	SystemInfo_1
+  50 0018 00000000 		.word	Filed_BMUTab
+ARM GAS  /tmp/ccyIbExF.s 			page 6
+
+
+  51              		.cfi_endproc
+  52              	.LFE493:
+  54              		.section	.text.CANCommuPortUserInit,"ax",%progbits
+  55              		.align	1
+  56              		.global	CANCommuPortUserInit
+  57              		.syntax unified
+  58              		.code	16
+  59              		.thumb_func
+  60              		.fpu softvfp
+  62              	CANCommuPortUserInit:
+  63              	.LFB494:
+ 237:./Application/Funtion/CanLib/CANUser.c **** 
+ 238:./Application/Funtion/CanLib/CANUser.c **** /*=================================================================================================
+ 239:./Application/Funtion/CanLib/CANUser.c **** ** @Name      : void CANCommuPortUserInit(void)
+ 240:./Application/Funtion/CanLib/CANUser.c **** ** @Input     : void
+ 241:./Application/Funtion/CanLib/CANUser.c **** ** @Output    : void
+ 242:./Application/Funtion/CanLib/CANUser.c **** ** @Function  : CAN通信口用户初始化
+ 243:./Application/Funtion/CanLib/CANUser.c **** ** @The notes : CAN通信包总初始化调用
+ 244:./Application/Funtion/CanLib/CANUser.c **** **===============================================================================================*/
+ 245:./Application/Funtion/CanLib/CANUser.c **** void CANCommuPortUserInit(void)
+ 246:./Application/Funtion/CanLib/CANUser.c **** {
+  64              		.loc 1 246 0
+  65              		.cfi_startproc
+  66              		@ args = 0, pretend = 0, frame = 0
+  67              		@ frame_needed = 0, uses_anonymous_args = 0
+  68              		@ link register save eliminated.
+ 247:./Application/Funtion/CanLib/CANUser.c ****     /*用户配置波特率重新初始化*/
+ 248:./Application/Funtion/CanLib/CANUser.c ****     //DEVCANResetInit(eCAN0);     /*初始化CAN0*/
+ 249:./Application/Funtion/CanLib/CANUser.c ****     //DEVCANResetInit(eCAN1);     /*初始化CAN1*/
+ 250:./Application/Funtion/CanLib/CANUser.c ****     //DEVCANResetInit(eCAN2);     /*初始化CAN2*/
+ 251:./Application/Funtion/CanLib/CANUser.c **** }
+  69              		.loc 1 251 0
+  70              		@ sp needed
+  71 0000 7047     		bx	lr
+  72              		.cfi_endproc
+  73              	.LFE494:
+  75              		.section	.text.CANSetMsgCycleTxEnAPI,"ax",%progbits
+  76              		.align	1
+  77              		.global	CANSetMsgCycleTxEnAPI
+  78              		.syntax unified
+  79              		.code	16
+  80              		.thumb_func
+  81              		.fpu softvfp
+  83              	CANSetMsgCycleTxEnAPI:
+  84              	.LFB495:
+ 252:./Application/Funtion/CanLib/CANUser.c **** 
+ 253:./Application/Funtion/CanLib/CANUser.c **** /*=================================================================================================
+ 254:./Application/Funtion/CanLib/CANUser.c **** ** @Name      : void CANSetMsgCycleTxEnAPI(u8 state)
+ 255:./Application/Funtion/CanLib/CANUser.c **** ** @Input     : state:0禁止发送 1使能发送
+ 256:./Application/Funtion/CanLib/CANUser.c **** ** @Output    : void
+ 257:./Application/Funtion/CanLib/CANUser.c **** ** @Function  : 设置CAN通信包周期上传所有信息使能状态
+ 258:./Application/Funtion/CanLib/CANUser.c **** ** @The notes :
+ 259:./Application/Funtion/CanLib/CANUser.c **** **===============================================================================================*/
+ 260:./Application/Funtion/CanLib/CANUser.c **** void CANSetMsgCycleTxEnAPI(u8 state)
+ 261:./Application/Funtion/CanLib/CANUser.c **** {
+  85              		.loc 1 261 0
+  86              		.cfi_startproc
+ARM GAS  /tmp/ccyIbExF.s 			page 7
+
+
+  87              		@ args = 0, pretend = 0, frame = 0
+  88              		@ frame_needed = 0, uses_anonymous_args = 0
+  89              	.LVL1:
+  90 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+  91              	.LCFI1:
+  92              		.cfi_def_cfa_offset 20
+  93              		.cfi_offset 4, -20
+  94              		.cfi_offset 5, -16
+  95              		.cfi_offset 6, -12
+  96              		.cfi_offset 7, -8
+  97              		.cfi_offset 14, -4
+  98 0002 0B49     		ldr	r1, .L8
+  99 0004 0B4F     		ldr	r7, .L8+4
+ 100 0006 0C4E     		ldr	r6, .L8+8
+ 101 0008 0C4D     		ldr	r5, .L8+12
+ 102 000a 0D4C     		ldr	r4, .L8+16
+ 103 000c 0D4A     		ldr	r2, .L8+20
+ 262:./Application/Funtion/CanLib/CANUser.c ****     /*禁止*/
+ 263:./Application/Funtion/CanLib/CANUser.c ****     if(0 == state)
+ 104              		.loc 1 263 0
+ 105 000e 0028     		cmp	r0, #0
+ 106 0010 06D1     		bne	.L6
+ 264:./Application/Funtion/CanLib/CANUser.c ****     {
+ 265:./Application/Funtion/CanLib/CANUser.c ****         gCANTxVerDef_10[0] = 0;
+ 107              		.loc 1 265 0
+ 108 0012 3870     		strb	r0, [r7]
+ 266:./Application/Funtion/CanLib/CANUser.c ****         gCANTxBreDef_11[0] = 0;
+ 109              		.loc 1 266 0
+ 110 0014 3070     		strb	r0, [r6]
+ 267:./Application/Funtion/CanLib/CANUser.c ****         gCANTxMulDef_12[0] = 0;
+ 111              		.loc 1 267 0
+ 112 0016 2870     		strb	r0, [r5]
+ 268:./Application/Funtion/CanLib/CANUser.c ****         gCANTxSinDef_13[0] = 0;
+ 113              		.loc 1 268 0
+ 114 0018 2070     		strb	r0, [r4]
+ 269:./Application/Funtion/CanLib/CANUser.c ****         gCANTxCelDef_14[0] = 0;
+ 115              		.loc 1 269 0
+ 116 001a 0870     		strb	r0, [r1]
+ 270:./Application/Funtion/CanLib/CANUser.c ****         gCANTxParDef_15[0] = 0;
+ 117              		.loc 1 270 0
+ 118 001c 1070     		strb	r0, [r2]
+ 119              	.L5:
+ 271:./Application/Funtion/CanLib/CANUser.c ****     }
+ 272:./Application/Funtion/CanLib/CANUser.c ****     /*使能*/
+ 273:./Application/Funtion/CanLib/CANUser.c ****     else
+ 274:./Application/Funtion/CanLib/CANUser.c ****     {
+ 275:./Application/Funtion/CanLib/CANUser.c ****         gCANTxVerDef_10[0] = 1;
+ 276:./Application/Funtion/CanLib/CANUser.c ****         gCANTxBreDef_11[0] = 1;
+ 277:./Application/Funtion/CanLib/CANUser.c ****         gCANTxMulDef_12[0] = 1;
+ 278:./Application/Funtion/CanLib/CANUser.c ****         gCANTxSinDef_13[0] = 1;
+ 279:./Application/Funtion/CanLib/CANUser.c ****         gCANTxCelDef_14[0] = 1;
+ 280:./Application/Funtion/CanLib/CANUser.c ****         gCANTxParDef_15[0] = 1;
+ 281:./Application/Funtion/CanLib/CANUser.c ****     }
+ 282:./Application/Funtion/CanLib/CANUser.c **** }
+ 120              		.loc 1 282 0
+ 121              		@ sp needed
+ 122 001e F0BD     		pop	{r4, r5, r6, r7, pc}
+ARM GAS  /tmp/ccyIbExF.s 			page 8
+
+
+ 123              	.L6:
+ 275:./Application/Funtion/CanLib/CANUser.c ****         gCANTxBreDef_11[0] = 1;
+ 124              		.loc 1 275 0
+ 125 0020 0123     		movs	r3, #1
+ 126 0022 3B70     		strb	r3, [r7]
+ 276:./Application/Funtion/CanLib/CANUser.c ****         gCANTxMulDef_12[0] = 1;
+ 127              		.loc 1 276 0
+ 128 0024 3370     		strb	r3, [r6]
+ 277:./Application/Funtion/CanLib/CANUser.c ****         gCANTxSinDef_13[0] = 1;
+ 129              		.loc 1 277 0
+ 130 0026 2B70     		strb	r3, [r5]
+ 278:./Application/Funtion/CanLib/CANUser.c ****         gCANTxCelDef_14[0] = 1;
+ 131              		.loc 1 278 0
+ 132 0028 2370     		strb	r3, [r4]
+ 279:./Application/Funtion/CanLib/CANUser.c ****         gCANTxParDef_15[0] = 1;
+ 133              		.loc 1 279 0
+ 134 002a 0B70     		strb	r3, [r1]
+ 280:./Application/Funtion/CanLib/CANUser.c ****     }
+ 135              		.loc 1 280 0
+ 136 002c 1370     		strb	r3, [r2]
+ 137              		.loc 1 282 0
+ 138 002e F6E7     		b	.L5
+ 139              	.L9:
+ 140              		.align	2
+ 141              	.L8:
+ 142 0030 00000000 		.word	.LANCHOR4
+ 143 0034 00000000 		.word	.LANCHOR0
+ 144 0038 00000000 		.word	.LANCHOR1
+ 145 003c 00000000 		.word	.LANCHOR2
+ 146 0040 00000000 		.word	.LANCHOR3
+ 147 0044 00000000 		.word	.LANCHOR5
+ 148              		.cfi_endproc
+ 149              	.LFE495:
+ 151              		.section	.text.CANSetParaCycleTxEnAPI,"ax",%progbits
+ 152              		.align	1
+ 153              		.global	CANSetParaCycleTxEnAPI
+ 154              		.syntax unified
+ 155              		.code	16
+ 156              		.thumb_func
+ 157              		.fpu softvfp
+ 159              	CANSetParaCycleTxEnAPI:
+ 160              	.LFB496:
+ 283:./Application/Funtion/CanLib/CANUser.c **** 
+ 284:./Application/Funtion/CanLib/CANUser.c **** 
+ 285:./Application/Funtion/CanLib/CANUser.c **** /*=================================================================================================
+ 286:./Application/Funtion/CanLib/CANUser.c **** ** @Name      : void CANSetParaCycleTxEnAPI(u8 state)
+ 287:./Application/Funtion/CanLib/CANUser.c **** ** @Input     : state:0禁止发送 1使能发送
+ 288:./Application/Funtion/CanLib/CANUser.c **** ** @Output    : void
+ 289:./Application/Funtion/CanLib/CANUser.c **** ** @Function  : 设置CAN通信包周期上传参数信息使能状态
+ 290:./Application/Funtion/CanLib/CANUser.c **** ** @The notes :
+ 291:./Application/Funtion/CanLib/CANUser.c **** **===============================================================================================*/
+ 292:./Application/Funtion/CanLib/CANUser.c **** void CANSetParaCycleTxEnAPI(u8 state)
+ 293:./Application/Funtion/CanLib/CANUser.c **** {
+ 161              		.loc 1 293 0
+ 162              		.cfi_startproc
+ 163              		@ args = 0, pretend = 0, frame = 0
+ 164              		@ frame_needed = 0, uses_anonymous_args = 0
+ARM GAS  /tmp/ccyIbExF.s 			page 9
+
+
+ 165              		@ link register save eliminated.
+ 166              	.LVL2:
+ 167 0000 034B     		ldr	r3, .L13
+ 294:./Application/Funtion/CanLib/CANUser.c ****     /*禁止*/
+ 295:./Application/Funtion/CanLib/CANUser.c ****     if(0 == state)
+ 168              		.loc 1 295 0
+ 169 0002 0028     		cmp	r0, #0
+ 170 0004 01D1     		bne	.L11
+ 296:./Application/Funtion/CanLib/CANUser.c ****     {
+ 297:./Application/Funtion/CanLib/CANUser.c ****         gCANTxParDef_15[0] = 0;
+ 171              		.loc 1 297 0
+ 172 0006 1870     		strb	r0, [r3]
+ 173              	.L10:
+ 298:./Application/Funtion/CanLib/CANUser.c ****     }
+ 299:./Application/Funtion/CanLib/CANUser.c ****     /*使能*/
+ 300:./Application/Funtion/CanLib/CANUser.c ****     else
+ 301:./Application/Funtion/CanLib/CANUser.c ****     {
+ 302:./Application/Funtion/CanLib/CANUser.c ****         gCANTxParDef_15[0] = 1;
+ 303:./Application/Funtion/CanLib/CANUser.c ****     }
+ 304:./Application/Funtion/CanLib/CANUser.c **** }
+ 174              		.loc 1 304 0
+ 175              		@ sp needed
+ 176 0008 7047     		bx	lr
+ 177              	.L11:
+ 302:./Application/Funtion/CanLib/CANUser.c ****     }
+ 178              		.loc 1 302 0
+ 179 000a 0122     		movs	r2, #1
+ 180 000c 1A70     		strb	r2, [r3]
+ 181              		.loc 1 304 0
+ 182 000e FBE7     		b	.L10
+ 183              	.L14:
+ 184              		.align	2
+ 185              	.L13:
+ 186 0010 00000000 		.word	.LANCHOR5
+ 187              		.cfi_endproc
+ 188              	.LFE496:
+ 190              		.global	Filed_BMUTab
+ 191              		.global	gCANTxParDef_15
+ 192              		.global	gCANTxCelDef_14
+ 193              		.global	gCANTxSinDef_13
+ 194              		.global	gCANTxMulDef_12
+ 195              		.global	gCANTxBreDef_11
+ 196              		.global	gCANTxVerDef_10
+ 197              		.global	gCANBaseDef_3
+ 198              		.section	.bss.gCANTxMulDef_12,"aw",%nobits
+ 199              		.set	.LANCHOR2,. + 0
+ 202              	gCANTxMulDef_12:
+ 203 0000 00000000 		.space	57
+ 203      00000000 
+ 203      00000000 
+ 203      00000000 
+ 203      00000000 
+ 204              		.section	.bss.gCANTxParDef_15,"aw",%nobits
+ 205              		.set	.LANCHOR5,. + 0
+ 208              	gCANTxParDef_15:
+ 209 0000 00       		.space	1
+ 210              		.section	.data.gCANBaseDef_3,"aw",%progbits
+ARM GAS  /tmp/ccyIbExF.s 			page 10
+
+
+ 213              	gCANBaseDef_3:
+ 214 0000 01       		.byte	1
+ 215 0001 10       		.byte	16
+ 216 0002 0A       		.byte	10
+ 217 0003 00       		.byte	0
+ 218 0004 03       		.byte	3
+ 219 0005 08       		.byte	8
+ 220 0006 06       		.byte	6
+ 221 0007 00       		.byte	0
+ 222 0008 00       		.byte	0
+ 223              		.section	.data.gCANTxBreDef_11,"aw",%progbits
+ 224              		.set	.LANCHOR1,. + 0
+ 227              	gCANTxBreDef_11:
+ 228 0000 01       		.byte	1
+ 229 0001 00       		.byte	0
+ 230 0002 E8       		.byte	-24
+ 231 0003 03       		.byte	3
+ 232 0004 00000000 		.space	6
+ 232      0000
+ 233              		.section	.data.gCANTxCelDef_14,"aw",%progbits
+ 234              		.set	.LANCHOR4,. + 0
+ 237              	gCANTxCelDef_14:
+ 238 0000 01       		.byte	1
+ 239              		.section	.data.gCANTxSinDef_13,"aw",%progbits
+ 240              		.set	.LANCHOR3,. + 0
+ 243              	gCANTxSinDef_13:
+ 244 0000 01       		.byte	1
+ 245 0001 33       		.byte	51
+ 246 0002 00       		.byte	0
+ 247 0003 14       		.byte	20
+ 248 0004 0A       		.byte	10
+ 249 0005 00       		.byte	0
+ 250 0006 00       		.byte	0
+ 251 0007 FF       		.byte	-1
+ 252 0008 36       		.byte	54
+ 253 0009 00       		.byte	0
+ 254 000a 02       		.byte	2
+ 255 000b E8       		.byte	-24
+ 256 000c 03       		.byte	3
+ 257 000d 00       		.byte	0
+ 258 000e FF       		.byte	-1
+ 259 000f 38       		.byte	56
+ 260 0010 00       		.byte	0
+ 261 0011 02       		.byte	2
+ 262 0012 E8       		.byte	-24
+ 263 0013 03       		.byte	3
+ 264 0014 00       		.byte	0
+ 265 0015 FF       		.byte	-1
+ 266 0016 39       		.byte	57
+ 267 0017 00       		.byte	0
+ 268 0018 06       		.byte	6
+ 269 0019 E8       		.byte	-24
+ 270 001a 03       		.byte	3
+ 271 001b 00       		.byte	0
+ 272 001c FF       		.byte	-1
+ 273 001d 3A       		.byte	58
+ 274 001e 00       		.byte	0
+ARM GAS  /tmp/ccyIbExF.s 			page 11
+
+
+ 275 001f 03       		.byte	3
+ 276 0020 E8       		.byte	-24
+ 277 0021 03       		.byte	3
+ 278 0022 00       		.byte	0
+ 279 0023 FF       		.byte	-1
+ 280 0024 3D       		.byte	61
+ 281 0025 00       		.byte	0
+ 282 0026 08       		.byte	8
+ 283 0027 E8       		.byte	-24
+ 284 0028 03       		.byte	3
+ 285 0029 00       		.byte	0
+ 286 002a FF       		.byte	-1
+ 287              		.section	.data.gCANTxVerDef_10,"aw",%progbits
+ 288              		.set	.LANCHOR0,. + 0
+ 291              	gCANTxVerDef_10:
+ 292 0000 01       		.byte	1
+ 293              		.section	.rodata.Filed_BMUTab,"a",%progbits
+ 294              		.align	2
+ 297              	Filed_BMUTab:
+ 298 0000 01       		.byte	1
+ 299 0001 00       		.byte	0
+ 300 0002 0000     		.space	2
+ 301 0004 00000000 		.word	SystemTime_0
+ 302 0008 02       		.byte	2
+ 303 0009 04       		.byte	4
+ 304 000a 0000     		.space	2
+ 305 000c 00       		.byte	0
+ 306 000d 01       		.byte	1
+ 307 000e 0000     		.space	2
+ 308 0010 00000000 		.word	SystemInfo_1
+ 309 0014 02       		.byte	2
+ 310 0015 0A       		.byte	10
+ 311 0016 0000     		.space	2
+ 312 0018 01       		.byte	1
+ 313 0019 02       		.byte	2
+ 314 001a 0000     		.space	2
+ 315 001c 00000000 		.word	SystemSerialNum_2
+ 316 0020 01       		.byte	1
+ 317 0021 17       		.byte	23
+ 318 0022 0000     		.space	2
+ 319 0024 01       		.byte	1
+ 320 0025 32       		.byte	50
+ 321 0026 0000     		.space	2
+ 322 0028 00000000 		.word	SystemWorkState_50
+ 323 002c 02       		.byte	2
+ 324 002d 01       		.byte	1
+ 325 002e 0000     		.space	2
+ 326 0030 00       		.byte	0
+ 327 0031 33       		.byte	51
+ 328 0032 0000     		.space	2
+ 329 0034 00000000 		.word	SystemData_51
+ 330 0038 02       		.byte	2
+ 331 0039 14       		.byte	20
+ 332 003a 0000     		.space	2
+ 333 003c 01       		.byte	1
+ 334 003d 34       		.byte	52
+ 335 003e 0000     		.space	2
+ARM GAS  /tmp/ccyIbExF.s 			page 12
+
+
+ 336 0040 00000000 		.word	CalibrationCtrl_52
+ 337 0044 02       		.byte	2
+ 338 0045 0E       		.byte	14
+ 339 0046 0000     		.space	2
+ 340 0048 01       		.byte	1
+ 341 0049 35       		.byte	53
+ 342 004a 0000     		.space	2
+ 343 004c 00000000 		.word	AccessPassword_53
+ 344 0050 02       		.byte	2
+ 345 0051 02       		.byte	2
+ 346 0052 0000     		.space	2
+ 347 0054 00       		.byte	0
+ 348 0055 36       		.byte	54
+ 349 0056 0000     		.space	2
+ 350 0058 00000000 		.word	SystemPermission_54
+ 351 005c 02       		.byte	2
+ 352 005d 02       		.byte	2
+ 353 005e 0000     		.space	2
+ 354 0060 01       		.byte	1
+ 355 0061 37       		.byte	55
+ 356 0062 0000     		.space	2
+ 357 0064 00000000 		.word	UserCtrlCmd_55
+ 358 0068 02       		.byte	2
+ 359 0069 04       		.byte	4
+ 360 006a 0000     		.space	2
+ 361 006c 00       		.byte	0
+ 362 006d 38       		.byte	56
+ 363 006e 0000     		.space	2
+ 364 0070 00000000 		.word	CtrlCmdFeedback_56
+ 365 0074 02       		.byte	2
+ 366 0075 02       		.byte	2
+ 367 0076 0000     		.space	2
+ 368 0078 00       		.byte	0
+ 369 0079 39       		.byte	57
+ 370 007a 0000     		.space	2
+ 371 007c 00000000 		.word	SystemDiag_57
+ 372 0080 02       		.byte	2
+ 373 0081 06       		.byte	6
+ 374 0082 0000     		.space	2
+ 375 0084 00       		.byte	0
+ 376 0085 3A       		.byte	58
+ 377 0086 0000     		.space	2
+ 378 0088 00000000 		.word	CaliFeedback_58
+ 379 008c 02       		.byte	2
+ 380 008d 03       		.byte	3
+ 381 008e 0000     		.space	2
+ 382 0090 01       		.byte	1
+ 383 0091 3C       		.byte	60
+ 384 0092 0000     		.space	2
+ 385 0094 00000000 		.word	SystemDebugCmd_60
+ 386 0098 02       		.byte	2
+ 387 0099 06       		.byte	6
+ 388 009a 0000     		.space	2
+ 389 009c 00       		.byte	0
+ 390 009d 3D       		.byte	61
+ 391 009e 0000     		.space	2
+ 392 00a0 00000000 		.word	DebugFeedback_61
+ARM GAS  /tmp/ccyIbExF.s 			page 13
+
+
+ 393 00a4 02       		.byte	2
+ 394 00a5 08       		.byte	8
+ 395 00a6 0000     		.space	2
+ 396 00a8 00       		.byte	0
+ 397 00a9 66       		.byte	102
+ 398 00aa 0000     		.space	2
+ 399 00ac 00000000 		.word	ParameterNow_102
+ 400 00b0 02       		.byte	2
+ 401 00b1 10       		.byte	16
+ 402 00b2 0000     		.space	2
+ 403 00b4 01       		.byte	1
+ 404 00b5 6B       		.byte	107
+ 405 00b6 0000     		.space	2
+ 406 00b8 00000000 		.word	ParameterSet_107
+ 407 00bc 02       		.byte	2
+ 408 00bd 10       		.byte	16
+ 409 00be 0000     		.space	2
+ 410              		.text
+ 411              	.Letext0:
+ 412              		.file 2 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/machine/_default_types.h"
+ 413              		.file 3 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/lock.h"
+ 414              		.file 4 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_types.h"
+ 415              		.file 5 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/lib/gcc/arm-none-eabi/7.3.1/include/stddef.h"
+ 416              		.file 6 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/reent.h"
+ 417              		.file 7 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/stdlib.h"
+ 418              		.file 8 "Application/BSPSys/Util/BSPTypeDef.h"
+ 419              		.file 9 "/tool/gcc_linaro/gcc-arm-none-eabi-7.3.1/arm-none-eabi/include/sys/_stdint.h"
+ 420              		.file 10 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/system_stm32g0xx.h"
+ 421              		.file 11 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/stm32g0b1xx.h"
+ 422              		.file 12 "Drivers/CMSIS/Device/ST/STM32G0xx/Include/stm32g0xx.h"
+ 423              		.file 13 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_def.h"
+ 424              		.file 14 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_flash.h"
+ 425              		.file 15 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_fdcan.h"
+ 426              		.file 16 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal_uart.h"
+ 427              		.file 17 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_hal.h"
+ 428              		.file 18 "Core/Inc/main.h"
+ 429              		.file 19 "Core/Inc/fdcan.h"
+ 430              		.file 20 "Application/BSPSys/BSPDriver/BSPCAN.h"
+ 431              		.file 21 "./Application/Funtion/CanLib/CANInterface.h"
+ 432              		.file 22 "Application/Funtion/SystemInfo/SystemInfo.h"
+ 433              		.file 23 "Application/Funtion/SystemData/SystemData.h"
+ 434              		.file 24 "Application/Funtion/SystemPara/SystemPara.h"
+ 435              		.file 25 "Application/Funtion/SystemDebug/SystemDebug.h"
+ 436              		.file 26 "Application/Funtion/SystemDiag/SystemDiag.h"
+ 437              		.file 27 "Application/Logics/Insulation/Insulation.h"
+ 438              		.file 28 "Drivers/STM32G0xx_HAL_Driver/Inc/stm32g0xx_ll_dma.h"
+ARM GAS  /tmp/ccyIbExF.s 			page 14
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 CANUser.c
+     /tmp/ccyIbExF.s:16     .text.CANDeviceTableInit:0000000000000000 $t
+     /tmp/ccyIbExF.s:23     .text.CANDeviceTableInit:0000000000000000 CANDeviceTableInit
+     /tmp/ccyIbExF.s:49     .text.CANDeviceTableInit:0000000000000014 $d
+     /tmp/ccyIbExF.s:297    .rodata.Filed_BMUTab:0000000000000000 Filed_BMUTab
+     /tmp/ccyIbExF.s:55     .text.CANCommuPortUserInit:0000000000000000 $t
+     /tmp/ccyIbExF.s:62     .text.CANCommuPortUserInit:0000000000000000 CANCommuPortUserInit
+     /tmp/ccyIbExF.s:76     .text.CANSetMsgCycleTxEnAPI:0000000000000000 $t
+     /tmp/ccyIbExF.s:83     .text.CANSetMsgCycleTxEnAPI:0000000000000000 CANSetMsgCycleTxEnAPI
+     /tmp/ccyIbExF.s:142    .text.CANSetMsgCycleTxEnAPI:0000000000000030 $d
+     /tmp/ccyIbExF.s:152    .text.CANSetParaCycleTxEnAPI:0000000000000000 $t
+     /tmp/ccyIbExF.s:159    .text.CANSetParaCycleTxEnAPI:0000000000000000 CANSetParaCycleTxEnAPI
+     /tmp/ccyIbExF.s:186    .text.CANSetParaCycleTxEnAPI:0000000000000010 $d
+     /tmp/ccyIbExF.s:208    .bss.gCANTxParDef_15:0000000000000000 gCANTxParDef_15
+     /tmp/ccyIbExF.s:237    .data.gCANTxCelDef_14:0000000000000000 gCANTxCelDef_14
+     /tmp/ccyIbExF.s:243    .data.gCANTxSinDef_13:0000000000000000 gCANTxSinDef_13
+     /tmp/ccyIbExF.s:202    .bss.gCANTxMulDef_12:0000000000000000 gCANTxMulDef_12
+     /tmp/ccyIbExF.s:227    .data.gCANTxBreDef_11:0000000000000000 gCANTxBreDef_11
+     /tmp/ccyIbExF.s:291    .data.gCANTxVerDef_10:0000000000000000 gCANTxVerDef_10
+     /tmp/ccyIbExF.s:213    .data.gCANBaseDef_3:0000000000000000 gCANBaseDef_3
+     /tmp/ccyIbExF.s:203    .bss.gCANTxMulDef_12:0000000000000000 $d
+     /tmp/ccyIbExF.s:209    .bss.gCANTxParDef_15:0000000000000000 $d
+     /tmp/ccyIbExF.s:232    .data.gCANTxBreDef_11:0000000000000004 $d
+     /tmp/ccyIbExF.s:294    .rodata.Filed_BMUTab:0000000000000000 $d
+
+UNDEFINED SYMBOLS
+CANDevTabEntryInit_API
+SystemInfo_1
+SystemTime_0
+SystemSerialNum_2
+SystemWorkState_50
+SystemData_51
+CalibrationCtrl_52
+AccessPassword_53
+SystemPermission_54
+UserCtrlCmd_55
+CtrlCmdFeedback_56
+SystemDiag_57
+CaliFeedback_58
+SystemDebugCmd_60
+DebugFeedback_61
+ParameterNow_102
+ParameterSet_107
